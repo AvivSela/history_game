@@ -69,6 +69,19 @@
   box-shadow: inset 0 2px 4px rgba(39, 174, 96, 0.1);
 }
 
+/* Timeline cards should show back content without flip */
+.timeline-card .card {
+  transform: rotateY(0deg) !important;
+}
+
+.timeline-card .card-front {
+  display: none;
+}
+
+.timeline-card .card-back {
+  transform: rotateY(0deg) !important;
+}
+
 /* Card Header */
 .card-header {
   display: flex;
