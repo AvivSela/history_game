@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { gameAPI, extractData, handleAPIError } from '../utils/api';
+import { 
+  validateCardPlacement, 
+  calculateScore, 
+  checkWinCondition, 
+  generateHint,
+  createGameSession 
+} from '../utils/gameLogic';
 import Timeline from '../components/Timeline/Timeline';
 import PlayerHand from '../components/PlayerHand/PlayerHand';
 import './Game.css';
@@ -14,7 +21,10 @@ const Game = () => {
     gameStatus: 'playing', // 'playing', 'won', 'lost'
     score: 0,
     selectedCard: null,
-    showInsertionPoints: false
+    showInsertionPoints: false,
+    feedback: null,
+    attempts: {},
+    startTime: null
   });
 
   useEffect(() => {
@@ -28,7 +38,10 @@ const Game = () => {
         isLoading: true, 
         error: null,
         selectedCard: null,
-        showInsertionPoints: false
+        showInsertionPoints: false,
+        feedback: null,
+        attempts: {},
+        startTime: Date.now()
       }));
       
       console.log('🎮 Initializing new game...');
@@ -39,25 +52,25 @@ const Game = () => {
       
       console.log('📊 Fetched events:', events);
       
-      // Take first event as starting timeline card
-      const startingCard = events[0];
-      const playerCards = events.slice(1);
+      // Create game session using game logic
+      const gameSession = createGameSession(events, { cardCount: 4 });
       
       setGameState(prev => ({
         ...prev,
-        playerHand: playerCards,
-        timeline: [{ ...startingCard, isRevealed: true }],
+        playerHand: gameSession.playerHand,
+        timeline: gameSession.timeline,
         isLoading: false,
         error: null,
         gameStatus: 'playing',
-        score: 0,
+        score: gameSession.score,
         selectedCard: null,
-        showInsertionPoints: false
+        showInsertionPoints: false,
+        startTime: gameSession.startTime
       }));
       
       console.log('✅ Game initialized successfully');
-      console.log('🎯 Starting timeline card:', startingCard.title);
-      console.log('🎴 Player hand:', playerCards.map(c => c.title));
+      console.log('🎯 Starting timeline card:', gameSession.timeline[0].title);
+      console.log('🎴 Player hand:', gameSession.playerHand.map(c => c.title));
       
     } catch (error) {
       console.error('❌ Error initializing game:', error);
@@ -75,7 +88,8 @@ const Game = () => {
     setGameState(prev => ({
       ...prev,
       selectedCard: card,
-      showInsertionPoints: !!card // Show insertion points when card is selected
+      showInsertionPoints: !!card, // Show insertion points when card is selected
+      feedback: null // Clear previous feedback
     }));
   };
 
@@ -91,38 +105,89 @@ const Game = () => {
       return;
     }
 
-    console.log(`🎯 Placing card "${gameState.selectedCard.title}" at position ${position}`);
+    const card = gameState.selectedCard;
+    const placementStartTime = Date.now();
     
-    // This is where we'll implement the actual placement logic in Sprint 2
-    // For now, let's simulate placing the card correctly
-    const newTimeline = [...gameState.timeline];
-    const cardToPlace = { ...gameState.selectedCard, isRevealed: true };
+    console.log(`🎯 Placing card "${card.title}" at position ${position}`);
     
-    // Sort timeline to find correct insertion point
-    const sortedTimeline = [...newTimeline].sort((a, b) => 
-      new Date(a.dateOccurred) - new Date(b.dateOccurred)
-    );
+    // Validate the card placement using game logic
+    const validation = validateCardPlacement(card, gameState.timeline, position);
+    console.log('🔍 Placement validation:', validation);
     
-    // For demonstration, let's just add it to the timeline
-    newTimeline.push(cardToPlace);
+    // Calculate time taken to place card
+    const timeToPlace = (placementStartTime - gameState.startTime) / 1000;
     
-    // Remove card from player hand
-    const newPlayerHand = gameState.playerHand.filter(card => 
-      card.id !== gameState.selectedCard.id
-    );
+    // Track attempts for this card
+    const cardAttempts = (gameState.attempts[card.id] || 0) + 1;
+    const newAttempts = { ...gameState.attempts, [card.id]: cardAttempts };
     
-    // Update game state
-    setGameState(prev => ({
-      ...prev,
-      timeline: newTimeline,
-      playerHand: newPlayerHand,
-      selectedCard: null,
-      showInsertionPoints: false,
-      score: prev.score + 10,
-      gameStatus: newPlayerHand.length === 0 ? 'won' : 'playing'
-    }));
+    if (validation.isCorrect) {
+      // Correct placement
+      const scoreEarned = calculateScore(true, timeToPlace, cardAttempts, card.difficulty);
+      
+      // Add card to timeline at correct position
+      const newTimeline = [...gameState.timeline];
+      const sortedTimeline = newTimeline.sort((a, b) => 
+        new Date(a.dateOccurred) - new Date(b.dateOccurred)
+      );
+      
+      // Insert card at correct position
+      sortedTimeline.splice(validation.correctPosition, 0, { 
+        ...card, 
+        isRevealed: true,
+        placedAt: Date.now()
+      });
+      
+      // Remove card from player hand
+      const newPlayerHand = gameState.playerHand.filter(c => c.id !== card.id);
+      
+      // Check if game is won
+      const hasWon = checkWinCondition(newPlayerHand);
+      
+      setGameState(prev => ({
+        ...prev,
+        timeline: sortedTimeline,
+        playerHand: newPlayerHand,
+        selectedCard: null,
+        showInsertionPoints: false,
+        score: prev.score + scoreEarned,
+        feedback: {
+          type: 'success',
+          message: validation.feedback,
+          points: scoreEarned
+        },
+        gameStatus: hasWon ? 'won' : 'playing',
+        attempts: newAttempts
+      }));
 
-    console.log('✅ Card placed successfully!');
+      console.log(`✅ Card placed correctly! +${scoreEarned} points`);
+      
+      // Clear feedback after 3 seconds
+      setTimeout(() => {
+        setGameState(prev => ({ ...prev, feedback: null }));
+      }, 3000);
+      
+    } else {
+      // Incorrect placement
+      setGameState(prev => ({
+        ...prev,
+        selectedCard: null,
+        showInsertionPoints: false,
+        feedback: {
+          type: 'error',
+          message: validation.feedback,
+          hint: generateHint(card, gameState.timeline)
+        },
+        attempts: newAttempts
+      }));
+
+      console.log('❌ Card placed incorrectly');
+      
+      // Clear feedback after 4 seconds
+      setTimeout(() => {
+        setGameState(prev => ({ ...prev, feedback: null }));
+      }, 4000);
+    }
   };
 
   const handleTimelineCardClick = (event) => {
@@ -135,13 +200,36 @@ const Game = () => {
     initializeGame();
   };
 
+  const handleShowHint = () => {
+    if (!gameState.selectedCard) return;
+    
+    const hint = generateHint(gameState.selectedCard, gameState.timeline);
+    setGameState(prev => ({
+      ...prev,
+      feedback: {
+        type: 'hint',
+        message: hint
+      }
+    }));
+    
+    // Clear hint after 3 seconds
+    setTimeout(() => {
+      setGameState(prev => ({ ...prev, feedback: null }));
+    }, 3000);
+  };
+
   const getGameStatusMessage = () => {
     switch (gameState.gameStatus) {
       case 'won':
+        const totalTime = (Date.now() - gameState.startTime) / 1000;
+        const avgTime = totalTime / (gameState.timeline.length - 1); // -1 for starting card
+        
         return {
           type: 'success',
           title: '🎉 Congratulations!',
-          message: `You've successfully placed all cards on the timeline! Final score: ${gameState.score}`
+          message: `You've successfully placed all cards on the timeline!\n
+                   Final Score: ${gameState.score} points\n
+                   Time: ${Math.round(totalTime)}s (${Math.round(avgTime)}s per card)`
         };
       case 'lost':
         return {
@@ -203,7 +291,7 @@ const Game = () => {
           <div className={`game-status-overlay ${statusMessage.type}`}>
             <div className="status-content">
               <h3>{statusMessage.title}</h3>
-              <p>{statusMessage.message}</p>
+              <p style={{ whiteSpace: 'pre-line' }}>{statusMessage.message}</p>
               <div className="status-actions">
                 <button onClick={handleRestartGame} className="btn btn-primary btn-large">
                   🎮 Play Again
@@ -212,6 +300,21 @@ const Game = () => {
                   🏠 Home
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Feedback Toast */}
+        {gameState.feedback && (
+          <div className={`feedback-toast ${gameState.feedback.type}`}>
+            <div className="feedback-content">
+              <p className="feedback-message">{gameState.feedback.message}</p>
+              {gameState.feedback.points && (
+                <p className="feedback-points">+{gameState.feedback.points} points!</p>
+              )}
+              {gameState.feedback.hint && (
+                <p className="feedback-hint">{gameState.feedback.hint}</p>
+              )}
             </div>
           </div>
         )}
@@ -273,6 +376,13 @@ const Game = () => {
             >
               ❌ Clear Selection
             </button>
+            <button 
+              onClick={handleShowHint} 
+              className="btn btn-secondary"
+              disabled={!gameState.selectedCard}
+            >
+              💡 Show Hint
+            </button>
           </div>
           
           <div className="game-info">
@@ -292,6 +402,9 @@ const Game = () => {
                 <h4>"{gameState.selectedCard.title}"</h4>
                 <p>{gameState.selectedCard.description}</p>
                 <p className="hint">💡 Click on the timeline to place it!</p>
+                <div className="card-attempts">
+                  Attempts: {gameState.attempts[gameState.selectedCard.id] || 0}
+                </div>
               </div>
             )}
           </div>
