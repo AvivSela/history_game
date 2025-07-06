@@ -1,76 +1,130 @@
 import React, { useState, useEffect } from 'react';
 import { gameAPI, extractData, handleAPIError } from '../utils/api';
 import { 
-  validateCardPlacement, 
   calculateScore, 
   checkWinCondition, 
   generateHint,
   createGameSession 
 } from '../utils/gameLogic';
+import { 
+  validatePlacementWithTolerance, 
+  generateSmartInsertionPoints 
+} from '../utils/timelineLogic';
+import { createAIOpponent, getAIThinkingTime } from '../utils/aiLogic';
 import Timeline from '../components/Timeline/Timeline';
 import PlayerHand from '../components/PlayerHand/PlayerHand';
 import './Game.css';
 
 const Game = () => {
   const [gameState, setGameState] = useState({
+    // Core game data
     playerHand: [],
     timeline: [],
+    aiHand: [],
+    
+    // Game status
     isLoading: true,
     error: null,
-    currentPlayer: 1,
-    gameStatus: 'playing', // 'playing', 'won', 'lost'
-    score: 0,
+    gameStatus: 'lobby', // 'lobby', 'playing', 'paused', 'won', 'lost'
+    currentPlayer: 'human', // 'human', 'ai'
+    gameMode: 'single', // 'single', 'ai'
+    difficulty: 'medium',
+    
+    // UI state
     selectedCard: null,
     showInsertionPoints: false,
     feedback: null,
+    
+    // Game metrics
+    score: { human: 0, ai: 0 },
     attempts: {},
-    startTime: null
+    startTime: null,
+    turnStartTime: null,
+    gameStats: {
+      totalMoves: 0,
+      correctMoves: 0,
+      hintsUsed: 0,
+      averageTimePerMove: 0
+    },
+    
+    // AI
+    aiOpponent: null,
+    insertionPoints: []
   });
 
   useEffect(() => {
     initializeGame();
   }, []);
 
-  const initializeGame = async () => {
+  const initializeGame = async (mode = 'single', diff = 'medium') => {
     try {
       setGameState(prev => ({ 
         ...prev, 
         isLoading: true, 
         error: null,
-        selectedCard: null,
-        showInsertionPoints: false,
-        feedback: null,
-        attempts: {},
-        startTime: Date.now()
+        gameStatus: 'loading'
       }));
       
-      console.log('🎮 Initializing new game...');
+      console.log('🎮 Initializing game:', { mode, difficulty: diff });
       
-      // Fetch random events for the game
-      const response = await gameAPI.getRandomEvents(5);
+      // Create AI opponent if needed
+      let aiOpponent = null;
+      if (mode === 'ai') {
+        aiOpponent = createAIOpponent(diff);
+        console.log('🤖 AI created:', aiOpponent.name);
+      }
+      
+      // Fetch events from API
+      const cardCount = mode === 'ai' ? 8 : 5;
+      const response = await gameAPI.getRandomEvents(cardCount);
       const events = extractData(response);
       
-      console.log('📊 Fetched events:', events);
+      // Create game session
+      const session = createGameSession(events, { 
+        cardCount: cardCount - 1, // -1 for starting card
+        difficulty: diff,
+        gameMode: mode 
+      });
       
-      // Create game session using game logic
-      const gameSession = createGameSession(events, { cardCount: 4 });
+      // Split cards for AI mode
+      let humanCards = session.playerHand;
+      let aiCards = [];
+      
+      if (mode === 'ai' && session.playerHand.length > 2) {
+        const half = Math.ceil(session.playerHand.length / 2);
+        humanCards = session.playerHand.slice(0, half);
+        aiCards = session.playerHand.slice(half);
+      }
       
       setGameState(prev => ({
         ...prev,
-        playerHand: gameSession.playerHand,
-        timeline: gameSession.timeline,
-        isLoading: false,
-        error: null,
+        timeline: session.timeline,
+        playerHand: humanCards,
+        aiHand: aiCards,
+        gameMode: mode,
+        difficulty: diff,
+        aiOpponent,
         gameStatus: 'playing',
-        score: gameSession.score,
+        currentPlayer: 'human',
+        score: { human: 0, ai: 0 },
+        startTime: session.startTime,
+        turnStartTime: Date.now(),
+        attempts: {},
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0
+        },
         selectedCard: null,
         showInsertionPoints: false,
-        startTime: gameSession.startTime
+        feedback: null,
+        insertionPoints: [],
+        isLoading: false,
+        error: null
       }));
       
       console.log('✅ Game initialized successfully');
-      console.log('🎯 Starting timeline card:', gameSession.timeline[0].title);
-      console.log('🎴 Player hand:', gameSession.playerHand.map(c => c.title));
       
     } catch (error) {
       console.error('❌ Error initializing game:', error);
@@ -78,126 +132,197 @@ const Game = () => {
       setGameState(prev => ({
         ...prev,
         error: errorMessage,
-        isLoading: false
+        isLoading: false,
+        gameStatus: 'error'
       }));
     }
   };
 
   const handleCardSelect = (card) => {
-    console.log('🎯 Card selected:', card?.title || 'none');
+    if (gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
+      return;
+    }
+
+    const insertionPoints = card ? 
+      generateSmartInsertionPoints(gameState.timeline, card) : [];
+
     setGameState(prev => ({
       ...prev,
       selectedCard: card,
-      showInsertionPoints: !!card, // Show insertion points when card is selected
-      feedback: null // Clear previous feedback
+      showInsertionPoints: !!card,
+      insertionPoints,
+      feedback: null
     }));
   };
 
   const handleCardPlay = (card) => {
-    console.log('🎮 Attempting to play card:', card.title);
-    // Auto-select the card and show insertion points
     handleCardSelect(card);
   };
 
   const handleInsertionPointClick = (position) => {
-    if (!gameState.selectedCard) {
-      console.log('❌ No card selected');
+    if (!gameState.selectedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
       return;
     }
 
-    const card = gameState.selectedCard;
-    const placementStartTime = Date.now();
+    placeCard(position, 'human');
+  };
+
+  const placeCard = (position, player = 'human') => {
+    const selectedCard = player === 'human' ? gameState.selectedCard : gameState.aiOpponent?.selectedCard;
+    if (!selectedCard) return;
+
+    const turnTime = (Date.now() - gameState.turnStartTime) / 1000;
+    const cardAttempts = (gameState.attempts[selectedCard.id] || 0) + 1;
+
+    // Get difficulty tolerance
+    const tolerance = getDifficultyTolerance(gameState.difficulty);
     
-    console.log(`🎯 Placing card "${card.title}" at position ${position}`);
-    
-    // Validate the card placement using game logic
-    const validation = validateCardPlacement(card, gameState.timeline, position);
-    console.log('🔍 Placement validation:', validation);
-    
-    // Calculate time taken to place card
-    const timeToPlace = (placementStartTime - gameState.startTime) / 1000;
-    
-    // Track attempts for this card
-    const cardAttempts = (gameState.attempts[card.id] || 0) + 1;
-    const newAttempts = { ...gameState.attempts, [card.id]: cardAttempts };
-    
-    if (validation.isCorrect) {
-      // Correct placement
-      const scoreEarned = calculateScore(true, timeToPlace, cardAttempts, card.difficulty);
-      
-      // Add card to timeline at correct position
-      const newTimeline = [...gameState.timeline];
-      const sortedTimeline = newTimeline.sort((a, b) => 
-        new Date(a.dateOccurred) - new Date(b.dateOccurred)
+    // Validate placement
+    const validation = validatePlacementWithTolerance(
+      selectedCard, 
+      gameState.timeline, 
+      position, 
+      tolerance
+    );
+
+    console.log('🎯 Placement validation:', validation);
+
+    let newState = { ...gameState };
+
+    if (validation.isCorrect || validation.isClose) {
+      // Successful placement
+      const scoreMultiplier = validation.isCorrect ? 1.0 : 0.7;
+      const scoreEarned = Math.round(
+        calculateScore(true, turnTime, cardAttempts, selectedCard.difficulty) * scoreMultiplier
       );
-      
-      // Insert card at correct position
-      sortedTimeline.splice(validation.correctPosition, 0, { 
-        ...card, 
+
+      // Add card to timeline at user's chosen position
+      const newTimeline = [...gameState.timeline];
+      newTimeline.splice(position, 0, {
+        ...selectedCard,
         isRevealed: true,
-        placedAt: Date.now()
+        placedAt: Date.now(),
+        placedBy: player
       });
+
+      // Remove card from player's hand
+      const handKey = player === 'human' ? 'playerHand' : 'aiHand';
+      const newHand = gameState[handKey].filter(card => card.id !== selectedCard.id);
+
+      // Update scores
+      const newScore = { ...gameState.score };
+      newScore[player] += scoreEarned;
+
+      // Check win condition
+      const hasWon = checkWinCondition(newHand);
+      let newGameStatus = gameState.gameStatus;
       
-      // Remove card from player hand
-      const newPlayerHand = gameState.playerHand.filter(c => c.id !== card.id);
-      
-      // Check if game is won
-      const hasWon = checkWinCondition(newPlayerHand);
-      
-      setGameState(prev => ({
-        ...prev,
-        timeline: sortedTimeline,
-        playerHand: newPlayerHand,
+      if (hasWon || (gameState.playerHand.length === 1 && gameState.aiHand.length === 0)) {
+        newGameStatus = 'won';
+      }
+
+      // Determine next player
+      let nextPlayer = gameState.currentPlayer;
+      if (gameState.gameMode === 'ai' && newGameStatus === 'playing') {
+        nextPlayer = player === 'human' ? 'ai' : 'human';
+      }
+
+      newState = {
+        ...newState,
+        timeline: newTimeline,
+        [handKey]: newHand,
+        score: newScore,
         selectedCard: null,
         showInsertionPoints: false,
-        score: prev.score + scoreEarned,
-        feedback: {
-          type: 'success',
-          message: validation.feedback,
-          points: scoreEarned
+        insertionPoints: [],
+        currentPlayer: nextPlayer,
+        turnStartTime: Date.now(),
+        gameStatus: newGameStatus,
+        attempts: { ...gameState.attempts, [selectedCard.id]: cardAttempts },
+        gameStats: {
+          ...gameState.gameStats,
+          totalMoves: gameState.gameStats.totalMoves + 1,
+          correctMoves: gameState.gameStats.correctMoves + 1,
+          averageTimePerMove: calculateAverageTime(gameState.gameStats, turnTime)
         },
-        gameStatus: hasWon ? 'won' : 'playing',
-        attempts: newAttempts
-      }));
+        feedback: {
+          type: validation.isCorrect ? 'success' : 'close',
+          message: validation.feedback,
+          points: scoreEarned,
+          isClose: validation.isClose && !validation.isCorrect
+        }
+      };
 
-      console.log(`✅ Card placed correctly! +${scoreEarned} points`);
-      
-      // Clear feedback after 3 seconds
-      setTimeout(() => {
-        setGameState(prev => ({ ...prev, feedback: null }));
-      }, 3000);
-      
     } else {
       // Incorrect placement
-      setGameState(prev => ({
-        ...prev,
+      newState = {
+        ...newState,
         selectedCard: null,
         showInsertionPoints: false,
+        insertionPoints: [],
+        attempts: { ...gameState.attempts, [selectedCard.id]: cardAttempts },
+        gameStats: {
+          ...gameState.gameStats,
+          totalMoves: gameState.gameStats.totalMoves + 1,
+          averageTimePerMove: calculateAverageTime(gameState.gameStats, turnTime)
+        },
         feedback: {
           type: 'error',
           message: validation.feedback,
-          hint: generateHint(card, gameState.timeline)
-        },
-        attempts: newAttempts
-      }));
+          correctPosition: validation.correctPosition,
+          attempts: cardAttempts
+        }
+      };
 
-      console.log('❌ Card placed incorrectly');
-      
-      // Clear feedback after 4 seconds
+      // Switch turns in AI mode
+      if (gameState.gameMode === 'ai') {
+        newState.currentPlayer = player === 'human' ? 'ai' : 'human';
+        newState.turnStartTime = Date.now();
+      }
+    }
+
+    setGameState(newState);
+
+    // Clear feedback after delay
+    setTimeout(() => {
+      setGameState(prev => ({ ...prev, feedback: null }));
+    }, validation.isCorrect || validation.isClose ? 3000 : 4000);
+
+    // Trigger AI turn if needed
+    if (newState.currentPlayer === 'ai' && newState.gameStatus === 'playing' && newState.aiOpponent) {
       setTimeout(() => {
-        setGameState(prev => ({ ...prev, feedback: null }));
-      }, 4000);
+        executeAITurn();
+      }, getAIThinkingTime(gameState.difficulty));
     }
   };
 
-  const handleTimelineCardClick = (event) => {
-    console.log('🔍 Timeline card clicked:', event.title);
-    // Future feature: show event details modal
-  };
+  const executeAITurn = () => {
+    if (gameState.currentPlayer !== 'ai' || !gameState.aiOpponent || gameState.aiHand.length === 0) {
+      return;
+    }
 
-  const handleRestartGame = () => {
-    console.log('🔄 Restarting game...');
-    initializeGame();
+    console.log('🤖 AI taking turn...');
+
+    // AI selects a card
+    const aiSelection = gameState.aiOpponent.selectCard(gameState.aiHand, gameState.timeline, gameState);
+    if (!aiSelection) return;
+
+    // AI determines placement
+    const aiPlacement = gameState.aiOpponent.determineCardPlacement(aiSelection.card, gameState.timeline);
+    
+    console.log('🤖 AI placing:', aiSelection.card.title, 'at position', aiPlacement.position);
+
+    // Set AI's selected card temporarily
+    setGameState(prev => ({ 
+      ...prev, 
+      selectedCard: aiSelection.card,
+      aiOpponent: { ...prev.aiOpponent, selectedCard: aiSelection.card }
+    }));
+
+    // Execute AI placement
+    setTimeout(() => {
+      placeCard(aiPlacement.position, 'ai');
+    }, 500);
   };
 
   const handleShowHint = () => {
@@ -206,42 +331,99 @@ const Game = () => {
     const hint = generateHint(gameState.selectedCard, gameState.timeline);
     setGameState(prev => ({
       ...prev,
-      feedback: {
-        type: 'hint',
-        message: hint
-      }
+      feedback: { type: 'hint', message: hint },
+      gameStats: { ...prev.gameStats, hintsUsed: prev.gameStats.hintsUsed + 1 }
     }));
     
-    // Clear hint after 3 seconds
     setTimeout(() => {
       setGameState(prev => ({ ...prev, feedback: null }));
     }, 3000);
   };
 
+  const handleRestartGame = () => {
+    initializeGame(gameState.gameMode, gameState.difficulty);
+  };
+
+  const handleModeChange = (newMode) => {
+    initializeGame(newMode, gameState.difficulty);
+  };
+
+  const handleDifficultyChange = (newDifficulty) => {
+    initializeGame(gameState.gameMode, newDifficulty);
+  };
+
+  const handleTimelineCardClick = (event) => {
+    console.log('🔍 Timeline card clicked:', event.title);
+  };
+
+  const togglePause = () => {
+    setGameState(prev => ({
+      ...prev,
+      gameStatus: prev.gameStatus === 'playing' ? 'paused' : 'playing'
+    }));
+  };
+
   const getGameStatusMessage = () => {
     switch (gameState.gameStatus) {
       case 'won':
-        const totalTime = (Date.now() - gameState.startTime) / 1000;
-        const avgTime = totalTime / (gameState.timeline.length - 1); // -1 for starting card
+        const humanScore = gameState.score.human;
+        const aiScore = gameState.score.ai;
+        const totalTime = gameState.startTime ? (Date.now() - gameState.startTime) / 1000 : 0;
+        
+        let message = `🎉 Congratulations!\nFinal Score: ${humanScore} points`;
+        
+        if (gameState.gameMode === 'ai') {
+          if (humanScore > aiScore) {
+            message = `🏆 You Won!\nYour Score: ${humanScore}\nAI Score: ${aiScore}`;
+          } else if (aiScore > humanScore) {
+            message = `🤖 AI Won!\nYour Score: ${humanScore}\nAI Score: ${aiScore}`;
+          } else {
+            message = `🤝 It's a Tie!\nBoth scored: ${humanScore} points`;
+          }
+        }
+        
+        message += `\nTime: ${Math.round(totalTime)}s`;
+        if (gameState.gameStats.totalMoves > 0) {
+          message += `\nAccuracy: ${Math.round((gameState.gameStats.correctMoves / gameState.gameStats.totalMoves) * 100)}%`;
+        }
         
         return {
           type: 'success',
-          title: '🎉 Congratulations!',
-          message: `You've successfully placed all cards on the timeline!\n
-                   Final Score: ${gameState.score} points\n
-                   Time: ${Math.round(totalTime)}s (${Math.round(avgTime)}s per card)`
+          title: gameState.gameMode === 'ai' && aiScore > humanScore ? '🤖 AI Victory!' : '🎉 Game Complete!',
+          message
         };
-      case 'lost':
+        
+      case 'paused':
         return {
-          type: 'error',
-          title: '😔 Game Over',
-          message: 'Better luck next time! Try again to improve your historical knowledge.'
+          type: 'info',
+          title: '⏸️ Game Paused',
+          message: 'Click Resume to continue playing.'
         };
-      case 'playing':
+        
       default:
         return null;
     }
   };
+
+  // Helper functions
+  const getDifficultyTolerance = (difficulty) => {
+    switch (difficulty) {
+      case 'easy': return 0.8;
+      case 'medium': return 0.5;
+      case 'hard': return 0.2;
+      case 'expert': return 0.1;
+      default: return 0.5;
+    }
+  };
+
+  const calculateAverageTime = (gameStats, newTime) => {
+    const totalMoves = gameStats.totalMoves + 1;
+    const currentTotal = gameStats.averageTimePerMove * gameStats.totalMoves;
+    return (currentTotal + newTime) / totalMoves;
+  };
+
+  const isPlayerTurn = gameState.currentPlayer === 'human';
+  const canSelectCard = gameState.gameStatus === 'playing' && isPlayerTurn;
 
   if (gameState.isLoading) {
     return (
@@ -287,15 +469,22 @@ const Game = () => {
   return (
     <div className="game-page">
       <div className="container">
+        {/* Game Status Overlay */}
         {statusMessage && (
           <div className={`game-status-overlay ${statusMessage.type}`}>
             <div className="status-content">
               <h3>{statusMessage.title}</h3>
               <p style={{ whiteSpace: 'pre-line' }}>{statusMessage.message}</p>
               <div className="status-actions">
-                <button onClick={handleRestartGame} className="btn btn-primary btn-large">
-                  🎮 Play Again
-                </button>
+                {gameState.gameStatus === 'paused' ? (
+                  <button onClick={togglePause} className="btn btn-primary btn-large">
+                    ▶️ Resume Game
+                  </button>
+                ) : (
+                  <button onClick={handleRestartGame} className="btn btn-primary btn-large">
+                    🎮 Play Again
+                  </button>
+                )}
                 <button onClick={() => window.location.href = '/'} className="btn btn-secondary">
                   🏠 Home
                 </button>
@@ -312,23 +501,39 @@ const Game = () => {
               {gameState.feedback.points && (
                 <p className="feedback-points">+{gameState.feedback.points} points!</p>
               )}
-              {gameState.feedback.hint && (
-                <p className="feedback-hint">{gameState.feedback.hint}</p>
+              {gameState.feedback.isClose && (
+                <p className="feedback-hint">🎯 Very close! Try adjusting the position slightly.</p>
+              )}
+              {gameState.feedback.attempts > 1 && (
+                <p className="feedback-attempts">Attempt #{gameState.feedback.attempts}</p>
               )}
             </div>
           </div>
         )}
 
+        {/* Game Header */}
         <div className="game-header">
           <div className="game-title-section">
             <h1>🎮 Timeline Game</h1>
             <p>Place historical events in chronological order</p>
+            {gameState.gameMode === 'ai' && gameState.aiOpponent && (
+              <div className="ai-info">
+                <span className="ai-indicator">🤖 vs {gameState.aiOpponent.name}</span>
+              </div>
+            )}
           </div>
+          
           <div className="game-stats">
             <div className="stat-item">
-              <span className="stat-label">Score</span>
-              <span className="stat-value">{gameState.score}</span>
+              <span className="stat-label">Your Score</span>
+              <span className="stat-value">{gameState.score.human}</span>
             </div>
+            {gameState.gameMode === 'ai' && (
+              <div className="stat-item">
+                <span className="stat-label">AI Score</span>
+                <span className="stat-value">{gameState.score.ai}</span>
+              </div>
+            )}
             <div className="stat-item">
               <span className="stat-label">Cards Left</span>
               <span className="stat-value">{gameState.playerHand.length}</span>
@@ -340,6 +545,20 @@ const Game = () => {
           </div>
         </div>
 
+        {/* Turn Indicator */}
+        {gameState.gameMode === 'ai' && gameState.gameStatus === 'playing' && (
+          <div className={`turn-indicator ${isPlayerTurn ? 'human-turn' : 'ai-turn'}`}>
+            <div className="turn-content">
+              {isPlayerTurn ? (
+                <span>🎯 Your Turn - Select a card to play</span>
+              ) : (
+                <span>🤖 AI is thinking...</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Game Board */}
         <div className="game-board">
           <div className="timeline-section">
             <Timeline
@@ -357,13 +576,31 @@ const Game = () => {
               selectedCard={gameState.selectedCard}
               onCardSelect={handleCardSelect}
               onCardPlay={handleCardPlay}
-              isPlayerTurn={gameState.gameStatus === 'playing'}
+              isPlayerTurn={isPlayerTurn}
               playerName="Player 1"
               maxCards={8}
             />
+            
+            {/* AI Hand */}
+            {gameState.gameMode === 'ai' && gameState.aiHand.length > 0 && (
+              <div className="ai-hand-section">
+                <div className="ai-hand-header">
+                  <h3>🤖 AI Hand</h3>
+                  <span className="hand-count">{gameState.aiHand.length} cards</span>
+                </div>
+                <div className="ai-cards-placeholder">
+                  {gameState.aiHand.map((_, index) => (
+                    <div key={index} className="ai-card-back">
+                      🎴
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Game Controls */}
         <div className="game-controls">
           <div className="control-buttons">
             <button onClick={handleRestartGame} className="btn btn-secondary">
@@ -379,10 +616,15 @@ const Game = () => {
             <button 
               onClick={handleShowHint} 
               className="btn btn-secondary"
-              disabled={!gameState.selectedCard}
+              disabled={!gameState.selectedCard || !isPlayerTurn}
             >
               💡 Show Hint
             </button>
+            {gameState.gameStatus === 'playing' && (
+              <button onClick={togglePause} className="btn btn-secondary">
+                ⏸️ Pause
+              </button>
+            )}
           </div>
           
           <div className="game-info">
@@ -392,18 +634,83 @@ const Game = () => {
                 <li>Select a card from your hand</li>
                 <li>Click where it belongs on the timeline</li>
                 <li>If correct, it stays! If wrong, try again</li>
-                <li>Place all cards to win!</li>
+                <li>{gameState.gameMode === 'ai' ? 'Score more points than the AI to win!' : 'Place all cards to win!'}</li>
               </ol>
             </div>
             
+            {/* Game Mode Selector */}
+            <div className="mode-selector">
+              <h3>🎮 Game Mode</h3>
+              <div className="mode-buttons">
+                <button 
+                  className={`mode-btn ${gameState.gameMode === 'single' ? 'active' : ''}`}
+                  onClick={() => handleModeChange('single')}
+                  disabled={gameState.gameStatus === 'playing'}
+                >
+                  👤 Solo
+                </button>
+                <button 
+                  className={`mode-btn ${gameState.gameMode === 'ai' ? 'active' : ''}`}
+                  onClick={() => handleModeChange('ai')}
+                  disabled={gameState.gameStatus === 'playing'}
+                >
+                  🤖 vs AI
+                </button>
+              </div>
+              
+              {gameState.gameMode === 'ai' && (
+                <div className="difficulty-selector">
+                  <h4>AI Difficulty</h4>
+                  <select 
+                    value={gameState.difficulty} 
+                    onChange={(e) => handleDifficultyChange(e.target.value)}
+                    disabled={gameState.gameStatus === 'playing'}
+                    className="difficulty-select"
+                  >
+                    <option value="easy">🟢 Easy - Beginner Bot</option>
+                    <option value="medium">🟡 Medium - Scholar Bot</option>
+                    <option value="hard">🔴 Hard - Historian Pro</option>
+                    <option value="expert">⚫ Expert - Timeline Master</option>
+                  </select>
+                </div>
+              )}
+            </div>
+            
+            {/* Selected Card Info */}
             {gameState.selectedCard && (
               <div className="selected-info">
                 <h3>🎯 Selected Card</h3>
                 <h4>"{gameState.selectedCard.title}"</h4>
                 <p>{gameState.selectedCard.description}</p>
                 <p className="hint">💡 Click on the timeline to place it!</p>
-                <div className="card-attempts">
-                  Attempts: {gameState.attempts[gameState.selectedCard.id] || 0}
+                <div className="card-stats">
+                  <span className="card-attempts">
+                    Attempts: {gameState.attempts[gameState.selectedCard.id] || 0}
+                  </span>
+                  <span className="card-difficulty">
+                    Difficulty: {'★'.repeat(gameState.selectedCard.difficulty)}
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            {/* Game Statistics */}
+            {gameState.gameStats.totalMoves > 0 && (
+              <div className="game-statistics">
+                <h3>📊 Game Stats</h3>
+                <div className="stats-grid">
+                  <div className="stat-row">
+                    <span>Accuracy:</span>
+                    <span>{Math.round((gameState.gameStats.correctMoves / gameState.gameStats.totalMoves) * 100)}%</span>
+                  </div>
+                  <div className="stat-row">
+                    <span>Avg Time/Move:</span>
+                    <span>{Math.round(gameState.gameStats.averageTimePerMove)}s</span>
+                  </div>
+                  <div className="stat-row">
+                    <span>Hints Used:</span>
+                    <span>{gameState.gameStats.hintsUsed}</span>
+                  </div>
                 </div>
               </div>
             )}
