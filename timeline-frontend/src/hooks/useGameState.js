@@ -185,11 +185,10 @@ export const useGameState = () => {
 
     let newState = { ...state };
 
-    if (validation.isCorrect || validation.isClose) {
-      // Successful placement
-      const scoreMultiplier = validation.isCorrect ? 1.0 : 0.7; // Reduced score for close matches
+    if (validation.isCorrect) {
+      // Successful placement - only exact matches accepted
       const scoreEarned = Math.round(
-        calculateScore(true, turnTime, cardAttempts, selectedCard.difficulty) * scoreMultiplier
+        calculateScore(true, turnTime, cardAttempts, selectedCard.difficulty)
       );
 
       // Add card to timeline at user's chosen position

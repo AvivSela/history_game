@@ -174,26 +174,21 @@ const Game = () => {
     const turnTime = (Date.now() - gameState.turnStartTime) / 1000;
     const cardAttempts = (gameState.attempts[selectedCard.id] || 0) + 1;
 
-    // Get difficulty tolerance
-    const tolerance = getDifficultyTolerance(gameState.difficulty);
-    
     // Validate placement
     const validation = validatePlacementWithTolerance(
       selectedCard, 
       gameState.timeline, 
-      position, 
-      tolerance
+      position
     );
 
     console.log('🎯 Placement validation:', validation);
 
     let newState = { ...gameState };
 
-    if (validation.isCorrect || validation.isClose) {
-      // Successful placement
-      const scoreMultiplier = validation.isCorrect ? 1.0 : 0.7;
+    if (validation.isCorrect) {
+      // Successful placement - only exact matches accepted
       const scoreEarned = Math.round(
-        calculateScore(true, turnTime, cardAttempts, selectedCard.difficulty) * scoreMultiplier
+        calculateScore(true, turnTime, cardAttempts, selectedCard.difficulty)
       );
 
       // Add card to timeline at user's chosen position
@@ -246,10 +241,9 @@ const Game = () => {
           averageTimePerMove: calculateAverageTime(gameState.gameStats, turnTime)
         },
         feedback: {
-          type: validation.isCorrect ? 'success' : 'close',
+          type: 'success',
           message: validation.feedback,
-          points: scoreEarned,
-          isClose: validation.isClose && !validation.isCorrect
+          points: scoreEarned
         }
       };
 
@@ -406,15 +400,6 @@ const Game = () => {
   };
 
   // Helper functions
-  const getDifficultyTolerance = (difficulty) => {
-    switch (difficulty) {
-      case 'easy': return 0.8;
-      case 'medium': return 0.5;
-      case 'hard': return 0.2;
-      case 'expert': return 0.1;
-      default: return 0.5;
-    }
-  };
 
   const calculateAverageTime = (gameStats, newTime) => {
     const totalMoves = gameStats.totalMoves + 1;
@@ -500,9 +485,6 @@ const Game = () => {
               <p className="feedback-message">{gameState.feedback.message}</p>
               {gameState.feedback.points && (
                 <p className="feedback-points">+{gameState.feedback.points} points!</p>
-              )}
-              {gameState.feedback.isClose && (
-                <p className="feedback-hint">🎯 Very close! Try adjusting the position slightly.</p>
               )}
               {gameState.feedback.attempts > 1 && (
                 <p className="feedback-attempts">Attempt #{gameState.feedback.attempts}</p>
