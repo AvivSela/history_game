@@ -73,7 +73,7 @@
 
 .timeline-card-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
@@ -86,7 +86,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  margin-bottom: 8px;
 }
 
 .position-marker {
