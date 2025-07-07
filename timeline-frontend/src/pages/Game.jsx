@@ -419,13 +419,11 @@ const Game = () => {
   if (gameState.isLoading) {
     return (
       <div className="game-page">
-        <div className="container">
-          <div className="game-loading">
-            <div className="loading-spinner">
-              <div className="loading loading-large"></div>
-              <h2>Loading Timeline Game...</h2>
-              <p>Fetching historical events from our database</p>
-            </div>
+        <div className="game-loading">
+          <div className="loading-spinner">
+            <div className="loading loading-large"></div>
+            <h2>Loading Timeline Game...</h2>
+            <p>Fetching historical events from our database</p>
           </div>
         </div>
       </div>
@@ -435,19 +433,17 @@ const Game = () => {
   if (gameState.error) {
     return (
       <div className="game-page">
-        <div className="container">
-          <div className="game-error">
-            <div className="error-card">
-              <h2>🚫 Oops! Something went wrong</h2>
-              <p className="error-message">{gameState.error}</p>
-              <div className="error-actions">
-                <button onClick={handleRestartGame} className="btn btn-primary">
-                  🔄 Try Again
-                </button>
-                <button onClick={() => window.location.href = '/'} className="btn btn-secondary">
-                  🏠 Go Home
-                </button>
-              </div>
+        <div className="game-error">
+          <div className="error-card">
+            <h2>🚫 Oops! Something went wrong</h2>
+            <p className="error-message">{gameState.error}</p>
+            <div className="error-actions">
+              <button onClick={handleRestartGame} className="btn btn-primary">
+                🔄 Try Again
+              </button>
+              <button onClick={() => window.location.href = '/'} className="btn btn-secondary">
+                🏠 Go Home
+              </button>
             </div>
           </div>
         </div>
@@ -459,7 +455,6 @@ const Game = () => {
 
   return (
     <div className="game-page">
-      <div className="container">
         {/* Game Status Overlay */}
         {statusMessage && (
           <div className={`game-status-overlay ${statusMessage.type}`}>
@@ -704,7 +699,6 @@ const Game = () => {
             )}
           </div>
         </div>
-      </div>
     </div>
   );
 };

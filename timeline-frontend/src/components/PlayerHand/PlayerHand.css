@@ -8,6 +8,8 @@
   transition: var(--transition);
   position: relative;
   overflow: visible; /* Allow lifted cards to show above container */
+  width: 100%;
+  max-width: none;
 }
 
 .player-hand-container.disabled {
@@ -120,7 +122,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  padding: 120px 40px 20px 40px; /* Further increased top padding for lifted cards */
+  padding: 120px 60px 20px 60px; /* Increased horizontal padding for wider layout */
   min-height: 360px; /* Increased height to accommodate lifted cards */
   width: 100%;
   background: linear-gradient(135deg, 

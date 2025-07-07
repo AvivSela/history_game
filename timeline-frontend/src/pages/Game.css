@@ -1,7 +1,9 @@
 .game-page {
   min-height: calc(100vh - 140px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 20px 0;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: none;
 }
 
 /* Loading State */
@@ -285,21 +287,23 @@
 .game-board {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 32px;
+  margin-bottom: 32px;
+  width: 100%;
 }
 
 /* Game Controls */
 .game-controls {
   background: var(--card-background);
-  padding: 24px;
+  padding: 32px;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-light);
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 32px;
+  gap: 40px;
   align-items: flex-start;
   border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .control-buttons {
@@ -595,7 +599,9 @@
 }.game-page {
   min-height: calc(100vh - 140px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 20px 0;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: none;
 }
 
 /* Loading State */
@@ -805,8 +811,9 @@
 .game-board {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 32px;
+  margin-bottom: 32px;
+  width: 100%;
 }
 
 /* Styles for .timeline-section and .player-section are handled by individual components */
@@ -814,14 +821,15 @@
 /* Game Controls */
 .game-controls {
   background: var(--card-background);
-  padding: 24px;
+  padding: 32px;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-light);
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 32px;
+  gap: 40px;
   align-items: flex-start;
   border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .control-buttons {

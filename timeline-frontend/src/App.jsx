@@ -16,19 +16,17 @@ const Navigation = () => {
 
   return (
     <header className="app-header">
-      <div className="container">
-        <nav className="navbar">
-          <Link to="/" className="logo-section">
-            <h1 className="logo">⏰ Timeline</h1>
-            <span className="logo-subtitle">Historical Card Game</span>
-          </Link>
-          <div className="nav-links">
-            <Link to="/" className={isActive('/')}>Home</Link>
-            <Link to="/game" className={isActive('/game')}>Play</Link>
-            <Link to="/settings" className={isActive('/settings')}>Settings</Link>
-          </div>
-        </nav>
-      </div>
+      <nav className="navbar">
+        <Link to="/" className="logo-section">
+          <h1 className="logo">⏰ Timeline</h1>
+          <span className="logo-subtitle">Historical Card Game</span>
+        </Link>
+        <div className="nav-links">
+          <Link to="/" className={isActive('/')}>Home</Link>
+          <Link to="/game" className={isActive('/game')}>Play</Link>
+          <Link to="/settings" className={isActive('/settings')}>Settings</Link>
+        </div>
+      </nav>
     </header>
   );
 };
@@ -37,7 +35,7 @@ const Navigation = () => {
 const Footer = () => {
   return (
     <footer className="app-footer">
-      <div className="container">
+      <div className="footer-content">
         <p>&copy; 2025 Timeline Game. Test your historical knowledge!</p>
         <div className="footer-links">
           <span>Built with React & Node.js</span>

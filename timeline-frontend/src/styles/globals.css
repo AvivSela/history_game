@@ -19,7 +19,7 @@
   /* Layout */
   --border-radius: 8px;
   --transition: all 0.3s ease;
-  --max-width: 1200px;
+  --max-width: 1600px;
 }
 
 /* Reset and Base Styles */
@@ -29,9 +29,16 @@
   box-sizing: border-box;
 }
 
+#root {
+  width: 100%;
+  max-width: none;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  width: 100%;
+  max-width: none;
 }
 
 body {
@@ -41,13 +48,15 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  max-width: none;
 }
 
 /* Container */
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 /* Button System */
