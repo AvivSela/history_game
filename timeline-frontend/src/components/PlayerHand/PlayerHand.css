@@ -7,7 +7,7 @@
   border: 2px solid var(--border-color);
   transition: var(--transition);
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Allow lifted cards to show above container */
 }
 
 .player-hand-container.disabled {
@@ -120,8 +120,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  padding: 20px 40px; /* Increased horizontal padding */
-  min-height: 280px;
+  padding: 120px 40px 20px 40px; /* Further increased top padding for lifted cards */
+  min-height: 360px; /* Increased height to accommodate lifted cards */
   width: 100%;
   background: linear-gradient(135deg, 
     rgba(52, 152, 219, 0.02) 0%, 
@@ -399,8 +399,8 @@
   }
   
   .hand-cards {
-    min-height: 240px;
-    padding: 16px 0;
+    min-height: 320px;
+    padding: 100px 20px 16px 20px; /* Increased top padding on tablet */
   }
   
   .action-buttons {
@@ -429,8 +429,8 @@
   }
   
   .hand-cards {
-    min-height: 200px;
-    padding: 12px 0;
+    min-height: 300px;
+    padding: 80px 10px 12px 10px; /* Increased top padding on mobile */
   }
   
   .hand-card-wrapper {
