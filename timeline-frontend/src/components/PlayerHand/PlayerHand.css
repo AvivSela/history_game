@@ -120,14 +120,16 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  padding: 20px 0;
+  padding: 20px 40px; /* Increased horizontal padding */
   min-height: 280px;
+  width: 100%;
   background: linear-gradient(135deg, 
     rgba(52, 152, 219, 0.02) 0%, 
     rgba(155, 89, 182, 0.02) 100%);
   border-radius: var(--border-radius);
   border: 1px solid rgba(52, 152, 219, 0.1);
-  overflow: visible;
+  overflow-x: auto; /* Allow horizontal scrolling if needed */
+  overflow-y: visible;
 }
 
 .hand-card-wrapper {

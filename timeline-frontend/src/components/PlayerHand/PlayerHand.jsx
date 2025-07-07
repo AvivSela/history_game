@@ -14,24 +14,45 @@ const PlayerHand = ({
   const [hoveredCard, setHoveredCard] = useState(null);
   const [cardPositions, setCardPositions] = useState([]);
 
-  // Calculate card positions for fan layout
+  // Calculate card positions for spread layout
   useEffect(() => {
     const positions = cards.map((_, index) => {
       const totalCards = cards.length;
-      const maxSpread = Math.min(totalCards * 15, 120); // Max spread angle
-      const angleStep = totalCards > 1 ? maxSpread / (totalCards - 1) : 0;
-      const startAngle = -maxSpread / 2;
       
-      const angle = startAngle + (index * angleStep);
-      const translateX = index * -12; // Horizontal overlap
-      const translateY = Math.abs(angle) * 0.3; // Slight vertical curve
-      
-      return {
-        angle,
-        translateX,
-        translateY,
-        zIndex: totalCards - index
-      };
+      // Use a more spaced-out layout approach
+      if (totalCards <= 3) {
+        // For few cards, use simple spacing without overlap
+        const cardWidth = 160; // Approximate card width
+        const spacing = cardWidth + 20; // Space between cards
+        const totalWidth = (totalCards - 1) * spacing;
+        const startX = -totalWidth / 2;
+        
+        return {
+          angle: 0,
+          translateX: startX + (index * spacing),
+          translateY: 0,
+          zIndex: index
+        };
+      } else {
+        // For many cards, use controlled overlap with wider spread
+        const cardWidth = 160;
+        const overlapFactor = Math.max(0.3, 1 - (totalCards * 0.05)); // Less overlap as cards increase
+        const spacing = cardWidth * overlapFactor;
+        const totalWidth = (totalCards - 1) * spacing;
+        const startX = -totalWidth / 2;
+        
+        // Slight fan angle for visual appeal
+        const maxAngle = Math.min(totalCards * 3, 25);
+        const angleStep = totalCards > 1 ? maxAngle / (totalCards - 1) : 0;
+        const angle = (-maxAngle / 2) + (index * angleStep);
+        
+        return {
+          angle,
+          translateX: startX + (index * spacing),
+          translateY: Math.abs(angle) * 0.8,
+          zIndex: index
+        };
+      }
     });
     setCardPositions(positions);
   }, [cards.length]);
@@ -64,9 +85,9 @@ const PlayerHand = ({
     let transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg)`;
     
     if (isSelected) {
-      transform = `translateX(${position.translateX}px) translateY(-40px) rotate(0deg) scale(1.05)`;
+      transform = `translateX(${position.translateX}px) translateY(-50px) rotate(0deg) scale(1.1)`;
     } else if (isHovered) {
-      transform = `translateX(${position.translateX}px) translateY(-25px) rotate(0deg)`;
+      transform = `translateX(${position.translateX}px) translateY(-35px) rotate(0deg) scale(1.05)`;
     }
     
     return {
