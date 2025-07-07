@@ -82,6 +82,50 @@
   transform: rotateY(0deg) !important;
 }
 
+/* Timeline card specific styling - simplified layout */
+.timeline-card .event-date {
+  display: none;
+}
+
+.timeline-card .event-description {
+  display: none;
+}
+
+.timeline-card .difficulty-indicator {
+  display: none;
+}
+
+.timeline-card .card-footer {
+  display: none;
+}
+
+/* Adjust timeline card layout for compact display */
+.timeline-card .card-content {
+  justify-content: flex-start;
+  text-align: left;
+  padding: 4px 0;
+}
+
+.timeline-card .event-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+/* Add space for image placeholder */
+.timeline-card .card-back {
+  min-height: 120px;
+}
+
+.timeline-card .card-back::after {
+  content: "🖼️";
+  display: block;
+  font-size: 32px;
+  text-align: center;
+  margin-top: 8px;
+  opacity: 0.6;
+}
+
 /* Card Header */
 .card-header {
   display: flex;
@@ -167,6 +211,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
@@ -340,6 +385,7 @@
 .card-container.small .event-description p {
   font-size: 11px;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .card-container.small .year-highlight {
@@ -363,6 +409,7 @@
 .card-container.large .event-description p {
   font-size: 14px;
   -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .card-container.large .year-highlight {

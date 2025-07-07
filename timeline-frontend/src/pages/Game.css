@@ -809,10 +809,7 @@
   margin-bottom: 24px;
 }
 
-.timeline-section,
-.player-section {
-  /* Styles handled by individual components */
-}
+/* Styles for .timeline-section and .player-section are handled by individual components */
 
 /* Game Controls */
 .game-controls {
@@ -1337,6 +1334,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
