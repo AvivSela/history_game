@@ -62,7 +62,13 @@ const Game = () => {
         ...prev, 
         isLoading: true, 
         error: null,
-        gameStatus: 'loading'
+        gameStatus: 'loading',
+        timeline: [], // Clear timeline immediately
+        playerHand: [],
+        aiHand: [],
+        selectedCard: null,
+        showInsertionPoints: false,
+        feedback: null
       }));
       
       console.log('🎮 Initializing game:', { mode, difficulty: diff });
