@@ -121,15 +121,6 @@
   min-height: 120px;
 }
 
-.timeline-card .card-back::after {
-  content: "🖼️";
-  display: block;
-  font-size: 32px;
-  text-align: center;
-  margin-top: 8px;
-  opacity: 0.6;
-}
-
 /* Card Header */
 .card-header {
   display: flex;
