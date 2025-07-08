@@ -92,9 +92,8 @@ const Timeline = ({
   if (sortedEvents.length === 0) {
     return (
       <div className="timeline-container">
-        <div className="timeline-header">
-          <h2>📅 Timeline</h2>
-          <span className="timeline-count">Empty</span>
+        <div className="timeline-header compact">
+          <h3>📅 Empty Timeline</h3>
         </div>
         <div className="timeline-empty">
           <div className="empty-timeline-message">
@@ -110,24 +109,14 @@ const Timeline = ({
 
   return (
     <div className="timeline-container">
-      <div className="timeline-header">
-        <div className="timeline-title">
-          <h2>📅 Timeline</h2>
-          <p>Events in chronological order</p>
-        </div>
-        <div className="timeline-info">
-          <span className="timeline-count">
-            {sortedEvents.length} event{sortedEvents.length !== 1 ? 's' : ''}
+      <div className="timeline-header compact">
+        <h3>📅 {sortedEvents.length} event{sortedEvents.length !== 1 ? 's' : ''}</h3>
+        {sortedEvents.length > 1 && (
+          <span className="year-range">
+            {new Date(sortedEvents[0].dateOccurred).getFullYear()} - {' '}
+            {new Date(sortedEvents[sortedEvents.length - 1].dateOccurred).getFullYear()}
           </span>
-          <span className="timeline-span">
-            {sortedEvents.length > 1 && (
-              <>
-                {new Date(sortedEvents[0].dateOccurred).getFullYear()} - {' '}
-                {new Date(sortedEvents[sortedEvents.length - 1].dateOccurred).getFullYear()}
-              </>
-            )}
-          </span>
-        </div>
+        )}
       </div>
       
       <div className="timeline-content">
@@ -142,9 +131,6 @@ const Timeline = ({
               <React.Fragment key={event.id}>
                 <div className="timeline-card-wrapper">
                   <div className="timeline-position">
-                    <div className="position-marker">
-                      <span className="position-number">{index + 1}</span>
-                    </div>
                     <div className="timeline-date-info">
                       <div className="timeline-year">
                         {new Date(event.dateOccurred).getFullYear()}
