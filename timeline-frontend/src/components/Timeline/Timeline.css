@@ -353,7 +353,6 @@
 
 /* Timeline Card Specific Styles */
 .timeline-card-wrapper .timeline-card {
-  border: 2px solid var(--success-color);
   box-shadow: 0 8px 25px rgba(39, 174, 96, 0.15);
   padding: 0;
 }
