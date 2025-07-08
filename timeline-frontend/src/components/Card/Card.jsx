@@ -46,6 +46,19 @@ const Card = ({
     return colors[category] || colors.default;
   };
 
+  // Get category icon
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'History': '📜',
+      'Science': '🔬',
+      'Technology': '💻',
+      'Space': '🚀',
+      'Aviation': '✈️',
+      'default': '📋'
+    };
+    return icons[category] || icons.default;
+  };
+
   // Handle card click with flip animation
   const handleClick = (e) => {
     e.stopPropagation();
@@ -150,12 +163,18 @@ const Card = ({
         {/* Card Back (Revealed side) */}
         <div className="card-back">
           <div className="card-header">
-            <div 
-              className="category-badge revealed"
-              style={{ backgroundColor: getCategoryColor(event.category) }}
-            >
-              {event.category}
-            </div>
+            {className.includes('timeline-card') ? (
+              <div className="category-icon">
+                {getCategoryIcon(event.category)}
+              </div>
+            ) : (
+              <div 
+                className="category-badge revealed"
+                style={{ backgroundColor: getCategoryColor(event.category) }}
+              >
+                {event.category}
+              </div>
+            )}
             <div className="difficulty-indicator">
               {Array.from({ length: event.difficulty }, (_, i) => (
                 <span key={i} className="difficulty-star">★</span>

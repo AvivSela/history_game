@@ -103,17 +103,37 @@
   justify-content: center;
 }
 
+.category-icon {
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+}
+
+.category-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 /* Adjust timeline card layout for compact display */
 .timeline-card .card-content {
   justify-content: flex-start;
-  text-align: left;
-  padding: 4px 0;
+  text-align: center;
+  padding: 8px 0;
 }
 
 .timeline-card .event-title {
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 8px;
   line-height: 1.2;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
 }
 
 /* Add space for image placeholder */
