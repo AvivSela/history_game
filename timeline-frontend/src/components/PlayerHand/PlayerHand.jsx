@@ -162,7 +162,6 @@ const PlayerHand = ({
                 onDoubleClick={() => handleCardDoubleClick(card)}
                 onMouseEnter={() => setHoveredCard(card.id)}
                 onMouseLeave={() => setHoveredCard(null)}
-                showHint={false}
                 className="player-card"
               />
             </div>

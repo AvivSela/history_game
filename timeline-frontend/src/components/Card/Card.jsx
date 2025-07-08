@@ -12,10 +12,8 @@ const Card = ({
   onMouseEnter,
   onMouseLeave,
   style = {},
-  className = '',
-  showHint = false
+  className = ''
 }) => {
-  const [isFlipping, setIsFlipping] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   // Format date for display
@@ -59,15 +57,9 @@ const Card = ({
     return icons[category] || icons.default;
   };
 
-  // Handle card click with flip animation
+  // Handle card click
   const handleClick = (e) => {
     e.stopPropagation();
-    
-    // Trigger flip animation if the card should be revealed
-    if (!isRevealed && showHint) {
-      setIsFlipping(true);
-      setTimeout(() => setIsFlipping(false), 600);
-    }
     
     if (onClick) {
       onClick(event, e);
@@ -105,14 +97,13 @@ const Card = ({
     isDragging ? 'dragging' : '',
     isSelected ? 'selected' : '',
     isHovered ? 'hovered' : '',
-    isFlipping ? 'flipping' : '',
     className
   ].filter(Boolean).join(' ');
 
   // Card face classes
   const cardFaceClasses = [
     'card',
-    isRevealed || isFlipping ? 'revealed' : '',
+    isRevealed ? 'revealed' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -152,11 +143,6 @@ const Card = ({
           
           <div className="card-footer">
             <span className="mystery-date">When did this happen?</span>
-            {showHint && (
-              <div className="card-hint">
-                <span className="hint-text">Click to peek!</span>
-              </div>
-            )}
           </div>
         </div>
         
