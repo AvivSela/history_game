@@ -183,16 +183,6 @@ const Timeline = ({
             </button>
           </div>
         )}
-        
-        {/* Timeline Legend */}
-        {highlightInsertionPoints && (
-          <div className="timeline-legend">
-            <div className="legend-item">
-              <div className="legend-icon insertion">+</div>
-              <span>Drop Zones</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
