@@ -138,10 +138,10 @@ const Card = ({
   const renderTimelineContent = () => (
     <>
       <div className="card-header">
-        <h3 className="event-title">{event.title}</h3>
         <div className="category-icon">
           {getCategoryIcon(event.category)}
         </div>
+        <h3 className="event-title">{event.title}</h3>
       </div>
       
       <div className="card-content">
