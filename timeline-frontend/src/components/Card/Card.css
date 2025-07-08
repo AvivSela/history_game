@@ -99,6 +99,10 @@
   display: none;
 }
 
+.timeline-card .card-header {
+  justify-content: center;
+}
+
 /* Adjust timeline card layout for compact display */
 .timeline-card .card-content {
   justify-content: flex-start;

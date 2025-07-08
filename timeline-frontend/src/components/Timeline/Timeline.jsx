@@ -151,10 +151,6 @@ const Timeline = ({
                     onClick={() => onCardClick && onCardClick(event)}
                     className="timeline-card"
                   />
-                  
-                  <div className="timeline-connector">
-                    <div className="connector-line"></div>
-                  </div>
                 </div>
                 
                 {/* Insertion point after each card */}
