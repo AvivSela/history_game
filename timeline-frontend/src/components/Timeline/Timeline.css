@@ -66,6 +66,7 @@
 .timeline-events {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 48px;
   min-height: 320px;
   position: relative;
