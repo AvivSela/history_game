@@ -66,7 +66,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 48px;
+  gap: 32px;
   min-height: 320px;
   position: relative;
   z-index: 2;
@@ -355,6 +355,12 @@
 .timeline-card-wrapper .timeline-card {
   border: 2px solid var(--success-color);
   box-shadow: 0 8px 25px rgba(39, 174, 96, 0.15);
+  padding: 0;
+}
+
+.timeline-card-wrapper .timeline-card .card-back {
+  border: none;
+  padding: 8px;
 }
 
 .timeline-card-wrapper .timeline-card:hover {

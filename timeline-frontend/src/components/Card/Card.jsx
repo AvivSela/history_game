@@ -164,26 +164,33 @@ const Card = ({
         <div className="card-back">
           <div className="card-header">
             {className.includes('timeline-card') ? (
-              <div className="category-icon">
-                {getCategoryIcon(event.category)}
-              </div>
+              <>
+                <h3 className="event-title">{event.title}</h3>
+                <div className="category-icon">
+                  {getCategoryIcon(event.category)}
+                </div>
+              </>
             ) : (
-              <div 
-                className="category-badge revealed"
-                style={{ backgroundColor: getCategoryColor(event.category) }}
-              >
-                {event.category}
-              </div>
+              <>
+                <div 
+                  className="category-badge revealed"
+                  style={{ backgroundColor: getCategoryColor(event.category) }}
+                >
+                  {event.category}
+                </div>
+                <div className="difficulty-indicator">
+                  {Array.from({ length: event.difficulty }, (_, i) => (
+                    <span key={i} className="difficulty-star">★</span>
+                  ))}
+                </div>
+              </>
             )}
-            <div className="difficulty-indicator">
-              {Array.from({ length: event.difficulty }, (_, i) => (
-                <span key={i} className="difficulty-star">★</span>
-              ))}
-            </div>
           </div>
           
           <div className="card-content">
-            <h3 className="event-title">{event.title}</h3>
+            {!className.includes('timeline-card') && (
+              <h3 className="event-title">{event.title}</h3>
+            )}
             <div className="event-date">
               <span className="date-text">{formatDate(event.dateOccurred)}</span>
               <span className="year-highlight">
