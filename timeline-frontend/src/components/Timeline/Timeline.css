@@ -358,8 +358,7 @@
   padding: 0;
 }
 
-.timeline-card-wrapper .timeline-card .card-back {
-  border: none;
+.timeline-card-wrapper .timeline-card .card {
   padding: 8px;
 }
 

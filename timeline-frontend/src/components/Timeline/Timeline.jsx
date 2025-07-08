@@ -146,7 +146,6 @@ const Timeline = ({
                   
                   <Card
                     event={event}
-                    isRevealed={event.isRevealed || true}
                     size="medium"
                     onClick={() => onCardClick && onCardClick(event)}
                     className="timeline-card"

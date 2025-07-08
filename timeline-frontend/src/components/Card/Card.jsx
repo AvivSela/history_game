@@ -3,7 +3,6 @@ import './Card.css';
 
 const Card = ({ 
   event, 
-  isRevealed = false, 
   isDragging = false, 
   isSelected = false,
   size = 'medium',
@@ -15,6 +14,9 @@ const Card = ({
   className = ''
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+
+  // Determine if this is a timeline card
+  const isTimelineCard = className.includes('timeline-card');
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -100,11 +102,63 @@ const Card = ({
     className
   ].filter(Boolean).join(' ');
 
-  // Card face classes
-  const cardFaceClasses = [
-    'card',
-    isRevealed ? 'revealed' : '',
-  ].filter(Boolean).join(' ');
+  // Render player hand card content
+  const renderPlayerHandContent = () => (
+    <>
+      <div className="card-header">
+        <div 
+          className="category-badge"
+          style={{ backgroundColor: getCategoryColor(event.category) }}
+        >
+          {event.category}
+        </div>
+        <div className="difficulty-indicator">
+          {Array.from({ length: event.difficulty }, (_, i) => (
+            <span key={i} className="difficulty-star">★</span>
+          ))}
+        </div>
+      </div>
+      
+      <div className="card-content">
+        <h3 className="event-title">{event.title}</h3>
+        {event.description && (
+          <div className="event-description">
+            <p>{event.description}</p>
+          </div>
+        )}
+      </div>
+      
+      <div className="card-footer">
+        <span className="mystery-date">When did this happen?</span>
+      </div>
+    </>
+  );
+
+  // Render timeline card content
+  const renderTimelineContent = () => (
+    <>
+      <div className="card-header">
+        <h3 className="event-title">{event.title}</h3>
+        <div className="category-icon">
+          {getCategoryIcon(event.category)}
+        </div>
+      </div>
+      
+      <div className="card-content">
+        <div className="event-date">
+          <span className="date-text">{formatDate(event.dateOccurred)}</span>
+          <span className="year-highlight">
+            {getYear(event.dateOccurred)}
+          </span>
+        </div>
+        {event.description && (
+          <div className="event-description">
+            <p>{event.description}</p>
+          </div>
+        )}
+      </div>
+    </>
+  );
 
   return (
     <div 
@@ -115,87 +169,8 @@ const Card = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={cardFaceClasses}>
-        {/* Card Front (Hidden side) */}
-        <div className="card-front">
-          <div className="card-header">
-            <div 
-              className="category-badge"
-              style={{ backgroundColor: getCategoryColor(event.category) }}
-            >
-              {event.category}
-            </div>
-            <div className="difficulty-indicator">
-              {Array.from({ length: event.difficulty }, (_, i) => (
-                <span key={i} className="difficulty-star">★</span>
-              ))}
-            </div>
-          </div>
-          
-          <div className="card-content">
-            <h3 className="event-title">{event.title}</h3>
-            {event.description && (
-              <div className="event-description">
-                <p>{event.description}</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="card-footer">
-            <span className="mystery-date">When did this happen?</span>
-          </div>
-        </div>
-        
-        {/* Card Back (Revealed side) */}
-        <div className="card-back">
-          <div className="card-header">
-            {className.includes('timeline-card') ? (
-              <>
-                <h3 className="event-title">{event.title}</h3>
-                <div className="category-icon">
-                  {getCategoryIcon(event.category)}
-                </div>
-              </>
-            ) : (
-              <>
-                <div 
-                  className="category-badge revealed"
-                  style={{ backgroundColor: getCategoryColor(event.category) }}
-                >
-                  {event.category}
-                </div>
-                <div className="difficulty-indicator">
-                  {Array.from({ length: event.difficulty }, (_, i) => (
-                    <span key={i} className="difficulty-star">★</span>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-          
-          <div className="card-content">
-            {!className.includes('timeline-card') && (
-              <h3 className="event-title">{event.title}</h3>
-            )}
-            <div className="event-date">
-              <span className="date-text">{formatDate(event.dateOccurred)}</span>
-              <span className="year-highlight">
-                {getYear(event.dateOccurred)}
-              </span>
-            </div>
-            {event.description && (
-              <div className="event-description">
-                <p>{event.description}</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="card-footer">
-            <div className="card-status">
-              <span className="status-text">✅ Revealed</span>
-            </div>
-          </div>
-        </div>
+      <div className="card">
+        {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
       </div>
       
       {/* Selection indicator */}

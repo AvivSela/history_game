@@ -155,7 +155,6 @@ const PlayerHand = ({
             >
               <Card
                 event={card}
-                isRevealed={false}
                 isSelected={selectedCard && selectedCard.id === card.id}
                 size="medium"
                 onClick={() => handleCardClick(card)}
