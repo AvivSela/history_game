@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
  * Custom hook for drag and drop functionality
@@ -14,50 +14,21 @@ export const useDragAndDrop = () => {
 
   const dragElementRef = useRef(null);
   const startPositionRef = useRef({ x: 0, y: 0 });
+  const handlersRef = useRef({});
 
-  // Start dragging
-  const handleDragStart = useCallback((item, event) => {
-    const element = event.currentTarget;
-    const rect = element.getBoundingClientRect();
-    
-    // Calculate offset from mouse to element center
-    const offsetX = event.clientX - rect.left - rect.width / 2;
-    const offsetY = event.clientY - rect.top - rect.height / 2;
-    
+  // End dragging
+  const handleDragEnd = useCallback(() => {
     setDragState({
-      isDragging: true,
-      draggedItem: item,
-      dragOffset: { x: offsetX, y: offsetY },
+      isDragging: false,
+      draggedItem: null,
+      dragOffset: { x: 0, y: 0 },
       dropZone: null
     });
 
-    startPositionRef.current = { x: event.clientX, y: event.clientY };
-    dragElementRef.current = element;
-
-    // Add ghost image or hide default drag image
-    if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', ''); // Required for drag to work
-      
-      // Create custom drag image
-      const dragImage = element.cloneNode(true);
-      dragImage.style.transform = 'rotate(8deg) scale(1.1)';
-      dragImage.style.opacity = '0.8';
-      document.body.appendChild(dragImage);
-      event.dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
-      
-      // Remove the temporary element after a short delay
-      setTimeout(() => {
-        if (document.body.contains(dragImage)) {
-          document.body.removeChild(dragImage);
-        }
-      }, 0);
-    }
-
-    // Add global event listeners
-    document.addEventListener('dragover', handleDragOver);
-    document.addEventListener('drop', handleDrop);
-    document.addEventListener('dragend', handleDragEnd);
+    // Remove global event listeners
+    document.removeEventListener('dragover', handlersRef.current.handleDragOver);
+    document.removeEventListener('drop', handlersRef.current.handleDrop);
+    document.removeEventListener('dragend', handlersRef.current.handleDragEnd);
   }, []);
 
   // Handle drag over (for drop zones)
@@ -107,22 +78,59 @@ export const useDragAndDrop = () => {
     }
 
     handleDragEnd();
-  }, [dragState.draggedItem]);
+  }, [dragState.draggedItem, handleDragEnd]);
 
-  // End dragging
-  const handleDragEnd = useCallback(() => {
+  // Store handlers in ref
+  handlersRef.current = {
+    handleDragOver,
+    handleDrop,
+    handleDragEnd
+  };
+
+  // Start dragging
+  const handleDragStart = useCallback((item, event) => {
+    const element = event.currentTarget;
+    const rect = element.getBoundingClientRect();
+    
+    // Calculate offset from mouse to element center
+    const offsetX = event.clientX - rect.left - rect.width / 2;
+    const offsetY = event.clientY - rect.top - rect.height / 2;
+    
     setDragState({
-      isDragging: false,
-      draggedItem: null,
-      dragOffset: { x: 0, y: 0 },
+      isDragging: true,
+      draggedItem: item,
+      dragOffset: { x: offsetX, y: offsetY },
       dropZone: null
     });
 
-    // Remove global event listeners
-    document.removeEventListener('dragover', handleDragOver);
-    document.removeEventListener('drop', handleDrop);
-    document.removeEventListener('dragend', handleDragEnd);
-  }, [handleDragOver, handleDrop]);
+    startPositionRef.current = { x: event.clientX, y: event.clientY };
+    dragElementRef.current = element;
+
+    // Add ghost image or hide default drag image
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', ''); // Required for drag to work
+      
+      // Create custom drag image
+      const dragImage = element.cloneNode(true);
+      dragImage.style.transform = 'rotate(8deg) scale(1.1)';
+      dragImage.style.opacity = '0.8';
+      document.body.appendChild(dragImage);
+      event.dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
+      
+      // Remove the temporary element after a short delay
+      setTimeout(() => {
+        if (document.body.contains(dragImage)) {
+          document.body.removeChild(dragImage);
+        }
+      }, 0);
+    }
+
+    // Add global event listeners
+    document.addEventListener('dragover', handlersRef.current.handleDragOver);
+    document.addEventListener('drop', handlersRef.current.handleDrop);
+    document.addEventListener('dragend', handlersRef.current.handleDragEnd);
+  }, []);
 
   // Check if item is being dragged
   const isItemDragging = useCallback((item) => {
@@ -176,7 +184,7 @@ export const useDropListener = (onDrop) => {
   }, [onDrop]);
 
   // Set up event listener
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener('timelineCardDrop', handleDrop);
     return () => {
       document.removeEventListener('timelineCardDrop', handleDrop);

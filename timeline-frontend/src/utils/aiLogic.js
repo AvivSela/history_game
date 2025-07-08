@@ -57,7 +57,7 @@ export class TimelineAI {
    * @param {Object} gameState - Current game state
    * @returns {Object} - Selected card with confidence
    */
-  selectCard(hand, timeline, gameState) {
+  selectCard(hand, timeline) {
     if (hand.length === 0) return null;
 
     const cardAnalysis = hand.map(card => ({
@@ -318,7 +318,7 @@ export class TimelineAI {
    * @param {Array} timeline - Current timeline
    * @returns {string} - Human-readable reasoning
    */
-  generateReasoning(selection, timeline) {
+  generateReasoning(selection) {
     const card = selection.card;
     const year = new Date(card.dateOccurred).getFullYear();
     

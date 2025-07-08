@@ -55,7 +55,7 @@ const PlayerHand = ({
       }
     });
     setCardPositions(positions);
-  }, [cards.length]);
+  }, [cards, cards.length]);
 
   const handleCardClick = (card) => {
     if (!isPlayerTurn) return;

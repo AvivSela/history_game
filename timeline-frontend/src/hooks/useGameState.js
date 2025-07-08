@@ -54,7 +54,6 @@ export const useGameState = () => {
   });
 
   const gameSessionRef = useRef(null);
-  const turnTimerRef = useRef(null);
 
   // Initialize new game
   const initializeGame = useCallback(async (events, settings = {}) => {
@@ -303,7 +302,7 @@ export const useGameState = () => {
       }, 1500); // Give AI a thinking delay
     }
 
-  }, [state]);
+  }, [state, executeAITurn]);
 
   // AI turn execution
   const executeAITurn = useCallback(() => {

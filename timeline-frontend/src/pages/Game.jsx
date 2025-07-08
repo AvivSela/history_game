@@ -365,7 +365,7 @@ const Game = () => {
 
   const getGameStatusMessage = () => {
     switch (gameState.gameStatus) {
-      case 'won':
+      case 'won': {
         const humanScore = gameState.score.human;
         const aiScore = gameState.score.ai;
         const totalTime = gameState.startTime ? (Date.now() - gameState.startTime) / 1000 : 0;
@@ -392,6 +392,7 @@ const Game = () => {
           title: gameState.gameMode === 'ai' && aiScore > humanScore ? '🤖 AI Victory!' : '🎉 Game Complete!',
           message
         };
+      }
         
       case 'paused':
         return {
@@ -414,7 +415,6 @@ const Game = () => {
   };
 
   const isPlayerTurn = gameState.currentPlayer === 'human';
-  const canSelectCard = gameState.gameStatus === 'playing' && isPlayerTurn;
 
   if (gameState.isLoading) {
     return (
