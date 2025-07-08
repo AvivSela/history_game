@@ -6,7 +6,7 @@
   margin: 20px 0;
   border: 1px solid var(--border-color);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
   max-width: none;
 }
@@ -18,7 +18,7 @@
 
 .timeline-scroll {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   padding: 24px 0;
   scroll-behavior: smooth;
   /* Custom scrollbar */

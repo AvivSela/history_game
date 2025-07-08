@@ -199,18 +199,14 @@ const Timeline = ({
         )}
         
         {/* Timeline Legend */}
-        <div className="timeline-legend">
-          <div className="legend-item">
-            <div className="legend-icon chronological">📅</div>
-            <span>Chronological Order</span>
-          </div>
-          {highlightInsertionPoints && (
+        {highlightInsertionPoints && (
+          <div className="timeline-legend">
             <div className="legend-item">
               <div className="legend-icon insertion">+</div>
               <span>Drop Zones</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
