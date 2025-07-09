@@ -54,7 +54,7 @@
   border-radius: var(--border-radius);
   box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
   background: var(--card-background);
-  border: 2px solid var(--border-color);
+  border: 1px solid #dee2e6;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -75,13 +75,14 @@ body {
 
 /* Header Section - Always visible when fanned */
 .card-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: #f8f9fa;
   padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
+  color: #333;
   flex-shrink: 0;
+  border-bottom: 1px solid #dee2e6;
 }
 
 /* Left Side - Difficulty Rating */
@@ -94,7 +95,7 @@ body {
 .difficulty-star {
   font-size: 18px;
   color: var(--star-color);
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 /* Right Side - Category Identification */
@@ -102,9 +103,10 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.05);
   border-radius: 15px;
   padding: 6px 10px;
+  border: 1px solid #dee2e6;
 }
 
 .category-icon {
@@ -116,6 +118,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: bold;
+  color: #333;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 /* Category Color Coding */
@@ -130,20 +134,21 @@ body {
   font-family: Georgia, serif;
   font-size: 16px;
   font-weight: bold;
-  color: var(--text-color);
+  color: #333;
   text-align: center;
   line-height: 1.2;
   padding: 12px 12px 6px 12px;
-  border-bottom: 2px solid var(--secondary-color);
+  border-bottom: 1px solid #dee2e6;
   background: var(--card-background);
   margin: 0;
   flex-shrink: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 /* Description Section - Main Content Area */
 .card-mechanics {
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(46, 204, 113, 0.05));
-  border-top: 2px solid var(--secondary-color);
+  background: #ffffff;
+  border-top: 1px solid #dee2e6;
   padding: 16px 12px;
   flex-grow: 1;
   display: flex;
@@ -154,17 +159,18 @@ body {
   font-family: Georgia, serif;
   font-size: 12px;
   font-weight: bold;
-  color: var(--primary-color);
+  color: #333;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-align: center;
   margin-bottom: 10px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .mechanic-text {
   font-family: Georgia, serif;
   font-size: 11px;
-  color: var(--text-color);
+  color: #333;
   line-height: 1.4;
   text-align: justify;
   flex-grow: 1;

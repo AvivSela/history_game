@@ -530,7 +530,9 @@
 @keyframes completedGlow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.8; }
-} Timeline Header */
+}
+
+/* Timeline Header */
 .timeline-header {
   display: flex;
   justify-content: space-between;
