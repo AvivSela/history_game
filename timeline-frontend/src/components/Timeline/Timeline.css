@@ -61,6 +61,19 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Dotted horizontal lines between timeline events */
+.timeline-line::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-top: 2px dashed #4A90E2;
+  z-index: 0;
+  opacity: 0.6;
+}
+
 /* Timeline Events */
 .timeline-events {
   display: flex;
@@ -145,20 +158,33 @@
   height: 320px;
   width: 60px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 200ms ease;
   opacity: 0;
   flex-shrink: 0;
   position: relative;
+  background: transparent;
 }
 
 .insertion-point.clickable {
   opacity: 0.6;
 }
 
+/* Drop zone active state during drag */
+.insertion-point.drag-active {
+  opacity: 1;
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 8px;
+  border: 2px dashed #4A90E2;
+  transform: scale(1.02);
+}
+
 .insertion-point.hovered,
 .insertion-point:hover {
   opacity: 1;
   transform: scale(1.1);
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 8px;
+  transition: all 200ms ease;
 }
 
 .insertion-indicator {
@@ -170,7 +196,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(52, 152, 219, 0.1);
-  transition: var(--transition);
+  transition: all 200ms ease;
   position: relative;
 }
 
@@ -178,6 +204,15 @@
   background: rgba(52, 152, 219, 0.2);
   border-color: var(--primary-color);
   border-style: solid;
+  animation: insertionPulse 1s ease-in-out infinite;
+}
+
+/* Drag active state for insertion indicator */
+.insertion-point.drag-active .insertion-indicator {
+  background: rgba(74, 144, 226, 0.2);
+  border-color: #4A90E2;
+  border-style: solid;
+  transform: scale(1.1);
   animation: insertionPulse 1s ease-in-out infinite;
 }
 
@@ -190,12 +225,25 @@
   font-size: 20px;
   font-weight: bold;
   color: var(--secondary-color);
-  transition: var(--transition);
+  transition: all 200ms ease;
 }
 
 .insertion-point.hovered .insertion-icon {
   color: var(--primary-color);
   transform: scale(1.2);
+}
+
+/* Plus icon for drag state */
+.insertion-point.drag-active .insertion-icon::before {
+  content: '+';
+  font-size: 24px;
+  color: #4A90E2;
+  font-weight: bold;
+}
+
+.insertion-point.drag-active .insertion-icon {
+  color: #4A90E2;
+  transform: scale(1.3);
 }
 
 .insertion-tooltip {

@@ -7,7 +7,8 @@ const Timeline = ({
   onCardClick,
   highlightInsertionPoints = false,
   onInsertionPointClick,
-  selectedCard = null
+  selectedCard = null,
+  isDragActive = false
 }) => {
   const [hoveredInsertionPoint, setHoveredInsertionPoint] = useState(null);
   const timelineRef = useRef(null);
@@ -47,7 +48,7 @@ const Timeline = ({
   };
 
   const renderInsertionPoint = (index) => {
-    if (!highlightInsertionPoints) return null;
+    if (!highlightInsertionPoints && !isDragActive) return null;
     
     const isHovered = hoveredInsertionPoint === index;
     const isClickable = selectedCard !== null;
@@ -55,16 +56,17 @@ const Timeline = ({
     return (
       <div 
         key={`insertion-${index}`}
-        className={`insertion-point ${isHovered ? 'hovered' : ''} ${isClickable ? 'clickable' : ''}`}
+        className={`insertion-point ${isHovered ? 'hovered' : ''} ${isClickable ? 'clickable' : ''} ${isDragActive ? 'drag-active' : ''}`}
         onClick={() => handleInsertionPointClick(index)}
         onMouseEnter={() => handleInsertionPointHover(index, true)}
         onMouseLeave={() => handleInsertionPointHover(index, false)}
+        data-drop-zone={`timeline-${index}`}
       >
         <div className="insertion-indicator">
           <span className="insertion-icon">
-            {isHovered && selectedCard ? '📍' : '+'}
+            {isDragActive ? '+' : (isHovered && selectedCard ? '📍' : '+')}
           </span>
-          {isHovered && selectedCard && (
+          {isHovered && selectedCard && !isDragActive && (
             <div className="insertion-tooltip">
               Place "{selectedCard.title}" here
             </div>
