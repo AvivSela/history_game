@@ -16,6 +16,9 @@ import PlayerHand from '../components/PlayerHand/PlayerHand';
 import './Game.css';
 
 const Game = () => {
+  // Drag and drop state
+  const [draggedCard, setDraggedCard] = useState(null);
+  
   const [gameState, setGameState] = useState({
     // Core game data
     playerHand: [],
@@ -171,6 +174,34 @@ const Game = () => {
     }
 
     placeCard(position, 'human');
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (card) => {
+    setDraggedCard(card);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault(); // Allow drop
+  };
+
+  const handleDrop = (e, position) => {
+    e.preventDefault();
+    
+    if (!draggedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
+      return;
+    }
+
+    // Set the dragged card as selected and place it
+    setGameState(prev => ({ ...prev, selectedCard: draggedCard }));
+    setDraggedCard(null);
+    setTimeout(() => {
+      placeCard(position, 'human');
+    }, 0);
   };
 
   const placeCard = (position, player = 'human') => {
@@ -550,6 +581,9 @@ const Game = () => {
               highlightInsertionPoints={gameState.showInsertionPoints}
               onInsertionPointClick={handleInsertionPointClick}
               selectedCard={gameState.selectedCard}
+              isDragActive={!!draggedCard}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
             />
           </div>
 
@@ -562,6 +596,9 @@ const Game = () => {
               isPlayerTurn={isPlayerTurn}
               playerName="Player 1"
               maxCards={8}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              draggedCard={draggedCard}
             />
             
             {/* AI Hand */}

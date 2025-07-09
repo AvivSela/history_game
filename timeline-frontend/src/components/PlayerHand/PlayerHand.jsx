@@ -9,7 +9,10 @@ const PlayerHand = ({
   onCardPlay,
   isPlayerTurn = true,
   playerName = "You",
-  maxCards = 8
+  maxCards = 8,
+  onDragStart = null,
+  onDragEnd = null,
+  draggedCard = null
 }) => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [cardPositions, setCardPositions] = useState([]);
@@ -162,6 +165,10 @@ const PlayerHand = ({
                 onMouseEnter={() => setHoveredCard(card.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 className="player-card"
+                isDragging={draggedCard && draggedCard.id === card.id}
+                draggable={isPlayerTurn}
+                onDragStart={() => onDragStart && onDragStart(card)}
+                onDragEnd={onDragEnd}
               />
             </div>
           ))}

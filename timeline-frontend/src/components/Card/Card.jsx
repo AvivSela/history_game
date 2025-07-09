@@ -11,7 +11,10 @@ const Card = ({
   onMouseEnter,
   onMouseLeave,
   style = {},
-  className = ''
+  className = '',
+  draggable = false,
+  onDragStart,
+  onDragEnd
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -150,6 +153,12 @@ const Card = ({
     </>
   );
 
+  const handleDragStart = (e) => {
+    if (onDragStart) {
+      onDragStart(e);
+    }
+  };
+  
   return (
     <div 
       className={cardClasses}
@@ -158,6 +167,9 @@ const Card = ({
       onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      draggable={draggable}
+      onDragStart={handleDragStart}
+      onDragEnd={onDragEnd}
     >
       <div className="card">
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}

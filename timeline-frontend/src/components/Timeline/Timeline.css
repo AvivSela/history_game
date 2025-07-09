@@ -156,13 +156,15 @@
   align-items: center;
   justify-content: center;
   height: 320px;
-  width: 60px;
+  width: 80px;
   cursor: pointer;
   transition: all 200ms ease;
   opacity: 0;
   flex-shrink: 0;
   position: relative;
   background: transparent;
+  padding: 20px;
+  margin: -20px;
 }
 
 .insertion-point.clickable {
@@ -173,9 +175,10 @@
 .insertion-point.drag-active {
   opacity: 1;
   background: rgba(74, 144, 226, 0.1);
-  border-radius: 8px;
+  border-radius: 12px;
   border: 2px dashed #4A90E2;
   transform: scale(1.02);
+  min-width: 100px;
 }
 
 .insertion-point.hovered,

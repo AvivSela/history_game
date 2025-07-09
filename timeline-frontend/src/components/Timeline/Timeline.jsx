@@ -8,7 +8,9 @@ const Timeline = ({
   highlightInsertionPoints = false,
   onInsertionPointClick,
   selectedCard = null,
-  isDragActive = false
+  isDragActive = false,
+  onDragOver = null,
+  onDrop = null
 }) => {
   const [hoveredInsertionPoint, setHoveredInsertionPoint] = useState(null);
   const timelineRef = useRef(null);
@@ -60,7 +62,13 @@ const Timeline = ({
         onClick={() => handleInsertionPointClick(index)}
         onMouseEnter={() => handleInsertionPointHover(index, true)}
         onMouseLeave={() => handleInsertionPointHover(index, false)}
+        onDragOver={onDragOver}
+        onDrop={(e) => onDrop && onDrop(e, index)}
         data-drop-zone={`timeline-${index}`}
+        style={{
+          width: isDragActive ? '120px' : '80px',
+          minHeight: isDragActive ? '340px' : '320px',
+        }}
       >
         <div className="insertion-indicator">
           <span className="insertion-icon">
