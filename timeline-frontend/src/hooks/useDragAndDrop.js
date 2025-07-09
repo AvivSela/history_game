@@ -15,6 +15,12 @@ export const useDragAndDrop = () => {
   const dragElementRef = useRef(null);
   const startPositionRef = useRef({ x: 0, y: 0 });
   const handlersRef = useRef({});
+  const dragStateRef = useRef(dragState);
+
+  // Update the ref whenever dragState changes
+  useEffect(() => {
+    dragStateRef.current = dragState;
+  }, [dragState]);
 
   // End dragging
   const handleDragEnd = useCallback(() => {
@@ -56,19 +62,26 @@ export const useDragAndDrop = () => {
     event.preventDefault();
     
     const dropZone = event.target.closest('[data-drop-zone]');
-    if (dropZone && dragState.draggedItem) {
+    
+    // Use the ref to get the current drag state
+    const currentDragState = dragStateRef.current;
+    
+    // Store the current drag state before it gets cleared
+    const currentDraggedItem = currentDragState.draggedItem;
+    
+    if (dropZone && currentDraggedItem) {
       const dropZoneId = dropZone.getAttribute('data-drop-zone');
       const dropData = dropZone.getAttribute('data-drop-data');
       
       // Call the drop handler if provided
       if (dropZone.onDrop) {
-        dropZone.onDrop(dragState.draggedItem, dropZoneId, dropData);
+        dropZone.onDrop(currentDraggedItem, dropZoneId, dropData);
       }
       
       // Dispatch custom event for drop
       const dropEvent = new CustomEvent('timelineCardDrop', {
         detail: {
-          item: dragState.draggedItem,
+          item: currentDraggedItem,
           dropZone: dropZoneId,
           dropData: dropData ? JSON.parse(dropData) : null,
           position: { x: event.clientX, y: event.clientY }
@@ -76,9 +89,7 @@ export const useDragAndDrop = () => {
       });
       document.dispatchEvent(dropEvent);
     }
-
-    handleDragEnd();
-  }, [dragState.draggedItem, handleDragEnd]);
+  }, []);
 
   // Store handlers in ref
   handlersRef.current = {
