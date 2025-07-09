@@ -1,13 +1,32 @@
+/* CSS Variables System */
+:root {
+  --primary-color: #2c3e50;    /* Dark slate blue */
+  --secondary-color: #3498db;   /* Bright blue */
+  --accent-color: #e74c3c;      /* Red */
+  --success-color: #27ae60;     /* Green */
+  --warning-color: #f39c12;     /* Orange */
+  --background-color: #ecf0f1;  /* Light gray */
+  --card-background: #ffffff;   /* White */
+  --text-color: #2c3e50;        /* Dark slate */
+  --text-light: #7f8c8d;       /* Light gray */
+  --border-color: #bdc3c7;      /* Light gray */
+  --star-color: #ffd700;        /* Gold */
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
 /* Card Container */
 .card-container {
   cursor: pointer;
   transition: transform 0.3s ease, filter 0.3s ease;
   position: relative;
   user-select: none;
+  width: 220px;
+  height: 300px;
 }
 
 .card-container:hover {
-  transform: scale(1.05) translateY(-8px);
+  transform: translateY(-4px);
   filter: brightness(1.1);
 }
 
@@ -33,116 +52,235 @@
   width: 100%;
   height: 100%;
   border-radius: var(--border-radius);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
   background: var(--card-background);
   border: 2px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 0;
   box-sizing: border-box;
   overflow: hidden;
+  transition: var(--transition);
 }
 
-/* Timeline cards styling */
-.timeline-card .card {
-  padding: 8px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-color: var(--success-color);
-  box-shadow: inset 0 2px 4px rgba(39, 174, 96, 0.1);
+.card-container:hover .card {
+  box-shadow: 0 12px 25px rgba(44, 62, 80, 0.4);
 }
 
-/* Timeline card specific styling - simplified layout */
-.timeline-card .event-date {
-  display: none;
+/* Page Background */
+body {
+  background: linear-gradient(135deg, var(--background-color), var(--secondary-color));
+  min-height: 100vh;
 }
 
-.timeline-card .difficulty-indicator {
-  display: none;
-}
-
-.timeline-card .card-footer {
-  display: none;
-}
-
-.timeline-card .card-header {
-  flex-direction: column;
+/* Header Section - Always visible when fanned */
+.card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  position: relative;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* Left Side - Difficulty Rating */
+.difficulty-stars {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.difficulty-star {
+  font-size: 18px;
+  color: var(--star-color);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Right Side - Category Identification */
+.category-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 15px;
+  padding: 6px 10px;
 }
 
 .category-icon {
+  font-size: 18px;
+}
+
+.category-name {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+/* Category Color Coding */
+.category-military { color: var(--accent-color); }
+.category-disaster { color: var(--warning-color); }
+.category-political { color: var(--primary-color); }
+.category-cultural { color: var(--success-color); }
+.category-scientific { color: var(--secondary-color); }
+
+/* Title Section */
+.card-title {
+  font-family: Georgia, serif;
   font-size: 16px;
-  padding: 4px;
+  font-weight: bold;
+  color: var(--text-color);
+  text-align: center;
+  line-height: 1.2;
+  padding: 12px 12px 6px 12px;
+  border-bottom: 2px solid var(--secondary-color);
+  background: var(--card-background);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Description Section - Main Content Area */
+.card-mechanics {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(46, 204, 113, 0.05));
+  border-top: 2px solid var(--secondary-color);
+  padding: 16px 12px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mechanic-title {
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.mechanic-text {
+  font-family: Georgia, serif;
+  font-size: 11px;
+  color: var(--text-color);
+  line-height: 1.4;
+  text-align: justify;
+  flex-grow: 1;
+}
+
+/* Timeline cards now use the same design as player hand cards */
+/* Remove timeline-specific overrides to maintain consistent design */
+
+/* Legacy support for existing structure */
+.event-title {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-color);
+  text-align: center;
+  line-height: 1.2;
+  margin: 0;
+  padding: 12px;
+}
+
+.event-description {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-description p {
+  font-family: Georgia, serif;
+  font-size: 11px;
+  color: var(--text-color);
+  line-height: 1.4;
+  text-align: justify;
+  margin: 0;
+  flex-grow: 1;
+}
+
+/* Remove old header styles - replaced above */
+/* Legacy header styles for compatibility */
+.player-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.05));
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Removed player-hand-card specific styling to ensure consistency */
+/* Both player hand and timeline cards now use identical styling */
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.header-bottom {
+  display: flex;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.category-icon-badge {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
-  margin-bottom: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
 }
 
-.category-icon:hover {
+.category-icon-badge:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Adjust timeline card layout for compact display */
-.timeline-card .card-content {
-  justify-content: flex-start;
-  text-align: left;
-  padding: 0;
-  flex: 1;
-}
-
-.timeline-card .event-title {
+.category-icon-symbol {
   font-size: 16px;
-  line-height: 1.2;
-  font-weight: 600;
-  color: var(--primary-color);
-  text-align: center;
-  width: 100%;
-  margin: 0;
-}
-
-.timeline-card .event-description {
-  display: block;
-}
-
-.timeline-card .event-description p {
-  font-size: 12px;
-  color: var(--text-light);
-  line-height: 1.3;
-  margin: 0;
-  text-align: left;
-}
-
-/* Add space for image placeholder */
-.timeline-card .card {
-  min-height: 120px;
-}
-
-/* Card Header */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 .category-badge {
   color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.category-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-container:hover .category-badge::before {
+  left: 100%;
 }
 
 
@@ -151,32 +289,31 @@
   50% { transform: scale(1.05); }
 }
 
+/* Updated difficulty styling integrated above */
 .difficulty-indicator {
   display: flex;
   gap: 2px;
   align-items: center;
-}
-
-.difficulty-star {
-  color: var(--warning-color);
-  font-size: 12px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
+  padding: 2px 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
 }
 
 .card-container:hover .difficulty-star {
-  color: #e67e22;
-  transform: scale(1.1);
+  color: #ffed4a;
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
 }
 
-/* Card Content */
+/* Card Content - updated for new structure */
 .card-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
-  padding: 8px 0;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 0;
 }
 
 .event-title {
@@ -188,10 +325,7 @@
   transition: var(--transition);
 }
 
-.timeline-card .event-title {
-  color: var(--primary-color);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
+/* Removed timeline-specific event-title styling */
 
 .event-description {
   margin: 8px 0;
@@ -209,10 +343,7 @@
   -webkit-box-orient: vertical;
 }
 
-.timeline-card .event-description p {
-  color: var(--text-color);
-  opacity: 0.9;
-}
+/* Removed timeline-specific event-description styling */
 
 /* Date Display (Back only) */
 .event-date {
@@ -333,48 +464,46 @@
   50% { transform: translateY(-4px); }
 }
 
-/* Size Variations */
+/* Size Variations - Updated for new 220x300 standard */
 .card-container.small {
-  width: 120px;
-  height: 170px;
+  width: 176px;  /* 80% of 220px */
+  height: 240px; /* 80% of 300px */
 }
 
-.card-container.small .event-title {
-  font-size: 13px;
+.card-container.small .card-title {
+  font-size: 14px;
+  padding: 10px;
 }
 
-.card-container.small .event-description p {
-  font-size: 11px;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+.card-container.small .mechanic-text {
+  font-size: 10px;
 }
 
-.card-container.small .year-highlight {
-  font-size: 18px;
+.card-container.small .difficulty-star {
+  font-size: 16px;
 }
 
 .card-container.medium {
-  width: 160px;
-  height: 230px;
+  width: 220px;  /* Standard size */
+  height: 300px;
 }
 
 .card-container.large {
-  width: 200px;
-  height: 290px;
+  width: 264px;  /* 120% of 220px */
+  height: 360px; /* 120% of 300px */
 }
 
-.card-container.large .event-title {
+.card-container.large .card-title {
   font-size: 18px;
+  padding: 14px;
 }
 
-.card-container.large .event-description p {
-  font-size: 14px;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
+.card-container.large .mechanic-text {
+  font-size: 12px;
 }
 
-.card-container.large .year-highlight {
-  font-size: 28px;
+.card-container.large .difficulty-star {
+  font-size: 20px;
 }
 
 /* Responsive Design */

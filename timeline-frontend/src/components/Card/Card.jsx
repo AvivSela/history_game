@@ -18,43 +18,38 @@ const Card = ({
   // Determine if this is a timeline card
   const isTimelineCard = className.includes('timeline-card');
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  // Remove unused date formatting functions since new design doesn't show dates on cards
 
-  // Get year only for timeline display
-  const getYear = (dateString) => {
-    return new Date(dateString).getFullYear();
-  };
-
-  // Get category color
-  const getCategoryColor = (category) => {
-    const colors = {
-      'History': '#e74c3c',
-      'Science': '#3498db',
-      'Technology': '#2ecc71',
-      'Space': '#9b59b6',
-      'Aviation': '#f39c12',
-      'default': '#34495e'
+  // Get category class for color coding
+  const getCategoryClass = (category) => {
+    const categoryMap = {
+      'Military': 'category-military',
+      'Disaster': 'category-disaster', 
+      'Political': 'category-political',
+      'Cultural': 'category-cultural',
+      'Science': 'category-scientific',
+      'Technology': 'category-scientific',
+      'Space': 'category-scientific',
+      'Aviation': 'category-scientific',
+      'History': 'category-cultural',
+      'default': 'category-cultural'
     };
-    return colors[category] || colors.default;
+    return categoryMap[category] || categoryMap.default;
   };
 
   // Get category icon
   const getCategoryIcon = (category) => {
     const icons = {
-      'History': '📜',
+      'Military': '⚔️',
+      'Disaster': '🔥',
+      'Political': '🏛️',
+      'Cultural': '📜',
       'Science': '🔬',
-      'Technology': '💻',
-      'Space': '🚀',
-      'Aviation': '✈️',
-      'default': '📋'
+      'Technology': '🔬',
+      'Space': '🔬',
+      'Aviation': '🔬',
+      'History': '📜',
+      'default': '📜'
     };
     return icons[category] || icons.default;
   };
@@ -99,63 +94,58 @@ const Card = ({
     isDragging ? 'dragging' : '',
     isSelected ? 'selected' : '',
     isHovered ? 'hovered' : '',
+    isTimelineCard ? 'timeline-card' : 'player-hand-card',
     className
   ].filter(Boolean).join(' ');
 
-  // Render player hand card content
+  // Render player hand card content with new design
   const renderPlayerHandContent = () => (
     <>
       <div className="card-header">
-        <div 
-          className="category-badge"
-          style={{ backgroundColor: getCategoryColor(event.category) }}
-        >
-          {event.category}
-        </div>
-        <div className="difficulty-indicator">
+        <div className="difficulty-stars">
           {Array.from({ length: event.difficulty }, (_, i) => (
             <span key={i} className="difficulty-star">★</span>
           ))}
         </div>
+        <div className={`category-section ${getCategoryClass(event.category)}`}>
+          <div className="category-icon">{getCategoryIcon(event.category)}</div>
+          <div className="category-name">{event.category}</div>
+        </div>
       </div>
       
-      <div className="card-content">
-        <h3 className="event-title">{event.title}</h3>
-        {event.description && (
-          <div className="event-description">
-            <p>{event.description}</p>
-          </div>
-        )}
-      </div>
+      <div className="card-title">{event.title}</div>
       
-      <div className="card-footer">
-        <span className="mystery-date">When did this happen?</span>
+      <div className="card-mechanics">
+        <div className="mechanic-title">Event Description</div>
+        <div className="mechanic-text">
+          {event.description || 'A significant historical event that shaped the course of history.'}
+        </div>
       </div>
     </>
   );
 
-  // Render timeline card content
+  // Render timeline card content with same design as player hand
   const renderTimelineContent = () => (
     <>
       <div className="card-header">
-        <div className="category-icon">
-          {getCategoryIcon(event.category)}
+        <div className="difficulty-stars">
+          {Array.from({ length: event.difficulty }, (_, i) => (
+            <span key={i} className="difficulty-star">★</span>
+          ))}
         </div>
-        <h3 className="event-title">{event.title}</h3>
+        <div className={`category-section ${getCategoryClass(event.category)}`}>
+          <div className="category-icon">{getCategoryIcon(event.category)}</div>
+          <div className="category-name">{event.category}</div>
+        </div>
       </div>
       
-      <div className="card-content">
-        <div className="event-date">
-          <span className="date-text">{formatDate(event.dateOccurred)}</span>
-          <span className="year-highlight">
-            {getYear(event.dateOccurred)}
-          </span>
+      <div className="card-title">{event.title}</div>
+      
+      <div className="card-mechanics">
+        <div className="mechanic-title">Event Description</div>
+        <div className="mechanic-text">
+          {event.description || 'A significant historical event that shaped the course of history.'}
         </div>
-        {event.description && (
-          <div className="event-description">
-            <p>{event.description}</p>
-          </div>
-        )}
       </div>
     </>
   );
