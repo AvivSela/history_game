@@ -20,6 +20,37 @@ const Timeline = ({
     new Date(a.dateOccurred) - new Date(b.dateOccurred)
   );
 
+  // Calculate decade markers for visual enhancement
+  const calculateDecadeMarkers = () => {
+    if (sortedEvents.length === 0) return [];
+    
+    const firstYear = new Date(sortedEvents[0].dateOccurred).getFullYear();
+    const lastYear = new Date(sortedEvents[sortedEvents.length - 1].dateOccurred).getFullYear();
+    
+    // Find the first decade boundary
+    const firstDecade = Math.floor(firstYear / 10) * 10;
+    const lastDecade = Math.ceil(lastYear / 10) * 10;
+    
+    const markers = [];
+    for (let decade = firstDecade; decade <= lastDecade; decade += 10) {
+      // Calculate position as percentage of timeline span
+      const totalSpan = lastYear - firstYear;
+      const decadePosition = totalSpan > 0 ? ((decade - firstYear) / totalSpan) * 100 : 50;
+      
+      // Only show markers that are within reasonable bounds
+      if (decadePosition >= -10 && decadePosition <= 110) {
+        markers.push({
+          year: decade,
+          position: Math.max(5, Math.min(95, decadePosition))
+        });
+      }
+    }
+    
+    return markers;
+  };
+
+  const decadeMarkers = calculateDecadeMarkers();
+
   // Auto-scroll to show new cards
   useEffect(() => {
     if (timelineRef.current && events.length > 0) {
@@ -105,12 +136,18 @@ const Timeline = ({
         <div className="timeline-header compact">
           <h3>📅 Empty Timeline</h3>
         </div>
-        <div className="timeline-empty">
-          <div className="empty-timeline-message">
-            <div className="empty-icon">⏰</div>
-            <h3>Timeline is empty</h3>
-            <p>Cards will appear here as you place them correctly</p>
-            {highlightInsertionPoints && renderInsertionPoint(0)}
+        <div className="timeline-content">
+          <div className="timeline-scroll">
+            <div className="timeline-track"></div>
+            <div className="timeline-line"></div>
+          </div>
+          <div className="timeline-empty">
+            <div className="empty-timeline-message">
+              <div className="empty-icon">⏰</div>
+              <h3>Timeline is empty</h3>
+              <p>Cards will appear here as you place them correctly</p>
+              {highlightInsertionPoints && renderInsertionPoint(0)}
+            </div>
           </div>
         </div>
       </div>
@@ -131,7 +168,25 @@ const Timeline = ({
       
       <div className="timeline-content">
         <div className="timeline-scroll" ref={timelineRef}>
+          <div className="timeline-track"></div>
           <div className="timeline-line"></div>
+          
+          {/* Decade Markers */}
+          {decadeMarkers.length > 0 && (
+            <div className="decade-markers">
+              {decadeMarkers.map((marker) => (
+                <div 
+                  key={marker.year}
+                  className="decade-marker"
+                  style={{ left: `${marker.position}%` }}
+                >
+                  <div className="decade-label">
+                    {marker.year}s
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           
           <div className="timeline-events">
             {/* Insertion point before first card */}
