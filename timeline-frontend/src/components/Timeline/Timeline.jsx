@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Card from '../Card/Card';
 import './Timeline.css';
+import '../DragAndDrop/DragFeedback.css';
 
 const Timeline = ({ 
   events = [], 
@@ -102,7 +103,7 @@ const Timeline = ({
 
   if (sortedEvents.length === 0) {
     return (
-      <div className="timeline-container">
+      <div className={`timeline-container ${isDragActive ? 'drag-active' : ''}`}>
         <div className="timeline-header compact">
           <h3>📅 Empty Timeline</h3>
         </div>
@@ -125,7 +126,7 @@ const Timeline = ({
   }
 
   return (
-    <div className="timeline-container">
+    <div className={`timeline-container ${isDragActive ? 'drag-active' : ''}`}>
       <div className="timeline-header compact">
         <h3>📅 {sortedEvents.length} event{sortedEvents.length !== 1 ? 's' : ''}</h3>
         {sortedEvents.length > 1 && (

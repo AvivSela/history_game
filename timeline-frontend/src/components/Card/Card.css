@@ -25,6 +25,15 @@
   height: 300px;
 }
 
+/* Enhanced drag states */
+.card-container.draggable {
+  cursor: grab;
+}
+
+.card-container.draggable:active {
+  cursor: grabbing;
+}
+
 .card-container:hover {
   transform: translateY(-4px);
   filter: brightness(1.1);

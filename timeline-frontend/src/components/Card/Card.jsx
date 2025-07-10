@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Card.css';
+import '../DragAndDrop/DragFeedback.css';
 
 const Card = ({ 
   event, 

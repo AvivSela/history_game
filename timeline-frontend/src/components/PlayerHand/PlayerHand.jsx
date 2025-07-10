@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../Card/Card';
 import './PlayerHand.css';
+import '../DragAndDrop/DragFeedback.css';
 
 const PlayerHand = ({ 
   cards = [], 
@@ -124,7 +125,7 @@ const PlayerHand = ({
   }
 
   return (
-    <div className={`player-hand-container ${!isPlayerTurn ? 'disabled' : ''} ${isPlayerTurn ? 'active-turn' : ''}`}>
+    <div className={`player-hand-container ${!isPlayerTurn ? 'disabled' : ''} ${isPlayerTurn ? 'active-turn' : ''} ${draggedCard ? 'drag-active' : ''}`}>
       <div className="player-hand-header">
         <div className="player-info">
           <h3>🎴 {playerName}'s Hand</h3>
@@ -153,7 +154,7 @@ const PlayerHand = ({
           {cards.map((card, index) => (
             <div
               key={card.id}
-              className={`hand-card-wrapper ${selectedCard && selectedCard.id === card.id ? 'selected' : ''}`}
+              className={`hand-card-wrapper ${selectedCard && selectedCard.id === card.id ? 'selected' : ''} ${draggedCard && draggedCard.id === card.id ? 'dragging' : ''}`}
               style={getCardStyle(index)}
             >
               <Card
@@ -164,7 +165,7 @@ const PlayerHand = ({
                 onDoubleClick={() => handleCardDoubleClick(card)}
                 onMouseEnter={() => setHoveredCard(card.id)}
                 onMouseLeave={() => setHoveredCard(null)}
-                className="player-card"
+                className={`player-card ${isPlayerTurn ? 'draggable' : ''}`}
                 isDragging={draggedCard && draggedCard.id === card.id}
                 draggable={isPlayerTurn}
                 onDragStart={() => onDragStart && onDragStart(card)}

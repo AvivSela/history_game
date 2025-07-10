@@ -11,12 +11,16 @@ import {
   generateSmartInsertionPoints 
 } from '../utils/timelineLogic';
 import { createAIOpponent, getAIThinkingTime } from '../utils/aiLogic';
+import { useDragFeedback } from '../hooks/useDragFeedback';
 import Timeline from '../components/Timeline/Timeline';
 import PlayerHand from '../components/PlayerHand/PlayerHand';
 import './Game.css';
 
 const Game = () => {
-  // Drag and drop state
+  // Enhanced drag and drop feedback
+  const { dragState, getDragProps: _getDragProps, getDropProps: _getDropProps, isItemDragging: _isItemDragging, handleDragEnd } = useDragFeedback();
+  
+  // Legacy drag state for compatibility
   const [draggedCard, setDraggedCard] = useState(null);
   
   const [gameState, setGameState] = useState({
@@ -176,13 +180,15 @@ const Game = () => {
     placeCard(position, 'human');
   };
 
-  // Drag and drop handlers
+  // Enhanced drag and drop handlers
   const handleDragStart = (card) => {
     setDraggedCard(card);
+    // Enhanced drag feedback is handled by the useDragFeedback hook
   };
 
-  const handleDragEnd = () => {
+  const handleDragEndLegacy = () => {
     setDraggedCard(null);
+    // Enhanced drag feedback cleanup is handled by the useDragFeedback hook
   };
 
   const handleDragOver = (e) => {
@@ -192,15 +198,21 @@ const Game = () => {
   const handleDrop = (e, position) => {
     e.preventDefault();
     
-    if (!draggedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
+    const currentDraggedCard = draggedCard || dragState.draggedItem;
+    
+    if (!currentDraggedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
+      handleDragEnd(false);
       return;
     }
 
     // Set the dragged card as selected and place it
-    setGameState(prev => ({ ...prev, selectedCard: draggedCard }));
+    setGameState(prev => ({ ...prev, selectedCard: currentDraggedCard }));
     setDraggedCard(null);
+    
+    // Place the card with success animation
     setTimeout(() => {
       placeCard(position, 'human');
+      handleDragEnd(true); // Trigger success animation
     }, 0);
   };
 
@@ -581,7 +593,7 @@ const Game = () => {
               highlightInsertionPoints={gameState.showInsertionPoints}
               onInsertionPointClick={handleInsertionPointClick}
               selectedCard={gameState.selectedCard}
-              isDragActive={!!draggedCard}
+              isDragActive={!!draggedCard || dragState.isDragging}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             />
@@ -597,8 +609,8 @@ const Game = () => {
               playerName="Player 1"
               maxCards={8}
               onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              draggedCard={draggedCard}
+              onDragEnd={handleDragEndLegacy}
+              draggedCard={draggedCard || dragState.draggedItem}
             />
             
             {/* AI Hand */}
