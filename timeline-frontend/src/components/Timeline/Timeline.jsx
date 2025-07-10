@@ -20,51 +20,6 @@ const Timeline = ({
     new Date(a.dateOccurred) - new Date(b.dateOccurred)
   );
 
-  // Calculate decade markers for visual enhancement
-  const calculateDecadeMarkers = () => {
-    if (sortedEvents.length === 0) return [];
-    
-    const firstYear = new Date(sortedEvents[0].dateOccurred).getFullYear();
-    const lastYear = new Date(sortedEvents[sortedEvents.length - 1].dateOccurred).getFullYear();
-    const totalSpan = lastYear - firstYear;
-    
-    // Determine appropriate interval based on timeline span
-    let interval = 10; // Default to decades
-    if (totalSpan > 2000) {
-      interval = 500; // Centuries for very long spans
-    } else if (totalSpan > 500) {
-      interval = 100; // Centuries for long spans
-    } else if (totalSpan > 100) {
-      interval = 50; // Half-centuries for medium spans
-    }
-    
-    // Find appropriate boundaries
-    const firstBoundary = Math.floor(firstYear / interval) * interval;
-    const lastBoundary = Math.ceil(lastYear / interval) * interval;
-    
-    const markers = [];
-    for (let year = firstBoundary; year <= lastBoundary; year += interval) {
-      // Calculate position as percentage of timeline span
-      const position = totalSpan > 0 ? ((year - firstYear) / totalSpan) * 100 : 50;
-      
-      // Only show markers that are within reasonable bounds and limit to max 6 markers
-      if (position >= -10 && position <= 110 && markers.length < 6) {
-        const label = interval >= 100 ? 
-          `${year}` : // Show full year for centuries
-          `${year}s`; // Show decade format for smaller intervals
-        
-        markers.push({
-          year: year,
-          position: Math.max(5, Math.min(95, position)),
-          label: label
-        });
-      }
-    }
-    
-    return markers;
-  };
-
-  const decadeMarkers = calculateDecadeMarkers();
 
   // Auto-scroll to show new cards
   useEffect(() => {
@@ -186,22 +141,6 @@ const Timeline = ({
           <div className="timeline-track"></div>
           <div className="timeline-line"></div>
           
-          {/* Decade Markers */}
-          {decadeMarkers.length > 0 && (
-            <div className="decade-markers">
-              {decadeMarkers.map((marker) => (
-                <div 
-                  key={marker.year}
-                  className="decade-marker"
-                  style={{ left: `${marker.position}%` }}
-                >
-                  <div className="decade-label">
-                    {marker.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
           
           <div className="timeline-events">
             {/* Insertion point before first card */}
