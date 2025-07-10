@@ -26,22 +26,37 @@ const Timeline = ({
     
     const firstYear = new Date(sortedEvents[0].dateOccurred).getFullYear();
     const lastYear = new Date(sortedEvents[sortedEvents.length - 1].dateOccurred).getFullYear();
+    const totalSpan = lastYear - firstYear;
     
-    // Find the first decade boundary
-    const firstDecade = Math.floor(firstYear / 10) * 10;
-    const lastDecade = Math.ceil(lastYear / 10) * 10;
+    // Determine appropriate interval based on timeline span
+    let interval = 10; // Default to decades
+    if (totalSpan > 2000) {
+      interval = 500; // Centuries for very long spans
+    } else if (totalSpan > 500) {
+      interval = 100; // Centuries for long spans
+    } else if (totalSpan > 100) {
+      interval = 50; // Half-centuries for medium spans
+    }
+    
+    // Find appropriate boundaries
+    const firstBoundary = Math.floor(firstYear / interval) * interval;
+    const lastBoundary = Math.ceil(lastYear / interval) * interval;
     
     const markers = [];
-    for (let decade = firstDecade; decade <= lastDecade; decade += 10) {
+    for (let year = firstBoundary; year <= lastBoundary; year += interval) {
       // Calculate position as percentage of timeline span
-      const totalSpan = lastYear - firstYear;
-      const decadePosition = totalSpan > 0 ? ((decade - firstYear) / totalSpan) * 100 : 50;
+      const position = totalSpan > 0 ? ((year - firstYear) / totalSpan) * 100 : 50;
       
-      // Only show markers that are within reasonable bounds
-      if (decadePosition >= -10 && decadePosition <= 110) {
+      // Only show markers that are within reasonable bounds and limit to max 6 markers
+      if (position >= -10 && position <= 110 && markers.length < 6) {
+        const label = interval >= 100 ? 
+          `${year}` : // Show full year for centuries
+          `${year}s`; // Show decade format for smaller intervals
+        
         markers.push({
-          year: decade,
-          position: Math.max(5, Math.min(95, decadePosition))
+          year: year,
+          position: Math.max(5, Math.min(95, position)),
+          label: label
         });
       }
     }
@@ -181,7 +196,7 @@ const Timeline = ({
                   style={{ left: `${marker.position}%` }}
                 >
                   <div className="decade-label">
-                    {marker.year}s
+                    {marker.label}
                   </div>
                 </div>
               ))}
