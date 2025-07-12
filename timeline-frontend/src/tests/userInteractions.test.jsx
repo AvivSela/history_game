@@ -122,21 +122,12 @@ const MockGameInterface = ({
     setScore(0)
   }
 
-  const handleClearSelection = () => {
-    setSelectedCard(null)
-  }
-
   return (
     <div data-testid="game-interface">
       <div data-testid="game-controls">
         <button onClick={handleRestart} data-testid="restart-btn">
           🔄 Restart Game
         </button>
-        {selectedCard && (
-          <button onClick={handleClearSelection} data-testid="clear-selection-btn">
-            ❌ Clear Selection
-          </button>
-        )}
       </div>
       
       <div data-testid="game-status">
@@ -269,36 +260,25 @@ describe('User Interactions', () => {
 
   describe('Game Control Interactions', () => {
 
-    it('should clear selection when clear selection button is clicked', () => {
+    it('should restart the game when restart button is clicked', () => {
       render(<MockGameInterface />)
       
-      // Select a card
+      // Play with the game state
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(card)
-      expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
+      const insertionPoint = document.querySelector('.insertion-point')
+      fireEvent.click(insertionPoint)
       
-      // Clear selection
-      const clearBtn = screen.getByTestId('clear-selection-btn')
-      fireEvent.click(clearBtn)
+      expect(screen.getByTestId('game-status').textContent).toContain('Status: playing')
       
-      expect(screen.queryByText('Selected: Berlin Wall Falls')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('clear-selection-btn')).not.toBeInTheDocument()
-    })
-
-    it('should show clear selection button only when card is selected', () => {
-      render(<MockGameInterface />)
+      // Restart game
+      const restartBtn = screen.getByTestId('restart-btn')
+      fireEvent.click(restartBtn)
       
-      // Initially no clear button
-      expect(screen.queryByTestId('clear-selection-btn')).not.toBeInTheDocument()
-      
-      // Select card - clear button appears
-      const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
-      fireEvent.click(card)
-      expect(screen.getByTestId('clear-selection-btn')).toBeInTheDocument()
-      
-      // Deselect card - clear button disappears
-      fireEvent.click(card)
-      expect(screen.queryByTestId('clear-selection-btn')).not.toBeInTheDocument()
+      // Check if game has been reset
+      expect(screen.getByTestId('game-status').textContent).toContain('Status: playing')
+      // Alternative: check that a card is present after restart
+      expect(screen.getByText('Berlin Wall Falls')).toBeInTheDocument()
     })
   })
 

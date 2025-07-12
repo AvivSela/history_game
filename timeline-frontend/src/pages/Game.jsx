@@ -573,13 +573,6 @@ const Game = () => {
             <button onClick={handleRestartGame} className="btn btn-secondary">
               🔄 New Game
             </button>
-            <button 
-              onClick={() => handleCardSelect(null)} 
-              className="btn btn-secondary"
-              disabled={!gameState.selectedCard}
-            >
-              ❌ Clear Selection
-            </button>
             {gameState.gameStatus === 'playing' && (
               <button onClick={togglePause} className="btn btn-secondary">
                 ⏸️ Pause
