@@ -98,9 +98,6 @@ const Timeline = ({
   if (sortedEvents.length === 0) {
     return (
       <div className="timeline-container">
-        <div className="timeline-header compact">
-          <h3>📅 Empty Timeline</h3>
-        </div>
         <div className="timeline-content">
           <div className="timeline-scroll">
             <div className="timeline-track"></div>
@@ -121,16 +118,6 @@ const Timeline = ({
 
   return (
     <div className="timeline-container">
-      <div className="timeline-header compact">
-        <h3>📅 {sortedEvents.length} event{sortedEvents.length !== 1 ? 's' : ''}</h3>
-        {sortedEvents.length > 1 && (
-          <span className="year-range">
-            {new Date(sortedEvents[0].dateOccurred).getFullYear()} - {' '}
-            {new Date(sortedEvents[sortedEvents.length - 1].dateOccurred).getFullYear()}
-          </span>
-        )}
-      </div>
-      
       <div className="timeline-content">
         <div className="timeline-scroll" ref={timelineRef}>
           <div className="timeline-track"></div>

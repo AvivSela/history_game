@@ -489,7 +489,16 @@ const Game = () => {
               </div>
             )}
           </div>
-          
+          <div className="game-header-controls">
+            <button onClick={handleRestartGame} className="btn btn-secondary">
+              🔄 New Game
+            </button>
+            {gameState.gameStatus === 'playing' && (
+              <button onClick={togglePause} className="btn btn-secondary">
+                ⏸️ Pause
+              </button>
+            )}
+          </div>
           <div className="game-stats">
             <div className="stat-item">
               <span className="stat-label">Your Score</span>
@@ -561,105 +570,6 @@ const Game = () => {
                       🎴
                     </div>
                   ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Game Controls */}
-        <div className="game-controls">
-          <div className="control-buttons">
-            <button onClick={handleRestartGame} className="btn btn-secondary">
-              🔄 New Game
-            </button>
-            {gameState.gameStatus === 'playing' && (
-              <button onClick={togglePause} className="btn btn-secondary">
-                ⏸️ Pause
-              </button>
-            )}
-          </div>
-          
-          <div className="game-info">
-            <div className="info-panel">
-              <h3>📖 How to Play</h3>
-              <ol>
-                <li>Select a card from your hand</li>
-                <li>Click where it belongs on the timeline</li>
-                <li>If correct, it stays! If wrong, try again</li>
-                <li>{gameState.gameMode === 'ai' ? 'Score more points than the AI to win!' : 'Place all cards to win!'}</li>
-              </ol>
-            </div>
-            
-            {/* Game Mode Selector */}
-            <div className="mode-selector">
-              <h3>🎮 Game Mode</h3>
-              <div className="mode-buttons">
-                <button 
-                  className={`mode-btn ${gameState.gameMode === 'single' ? 'active' : ''}`}
-                  onClick={() => handleModeChange('single')}
-                  disabled={gameState.gameStatus === 'playing'}
-                >
-                  👤 Solo
-                </button>
-                <button 
-                  className={`mode-btn ${gameState.gameMode === 'ai' ? 'active' : ''}`}
-                  onClick={() => handleModeChange('ai')}
-                  disabled={gameState.gameStatus === 'playing'}
-                >
-                  🤖 vs AI
-                </button>
-              </div>
-              
-              {gameState.gameMode === 'ai' && (
-                <div className="difficulty-selector">
-                  <h4>AI Difficulty</h4>
-                  <select 
-                    value={gameState.difficulty} 
-                    onChange={(e) => handleDifficultyChange(e.target.value)}
-                    disabled={gameState.gameStatus === 'playing'}
-                    className="difficulty-select"
-                  >
-                    <option value="easy">🟢 Easy - Beginner Bot</option>
-                    <option value="medium">🟡 Medium - Scholar Bot</option>
-                    <option value="hard">🔴 Hard - Historian Pro</option>
-                    <option value="expert">⚫ Expert - Timeline Master</option>
-                  </select>
-                </div>
-              )}
-            </div>
-            
-            {/* Selected Card Info */}
-            {gameState.selectedCard && (
-              <div className="selected-info">
-                <h3>🎯 Selected Card</h3>
-                <h4>"{gameState.selectedCard.title}"</h4>
-                <p>{gameState.selectedCard.description}</p>
-                <p className="hint">💡 Click on the timeline to place it!</p>
-                <div className="card-stats">
-                  <span className="card-attempts">
-                    Attempts: {gameState.attempts[gameState.selectedCard.id] || 0}
-                  </span>
-                  <span className="card-difficulty">
-                    Difficulty: {'★'.repeat(gameState.selectedCard.difficulty)}
-                  </span>
-                </div>
-              </div>
-            )}
-            
-            {/* Game Statistics */}
-            {gameState.gameStats.totalMoves > 0 && (
-              <div className="game-statistics">
-                <h3>📊 Game Stats</h3>
-                <div className="stats-grid">
-                  <div className="stat-row">
-                    <span>Accuracy:</span>
-                    <span>{Math.round((gameState.gameStats.correctMoves / gameState.gameStats.totalMoves) * 100)}%</span>
-                  </div>
-                  <div className="stat-row">
-                    <span>Avg Time/Move:</span>
-                    <span>{Math.round(gameState.gameStats.averageTimePerMove)}s</span>
-                  </div>
                 </div>
               </div>
             )}
