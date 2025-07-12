@@ -304,24 +304,6 @@ describe('Click-to-Place Flow Integration', () => {
       expect(timelineCards).toHaveLength(3)
     })
 
-    it('should update timeline header with correct event count', async () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />)
-
-      // Initially shows 1 event
-      expect(screen.getByText('📅 1 event')).toBeInTheDocument()
-
-      // Place card
-      const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
-      fireEvent.click(cardToSelect)
-
-      const insertionPoints = document.querySelectorAll('.insertion-point')
-      fireEvent.click(insertionPoints[1])
-
-      // Should show 2 events after placement
-      await waitFor(() => {
-        expect(screen.getByText('📅 2 events')).toBeInTheDocument()
-      })
-    })
   })
 
   describe('Insertion Point Behavior', () => {

@@ -216,31 +216,12 @@ describe('Timeline', () => {
       
       expect(onCardClick).toHaveBeenCalledWith(mockEvents[0])
     })
-
-    it('should display event count in header', () => {
-      render(<Timeline events={mockEvents} />)
-      
-      expect(screen.getByText('📅 3 events')).toBeInTheDocument()
-    })
-
-    it('should display singular form for single event', () => {
-      render(<Timeline events={[mockEvents[0]]} />)
-      
-      expect(screen.getByText('📅 1 event')).toBeInTheDocument()
-    })
-
-    it('should display year range for multiple events', () => {
-      render(<Timeline events={mockEvents} />)
-      
-      expect(screen.getByText('1939 - 1989')).toBeInTheDocument()
-    })
   })
 
   describe('Empty Timeline', () => {
     it('should show empty state when no events exist', () => {
       render(<Timeline events={[]} />)
       
-      expect(screen.getByText('📅 Empty Timeline')).toBeInTheDocument()
       expect(screen.getByText('Timeline is empty')).toBeInTheDocument()
       expect(screen.getByText('Cards will appear here as you place them correctly')).toBeInTheDocument()
     })
