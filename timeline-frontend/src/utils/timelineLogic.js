@@ -79,7 +79,6 @@ export const generateExactMatchFeedback = (card) => {
 export const generateMissedFeedback = (card, userPosition, correctPosition, timeline) => {
   const cardYear = new Date(card.dateOccurred).getFullYear();
   const decade = Math.floor(cardYear / 10) * 10;
-  let hint = '';
   let direction = '';
   const sortedTimeline = [...timeline].sort((a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred));
   // Determine direction guidance
@@ -88,22 +87,11 @@ export const generateMissedFeedback = (card, userPosition, correctPosition, time
   } else if (userPosition < correctPosition) {
     direction = ' Try looking later in the timeline.';
   }
-  if (correctPosition > 0 && correctPosition < sortedTimeline.length) {
-    const beforeYear = new Date(sortedTimeline[correctPosition - 1].dateOccurred).getFullYear();
-    const afterYear = new Date(sortedTimeline[correctPosition].dateOccurred).getFullYear();
-    hint = ` It happened between ${beforeYear} and ${afterYear}.`;
-  } else if (correctPosition === 0 && sortedTimeline.length > 0) {
-    const afterYear = new Date(sortedTimeline[0].dateOccurred).getFullYear();
-    hint = ` It happened before ${afterYear}.`;
-  } else if (correctPosition >= sortedTimeline.length && sortedTimeline.length > 0) {
-    const beforeYear = new Date(sortedTimeline[sortedTimeline.length - 1].dateOccurred).getFullYear();
-    hint = ` It happened after ${beforeYear}.`;
-  }
   const feedbacks = [
-    `❌ Incorrect placement! ${card.title} occurred in ${cardYear} (${decade}s).${hint}${direction}`,
-    `🚫 Not quite right! ${card.title} happened in ${cardYear} (${decade}s).${hint}${direction}`,
-    `⚠️ Wrong position! ${card.title} took place in ${cardYear} (${decade}s).${hint}${direction}`,
-    `💭 Think again! ${card.title} was in ${cardYear} (${decade}s).${hint}${direction}`
+    `❌ Incorrect placement! ${card.title} occurred in ${cardYear} (${decade}s).${direction}`,
+    `🚫 Not quite right! ${card.title} happened in ${cardYear} (${decade}s).${direction}`,
+    `⚠️ Wrong position! ${card.title} took place in ${cardYear} (${decade}s).${direction}`,
+    `💭 Think again! ${card.title} was in ${cardYear} (${decade}s).${direction}`
   ];
   return feedbacks[Math.floor(Math.random() * feedbacks.length)];
 };
@@ -170,7 +158,6 @@ export const generateSmartInsertionPoints = (timeline, selectedCard = null) => {
     position: 'before',
     referenceCard: sortedTimeline[0] || null,
     difficulty: 'easy',
-    hint: sortedTimeline[0] ? `Before ${new Date(sortedTimeline[0].dateOccurred).getFullYear()}` : 'First position'
   });
 
   // Add insertion points between cards
@@ -192,7 +179,6 @@ export const generateSmartInsertionPoints = (timeline, selectedCard = null) => {
       nextCard: nextCard,
       difficulty,
       gap,
-      hint: `Between ${currentYear} and ${nextYear}`
     });
   }
 
@@ -204,7 +190,6 @@ export const generateSmartInsertionPoints = (timeline, selectedCard = null) => {
       position: 'after',
       referenceCard: lastCard,
       difficulty: 'easy',
-      hint: `After ${new Date(lastCard.dateOccurred).getFullYear()}`
     });
   }
 

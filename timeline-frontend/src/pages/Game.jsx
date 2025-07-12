@@ -3,7 +3,6 @@ import { gameAPI, extractData, handleAPIError } from '../utils/api';
 import { 
   calculateScore, 
   checkWinCondition, 
-  generateHint,
   createGameSession 
 } from '../utils/gameLogic';
 import { 
@@ -44,7 +43,6 @@ const Game = () => {
     gameStats: {
       totalMoves: 0,
       correctMoves: 0,
-      hintsUsed: 0,
       averageTimePerMove: 0
     },
     
@@ -120,7 +118,6 @@ const Game = () => {
         gameStats: {
           totalMoves: 0,
           correctMoves: 0,
-          hintsUsed: 0,
           averageTimePerMove: 0
         },
         selectedCard: null,
@@ -325,21 +322,6 @@ const Game = () => {
     setTimeout(() => {
       placeCard(aiPlacement.position, 'ai');
     }, 500);
-  };
-
-  const handleShowHint = () => {
-    if (!gameState.selectedCard) return;
-    
-    const hint = generateHint(gameState.selectedCard, gameState.timeline);
-    setGameState(prev => ({
-      ...prev,
-      feedback: { type: 'hint', message: hint },
-      gameStats: { ...prev.gameStats, hintsUsed: prev.gameStats.hintsUsed + 1 }
-    }));
-    
-    setTimeout(() => {
-      setGameState(prev => ({ ...prev, feedback: null }));
-    }, 3000);
   };
 
   const handleRestartGame = () => {
@@ -598,13 +580,6 @@ const Game = () => {
             >
               ❌ Clear Selection
             </button>
-            <button 
-              onClick={handleShowHint} 
-              className="btn btn-secondary"
-              disabled={!gameState.selectedCard || !isPlayerTurn}
-            >
-              💡 Show Hint
-            </button>
             {gameState.gameStatus === 'playing' && (
               <button onClick={togglePause} className="btn btn-secondary">
                 ⏸️ Pause
@@ -691,10 +666,6 @@ const Game = () => {
                   <div className="stat-row">
                     <span>Avg Time/Move:</span>
                     <span>{Math.round(gameState.gameStats.averageTimePerMove)}s</span>
-                  </div>
-                  <div className="stat-row">
-                    <span>Hints Used:</span>
-                    <span>{gameState.gameStats.hintsUsed}</span>
                   </div>
                 </div>
               </div>

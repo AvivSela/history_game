@@ -173,41 +173,6 @@ describe('timelineLogic', () => {
   })
 
   describe('generateMissedFeedback', () => {
-    it('should provide hint for card between two timeline events', () => {
-      const card = { 
-        title: 'Test Event',
-        dateOccurred: '1955-01-01T00:00:00.000Z'
-      }
-      const feedback = generateMissedFeedback(card, 0, 1, mockTimeline)
-      
-      expect(feedback).toContain('Test Event')
-      expect(feedback).toContain('1955')
-      expect(feedback).toContain('between')
-      expect(feedback).toContain('1939')
-      expect(feedback).toContain('1969')
-    })
-
-    it('should provide hint for card before all timeline events', () => {
-      const feedback = generateMissedFeedback(earlyCard, 2, 0, mockTimeline)
-      
-      expect(feedback).toContain('World War I Begins')
-      expect(feedback).toContain('1914')
-      expect(feedback).toContain('before 1939')
-      expect(feedback).toContain('earlier')
-    })
-
-    it('should provide hint for card after all timeline events', () => {
-      const futureCard = {
-        title: 'Future Event',
-        dateOccurred: '2000-01-01T00:00:00.000Z'
-      }
-      const feedback = generateMissedFeedback(futureCard, 0, 3, mockTimeline)
-      
-      expect(feedback).toContain('Future Event')
-      expect(feedback).toContain('2000')
-      expect(feedback).toContain('after 1989')
-      expect(feedback).toContain('later')
-    })
 
     it('should include directional guidance', () => {
       const feedback1 = generateMissedFeedback(testCard, 0, 3, mockTimeline)
@@ -237,7 +202,6 @@ describe('timelineLogic', () => {
       
       expect(firstPoint.index).toBe(0)
       expect(firstPoint.position).toBe('before')
-      expect(firstPoint.hint).toContain('Before 1939')
     })
 
     it('should generate insertion points between cards', () => {
@@ -246,7 +210,6 @@ describe('timelineLogic', () => {
       
       expect(betweenPoint.index).toBe(1)
       expect(betweenPoint.position).toBe('between')
-      expect(betweenPoint.hint).toContain('Between 1939 and 1969')
       expect(betweenPoint.gap).toBe(30)
     })
 
@@ -256,7 +219,6 @@ describe('timelineLogic', () => {
       
       expect(lastPoint.index).toBe(3)
       expect(lastPoint.position).toBe('after')
-      expect(lastPoint.hint).toContain('After 1989')
     })
 
     it('should assign difficulty based on year gaps', () => {
@@ -275,7 +237,6 @@ describe('timelineLogic', () => {
       
       expect(points).toHaveLength(1)
       expect(points[0].position).toBe('before')
-      expect(points[0].hint).toBe('First position')
     })
 
     it('should add relevance scores when selected card provided', () => {

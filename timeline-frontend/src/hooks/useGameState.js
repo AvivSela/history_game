@@ -347,34 +347,6 @@ export const useGameState = () => {
 
   }, [state.currentPlayer, state.aiHand, state.timeline, state.difficulty, placeCard]);
 
-  // Get hint for current selection
-  const getHint = useCallback(() => {
-    if (!state.selectedCard) return;
-
-    const insertionPoints = state.insertionPoints;
-    const relevantPoints = insertionPoints
-      .filter(point => point.relevance > 0.7)
-      .sort((a, b) => b.relevance - a.relevance);
-
-    let hint = '';
-    if (relevantPoints.length > 0) {
-      hint = `💡 Try looking ${relevantPoints[0].hint}`;
-    } else {
-      const cardYear = new Date(state.selectedCard.dateOccurred).getFullYear();
-      hint = `💡 This event happened in ${cardYear}`;
-    }
-
-    setState(prev => ({
-      ...prev,
-      feedback: { type: 'hint', message: hint },
-      gameStats: { ...prev.gameStats, hintsUsed: prev.gameStats.hintsUsed + 1 }
-    }));
-
-    setTimeout(() => {
-      setState(prev => ({ ...prev, feedback: null }));
-    }, 3000);
-  }, [state.selectedCard, state.insertionPoints]);
-
   // Restart game
   const restartGame = useCallback(() => {
     setState(prev => ({
@@ -403,7 +375,6 @@ export const useGameState = () => {
     initializeGame,
     selectCard,
     placeCard,
-    getHint,
     restartGame,
     togglePause,
     

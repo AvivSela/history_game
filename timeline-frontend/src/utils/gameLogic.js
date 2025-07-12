@@ -37,33 +37,6 @@ export const checkWinCondition = (playerHand) => {
   return playerHand.length === 0;
 };
 
-/**
- * Generate hint for card placement
- * @param {Object} card - Card to give hint for
- * @param {Array} timeline - Current timeline
- * @returns {string} - Hint message
- */
-export const generateHint = (card, timeline) => {
-  const cardYear = new Date(card.dateOccurred).getFullYear();
-  const cardDecade = Math.floor(cardYear / 10) * 10;
-  if (timeline.length === 0) {
-    return `💡 This event happened in the ${cardDecade}s!`;
-  }
-  const timelineYears = timeline.map(event => new Date(event.dateOccurred).getFullYear());
-  const minYear = Math.min(...timelineYears);
-  const maxYear = Math.max(...timelineYears);
-  let hint = `💡 This event occurred in ${cardYear}. `;
-  if (cardYear <= minYear) {
-    hint += "It happened before all events currently on the timeline.";
-  } else if (cardYear >= maxYear) {
-    hint += "It happened after all events currently on the timeline.";
-  } else {
-    hint += "It fits somewhere in the middle of your current timeline. (middle)";
-  }
-  return hint;
-};
-
-
 
 /**
  * Create game session data
