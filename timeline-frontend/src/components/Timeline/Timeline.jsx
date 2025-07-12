@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Card from '../Card/Card';
 import './Timeline.css';
-import '../DragAndDrop/DragFeedback.css';
 
 const Timeline = ({ 
   events = [], 
@@ -9,9 +8,6 @@ const Timeline = ({
   highlightInsertionPoints = false,
   onInsertionPointClick,
   selectedCard = null,
-  isDragActive = false,
-  onDragOver = null,
-  onDrop = null
 }) => {
   const [hoveredInsertionPoint, setHoveredInsertionPoint] = useState(null);
   const timelineRef = useRef(null);
@@ -52,7 +48,7 @@ const Timeline = ({
   };
 
   const renderInsertionPoint = (index) => {
-    if (!highlightInsertionPoints && !isDragActive) return null;
+    if (!highlightInsertionPoints) return null;
     
     const isHovered = hoveredInsertionPoint === index;
     const isClickable = selectedCard !== null;
@@ -60,23 +56,21 @@ const Timeline = ({
     return (
       <div 
         key={`insertion-${index}`}
-        className={`insertion-point ${isHovered ? 'hovered' : ''} ${isClickable ? 'clickable' : ''} ${isDragActive ? 'drag-active' : ''}`}
+        className={`insertion-point ${isHovered ? 'hovered' : ''} ${isClickable ? 'clickable' : ''}`}
         onClick={() => handleInsertionPointClick(index)}
         onMouseEnter={() => handleInsertionPointHover(index, true)}
         onMouseLeave={() => handleInsertionPointHover(index, false)}
-        onDragOver={onDragOver}
-        onDrop={(e) => onDrop && onDrop(e, index)}
         data-drop-zone={`timeline-${index}`}
         style={{
-          width: isDragActive ? '120px' : '80px',
-          minHeight: isDragActive ? '340px' : '320px',
+          width: '80px',
+          minHeight: '320px',
         }}
       >
         <div className="insertion-indicator">
           <span className="insertion-icon">
-            {isDragActive ? '+' : (isHovered && selectedCard ? '📍' : '+')}
+            {isHovered && selectedCard ? '📍' : '+'}
           </span>
-          {isHovered && selectedCard && !isDragActive && (
+          {isHovered && selectedCard && (
             <div className="insertion-tooltip">
               Place "{selectedCard.title}" here
             </div>
@@ -103,7 +97,7 @@ const Timeline = ({
 
   if (sortedEvents.length === 0) {
     return (
-      <div className={`timeline-container ${isDragActive ? 'drag-active' : ''}`}>
+      <div className="timeline-container">
         <div className="timeline-header compact">
           <h3>📅 Empty Timeline</h3>
         </div>
@@ -126,7 +120,7 @@ const Timeline = ({
   }
 
   return (
-    <div className={`timeline-container ${isDragActive ? 'drag-active' : ''}`}>
+    <div className="timeline-container">
       <div className="timeline-header compact">
         <h3>📅 {sortedEvents.length} event{sortedEvents.length !== 1 ? 's' : ''}</h3>
         {sortedEvents.length > 1 && (

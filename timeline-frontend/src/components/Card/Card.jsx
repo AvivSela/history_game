@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import './Card.css';
-import '../DragAndDrop/DragFeedback.css';
 
 const Card = ({ 
   event, 
-  isDragging = false, 
+ 
   isSelected = false,
   size = 'medium',
   onClick,
@@ -13,9 +12,6 @@ const Card = ({
   onMouseLeave,
   style = {},
   className = '',
-  draggable = false,
-  onDragStart,
-  onDragEnd
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -95,7 +91,6 @@ const Card = ({
   const cardClasses = [
     'card-container',
     size,
-    isDragging ? 'dragging' : '',
     isSelected ? 'selected' : '',
     isHovered ? 'hovered' : '',
     isTimelineCard ? 'timeline-card' : 'player-hand-card',
@@ -154,11 +149,6 @@ const Card = ({
     </>
   );
 
-  const handleDragStart = (e) => {
-    if (onDragStart) {
-      onDragStart(e);
-    }
-  };
   
   return (
     <div 
@@ -168,9 +158,6 @@ const Card = ({
       onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      draggable={draggable}
-      onDragStart={handleDragStart}
-      onDragEnd={onDragEnd}
     >
       <div className="card">
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
@@ -184,12 +171,6 @@ const Card = ({
         </div>
       )}
       
-      {/* Drag indicator */}
-      {isDragging && (
-        <div className="drag-indicator">
-          <span className="drag-icon">✋</span>
-        </div>
-      )}
     </div>
   );
 };

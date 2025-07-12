@@ -1,112 +1,8 @@
 // Game Logic Utilities for Timeline Game
 
-/**
- * Check if a card is placed correctly in the timeline
- * @param {Object} card - The card being placed
- * @param {Array} timeline - Current timeline of cards
- * @param {number} position - Position where card is being placed (0-based index)
- * @returns {Object} - { isCorrect: boolean, correctPosition: number, feedback: string }
- */
-export const validateCardPlacement = (card, timeline, position) => {
-  // Sort timeline chronologically to find correct position
-  const sortedTimeline = [...timeline].sort((a, b) => 
-    new Date(a.dateOccurred) - new Date(b.dateOccurred)
-  );
-  
-  // Create new timeline with the card inserted at the given position
-  const newTimeline = [...sortedTimeline];
-  newTimeline.splice(position, 0, card);
-  
-  // Check if the new timeline is still chronologically correct
-  const isChronological = isTimelineChronological(newTimeline);
-  
-  // Find the actual correct position
-  const correctPosition = findCorrectPosition(card, sortedTimeline);
-  
-  const feedback = generatePlacementFeedback(card, timeline, position, correctPosition, isChronological);
-  
-  return {
-    isCorrect: isChronological,
-    correctPosition,
-    feedback,
-    dateOccurred: card.dateOccurred
-  };
-};
 
-/**
- * Check if timeline is in chronological order
- * @param {Array} timeline - Array of cards with dateOccurred
- * @returns {boolean}
- */
-export const isTimelineChronological = (timeline) => {
-  for (let i = 1; i < timeline.length; i++) {
-    const prevDate = new Date(timeline[i - 1].dateOccurred);
-    const currDate = new Date(timeline[i].dateOccurred);
-    if (prevDate > currDate) {
-      return false;
-    }
-  }
-  return true;
-};
 
-/**
- * Find the correct position for a card in the timeline
- * @param {Object} card - Card to place
- * @param {Array} timeline - Current sorted timeline
- * @returns {number} - Correct 0-based index position
- */
-export const findCorrectPosition = (card, timeline) => {
-  const cardDate = new Date(card.dateOccurred);
-  
-  for (let i = 0; i < timeline.length; i++) {
-    const timelineDate = new Date(timeline[i].dateOccurred);
-    if (cardDate <= timelineDate) {
-      return i;
-    }
-  }
-  
-  // Card should go at the end
-  return timeline.length;
-};
 
-/**
- * Generate feedback message for card placement
- * @param {Object} card - Card being placed
- * @param {Array} timeline - Current timeline
- * @param {number} placedPosition - Where user placed it
- * @param {number} correctPosition - Where it should go
- * @param {boolean} isCorrect - Whether placement was correct
- * @returns {string} - Feedback message
- */
-export const generatePlacementFeedback = (card, timeline, placedPosition, correctPosition, isCorrect) => {
-  const cardYear = new Date(card.dateOccurred).getFullYear();
-  
-  if (isCorrect) {
-    const encouragements = [
-      "Perfect! 🎯",
-      "Excellent placement! ⭐",
-      "Spot on! 🎉",
-      "Great historical knowledge! 🧠",
-      "Nailed it! 💪"
-    ];
-    const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
-    return `${encouragement} ${card.title} (${cardYear}) is correctly placed!`;
-  }
-  
-  // Provide helpful feedback for incorrect placement
-  if (timeline.length === 0) {
-    return `Close! ${card.title} occurred in ${cardYear}. Try a different position.`;
-  }
-  
-  const direction = placedPosition < correctPosition ? "later" : "earlier";
-  const hints = [
-    `${card.title} (${cardYear}) happened ${direction} in history. Try again! 🤔`,
-    `Not quite! ${card.title} occurred in ${cardYear}. Think about the historical context. 📚`,
-    `Good try! ${card.title} needs to be placed ${direction} on the timeline. 🔄`
-  ];
-  
-  return hints[Math.floor(Math.random() * hints.length)];
-};
 
 /**
  * Calculate score based on placement accuracy and speed
@@ -150,55 +46,24 @@ export const checkWinCondition = (playerHand) => {
 export const generateHint = (card, timeline) => {
   const cardYear = new Date(card.dateOccurred).getFullYear();
   const cardDecade = Math.floor(cardYear / 10) * 10;
-  
   if (timeline.length === 0) {
     return `💡 This event happened in the ${cardDecade}s!`;
   }
-  
   const timelineYears = timeline.map(event => new Date(event.dateOccurred).getFullYear());
   const minYear = Math.min(...timelineYears);
   const maxYear = Math.max(...timelineYears);
-  
   let hint = `💡 This event occurred in ${cardYear}. `;
-  
-  if (cardYear < minYear) {
+  if (cardYear <= minYear) {
     hint += "It happened before all events currently on the timeline.";
-  } else if (cardYear > maxYear) {
+  } else if (cardYear >= maxYear) {
     hint += "It happened after all events currently on the timeline.";
   } else {
-    hint += "It fits somewhere in the middle of your current timeline.";
+    hint += "It fits somewhere in the middle of your current timeline. (middle)";
   }
-  
   return hint;
 };
 
-/**
- * Shuffle an array (Fisher-Yates algorithm)
- * @param {Array} array - Array to shuffle
- * @returns {Array} - Shuffled array
- */
-export const shuffleArray = (array) => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
 
-/**
- * Format time duration
- * @param {number} seconds - Time in seconds
- * @returns {string} - Formatted time string
- */
-export const formatTime = (seconds) => {
-  if (seconds < 60) {
-    return `${Math.round(seconds)}s`;
-  }
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.round(seconds % 60);
-  return `${minutes}m ${remainingSeconds}s`;
-};
 
 /**
  * Create game session data
@@ -208,16 +73,14 @@ export const formatTime = (seconds) => {
  */
 export const createGameSession = (events, settings = {}) => {
   const cardCount = settings.cardCount || 5;
-  const shuffledEvents = shuffleArray(events);
-  const gameEvents = shuffledEvents.slice(0, cardCount + 1);
-  
+  const shuffledEvents = [...events].sort(() => 0.5 - Math.random());
+  let gameEvents = shuffledEvents.slice(0, cardCount + 1);
   // First event goes on timeline, rest go to player hand
   const startingEvent = gameEvents[0];
   const playerCards = gameEvents.slice(1);
-  
   return {
     sessionId: `game_${Date.now()}`,
-    timeline: [{ ...startingEvent, isRevealed: true }],
+    timeline: startingEvent ? [{ ...startingEvent, isRevealed: true }] : [],
     playerHand: playerCards,
     settings: settings,
     score: 0,
@@ -226,4 +89,111 @@ export const createGameSession = (events, settings = {}) => {
     hintsUsed: 0,
     status: 'playing'
   };
+};
+
+/**
+ * Validate card placement in the timeline
+ * @param {Object} card - Card to place
+ * @param {Array} timeline - Current timeline
+ * @param {number} userPosition - User's attempted position
+ * @returns {Object} - Validation result
+ */
+export const validateCardPlacement = (card, timeline, userPosition) => {
+  const correctPosition = findCorrectPosition(card, timeline);
+  const isCorrect = userPosition === correctPosition;
+  const feedback = generatePlacementFeedback(card, timeline, userPosition, correctPosition, isCorrect);
+  return {
+    isCorrect,
+    correctPosition,
+    userPosition,
+    dateOccurred: card.dateOccurred,
+    feedback
+  };
+};
+
+/**
+ * Check if timeline is in chronological order
+ * @param {Array} timeline
+ * @returns {boolean}
+ */
+export const isTimelineChronological = (timeline) => {
+  for (let i = 1; i < timeline.length; i++) {
+    if (new Date(timeline[i - 1].dateOccurred) > new Date(timeline[i].dateOccurred)) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Find the correct position for a card in the timeline
+ * @param {Object} card
+ * @param {Array} timeline
+ * @returns {number}
+ */
+export const findCorrectPosition = (card, timeline) => {
+  const cardDate = new Date(card.dateOccurred);
+  for (let i = 0; i < timeline.length; i++) {
+    if (cardDate < new Date(timeline[i].dateOccurred)) {
+      return i;
+    }
+  }
+  return timeline.length;
+};
+
+/**
+ * Generate feedback for placement
+ * @param {Object} card
+ * @param {Array} timeline
+ * @param {number} userPosition
+ * @param {number} correctPosition
+ * @param {boolean} isCorrect
+ * @returns {string}
+ */
+export const generatePlacementFeedback = (card, timeline, userPosition, correctPosition, isCorrect) => {
+  const cardYear = new Date(card.dateOccurred).getFullYear();
+  if (timeline.length === 0) {
+    return `${card.title} (${cardYear}) placed on an empty timeline. Try a different position if needed.`;
+  }
+  if (isCorrect) {
+    const messages = [
+      `Perfect! ${card.title} is correctly placed in ${cardYear}.`,
+      `Great job! ${card.title} is correctly placed in ${cardYear}.`,
+      `Well done! ${card.title} is correctly placed in ${cardYear}.`
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  } else {
+    if (userPosition < correctPosition) {
+      return `${card.title} (${cardYear}) should be placed later in the timeline.`;
+    } else {
+      return `${card.title} (${cardYear}) should be placed earlier in the timeline.`;
+    }
+  }
+};
+
+/**
+ * Shuffle an array (Fisher-Yates)
+ * @param {Array} array
+ * @returns {Array}
+ */
+export const shuffleArray = (array) => {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+/**
+ * Format time in seconds to mm:ss or ss
+ * @param {number} seconds
+ * @returns {string}
+ */
+export const formatTime = (seconds) => {
+  const rounded = Math.round(seconds);
+  if (rounded < 60) return `${rounded}s`;
+  const m = Math.floor(rounded / 60);
+  const s = rounded % 60;
+  return `${m}m ${s}s`;
 };

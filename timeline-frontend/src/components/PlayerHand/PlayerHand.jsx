@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../Card/Card';
 import './PlayerHand.css';
-import '../DragAndDrop/DragFeedback.css';
 
 const PlayerHand = ({ 
   cards = [], 
@@ -11,9 +10,6 @@ const PlayerHand = ({
   isPlayerTurn = true,
   playerName = "You",
   maxCards = 8,
-  onDragStart = null,
-  onDragEnd = null,
-  draggedCard = null
 }) => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [cardPositions, setCardPositions] = useState([]);
@@ -73,11 +69,6 @@ const PlayerHand = ({
     }
   };
 
-  const handleCardDoubleClick = (card) => {
-    if (!isPlayerTurn) return;
-    // Double-click to play card (will be used in Sprint 2)
-    onCardPlay && onCardPlay(card);
-  };
 
   const getCardStyle = (index) => {
     if (cardPositions.length === 0) return {};
@@ -125,7 +116,7 @@ const PlayerHand = ({
   }
 
   return (
-    <div className={`player-hand-container ${!isPlayerTurn ? 'disabled' : ''} ${isPlayerTurn ? 'active-turn' : ''} ${draggedCard ? 'drag-active' : ''}`}>
+    <div className={`player-hand-container ${!isPlayerTurn ? 'disabled' : ''} ${isPlayerTurn ? 'active-turn' : ''}`}>
       <div className="player-hand-header">
         <div className="player-info">
           <h3>🎴 {playerName}'s Hand</h3>
@@ -154,7 +145,7 @@ const PlayerHand = ({
           {cards.map((card, index) => (
             <div
               key={card.id}
-              className={`hand-card-wrapper ${selectedCard && selectedCard.id === card.id ? 'selected' : ''} ${draggedCard && draggedCard.id === card.id ? 'dragging' : ''}`}
+              className={`hand-card-wrapper ${selectedCard && selectedCard.id === card.id ? 'selected' : ''}`}
               style={getCardStyle(index)}
             >
               <Card
@@ -162,14 +153,9 @@ const PlayerHand = ({
                 isSelected={selectedCard && selectedCard.id === card.id}
                 size="medium"
                 onClick={() => handleCardClick(card)}
-                onDoubleClick={() => handleCardDoubleClick(card)}
                 onMouseEnter={() => setHoveredCard(card.id)}
                 onMouseLeave={() => setHoveredCard(null)}
-                className={`player-card ${isPlayerTurn ? 'draggable' : ''}`}
-                isDragging={draggedCard && draggedCard.id === card.id}
-                draggable={isPlayerTurn}
-                onDragStart={() => onDragStart && onDragStart(card)}
-                onDragEnd={onDragEnd}
+                className="player-card"
               />
             </div>
           ))}
@@ -196,14 +182,6 @@ const PlayerHand = ({
               <p>Click on the timeline to place this card</p>
             </div>
             <div className="action-buttons">
-              <button 
-                className="btn btn-primary"
-                onClick={() => handleCardDoubleClick(selectedCard)}
-                disabled={!isPlayerTurn}
-                title="Quick place (will show insertion points)"
-              >
-                📍 Place Card
-              </button>
               <button 
                 className="btn btn-secondary"
                 onClick={() => onCardSelect && onCardSelect(null)}

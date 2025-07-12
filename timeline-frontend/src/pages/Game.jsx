@@ -11,17 +11,11 @@ import {
   generateSmartInsertionPoints 
 } from '../utils/timelineLogic';
 import { createAIOpponent, getAIThinkingTime } from '../utils/aiLogic';
-import { useDragFeedback } from '../hooks/useDragFeedback';
 import Timeline from '../components/Timeline/Timeline';
 import PlayerHand from '../components/PlayerHand/PlayerHand';
 import './Game.css';
 
 const Game = () => {
-  // Enhanced drag and drop feedback
-  const { dragState, getDragProps: _getDragProps, getDropProps: _getDropProps, isItemDragging: _isItemDragging, handleDragEnd } = useDragFeedback();
-  
-  // Legacy drag state for compatibility
-  const [draggedCard, setDraggedCard] = useState(null);
   
   const [gameState, setGameState] = useState({
     // Core game data
@@ -180,41 +174,6 @@ const Game = () => {
     placeCard(position, 'human');
   };
 
-  // Enhanced drag and drop handlers
-  const handleDragStart = (card) => {
-    setDraggedCard(card);
-    // Enhanced drag feedback is handled by the useDragFeedback hook
-  };
-
-  const handleDragEndLegacy = () => {
-    setDraggedCard(null);
-    // Enhanced drag feedback cleanup is handled by the useDragFeedback hook
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault(); // Allow drop
-  };
-
-  const handleDrop = (e, position) => {
-    e.preventDefault();
-    
-    const currentDraggedCard = draggedCard || dragState.draggedItem;
-    
-    if (!currentDraggedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
-      handleDragEnd(false);
-      return;
-    }
-
-    // Set the dragged card as selected and place it
-    setGameState(prev => ({ ...prev, selectedCard: currentDraggedCard }));
-    setDraggedCard(null);
-    
-    // Place the card with success animation
-    setTimeout(() => {
-      placeCard(position, 'human');
-      handleDragEnd(true); // Trigger success animation
-    }, 0);
-  };
 
   const placeCard = (position, player = 'human') => {
     const selectedCard = player === 'human' ? gameState.selectedCard : gameState.aiOpponent?.selectedCard;
@@ -593,9 +552,6 @@ const Game = () => {
               highlightInsertionPoints={gameState.showInsertionPoints}
               onInsertionPointClick={handleInsertionPointClick}
               selectedCard={gameState.selectedCard}
-              isDragActive={!!draggedCard || dragState.isDragging}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
             />
           </div>
 
@@ -608,9 +564,6 @@ const Game = () => {
               isPlayerTurn={isPlayerTurn}
               playerName="Player 1"
               maxCards={8}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEndLegacy}
-              draggedCard={draggedCard || dragState.draggedItem}
             />
             
             {/* AI Hand */}

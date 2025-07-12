@@ -18,50 +18,6 @@ beforeEach(() => {
   document.documentElement.className = ''
 })
 
-// Mock HTML5 drag and drop APIs
-global.DataTransfer = class {
-  constructor() {
-    this.data = {}
-    this.effectAllowed = 'none'
-    this.dropEffect = 'none'
-  }
-  
-  setData(format, data) {
-    this.data[format] = data
-  }
-  
-  getData(format) {
-    return this.data[format] || ''
-  }
-  
-  clearData(format) {
-    if (format) {
-      delete this.data[format]
-    } else {
-      this.data = {}
-    }
-  }
-  
-  setDragImage() {}
-}
-
-// Mock drag event
-global.DragEvent = class extends Event {
-  constructor(type, init = {}) {
-    super(type, init)
-    this.dataTransfer = init.dataTransfer || new DataTransfer()
-  }
-}
-
-// Mock touch event
-global.TouchEvent = class extends Event {
-  constructor(type, init = {}) {
-    super(type, init)
-    this.touches = init.touches || []
-    this.changedTouches = init.changedTouches || []
-    this.targetTouches = init.targetTouches || []
-  }
-}
 
 // Mock ResizeObserver
 global.ResizeObserver = class {

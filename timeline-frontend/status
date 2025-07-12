@@ -1,0 +1,13 @@
+
+ RUN  v3.2.4 /home/aviv/dev/timeline-game-project/timeline-frontend
+
+ ✓ src/components/PlayerHand/PlayerHand.test.jsx (21 tests) 540ms
+ ✓ src/tests/clickToPlaceFlow.test.jsx (11 tests) 569ms
+ ✓ src/components/Timeline/Timeline.test.jsx (23 tests) 612ms
+ ✓ src/utils/timelineLogic.test.js (31 tests) 78ms
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  86 passed (86)
+   Start at  08:46:37
+   Duration  2.88s (transform 445ms, setup 1.21s, collect 1.41s, tests 1.80s, environment 5.16s, prepare 934ms)
+

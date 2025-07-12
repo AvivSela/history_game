@@ -1,15 +1,11 @@
 // AI Opponent Logic for Timeline Game
 
-/**
- * AI difficulty levels and their characteristics
- */
-export const AI_DIFFICULTIES = {
+const AI_DIFFICULTIES = {
   easy: {
     name: 'Beginner Bot',
     accuracy: 0.6,
     thinkingTime: { min: 2000, max: 4000 },
     mistakeChance: 0.4,
-    learningRate: 0.1,
     description: 'Makes frequent mistakes, good for beginners'
   },
   medium: {
@@ -17,7 +13,6 @@ export const AI_DIFFICULTIES = {
     accuracy: 0.8,
     thinkingTime: { min: 1500, max: 3000 },
     mistakeChance: 0.2,
-    learningRate: 0.3,
     description: 'Balanced opponent, makes occasional errors'
   },
   hard: {
@@ -25,7 +20,6 @@ export const AI_DIFFICULTIES = {
     accuracy: 0.95,
     thinkingTime: { min: 1000, max: 2000 },
     mistakeChance: 0.05,
-    learningRate: 0.5,
     description: 'Expert-level AI, rarely makes mistakes'
   },
   expert: {
@@ -33,21 +27,15 @@ export const AI_DIFFICULTIES = {
     accuracy: 0.98,
     thinkingTime: { min: 800, max: 1500 },
     mistakeChance: 0.02,
-    learningRate: 0.7,
     description: 'Near-perfect AI, extremely challenging'
   }
 };
 
-/**
- * AI decision-making class
- */
-export class TimelineAI {
+class TimelineAI {
   constructor(difficulty = 'medium') {
     this.difficulty = AI_DIFFICULTIES[difficulty] || AI_DIFFICULTIES.medium;
     this.name = this.difficulty.name;
-    this.memory = new Map(); // Stores learned patterns
-    this.gameHistory = [];
-    this.currentStrategy = 'analytical';
+    this.memory = new Map();
   }
 
   /**
@@ -271,46 +259,6 @@ export class TimelineAI {
     return `${card.category}_${decade}_${card.difficulty}`;
   }
 
-  /**
-   * Learn from placement results
-   * @param {Object} card - Card that was placed
-   * @param {boolean} wasCorrect - Whether placement was correct
-   * @param {number} confidence - AI's confidence in the placement
-   */
-  learnFromPlacement(card, wasCorrect, confidence) {
-    const memoryKey = this.generateMemoryKey(card);
-    const learningRate = this.difficulty.learningRate;
-    
-    if (this.memory.has(memoryKey)) {
-      const existing = this.memory.get(memoryKey);
-      existing.attempts += 1;
-      existing.successes += wasCorrect ? 1 : 0;
-      existing.accuracy = existing.successes / existing.attempts;
-      
-      // Adjust accuracy based on learning rate
-      if (wasCorrect) {
-        existing.accuracy = Math.min(1.0, existing.accuracy + learningRate * 0.1);
-      } else {
-        existing.accuracy = Math.max(0.1, existing.accuracy - learningRate * 0.05);
-      }
-    } else {
-      this.memory.set(memoryKey, {
-        attempts: 1,
-        successes: wasCorrect ? 1 : 0,
-        accuracy: wasCorrect ? 0.8 : 0.4,
-        category: card.category,
-        difficulty: card.difficulty
-      });
-    }
-
-    // Store in game history
-    this.gameHistory.push({
-      card,
-      wasCorrect,
-      confidence,
-      timestamp: Date.now()
-    });
-  }
 
   /**
    * Generate reasoning for card selection
@@ -356,33 +304,7 @@ export class TimelineAI {
     }
   }
 
-  /**
-   * Get AI's current performance stats
-   * @returns {Object} - Performance statistics
-   */
-  getPerformanceStats() {
-    const totalAttempts = this.gameHistory.length;
-    if (totalAttempts === 0) return { accuracy: 0, confidence: 0, attempts: 0 };
 
-    const successfulPlacements = this.gameHistory.filter(entry => entry.wasCorrect).length;
-    const averageConfidence = this.gameHistory.reduce((sum, entry) => sum + entry.confidence, 0) / totalAttempts;
-
-    return {
-      accuracy: successfulPlacements / totalAttempts,
-      confidence: averageConfidence,
-      attempts: totalAttempts,
-      memorySize: this.memory.size
-    };
-  }
-
-  /**
-   * Reset AI state for new game
-   */
-  resetForNewGame() {
-    this.gameHistory = [];
-    // Keep memory for learning across games
-    this.currentStrategy = 'analytical';
-  }
 }
 
 /**
