@@ -11,7 +11,9 @@
     "start": "yarn workspace timeline-backend start",
     "frontend:dev": "yarn workspace timeline-frontend dev",
     "backend:start": "yarn workspace timeline-backend start",
-    "install:all": "yarn install"
+    "install:all": "yarn install",
+    "lint": "yarn workspace timeline-frontend lint",
+    "lint:fix": "yarn workspace timeline-frontend lint:fix"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

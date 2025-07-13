@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import Card from '../Card/Card';
 import { 
-  animateCard, 
   animateCardSequence, 
   prefersReducedMotion, 
   cleanupAnimations,
-  debounce,
   measureAnimationPerformance,
   ANIMATION_DELAYS
 } from '../../utils/animationUtils';
@@ -14,7 +12,6 @@ const PlayerHand = forwardRef(({
   cards = [], 
   selectedCard = null,
   onCardSelect,
-  onCardPlay,
   isPlayerTurn = true,
   playerName = "You",
   maxCards = 8,
@@ -25,7 +22,6 @@ const PlayerHand = forwardRef(({
   // Animation state management
   const [animatingCards, setAnimatingCards] = useState(new Set());
   const [newCardId, setNewCardId] = useState(null);
-  const [animationQueue, setAnimationQueue] = useState([]);
   const animationRefs = useRef(new Map());
 
   // Calculate card positions for spread layout
@@ -65,7 +61,7 @@ const PlayerHand = forwardRef(({
 
   // Debounced animation trigger to prevent rapid calls
   const debouncedAnimateCard = useCallback(
-    debounce(async (cardId, animationType) => {
+    async (cardId, animationType) => {
       const startTime = performance.now();
       
       try {
@@ -146,7 +142,7 @@ const PlayerHand = forwardRef(({
         // Cleanup animation reference
         animationRefs.current.delete(cardId);
       }
-    }, 100),
+    },
     [cards, onCardSelect]
   );
 
@@ -163,10 +159,11 @@ const PlayerHand = forwardRef(({
   useEffect(() => {
     return () => {
       // Cleanup all ongoing animations
-      animationRefs.current.forEach(({ element }) => {
+      const currentRefs = animationRefs.current;
+      currentRefs.forEach(({ element }) => {
         cleanupAnimations(element);
       });
-      animationRefs.current.clear();
+      currentRefs.clear();
     };
   }, []);
 

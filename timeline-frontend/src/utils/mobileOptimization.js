@@ -37,14 +37,14 @@ export const mobileOptimization = {
     let touchStartTime = 0;
     const touchThreshold = 200; // ms
     
-    element.addEventListener('touchstart', (e) => {
+    element.addEventListener('touchstart', () => {
       touchStartTime = Date.now();
     }, { passive: true });
     
-    element.addEventListener('touchend', (e) => {
+    element.addEventListener('touchend', () => {
       const touchDuration = Date.now() - touchStartTime;
       if (touchDuration < touchThreshold) {
-        onTouch?.(e);
+        onTouch?.();
       }
     }, { passive: true });
   }

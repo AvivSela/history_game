@@ -143,7 +143,7 @@ describe('timelineLogic', () => {
 
     it('should include encouraging emoji and text', () => {
       const feedback = generateExactMatchFeedback(testCard)
-      const hasEmoji = /[🎯⭐🏆💎🎉]/.test(feedback)
+      const hasEmoji = /[🎯⭐🏆💎🎉]/u.test(feedback)
       expect(hasEmoji).toBe(true)
     })
   })
@@ -175,15 +175,15 @@ describe('timelineLogic', () => {
   describe('generateMissedFeedback', () => {
 
     it('should include directional guidance', () => {
-      const feedback1 = generateMissedFeedback(testCard, 0, 3, mockTimeline)
-      const feedback2 = generateMissedFeedback(testCard, 3, 0, mockTimeline)
+      const feedback1 = generateMissedFeedback(testCard, 0, 3)
+      const feedback2 = generateMissedFeedback(testCard, 3, 0)
       
       expect(feedback1).toContain('later')
       expect(feedback2).toContain('earlier')
     })
 
     it('should include decade information', () => {
-      const feedback = generateMissedFeedback(testCard, 0, 3, mockTimeline)
+      const feedback = generateMissedFeedback(testCard, 0, 3)
       expect(feedback).toContain('1980s')
     })
   })

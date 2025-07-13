@@ -20,7 +20,7 @@ export const validatePlacementWithTolerance = (card, timeline, userPosition) => 
     feedback = generateExactMatchFeedback(card);
     feedbackType = 'perfect';
   } else {
-    feedback = generateMissedFeedback(card, userPosition, correctPosition, timeline);
+    feedback = generateMissedFeedback(card, userPosition, correctPosition);
     feedbackType = 'miss';
   }
 
@@ -43,19 +43,16 @@ export const validatePlacementWithTolerance = (card, timeline, userPosition) => 
  */
 export const findCorrectPosition = (card, timeline) => {
   const cardDate = new Date(card.dateOccurred);
-  const sortedTimeline = [...timeline].sort((a, b) => 
-    new Date(a.dateOccurred) - new Date(b.dateOccurred)
-  );
   
-  for (let i = 0; i < sortedTimeline.length; i++) {
-    const timelineDate = new Date(sortedTimeline[i].dateOccurred);
+  for (let i = 0; i < timeline.length; i++) {
+    const timelineDate = new Date(timeline[i].dateOccurred);
     if (cardDate <= timelineDate) {
       return i;
     }
   }
   
   // Card should go at the end
-  return sortedTimeline.length;
+  return timeline.length;
 };
 
 /**
@@ -76,11 +73,10 @@ export const generateExactMatchFeedback = (card) => {
 /**
  * Generate feedback for missed placements
  */
-export const generateMissedFeedback = (card, userPosition, correctPosition, timeline) => {
+export const generateMissedFeedback = (card, userPosition, correctPosition) => {
   const cardYear = new Date(card.dateOccurred).getFullYear();
   const decade = Math.floor(cardYear / 10) * 10;
   let direction = '';
-  const sortedTimeline = [...timeline].sort((a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred));
   // Determine direction guidance
   if (userPosition > correctPosition) {
     direction = ' Try looking earlier in the timeline.';
