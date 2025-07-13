@@ -103,9 +103,9 @@ const Card = ({
             <span key={i} className="text-lg text-star drop-shadow-sm">★</span>
           ))}
         </div>
-        <div className={`flex items-center gap-2 bg-black/5 rounded-2xl px-2.5 py-1.5 border border-gray-200 ${getCategoryClass(event.category)}`}>
-          <div className="text-lg">{getCategoryIcon(event.category)}</div>
-          <div className="text-xs uppercase tracking-wider font-bold text-gray-800 drop-shadow-sm">{event.category}</div>
+        <div className={`flex items-center gap-1.5 bg-black/5 rounded-xl px-2 py-1 border border-gray-200 ${getCategoryClass(event.category)}`}>
+          <div className="text-sm">{getCategoryIcon(event.category)}</div>
+          <div className="text-[10px] uppercase tracking-wider font-bold text-gray-800 drop-shadow-sm">{event.category}</div>
         </div>
       </div>
       
@@ -129,9 +129,9 @@ const Card = ({
             <span key={i} className="text-lg text-star drop-shadow-sm">★</span>
           ))}
         </div>
-        <div className={`flex items-center gap-2 bg-black/5 rounded-2xl px-2.5 py-1.5 border border-gray-200 ${getCategoryClass(event.category)}`}>
-          <div className="text-lg">{getCategoryIcon(event.category)}</div>
-          <div className="text-xs uppercase tracking-wider font-bold text-gray-800 drop-shadow-sm">{event.category}</div>
+        <div className={`flex items-center gap-1.5 bg-black/5 rounded-xl px-2 py-1 border border-gray-200 ${getCategoryClass(event.category)}`}>
+          <div className="text-sm">{getCategoryIcon(event.category)}</div>
+          <div className="text-[10px] uppercase tracking-wider font-bold text-gray-800 drop-shadow-sm">{event.category}</div>
         </div>
       </div>
       
