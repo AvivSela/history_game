@@ -197,6 +197,167 @@
   }
 }
 
+/* Animation Classes */
+/* Performance optimization for animations */
+.card-animating {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0); /* Force GPU acceleration */
+}
+
+/* Card shake animation - subtle but noticeable */
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0) translateZ(0); }
+  10% { transform: translateX(-4px) translateZ(0); }
+  20% { transform: translateX(4px) translateZ(0); }
+  30% { transform: translateX(-4px) translateZ(0); }
+  40% { transform: translateX(4px) translateZ(0); }
+  50% { transform: translateX(-2px) translateZ(0); }
+  60% { transform: translateX(2px) translateZ(0); }
+  70% { transform: translateX(-1px) translateZ(0); }
+  80% { transform: translateX(1px) translateZ(0); }
+  90% { transform: translateX(-0.5px) translateZ(0); }
+}
+
+.card-shake {
+  animation: cardShake 0.6s cubic-bezier(0.36, 0, 0.66, 1);
+  animation-fill-mode: both;
+}
+
+/* Card fade out with scale reduction */
+.card-fade-out {
+  animation: fadeOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeOut {
+  0% { 
+    opacity: 1; 
+    transform: scale(1) translateZ(0);
+    filter: brightness(1);
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(0.95) translateZ(0);
+    filter: brightness(0.8);
+  }
+  100% { 
+    opacity: 0; 
+    transform: scale(0.9) translateZ(0);
+    filter: brightness(0.6);
+  }
+}
+
+/* Card bounce in with spring effect */
+.card-bounce-in {
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation-fill-mode: both;
+}
+
+@keyframes bounceIn {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.2) translateY(60px) translateZ(0);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.1) translateY(-8px) translateZ(0);
+  }
+  70% { 
+    transform: scale(0.95) translateY(2px) translateZ(0);
+  }
+  85% { 
+    transform: scale(1.02) translateY(-1px) translateZ(0);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0) translateZ(0);
+  }
+}
+
+/* Card highlight with pulsing glow */
+.card-highlight {
+  animation: highlight 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes highlight {
+  0% { 
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
+    transform: scale(1) translateZ(0);
+  }
+  25% { 
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.4);
+    transform: scale(1.02) translateZ(0);
+  }
+  50% { 
+    box-shadow: 0 0 0 12px rgba(59, 130, 246, 0.2);
+    transform: scale(1.05) translateZ(0);
+  }
+  75% { 
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+    transform: scale(1.02) translateZ(0);
+  }
+  100% { 
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    transform: scale(1) translateZ(0);
+  }
+}
+
+/* Feedback message animations */
+.feedback-message {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease-out;
+}
+
+.feedback-message.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feedback-message.animating {
+  animation: feedbackPulse 0.5s ease-out;
+}
+
+@keyframes feedbackPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Reduced motion alternatives */
+@media (prefers-reduced-motion: reduce) {
+  .card-shake {
+    animation: none;
+    transform: translateX(0);
+  }
+  
+  .card-fade-out {
+    animation: none;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  
+  .card-bounce-in {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .card-highlight {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  .feedback-message {
+    transition: none;
+  }
+  
+  .feedback-message.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   h1 { font-size: 2rem; }

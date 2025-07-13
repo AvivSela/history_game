@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, forwardRef } from 'react';
+import { cleanupAnimations } from '../../utils/animationUtils';
 
-const Card = ({ 
+const Card = forwardRef(({ 
   event, 
- 
   isSelected = false,
+  isAnimating = false, 
+  isNewCard = false, 
   size = 'medium',
   onClick,
   onDoubleClick,
@@ -11,8 +13,30 @@ const Card = ({
   onMouseLeave,
   style = {},
   className = '',
-}) => {
+  ...props 
+}, ref) => {
   const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef(null);
+  
+  // Combine refs
+  useEffect(() => {
+    if (ref) {
+      if (typeof ref === 'function') {
+        ref(cardRef.current);
+      } else {
+        ref.current = cardRef.current;
+      }
+    }
+  }, [ref]);
+
+  // Cleanup animations on unmount
+  useEffect(() => {
+    return () => {
+      if (cardRef.current) {
+        cleanupAnimations(cardRef.current);
+      }
+    };
+  }, []);
 
   // Determine if this is a timeline card
   const isTimelineCard = className.includes('timeline-card');
@@ -84,15 +108,25 @@ const Card = ({
     }
   };
 
-  // Build CSS classes
+  // Generate dynamic classes
   const cardClasses = [
     'cursor-pointer transition-transform duration-300 transition-filter duration-300 relative select-none',
     size === 'small' ? 'w-44 h-60' : size === 'large' ? 'w-64 h-80' : 'w-55 h-75',
     isSelected ? '-translate-y-3 z-50' : '',
     isHovered ? 'scale-105 -translate-y-2' : '',
     isTimelineCard ? 'timeline-card' : 'player-hand-card',
+    isAnimating && 'card-animating',
+    isNewCard && 'new-card',
     className
   ].filter(Boolean).join(' ');
+
+  // Generate dynamic styles
+  const cardStyles = {
+    '--card-id': event.id,
+    '--animation-state': isAnimating ? 'running' : 'paused',
+    '--selection-state': isSelected ? 'selected' : 'unselected',
+    ...style
+  };
 
   // Render player hand card content with new design
   const renderPlayerHandContent = () => (
@@ -157,21 +191,37 @@ const Card = ({
   
   return (
     <div 
+      ref={cardRef}
       className={`${cardClasses} ${isSelected ? 'border-success border-2' : 'border-gray-200'}`}
-      style={style}
+      style={cardStyles}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      role="button"
+      tabIndex={0}
+      aria-label={`${event.title} - ${new Date(event.dateOccurred).getFullYear()}`}
+      aria-selected={isSelected}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick(e);
+        }
+      }}
+      {...props}
     >
       <div className="relative w-full h-full rounded-card shadow-lg bg-card border border-gray-200 flex flex-col p-0 box-border overflow-visible transition-all duration-300 hover:shadow-xl">
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
+        
+        {/* Animation overlay for visual effects */}
+        {isAnimating && (
+          <div className="card-animation-overlay" aria-hidden="true" />
+        )}
       </div>
-      
-
-      
     </div>
   );
-};
+});
+
+Card.displayName = 'Card';
 
 export default Card;

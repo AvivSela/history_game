@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { gameAPI, extractData, handleAPIError } from '../utils/api';
 import { 
   calculateScore, 
@@ -10,6 +10,7 @@ import {
   generateSmartInsertionPoints 
 } from '../utils/timelineLogic';
 import { createAIOpponent, getAIThinkingTime } from '../utils/aiLogic';
+import { measureAnimationPerformance } from '../utils/animationUtils';
 import Timeline from '../components/Timeline/Timeline';
 import PlayerHand from '../components/PlayerHand/PlayerHand';
 
@@ -50,6 +51,19 @@ const Game = () => {
     aiOpponent: null,
     insertionPoints: []
   });
+
+  // Animation state with detailed tracking
+  const [animationState, setAnimationState] = useState({
+    isAnimating: false,
+    removingCardId: null,
+    addingCardId: null,
+    animationPhase: 'idle', // 'idle', 'removing', 'feedback', 'adding', 'complete'
+    animationStartTime: null
+  });
+
+  // Add refs for component communication
+  const playerHandRef = useRef(null);
+  const timelineRef = useRef(null);
 
   useEffect(() => {
     initializeGame();
@@ -220,6 +234,71 @@ const Game = () => {
   };
 
 
+  // Enhanced animation coordination
+  const coordinateCardAnimation = useCallback(async (selectedCard, newCard, player) => {
+    const animationStartTime = performance.now();
+    
+    try {
+      setAnimationState({
+        isAnimating: true,
+        removingCardId: selectedCard.id,
+        addingCardId: null,
+        animationPhase: 'removing',
+        animationStartTime
+      });
+
+      // Phase 1: Animate card removal
+      if (player === 'human' && playerHandRef.current?.animateCardRemoval) {
+        await playerHandRef.current.animateCardRemoval(selectedCard.id);
+      }
+
+      // Phase 2: Show feedback message
+      setAnimationState(prev => ({
+        ...prev,
+        animationPhase: 'feedback'
+      }));
+
+      // Phase 3: Add new card and animate it
+      if (newCard) {
+        setAnimationState(prev => ({
+          ...prev,
+          addingCardId: newCard.id,
+          animationPhase: 'adding'
+        }));
+
+        // Wait for DOM update to include new card
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (playerHandRef.current?.animateNewCard) {
+          await playerHandRef.current.animateNewCard(newCard.id);
+        }
+      }
+
+      // Phase 4: Complete animation
+      setAnimationState({
+        isAnimating: false,
+        removingCardId: null,
+        addingCardId: null,
+        animationPhase: 'complete',
+        animationStartTime
+      });
+
+      // Measure total animation performance
+      measureAnimationPerformance('complete_card_replacement', animationStartTime);
+
+    } catch (error) {
+      console.error('Animation coordination failed:', error);
+      // Reset animation state on error
+      setAnimationState({
+        isAnimating: false,
+        removingCardId: null,
+        addingCardId: null,
+        animationPhase: 'idle',
+        animationStartTime: null
+      });
+    }
+  }, []);
+
   const placeCard = async (position, player = 'human') => {
     const selectedCard = player === 'human' ? gameState.selectedCard : gameState.aiOpponent?.selectedCard;
     if (!selectedCard) return;
@@ -307,7 +386,7 @@ const Game = () => {
       }
 
     } else {
-      // Failed placement - replace card with a new one from the pool
+      // Failed placement - coordinate complete animation sequence
       const handKey = player === 'human' ? 'playerHand' : 'aiHand';
       const currentHand = gameState[handKey];
       
@@ -323,6 +402,7 @@ const Game = () => {
       // If we got a new card, add it to the hand
       const finalHand = newCard ? [...updatedHand, newCard] : updatedHand;
       
+      // Update state with new hand immediately
       newState = {
         ...newState,
         [handKey]: finalHand,
@@ -331,16 +411,22 @@ const Game = () => {
         insertionPoints: [],
         attempts: { ...gameState.attempts, [selectedCard.id]: cardAttempts },
         gameStats: {
-          ...gameState.gameStats,
+          ...newState.gameStats,
           totalMoves: gameState.gameStats.totalMoves + 1,
           averageTimePerMove: calculateAverageTime(gameState.gameStats, turnTime)
         },
         feedback: {
           type: 'error',
           message: validation.feedback + (newCard ? ' You got a new card to try!' : ' No more cards available.'),
-          attempts: cardAttempts
+          attempts: cardAttempts,
+          showAnimation: true // Flag to trigger feedback animation
         }
       };
+
+      // Coordinate animations after state update
+      if (player === 'human') {
+        await coordinateCardAnimation(selectedCard, newCard, player);
+      }
     }
 
     setGameState(newState);
@@ -579,6 +665,7 @@ const Game = () => {
 
           <div className="flex-1" style={{ overflow: 'visible' }}>
             <PlayerHand
+              ref={playerHandRef}
               cards={gameState.playerHand}
               selectedCard={gameState.selectedCard}
               onCardSelect={handleCardSelect}

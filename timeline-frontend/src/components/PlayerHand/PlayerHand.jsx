@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import Card from '../Card/Card';
+import { 
+  animateCard, 
+  animateCardSequence, 
+  prefersReducedMotion, 
+  cleanupAnimations,
+  debounce,
+  measureAnimationPerformance,
+  ANIMATION_DELAYS
+} from '../../utils/animationUtils';
 
-const PlayerHand = ({ 
+const PlayerHand = forwardRef(({ 
   cards = [], 
   selectedCard = null,
   onCardSelect,
@@ -9,9 +18,15 @@ const PlayerHand = ({
   isPlayerTurn = true,
   playerName = "You",
   maxCards = 8,
-}) => {
+}, ref) => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [cardPositions, setCardPositions] = useState([]);
+  
+  // Animation state management
+  const [animatingCards, setAnimatingCards] = useState(new Set());
+  const [newCardId, setNewCardId] = useState(null);
+  const [animationQueue, setAnimationQueue] = useState([]);
+  const animationRefs = useRef(new Map());
 
   // Calculate card positions for spread layout
   useEffect(() => {
@@ -47,6 +62,120 @@ const PlayerHand = ({
     });
     setCardPositions(positions);
   }, [cards, cards.length]);
+
+  // Debounced animation trigger to prevent rapid calls
+  const debouncedAnimateCard = useCallback(
+    debounce(async (cardId, animationType) => {
+      const startTime = performance.now();
+      
+      try {
+        const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+        if (!cardElement) {
+          console.warn(`Card element not found for ID: ${cardId}`);
+          return;
+        }
+
+        if (prefersReducedMotion()) {
+          // Apply instant state changes for reduced motion
+          if (animationType === 'removal') {
+            cardElement.style.opacity = '0';
+            cardElement.style.transform = 'scale(0.9)';
+          } else if (animationType === 'addition') {
+            cardElement.style.opacity = '1';
+            cardElement.style.transform = 'scale(1)';
+          }
+          return;
+        }
+
+        // Store animation reference for cleanup
+        animationRefs.current.set(cardId, { element: cardElement, type: animationType });
+
+        if (animationType === 'removal') {
+          setAnimatingCards(prev => new Set([...prev, cardId]));
+          
+          const sequence = [
+            { animation: 'card-shake', duration: ANIMATION_DELAYS.SHAKE_DURATION },
+            { animation: 'card-fade-out', duration: ANIMATION_DELAYS.FADE_OUT_DURATION }
+          ];
+          
+          await animateCardSequence(cardElement, sequence);
+          
+          // Cleanup after animation
+          cleanupAnimations(cardElement);
+          setAnimatingCards(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(cardId);
+            return newSet;
+          });
+          
+        } else if (animationType === 'addition') {
+          setNewCardId(cardId);
+          
+          // Delay before new card animation
+          await new Promise(resolve => setTimeout(resolve, ANIMATION_DELAYS.NEW_CARD_DELAY));
+          
+          const sequence = [
+            { animation: 'card-bounce-in', duration: ANIMATION_DELAYS.BOUNCE_IN_DURATION },
+            { animation: 'card-highlight', duration: ANIMATION_DELAYS.HIGHLIGHT_DURATION }
+          ];
+          
+          await animateCardSequence(cardElement, sequence);
+          
+          // Auto-select the new card
+          if (onCardSelect) {
+            const newCard = cards.find(card => card.id === cardId);
+            if (newCard) {
+              onCardSelect(newCard);
+            }
+          }
+          
+          setNewCardId(null);
+        }
+        
+        // Measure and log performance
+        measureAnimationPerformance(`${animationType}_${cardId}`, startTime);
+        
+      } catch (error) {
+        console.error(`Animation failed for card ${cardId}:`, error);
+        // Fallback: apply instant state change
+        const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+        if (cardElement) {
+          cleanupAnimations(cardElement);
+        }
+      } finally {
+        // Cleanup animation reference
+        animationRefs.current.delete(cardId);
+      }
+    }, 100),
+    [cards, onCardSelect]
+  );
+
+  // Animation methods with proper error handling
+  const animateCardRemoval = useCallback(async (cardId) => {
+    await debouncedAnimateCard(cardId, 'removal');
+  }, [debouncedAnimateCard]);
+
+  const animateNewCard = useCallback(async (cardId) => {
+    await debouncedAnimateCard(cardId, 'addition');
+  }, [debouncedAnimateCard]);
+
+  // Cleanup animations on component unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup all ongoing animations
+      animationRefs.current.forEach(({ element }) => {
+        cleanupAnimations(element);
+      });
+      animationRefs.current.clear();
+    };
+  }, []);
+
+  // Expose animation methods via ref for parent component
+  useImperativeHandle(ref, () => ({
+    animateCardRemoval,
+    animateNewCard,
+    isAnimating: animatingCards.size > 0 || newCardId !== null
+  }));
 
   const handleCardClick = (card) => {
     if (!isPlayerTurn) return;
@@ -147,11 +276,14 @@ const PlayerHand = ({
                 <Card
                   event={card}
                   isSelected={isSelected}
+                  isAnimating={animatingCards.has(card.id)}
+                  isNewCard={newCardId === card.id}
                   size="small"
                   onClick={() => handleCardClick(card)}
                   onMouseEnter={() => setHoveredCard(card.id)}
                   onMouseLeave={() => setHoveredCard(null)}
                   className="player-card"
+                  data-card-id={card.id}
                 />
               </div>
             );
@@ -208,6 +340,8 @@ const PlayerHand = ({
 
     </div>
   );
-};
+});
+
+PlayerHand.displayName = 'PlayerHand';
 
 export default PlayerHand;
