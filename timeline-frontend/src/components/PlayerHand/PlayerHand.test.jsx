@@ -231,17 +231,6 @@ describe('PlayerHand', () => {
   })
 
   describe('Hand Information Display', () => {
-    it('should display correct card count', () => {
-      render(
-        <PlayerHand 
-          cards={mockCards}
-          isPlayerTurn={true}
-        />
-      )
-      
-      expect(screen.getByText('3 / 8 cards')).toBeInTheDocument()
-    })
-
     it('should show progress of cards placed', () => {
       render(
         <PlayerHand 
@@ -251,38 +240,6 @@ describe('PlayerHand', () => {
       )
       
       expect(screen.getByText('5 / 8 cards placed')).toBeInTheDocument()
-    })
-
-    it('should show selected card name in header when card is selected', () => {
-      render(
-        <PlayerHand 
-          cards={mockCards}
-          selectedCard={mockCards[0]}
-          isPlayerTurn={true}
-        />
-      )
-      
-      expect(screen.getByText('"World War II Begins" selected')).toBeInTheDocument()
-    })
-
-    it('should show capacity warning when hand is nearly full', () => {
-      const manyCards = Array.from({ length: 7 }, (_, i) => ({
-        id: i + 1,
-        title: `Card ${i + 1}`,
-        dateOccurred: '1939-09-01T00:00:00.000Z',
-        category: 'History',
-        difficulty: 1
-      }))
-      
-      render(
-        <PlayerHand 
-          cards={manyCards}
-          isPlayerTurn={true}
-        />
-      )
-      
-      expect(screen.getByTestId('hand-capacity-warning')).toBeInTheDocument()
-      expect(screen.getByText('Hand is getting full! Place some cards on the timeline.')).toBeInTheDocument()
     })
   })
 

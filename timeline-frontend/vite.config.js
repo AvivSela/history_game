@@ -4,7 +4,16 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss({
+      // Configure Tailwind CSS v4 plugin options
+      config: './tailwind.config.js',
+    })
+  ],
+  css: {
+    devSourcemap: true,
+  },
   build: {
     cssMinify: true,
     rollupOptions: {

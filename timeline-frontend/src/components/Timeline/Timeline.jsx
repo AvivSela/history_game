@@ -1,15 +1,46 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Card from '../Card/Card';
+import { animateWrongPlacement, cleanupAnimations } from '../../utils/animationUtils';
 
-const Timeline = ({ 
+const Timeline = forwardRef(({ 
   events = [], 
   onCardClick,
   highlightInsertionPoints = false,
   onInsertionPointClick,
   selectedCard = null,
-}) => {
+}, ref) => {
   const [hoveredInsertionPoint, setHoveredInsertionPoint] = useState(null);
+  const [wrongPlacementPosition, setWrongPlacementPosition] = useState(null);
   const timelineRef = useRef(null);
+  const insertionPointRefs = useRef(new Map());
+
+  // Expose animation methods via ref
+  useImperativeHandle(ref, () => ({
+    animateWrongPlacement: (position) => {
+      const timelineElement = timelineRef.current;
+      const insertionPointElement = insertionPointRefs.current.get(position);
+      
+      // Show wrong placement indicator
+      setWrongPlacementPosition(position);
+      
+      if (timelineElement) {
+        animateWrongPlacement(null, timelineElement, insertionPointElement);
+      }
+      
+      // Clear indicator after animation
+      setTimeout(() => {
+        setWrongPlacementPosition(null);
+      }, 1000);
+    },
+    cleanupAnimations: () => {
+      if (timelineRef.current) {
+        cleanupAnimations(timelineRef.current);
+      }
+      insertionPointRefs.current.forEach(element => {
+        if (element) cleanupAnimations(element);
+      });
+    }
+  }));
 
   // Sort events chronologically
   const sortedEvents = [...events].sort((a, b) => 
@@ -52,6 +83,13 @@ const Timeline = ({
     return (
       <div 
         key={`insertion-${index}`}
+        ref={(el) => {
+          if (el) {
+            insertionPointRefs.current.set(index, el);
+          } else {
+            insertionPointRefs.current.delete(index);
+          }
+        }}
         className={`flex items-center justify-center h-80 w-20 cursor-pointer transition-all duration-200 opacity-0 flex-shrink-0 relative bg-transparent p-5 -m-5 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : ''} ${isClickable ? 'opacity-60' : ''}`}
         onClick={() => handleInsertionPointClick(index)}
         onMouseEnter={() => handleInsertionPointHover(index, true)}
@@ -146,6 +184,13 @@ const Timeline = ({
                 {renderInsertionPoint(index + 1)}
               </React.Fragment>
             ))}
+            
+            {/* Wrong placement indicator */}
+            {wrongPlacementPosition !== null && (
+              <div className="wrong-placement-indicator">
+                ❌
+              </div>
+            )}
           </div>
         </div>
         {/* Scroll Controls */}
@@ -170,6 +215,6 @@ const Timeline = ({
       </div>
     </div>
   );
-};
+});
 
 export default Timeline;
