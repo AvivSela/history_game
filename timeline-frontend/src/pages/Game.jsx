@@ -54,6 +54,7 @@ const Game = () => {
 
   // Add refs for component communication
   const playerHandRef = useRef(null);
+  const timelineRef = useRef(null);
 
   useEffect(() => {
     initializeGame();
@@ -313,7 +314,11 @@ const Game = () => {
       }
 
     } else {
-      // Failed placement - coordinate complete animation sequence
+      // Failed placement - trigger wrong placement animation
+      if (player === 'human' && timelineRef.current) {
+        timelineRef.current.animateWrongPlacement(position);
+      }
+      
       const handKey = player === 'human' ? 'playerHand' : 'aiHand';
       const currentHand = gameState[handKey];
       
@@ -350,7 +355,13 @@ const Game = () => {
         }
       };
 
-
+      // Animate the new card in the player's hand
+      if (player === 'human' && newCard && playerHandRef.current) {
+        // Wait for the state to update and the new card to render
+        setTimeout(() => {
+          playerHandRef.current.animateNewCard(newCard.id);
+        }, 100);
+      }
     }
 
     setGameState(newState);
@@ -571,6 +582,7 @@ const Game = () => {
         <div className="flex flex-col lg:flex-row gap-8" style={{ overflow: 'visible' }}>
           <div className="flex-1" style={{ overflow: 'visible' }}>
             <Timeline
+              ref={timelineRef}
               events={gameState.timeline}
               onCardClick={handleTimelineCardClick}
               highlightInsertionPoints={gameState.showInsertionPoints}
