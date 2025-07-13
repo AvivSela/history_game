@@ -1,12 +1,72 @@
-# React + Vite
+# Timeline Game - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based frontend for the Timeline historical card game, built with Vite and using Yarn for package management.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Interactive timeline placement game
+- Historical event cards with categories
+- Responsive design
+- Real-time game state management
+- AI opponent support
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js >= 18.0.0
+- Yarn >= 1.22.0
+
+## Installation
+
+```bash
+# Install dependencies
+yarn install
+
+# Start development server
+yarn dev
+
+# Build for production
+yarn build
+
+# Run tests
+yarn test
+
+# Run linting
+yarn lint
+```
+
+## Development
+
+The project uses:
+- **React 18** with hooks
+- **Vite** for fast development and building
+- **React Router** for navigation
+- **ESLint** for code quality
+- **Vitest** for testing
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Page components
+├── hooks/         # Custom React hooks
+├── utils/         # Utility functions
+├── styles/        # Global styles
+└── assets/        # Static assets
+```
+
+## Available Scripts
+
+- `yarn dev` - Start development server
+- `yarn build` - Build for production
+- `yarn preview` - Preview production build
+- `yarn test` - Run tests
+- `yarn lint` - Run ESLint
+
+## Contributing
+
+1. Install dependencies with `yarn install`
+2. Start development server with `yarn dev`
+3. Make your changes
+4. Run tests with `yarn test`
+5. Ensure linting passes with `yarn lint`

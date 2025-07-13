@@ -1,0 +1,9 @@
+timeline-backend@1.0.0 /home/aviv/dev/timeline-game-project/timeline-backend
+├── concurrently@8.2.2
+├── cors@2.8.5
+├── dotenv@16.6.1
+├── express@4.21.2
+├── nodemon@3.1.10
+├── pg@8.16.3
+└── socket.io@4.8.1
+

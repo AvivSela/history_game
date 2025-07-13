@@ -1,0 +1,23 @@
+{
+  "name": "timeline-game-project",
+  "private": true,
+  "workspaces": [
+    "timeline-frontend",
+    "timeline-backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace timeline-backend start\" \"yarn workspace timeline-frontend dev\"",
+    "build": "yarn workspace timeline-frontend build",
+    "start": "yarn workspace timeline-backend start",
+    "frontend:dev": "yarn workspace timeline-frontend dev",
+    "backend:start": "yarn workspace timeline-backend start",
+    "install:all": "yarn install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  }
+} 
