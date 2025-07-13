@@ -1,68 +1,149 @@
+@import "tailwindcss";
+
+/* Define custom CSS variables for colors */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-primary: #2c3e50;
+  --color-secondary: #3498db;
+  --color-accent: #e74c3c;
+  --color-success: #27ae60;
+  --color-warning: #f39c12;
+  --color-background: #ecf0f1;
+  --color-card: #ffffff;
+  --color-text: #2c3e50;
+  --color-text-light: #7f8c8d;
+  --color-border: #bdc3c7;
+  --color-star: #ffd700;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Custom base styles that can't be easily converted to Tailwind */
+@layer base {
+  html {
+    scroll-behavior: smooth;
   }
-  a:hover {
-    color: #747bff;
+  
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+/* Custom component styles */
+@layer components {
+  .btn {
+    @apply inline-block px-6 py-3 border-none rounded-lg cursor-pointer text-base font-medium no-underline text-center transition-all duration-300 select-none whitespace-nowrap;
+  }
+  
+  .btn:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    background-color: var(--color-primary);
+    @apply text-white;
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-slate-700 -translate-y-0.5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .btn-secondary {
+    background-color: var(--color-secondary);
+    @apply text-white;
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-blue-600 -translate-y-0.5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .btn-success {
+    background-color: var(--color-success);
+    @apply text-white;
+  }
+  
+  .btn-success:hover:not(:disabled) {
+    @apply bg-green-600 -translate-y-0.5;
+  }
+  
+  .btn-large {
+    @apply px-8 py-4 text-lg font-semibold;
+  }
+  
+  .btn-small {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .card {
+    background-color: var(--color-card);
+    @apply rounded-lg transition-all duration-300 overflow-hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card:hover {
+    @apply -translate-y-0.5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card-header {
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .card-body {
+    @apply p-5;
+  }
+  
+  .card-footer {
+    @apply px-5 py-4 border-t bg-gray-50;
+    border-top-color: var(--color-border);
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent;
+  }
+  
+  .card-fan {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:brightness-110;
+  }
+  
+  .timeline-track {
+    @apply absolute top-2/5 left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0;
+  }
+  
+
+  
+  .text-primary {
+    color: var(--color-primary);
+  }
+  
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+  
+  .text-accent {
+    color: var(--color-accent);
+  }
+  
+  .text-success {
+    color: var(--color-success);
+  }
+  
+  .text-warning {
+    color: var(--color-warning);
+  }
+  
+  .text-text {
+    color: var(--color-text);
+  }
+  
+  .text-text-light {
+    color: var(--color-text-light);
+  }
+  
+  .border-border {
+    border-color: var(--color-border);
   }
 }

@@ -12,7 +12,6 @@ import {
 import { createAIOpponent, getAIThinkingTime } from '../utils/aiLogic';
 import Timeline from '../components/Timeline/Timeline';
 import PlayerHand from '../components/PlayerHand/PlayerHand';
-import './Game.css';
 
 const Game = () => {
   
@@ -248,17 +247,20 @@ const Game = () => {
         feedback: {
           type: 'success',
           message: validation.feedback,
-          points: scoreEarned
+          points: scoreEarned,
+          attempts: cardAttempts
         }
       };
 
+      // Execute AI turn if needed
+      if (newGameStatus === 'playing' && nextPlayer === 'ai' && gameState.gameMode === 'ai') {
+        setTimeout(() => executeAITurn(newState), getAIThinkingTime(gameState.difficulty));
+      }
+
     } else {
-      // Incorrect placement
+      // Failed placement
       newState = {
         ...newState,
-        selectedCard: null,
-        showInsertionPoints: false,
-        insertionPoints: [],
         attempts: { ...gameState.attempts, [selectedCard.id]: cardAttempts },
         gameStats: {
           ...gameState.gameStats,
@@ -268,60 +270,36 @@ const Game = () => {
         feedback: {
           type: 'error',
           message: validation.feedback,
-          correctPosition: validation.correctPosition,
           attempts: cardAttempts
         }
       };
-
-      // Switch turns in AI mode
-      if (gameState.gameMode === 'ai') {
-        newState.currentPlayer = player === 'human' ? 'ai' : 'human';
-        newState.turnStartTime = Date.now();
-      }
     }
 
     setGameState(newState);
 
-    // Clear feedback after delay
+    // Clear feedback after 3 seconds
     setTimeout(() => {
       setGameState(prev => ({ ...prev, feedback: null }));
-    }, validation.isCorrect || validation.isClose ? 3000 : 4000);
-
-    // Trigger AI turn if needed
-    if (newState.currentPlayer === 'ai' && newState.gameStatus === 'playing' && newState.aiOpponent) {
-      setTimeout(() => {
-        executeAITurn();
-      }, getAIThinkingTime(gameState.difficulty));
-    }
+    }, 3000);
   };
 
-  const executeAITurn = () => {
-    if (gameState.currentPlayer !== 'ai' || !gameState.aiOpponent || gameState.aiHand.length === 0) {
+  const executeAITurn = (currentState) => {
+    if (currentState.gameStatus !== 'playing' || currentState.currentPlayer !== 'ai') {
       return;
     }
 
-    console.log('🤖 AI taking turn...');
+    const aiCard = currentState.aiHand[0];
+    if (!aiCard) return;
 
     // AI selects a card
-    const aiSelection = gameState.aiOpponent.selectCard(gameState.aiHand, gameState.timeline, gameState);
-    if (!aiSelection) return;
+    const aiState = { ...currentState, aiOpponent: { ...currentState.aiOpponent, selectedCard: aiCard } };
 
-    // AI determines placement
-    const aiPlacement = gameState.aiOpponent.determineCardPlacement(aiSelection.card, gameState.timeline);
-    
-    console.log('🤖 AI placing:', aiSelection.card.title, 'at position', aiPlacement.position);
+    // AI makes placement decision
+    const insertionPoints = generateSmartInsertionPoints(aiState.timeline, aiCard);
+    const bestPosition = insertionPoints.length > 0 ? insertionPoints[0] : 0;
 
-    // Set AI's selected card temporarily
-    setGameState(prev => ({ 
-      ...prev, 
-      selectedCard: aiSelection.card,
-      aiOpponent: { ...prev.aiOpponent, selectedCard: aiSelection.card }
-    }));
-
-    // Execute AI placement
-    setTimeout(() => {
-      placeCard(aiPlacement.position, 'ai');
-    }, 500);
+    // Place the card
+    placeCard(bestPosition, 'ai');
   };
 
   const handleRestartGame = () => {
@@ -337,7 +315,7 @@ const Game = () => {
   };
 
   const handleTimelineCardClick = (event) => {
-    console.log('🔍 Timeline card clicked:', event.title);
+    console.log('📅 Timeline card clicked:', event.title);
   };
 
   const togglePause = () => {
@@ -349,38 +327,23 @@ const Game = () => {
 
   const getGameStatusMessage = () => {
     switch (gameState.gameStatus) {
-      case 'won': {
-        const humanScore = gameState.score.human;
-        const aiScore = gameState.score.ai;
-        const totalTime = gameState.startTime ? (Date.now() - gameState.startTime) / 1000 : 0;
-        
-        let message = `🎉 Congratulations!\nFinal Score: ${humanScore} points`;
-        
-        if (gameState.gameMode === 'ai') {
-          if (humanScore > aiScore) {
-            message = `🏆 You Won!\nYour Score: ${humanScore}\nAI Score: ${aiScore}`;
-          } else if (aiScore > humanScore) {
-            message = `🤖 AI Won!\nYour Score: ${humanScore}\nAI Score: ${aiScore}`;
-          } else {
-            message = `🤝 It's a Tie!\nBoth scored: ${humanScore} points`;
-          }
-        }
-        
-        message += `\nTime: ${Math.round(totalTime)}s`;
-        if (gameState.gameStats.totalMoves > 0) {
-          message += `\nAccuracy: ${Math.round((gameState.gameStats.correctMoves / gameState.gameStats.totalMoves) * 100)}%`;
-        }
-        
+      case 'won':
         return {
           type: 'success',
-          title: gameState.gameMode === 'ai' && aiScore > humanScore ? '🤖 AI Victory!' : '🎉 Game Complete!',
-          message
+          title: '🎉 Congratulations!',
+          message: `You've successfully placed all your cards!\n\nFinal Score: ${gameState.score.human} points\nTotal Moves: ${gameState.gameStats.totalMoves}\nAccuracy: ${Math.round((gameState.gameStats.correctMoves / gameState.gameStats.totalMoves) * 100)}%`
         };
-      }
+        
+      case 'lost':
+        return {
+          type: 'error',
+          title: '😔 Game Over',
+          message: `The AI has won this round!\n\nYour Score: ${gameState.score.human}\nAI Score: ${gameState.score.ai}`
+        };
         
       case 'paused':
         return {
-          type: 'info',
+          type: 'warning',
           title: '⏸️ Game Paused',
           message: 'Click Resume to continue playing.'
         };
@@ -402,12 +365,12 @@ const Game = () => {
 
   if (gameState.isLoading) {
     return (
-      <div className="game-page">
-        <div className="game-loading">
-          <div className="loading-spinner">
-            <div className="loading loading-large"></div>
-            <h2>Loading Timeline Game...</h2>
-            <p>Fetching historical events from our database</p>
+      <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="text-center bg-card p-10 rounded-lg shadow-lg">
+            <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-5"></div>
+            <h2 className="text-primary text-xl font-bold mb-2">Loading Timeline Game...</h2>
+            <p className="text-text-light">Fetching historical events from our database</p>
           </div>
         </div>
       </div>
@@ -416,12 +379,12 @@ const Game = () => {
 
   if (gameState.error) {
     return (
-      <div className="game-page">
-        <div className="game-error">
-          <div className="error-card">
-            <h2>🚫 Oops! Something went wrong</h2>
-            <p className="error-message">{gameState.error}</p>
-            <div className="error-actions">
+      <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="bg-card p-10 rounded-lg shadow-lg text-center border-2 border-accent max-w-lg">
+            <h2 className="text-accent text-xl font-bold mb-4">🚫 Oops! Something went wrong</h2>
+            <p className="text-text-light mb-6 text-base">{gameState.error}</p>
+            <div className="flex gap-3 justify-center">
               <button onClick={handleRestartGame} className="btn btn-primary">
                 🔄 Try Again
               </button>
@@ -438,14 +401,14 @@ const Game = () => {
   const statusMessage = getGameStatusMessage();
 
   return (
-    <div className="game-page">
+    <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
         {/* Game Status Overlay */}
         {statusMessage && (
-          <div className={`game-status-overlay ${statusMessage.type}`}>
-            <div className="status-content">
-              <h3>{statusMessage.title}</h3>
-              <p style={{ whiteSpace: 'pre-line' }}>{statusMessage.message}</p>
-              <div className="status-actions">
+          <div className={`fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in ${statusMessage.type === 'success' ? 'success' : statusMessage.type === 'error' ? 'error' : ''}`}>
+            <div className="bg-white p-12 rounded-lg text-center max-w-lg shadow-xl animate-bounce-in border-4 border-success">
+              <h3 className="text-3xl mb-4 text-primary">{statusMessage.title}</h3>
+              <p className="text-lg text-text mb-8 leading-relaxed" style={{ whiteSpace: 'pre-line' }}>{statusMessage.message}</p>
+              <div className="flex gap-4 justify-center flex-wrap">
                 {gameState.gameStatus === 'paused' ? (
                   <button onClick={togglePause} className="btn btn-primary btn-large">
                     ▶️ Resume Game
@@ -465,31 +428,31 @@ const Game = () => {
 
         {/* Feedback Toast */}
         {gameState.feedback && (
-          <div className={`feedback-toast ${gameState.feedback.type}`}>
-            <div className="feedback-content">
-              <p className="feedback-message">{gameState.feedback.message}</p>
+          <div className={`fixed top-24 right-5 bg-card rounded-lg p-4 shadow-xl z-50 max-w-sm animate-slide-in-right border-l-4 ${gameState.feedback.type === 'success' ? 'border-success bg-gradient-to-br from-success/10 to-card' : 'border-accent bg-gradient-to-br from-accent/10 to-card'}`}>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-text font-medium m-0">{gameState.feedback.message}</p>
               {gameState.feedback.points && (
-                <p className="feedback-points">+{gameState.feedback.points} points!</p>
+                <p className="text-base text-success font-bold m-0">+{gameState.feedback.points} points!</p>
               )}
               {gameState.feedback.attempts > 1 && (
-                <p className="feedback-attempts">Attempt #{gameState.feedback.attempts}</p>
+                <p className="text-xs text-text-light m-0">Attempt #{gameState.feedback.attempts}</p>
               )}
             </div>
           </div>
         )}
 
         {/* Game Header */}
-        <div className="game-header">
-          <div className="game-title-section">
-            <h1>🎮 Timeline Game</h1>
-            <p>Place historical events in chronological order</p>
+        <div className="flex justify-between items-center bg-gradient-to-r from-gray-50/60 to-blue-100/100 px-10 py-8 rounded-2xl shadow-lg my-8 border border-blue-200 relative gap-8">
+          <div className="flex-1 min-w-[220px]">
+            <h1 className="m-0 mb-2.5 text-slate-700 text-4xl font-extrabold tracking-wider drop-shadow-sm">🎮 Timeline Game</h1>
+            <p className="m-0 text-gray-600 text-base font-medium">Place historical events in chronological order</p>
             {gameState.gameMode === 'ai' && gameState.aiOpponent && (
-              <div className="ai-info">
-                <span className="ai-indicator">🤖 vs {gameState.aiOpponent.name}</span>
+              <div className="mt-2">
+                <span className="text-sm text-primary font-medium">🤖 vs {gameState.aiOpponent.name}</span>
               </div>
             )}
           </div>
-          <div className="game-header-controls">
+          <div className="flex flex-row gap-5 items-center bg-white/70">
             <button onClick={handleRestartGame} className="btn btn-secondary">
               🔄 New Game
             </button>
@@ -499,32 +462,32 @@ const Game = () => {
               </button>
             )}
           </div>
-          <div className="game-stats">
-            <div className="stat-item">
-              <span className="stat-label">Your Score</span>
-              <span className="stat-value">{gameState.score.human}</span>
+          <div className="flex gap-6">
+            <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
+              <div className="text-xs text-text-light font-medium uppercase tracking-wider">Your Score</div>
+              <div className="text-2xl font-bold text-primary">{gameState.score.human}</div>
             </div>
             {gameState.gameMode === 'ai' && (
-              <div className="stat-item">
-                <span className="stat-label">AI Score</span>
-                <span className="stat-value">{gameState.score.ai}</span>
+              <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
+                <div className="text-xs text-text-light font-medium uppercase tracking-wider">AI Score</div>
+                <div className="text-2xl font-bold text-primary">{gameState.score.ai}</div>
               </div>
             )}
-            <div className="stat-item">
-              <span className="stat-label">Cards Left</span>
-              <span className="stat-value">{gameState.playerHand.length}</span>
+            <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
+              <div className="text-xs text-text-light font-medium uppercase tracking-wider">Cards Left</div>
+              <div className="text-2xl font-bold text-primary">{gameState.playerHand.length}</div>
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Timeline</span>
-              <span className="stat-value">{gameState.timeline.length}</span>
+            <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
+              <div className="text-xs text-text-light font-medium uppercase tracking-wider">Timeline</div>
+              <div className="text-2xl font-bold text-primary">{gameState.timeline.length}</div>
             </div>
           </div>
         </div>
 
         {/* Turn Indicator */}
         {gameState.gameMode === 'ai' && gameState.gameStatus === 'playing' && (
-          <div className={`turn-indicator ${isPlayerTurn ? 'human-turn' : 'ai-turn'}`}>
-            <div className="turn-content">
+          <div className={`text-center py-3 px-6 rounded-lg mb-6 ${isPlayerTurn ? 'bg-success/10 border border-success/30 text-success' : 'bg-warning/10 border border-warning/30 text-warning'}`}>
+            <div className="font-medium">
               {isPlayerTurn ? (
                 <span>🎯 Your Turn - Select a card to play</span>
               ) : (
@@ -535,8 +498,8 @@ const Game = () => {
         )}
 
         {/* Game Board */}
-        <div className="game-board">
-          <div className="timeline-section">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-1">
             <Timeline
               events={gameState.timeline}
               onCardClick={handleTimelineCardClick}
@@ -546,7 +509,7 @@ const Game = () => {
             />
           </div>
 
-          <div className="player-section">
+          <div className="flex-1">
             <PlayerHand
               cards={gameState.playerHand}
               selectedCard={gameState.selectedCard}
@@ -559,14 +522,14 @@ const Game = () => {
             
             {/* AI Hand */}
             {gameState.gameMode === 'ai' && gameState.aiHand.length > 0 && (
-              <div className="ai-hand-section">
-                <div className="ai-hand-header">
-                  <h3>🤖 AI Hand</h3>
-                  <span className="hand-count">{gameState.aiHand.length} cards</span>
+              <div className="bg-card rounded-lg p-5 shadow-md my-5 border border-border">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-primary text-lg font-bold">🤖 AI Hand</h3>
+                  <span className="bg-accent text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">{gameState.aiHand.length} cards</span>
                 </div>
-                <div className="ai-cards-placeholder">
+                <div className="flex gap-2 flex-wrap">
                   {gameState.aiHand.map((_, index) => (
-                    <div key={index} className="ai-card-back">
+                    <div key={index} className="w-12 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 border border-gray-300">
                       🎴
                     </div>
                   ))}

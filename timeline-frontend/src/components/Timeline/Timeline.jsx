@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Card from '../Card/Card';
-import './Timeline.css';
 
 const Timeline = ({ 
   events = [], 
@@ -16,7 +15,6 @@ const Timeline = ({
   const sortedEvents = [...events].sort((a, b) => 
     new Date(a.dateOccurred) - new Date(b.dateOccurred)
   );
-
 
   // Auto-scroll to show new cards
   useEffect(() => {
@@ -49,14 +47,12 @@ const Timeline = ({
 
   const renderInsertionPoint = (index) => {
     if (!highlightInsertionPoints) return null;
-    
     const isHovered = hoveredInsertionPoint === index;
     const isClickable = selectedCard !== null;
-    
     return (
       <div 
         key={`insertion-${index}`}
-        className={`insertion-point ${isHovered ? 'hovered' : ''} ${isClickable ? 'clickable' : ''}`}
+        className={`flex items-center justify-center h-80 w-20 cursor-pointer transition-all duration-200 opacity-0 flex-shrink-0 relative bg-transparent p-5 -m-5 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : ''} ${isClickable ? 'opacity-60' : ''}`}
         onClick={() => handleInsertionPointClick(index)}
         onMouseEnter={() => handleInsertionPointHover(index, true)}
         onMouseLeave={() => handleInsertionPointHover(index, false)}
@@ -66,12 +62,12 @@ const Timeline = ({
           minHeight: '320px',
         }}
       >
-        <div className="insertion-indicator">
-          <span className="insertion-icon">
+        <div className="w-12 h-12 border-4 border-dashed border-secondary rounded-full flex items-center justify-center bg-secondary/10 transition-all duration-200 relative">
+          <span className="text-lg">
             {isHovered && selectedCard ? '📍' : '+'}
           </span>
           {isHovered && selectedCard && (
-            <div className="insertion-tooltip">
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-white text-gray-800 text-xs px-2 py-1 rounded shadow-lg border border-gray-200 whitespace-nowrap z-50">
               Place "{selectedCard.title}" here
             </div>
           )}
@@ -87,7 +83,6 @@ const Timeline = ({
       const newScroll = direction === 'left' 
         ? currentScroll - scrollAmount 
         : currentScroll + scrollAmount;
-      
       timelineRef.current.scrollTo({
         left: newScroll,
         behavior: 'smooth'
@@ -97,17 +92,17 @@ const Timeline = ({
 
   if (sortedEvents.length === 0) {
     return (
-      <div className="timeline-container">
-        <div className="timeline-content">
-          <div className="timeline-scroll">
-            <div className="timeline-track"></div>
-            <div className="timeline-line"></div>
+      <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none">
+        <div className="relative">
+          <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}>
+            <div className="absolute top-[40%] left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0"></div>
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-10 shadow-sm"></div>
           </div>
-          <div className="timeline-empty">
-            <div className="empty-timeline-message">
-              <div className="empty-icon">⏰</div>
-              <h3>Timeline is empty</h3>
-              <p>Cards will appear here as you place them correctly</p>
+          <div className="text-center py-16 md:py-10 sm:py-6">
+            <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg p-8 border border-secondary/20">
+              <div className="text-6xl mb-4">⏰</div>
+              <h3 className="text-primary text-xl font-bold mb-2">Timeline is empty</h3>
+              <p className="text-text-light">Cards will appear here as you place them correctly</p>
               {highlightInsertionPoints && renderInsertionPoint(0)}
             </div>
           </div>
@@ -117,26 +112,23 @@ const Timeline = ({
   }
 
   return (
-    <div className="timeline-container">
-      <div className="timeline-content">
-        <div className="timeline-scroll" ref={timelineRef}>
-          <div className="timeline-track"></div>
-          <div className="timeline-line"></div>
-          
-          
-          <div className="timeline-events">
+    <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none">
+      <div className="relative">
+        <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}>
+          <div className="absolute top-[40%] left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0"></div>
+          <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-10 shadow-sm"></div>
+          <div className="flex items-center justify-center gap-8 min-h-[320px] relative z-20 px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2">
             {/* Insertion point before first card */}
             {renderInsertionPoint(0)}
-            
             {sortedEvents.map((event, index) => (
               <React.Fragment key={event.id}>
-                <div className="timeline-card-wrapper">
-                  <div className="timeline-position">
-                    <div className="timeline-date-info">
-                      <div className="timeline-year">
+                <div className="flex flex-col items-center gap-4 flex-shrink-0 relative md:gap-3 sm:gap-2">
+                  <div className="flex flex-col items-center gap-2 mb-2 md:gap-1 md:mb-1">
+                    <div className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border min-w-[80px] md:px-2 md:py-1 md:min-w-[70px] sm:px-1 sm:py-1 sm:min-w-[60px]">
+                      <div className="text-base font-bold text-primary leading-none md:text-sm sm:text-xs">
                         {new Date(event.dateOccurred).getFullYear()}
                       </div>
-                      <div className="timeline-date">
+                      <div className="text-xs text-text-light mt-0.5 font-medium md:text-[10px] sm:text-[9px]">
                         {new Date(event.dateOccurred).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'
@@ -144,7 +136,6 @@ const Timeline = ({
                       </div>
                     </div>
                   </div>
-                  
                   <Card
                     event={event}
                     size="medium"
@@ -152,26 +143,24 @@ const Timeline = ({
                     className="timeline-card"
                   />
                 </div>
-                
                 {/* Insertion point after each card */}
                 {renderInsertionPoint(index + 1)}
               </React.Fragment>
             ))}
           </div>
         </div>
-        
         {/* Scroll Controls */}
         {sortedEvents.length > 2 && (
-          <div className="timeline-controls">
+          <div className="absolute top-1/2 transform -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
             <button 
-              className="timeline-scroll-btn left" 
+              className="w-12 h-12 bg-white/80 hover:bg-white text-primary text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto" 
               onClick={() => scrollTimeline('left')}
               title="Scroll left"
             >
               ‹
             </button>
             <button 
-              className="timeline-scroll-btn right" 
+              className="w-12 h-12 bg-white/80 hover:bg-white text-primary text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto" 
               onClick={() => scrollTimeline('right')}
               title="Scroll right"
             >

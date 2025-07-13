@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './Card.css';
 
 const Card = ({ 
   event, 
@@ -18,21 +17,19 @@ const Card = ({
   // Determine if this is a timeline card
   const isTimelineCard = className.includes('timeline-card');
 
-  // Remove unused date formatting functions since new design doesn't show dates on cards
-
   // Get category class for color coding
   const getCategoryClass = (category) => {
     const categoryMap = {
-      'Military': 'category-military',
-      'Disaster': 'category-disaster', 
-      'Political': 'category-political',
-      'Cultural': 'category-cultural',
-      'Science': 'category-scientific',
-      'Technology': 'category-scientific',
-      'Space': 'category-scientific',
-      'Aviation': 'category-scientific',
-      'History': 'category-cultural',
-      'default': 'category-cultural'
+      'Military': 'text-accent',
+      'Disaster': 'text-warning', 
+      'Political': 'text-primary',
+      'Cultural': 'text-success',
+      'Science': 'text-secondary',
+      'Technology': 'text-secondary',
+      'Space': 'text-secondary',
+      'Aviation': 'text-secondary',
+      'History': 'text-success',
+      'default': 'text-success'
     };
     return categoryMap[category] || categoryMap.default;
   };
@@ -89,10 +86,10 @@ const Card = ({
 
   // Build CSS classes
   const cardClasses = [
-    'card-container',
-    size,
-    isSelected ? 'selected' : '',
-    isHovered ? 'hovered' : '',
+    'cursor-pointer transition-transform duration-300 transition-filter duration-300 relative select-none',
+    size === 'small' ? 'w-44 h-60' : size === 'large' ? 'w-64 h-80' : 'w-55 h-75',
+    isSelected ? 'scale-110 -translate-y-3 z-50' : '',
+    isHovered ? 'scale-105 -translate-y-2' : '',
     isTimelineCard ? 'timeline-card' : 'player-hand-card',
     className
   ].filter(Boolean).join(' ');
@@ -100,23 +97,23 @@ const Card = ({
   // Render player hand card content with new design
   const renderPlayerHandContent = () => (
     <>
-      <div className="card-header">
-        <div className="difficulty-stars">
+      <div className="bg-gray-50 p-4 flex justify-between items-center text-gray-800 flex-shrink-0 border-b border-gray-200">
+        <div className="flex gap-1 items-center">
           {Array.from({ length: event.difficulty }, (_, i) => (
-            <span key={i} className="difficulty-star">★</span>
+            <span key={i} className="text-lg text-star drop-shadow-sm">★</span>
           ))}
         </div>
-        <div className={`category-section ${getCategoryClass(event.category)}`}>
-          <div className="category-icon">{getCategoryIcon(event.category)}</div>
-          <div className="category-name">{event.category}</div>
+        <div className={`flex items-center gap-2 bg-black/5 rounded-2xl px-2.5 py-1.5 border border-gray-200 ${getCategoryClass(event.category)}`}>
+          <div className="text-lg">{getCategoryIcon(event.category)}</div>
+          <div className="text-xs uppercase tracking-wider font-bold text-gray-800 drop-shadow-sm">{event.category}</div>
         </div>
       </div>
       
-      <div className="card-title">{event.title}</div>
+      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-card m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
       
-      <div className="card-mechanics">
-        <div className="mechanic-title">Event Description</div>
-        <div className="mechanic-text">
+      <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
+        <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
+        <div className="font-card text-xs text-gray-800 leading-relaxed text-justify flex-grow">
           {event.description || 'A significant historical event that shaped the course of history.'}
         </div>
       </div>
@@ -126,23 +123,23 @@ const Card = ({
   // Render timeline card content with same design as player hand
   const renderTimelineContent = () => (
     <>
-      <div className="card-header">
-        <div className="difficulty-stars">
+      <div className="bg-gray-50 p-4 flex justify-between items-center text-gray-800 flex-shrink-0 border-b border-gray-200">
+        <div className="flex gap-1 items-center">
           {Array.from({ length: event.difficulty }, (_, i) => (
-            <span key={i} className="difficulty-star">★</span>
+            <span key={i} className="text-lg text-star drop-shadow-sm">★</span>
           ))}
         </div>
-        <div className={`category-section ${getCategoryClass(event.category)}`}>
-          <div className="category-icon">{getCategoryIcon(event.category)}</div>
-          <div className="category-name">{event.category}</div>
+        <div className={`flex items-center gap-2 bg-black/5 rounded-2xl px-2.5 py-1.5 border border-gray-200 ${getCategoryClass(event.category)}`}>
+          <div className="text-lg">{getCategoryIcon(event.category)}</div>
+          <div className="text-xs uppercase tracking-wider font-bold text-gray-800 drop-shadow-sm">{event.category}</div>
         </div>
       </div>
       
-      <div className="card-title">{event.title}</div>
+      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-card m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
       
-      <div className="card-mechanics">
-        <div className="mechanic-title">Event Description</div>
-        <div className="mechanic-text">
+      <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
+        <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
+        <div className="font-card text-xs text-gray-800 leading-relaxed text-justify flex-grow">
           {event.description || 'A significant historical event that shaped the course of history.'}
         </div>
       </div>
@@ -159,15 +156,15 @@ const Card = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="card">
+      <div className="relative w-full h-full rounded-card shadow-lg bg-card border border-gray-200 flex flex-col p-0 box-border overflow-hidden transition-all duration-300 hover:shadow-xl">
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
       </div>
       
       {/* Selection indicator */}
       {isSelected && (
-        <div className="selection-indicator">
-          <div className="selection-ring"></div>
-          <div className="selection-pulse"></div>
+        <div className="absolute -top-2 -left-2 -right-2 -bottom-2 pointer-events-none">
+                  <div className="w-full h-full border-4 border-success rounded-card animate-pulse"></div>
+        <div className="absolute inset-0 border-4 border-success rounded-card animate-ping opacity-75"></div>
         </div>
       )}
       
