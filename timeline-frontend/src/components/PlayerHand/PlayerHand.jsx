@@ -67,12 +67,13 @@ const PlayerHand = ({
     if (isSelected) {
       transform = `translateX(${position.translateX}px) translateY(-50px) rotate(0deg) scale(1.1)`;
     } else if (isHovered) {
-      transform = `translateX(${position.translateX}px) translateY(-35px) rotate(0deg) scale(1.05)`;
+      transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg) scale(1.1)`;
     }
     return {
       transform,
       zIndex: isSelected ? 1000 : (isHovered ? 999 : position.zIndex),
-      transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      transformOrigin: 'center bottom'
     };
   };
 
@@ -100,7 +101,7 @@ const PlayerHand = ({
   }
 
   return (
-    <div className={`bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`} data-testid="player-hand-container">
+    <div className={`player-hand-container bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`} data-testid="player-hand-container" style={{ overflow: 'visible' }}>
       {isPlayerTurn && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-success via-green-500 to-success animate-pulse"></div>
       )}
@@ -126,15 +127,20 @@ const PlayerHand = ({
           )}
         </div>
       </div>
-      <div className="mb-5">
-        <div className="relative flex justify-center items-end py-[120px] px-[60px] pb-5 min-h-[360px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible md:py-[100px] md:px-5 md:min-h-[320px] sm:py-[80px] sm:px-2 sm:min-h-[300px]">
+      <div className="mb-5 relative">
+        <div className="card-area relative flex justify-center items-center py-[80px] px-[60px] min-h-[395px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible md:py-[60px] md:px-5 md:min-h-[355px] sm:py-[40px] sm:px-2 sm:min-h-[335px]">
           {cards.map((card, index) => {
             const isSelected = selectedCard && selectedCard.id === card.id;
             return (
               <div
                 key={card.id}
-                className="absolute cursor-pointer drop-shadow-md"
-                style={getCardStyle(index)}
+                className="absolute cursor-pointer drop-shadow-md player-card-wrapper"
+                style={{
+                  ...getCardStyle(index),
+                  willChange: 'transform',
+                  overflow: 'visible',
+                  clipPath: 'none'
+                }}
                 data-testid="player-card-wrapper"
                 {...(isSelected ? { 'data-testid': 'hand-selected-card' } : {})}
               >

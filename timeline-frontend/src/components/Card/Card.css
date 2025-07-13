@@ -1,3 +1,59 @@
+/* Player Hand Container Styles */
+.player-hand-container {
+  overflow: visible !important;
+  position: relative;
+  clip-path: none !important;
+}
+
+.player-hand-container > div {
+  overflow: visible !important;
+}
+
+.player-hand-container .card-area {
+  overflow: visible !important;
+  position: relative;
+  clip-path: none !important;
+}
+
+/* Parent container for cards */
+.mb-5.relative {
+  overflow: visible !important;
+  clip-path: none !important;
+}
+
+/* Card wrapper styles */
+.player-card-wrapper {
+  overflow: visible !important;
+  clip-path: none !important;
+  position: relative;
+}
+
+/* Player Hand Card Specific Styles */
+.player-hand-card {
+  transform-origin: center bottom;
+  will-change: transform;
+  overflow: visible;
+}
+
+.player-hand-card .card {
+  overflow: visible;
+}
+
+.player-hand-card:hover {
+  z-index: 999;
+}
+
+/* Enhanced hover effect */
+.player-hand-card:hover .card {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Ensure selection indicator doesn't get clipped */
+.player-hand-card .selection-indicator {
+  overflow: visible;
+  pointer-events: none;
+}
+
 /* CSS Variables System */
 :root {
   --primary-color: #2c3e50;    /* Dark slate blue */

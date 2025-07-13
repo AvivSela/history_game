@@ -401,7 +401,7 @@ const Game = () => {
   const statusMessage = getGameStatusMessage();
 
   return (
-    <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
+    <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none" style={{ overflow: 'visible' }}>
         {/* Game Status Overlay */}
         {statusMessage && (
           <div className={`fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in ${statusMessage.type === 'success' ? 'success' : statusMessage.type === 'error' ? 'error' : ''}`}>
@@ -498,8 +498,8 @@ const Game = () => {
         )}
 
         {/* Game Board */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-1">
+        <div className="flex flex-col lg:flex-row gap-8" style={{ overflow: 'visible' }}>
+          <div className="flex-1" style={{ overflow: 'visible' }}>
             <Timeline
               events={gameState.timeline}
               onCardClick={handleTimelineCardClick}
@@ -509,7 +509,7 @@ const Game = () => {
             />
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1" style={{ overflow: 'visible' }}>
             <PlayerHand
               cards={gameState.playerHand}
               selectedCard={gameState.selectedCard}

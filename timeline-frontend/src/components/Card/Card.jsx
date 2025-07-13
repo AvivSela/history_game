@@ -156,7 +156,7 @@ const Card = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative w-full h-full rounded-card shadow-lg bg-card border border-gray-200 flex flex-col p-0 box-border overflow-hidden transition-all duration-300 hover:shadow-xl">
+      <div className="relative w-full h-full rounded-card shadow-lg bg-card border border-gray-200 flex flex-col p-0 box-border overflow-visible transition-all duration-300 hover:shadow-xl">
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
       </div>
       
