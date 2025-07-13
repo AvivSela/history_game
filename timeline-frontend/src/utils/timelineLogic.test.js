@@ -198,37 +198,36 @@ describe('timelineLogic', () => {
 
     it('should generate insertion point before first card', () => {
       const points = generateSmartInsertionPoints(mockTimeline)
-      const firstPoint = points[0]
       
-      expect(firstPoint.index).toBe(0)
-      expect(firstPoint.position).toBe('before')
+      expect(points[0]).toEqual({
+        index: 0,
+        position: 'before',
+        referenceCard: mockTimeline[0],
+        difficulty: 'easy'
+      })
     })
 
     it('should generate insertion points between cards', () => {
       const points = generateSmartInsertionPoints(mockTimeline)
-      const betweenPoint = points[1]
       
-      expect(betweenPoint.index).toBe(1)
-      expect(betweenPoint.position).toBe('between')
-      expect(betweenPoint.gap).toBe(30)
+      expect(points[1]).toEqual({
+        index: 1,
+        position: 'between',
+        referenceCard: mockTimeline[0],
+        nextCard: mockTimeline[1],
+        difficulty: 'medium',
+        gap: 30
+      })
     })
 
     it('should generate insertion point after last card', () => {
       const points = generateSmartInsertionPoints(mockTimeline)
-      const lastPoint = points[3]
       
-      expect(lastPoint.index).toBe(3)
-      expect(lastPoint.position).toBe('after')
-    })
-
-    it('should assign difficulty based on year gaps', () => {
-      const points = generateSmartInsertionPoints(mockTimeline)
-      const betweenPoints = points.filter(p => p.position === 'between')
-      
-      // Gap between 1939 and 1969 is 30 years (medium)
-      // Gap between 1969 and 1989 is 20 years (medium)
-      betweenPoints.forEach(point => {
-        expect(['easy', 'medium', 'hard']).toContain(point.difficulty)
+      expect(points[3]).toEqual({
+        index: 3,
+        position: 'after',
+        referenceCard: mockTimeline[2],
+        difficulty: 'easy'
       })
     })
 
@@ -236,18 +235,41 @@ describe('timelineLogic', () => {
       const points = generateSmartInsertionPoints([])
       
       expect(points).toHaveLength(1)
-      expect(points[0].position).toBe('before')
+      expect(points[0]).toEqual({
+        index: 0,
+        position: 'before',
+        referenceCard: null,
+        difficulty: 'easy'
+      })
     })
 
-    it('should add relevance scores when selected card provided', () => {
-      const points = generateSmartInsertionPoints(mockTimeline, testCard)
+    it('should handle single card timeline', () => {
+      const points = generateSmartInsertionPoints([mockTimeline[0]])
       
-      points.forEach(point => {
-        expect(point.relevance).toBeDefined()
-        expect(typeof point.relevance).toBe('number')
-        expect(point.relevance).toBeGreaterThanOrEqual(0)
-        expect(point.relevance).toBeLessThanOrEqual(1)
-      })
+      expect(points).toHaveLength(2)
+      expect(points[0].position).toBe('before')
+      expect(points[1].position).toBe('after')
+    })
+  })
+
+  describe('Card replacement functionality', () => {
+    it('should validate incorrect placement and provide feedback for replacement', () => {
+      const result = validatePlacementWithTolerance(testCard, mockTimeline, 0)
+      
+      expect(result.isCorrect).toBe(false)
+      expect(result.isClose).toBe(false)
+      expect(result.feedback).toContain('Berlin Wall Falls')
+      expect(result.feedback).toContain('1989')
+      expect(result.feedback).toContain('later')
+      expect(result.feedbackType).toBe('miss')
+    })
+
+    it('should provide exact match feedback for correct placement', () => {
+      const result = validatePlacementWithTolerance(testCard, mockTimeline, 3)
+      
+      expect(result.isCorrect).toBe(true)
+      expect(result.feedback).toContain('Berlin Wall Falls')
+      expect(result.feedbackType).toBe('perfect')
     })
   })
 

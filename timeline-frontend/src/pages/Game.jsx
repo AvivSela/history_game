@@ -20,6 +20,7 @@ const Game = () => {
     playerHand: [],
     timeline: [],
     aiHand: [],
+    cardPool: [], // Pool of additional cards for replacement
     
     // Game status
     isLoading: true,
@@ -64,6 +65,7 @@ const Game = () => {
         timeline: [], // Clear timeline immediately
         playerHand: [],
         aiHand: [],
+        cardPool: [], // Clear card pool
         selectedCard: null,
         showInsertionPoints: false,
         feedback: null
@@ -82,6 +84,10 @@ const Game = () => {
       const cardCount = mode === 'ai' ? 8 : 5;
       const response = await gameAPI.getRandomEvents(cardCount);
       const events = extractData(response);
+      
+      // Fetch additional cards for the pool (for replacement when cards are placed incorrectly)
+      const poolResponse = await gameAPI.getRandomEvents(10); // Get 10 additional cards for the pool
+      const poolEvents = extractData(poolResponse);
       
       // Create game session
       const session = createGameSession(events, { 
@@ -105,6 +111,7 @@ const Game = () => {
         timeline: session.timeline,
         playerHand: humanCards,
         aiHand: aiCards,
+        cardPool: poolEvents, // Store additional cards for replacement
         gameMode: mode,
         difficulty: diff,
         aiOpponent,
@@ -162,16 +169,58 @@ const Game = () => {
     handleCardSelect(card);
   };
 
-  const handleInsertionPointClick = (position) => {
+  const handleInsertionPointClick = async (position) => {
     if (!gameState.selectedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
       return;
     }
 
-    placeCard(position, 'human');
+    await placeCard(position, 'human');
+  };
+
+  // Helper function to get a new card from the pool, avoiding duplicates
+  const getNewCardFromPool = async () => {
+    // Gather all card IDs currently in the timeline and playerHand
+    const timelineIds = new Set(gameState.timeline.map(card => card.id));
+    const handIds = new Set(gameState.playerHand.map(card => card.id));
+    const forbiddenIds = new Set([...timelineIds, ...handIds]);
+
+    // Filter pool to only cards not in timeline or hand
+    const availablePool = gameState.cardPool.filter(card => !forbiddenIds.has(card.id));
+
+    if (availablePool.length > 0) {
+      // Get a random card from the filtered pool
+      const randomIndex = Math.floor(Math.random() * availablePool.length);
+      const newCard = availablePool[randomIndex];
+      // Remove the card from the pool
+      const updatedPool = gameState.cardPool.filter(card => card.id !== newCard.id);
+      setGameState(prev => ({
+        ...prev,
+        cardPool: updatedPool
+      }));
+      return newCard;
+    } else {
+      // Pool is empty or all cards are duplicates, try to fetch more cards
+      try {
+        const response = await gameAPI.getRandomEvents(5);
+        let newPoolCards = extractData(response);
+        // Filter out any cards already in timeline or hand
+        newPoolCards = newPoolCards.filter(card => !forbiddenIds.has(card.id));
+        if (newPoolCards.length > 0) {
+          setGameState(prev => ({
+            ...prev,
+            cardPool: newPoolCards
+          }));
+          return newPoolCards[0];
+        }
+      } catch (error) {
+        console.error('Failed to fetch new cards:', error);
+      }
+      return null; // No new card available
+    }
   };
 
 
-  const placeCard = (position, player = 'human') => {
+  const placeCard = async (position, player = 'human') => {
     const selectedCard = player === 'human' ? gameState.selectedCard : gameState.aiOpponent?.selectedCard;
     if (!selectedCard) return;
 
@@ -254,13 +303,32 @@ const Game = () => {
 
       // Execute AI turn if needed
       if (newGameStatus === 'playing' && nextPlayer === 'ai' && gameState.gameMode === 'ai') {
-        setTimeout(() => executeAITurn(newState), getAIThinkingTime(gameState.difficulty));
+        setTimeout(async () => await executeAITurn(newState), getAIThinkingTime(gameState.difficulty));
       }
 
     } else {
-      // Failed placement
+      // Failed placement - replace card with a new one from the pool
+      const handKey = player === 'human' ? 'playerHand' : 'aiHand';
+      const currentHand = gameState[handKey];
+      
+      // Remove the incorrect card from hand
+      const updatedHand = currentHand.filter(card => card.id !== selectedCard.id);
+      
+      // Get a new card from the pool (only for human player)
+      let newCard = null;
+      if (player === 'human') {
+        newCard = await getNewCardFromPool();
+      }
+      
+      // If we got a new card, add it to the hand
+      const finalHand = newCard ? [...updatedHand, newCard] : updatedHand;
+      
       newState = {
         ...newState,
+        [handKey]: finalHand,
+        selectedCard: null,
+        showInsertionPoints: false,
+        insertionPoints: [],
         attempts: { ...gameState.attempts, [selectedCard.id]: cardAttempts },
         gameStats: {
           ...gameState.gameStats,
@@ -269,7 +337,7 @@ const Game = () => {
         },
         feedback: {
           type: 'error',
-          message: validation.feedback,
+          message: validation.feedback + (newCard ? ' You got a new card to try!' : ' No more cards available.'),
           attempts: cardAttempts
         }
       };
@@ -283,7 +351,7 @@ const Game = () => {
     }, 3000);
   };
 
-  const executeAITurn = (currentState) => {
+  const executeAITurn = async (currentState) => {
     if (currentState.gameStatus !== 'playing' || currentState.currentPlayer !== 'ai') {
       return;
     }
@@ -299,7 +367,7 @@ const Game = () => {
     const bestPosition = insertionPoints.length > 0 ? insertionPoints[0] : 0;
 
     // Place the card
-    placeCard(bestPosition, 'ai');
+    await placeCard(bestPosition, 'ai');
   };
 
   const handleRestartGame = () => {
