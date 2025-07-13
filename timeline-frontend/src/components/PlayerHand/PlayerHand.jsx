@@ -157,9 +157,9 @@ const PlayerHand = forwardRef(({
 
   // Cleanup animations on component unmount
   useEffect(() => {
+    const currentRefs = animationRefs.current;
     return () => {
       // Cleanup all ongoing animations
-      const currentRefs = animationRefs.current;
       currentRefs.forEach(({ element }) => {
         cleanupAnimations(element);
       });

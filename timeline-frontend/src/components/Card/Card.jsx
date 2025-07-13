@@ -31,8 +31,8 @@ const Card = forwardRef(({
 
   // Cleanup animations on unmount
   useEffect(() => {
+    const currentRef = cardRef.current;
     return () => {
-      const currentRef = cardRef.current;
       if (currentRef) {
         cleanupAnimations(currentRef);
       }
