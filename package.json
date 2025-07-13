@@ -13,7 +13,12 @@
     "backend:start": "yarn workspace timeline-backend start",
     "install:all": "yarn install",
     "lint": "yarn workspace timeline-frontend lint",
-    "lint:fix": "yarn workspace timeline-frontend lint:fix"
+    "lint:fix": "yarn workspace timeline-frontend lint:fix",
+    "test": "concurrently \"yarn workspace timeline-frontend test\" \"yarn workspace timeline-backend test\"",
+    "test:watch": "concurrently \"yarn workspace timeline-frontend test:watch\" \"yarn workspace timeline-backend test:watch\"",
+    "test:coverage": "concurrently \"yarn workspace timeline-frontend test:coverage\" \"yarn workspace timeline-backend test:coverage\"",
+    "test:frontend": "yarn workspace timeline-frontend test",
+    "test:backend": "yarn workspace timeline-backend test"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

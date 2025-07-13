@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const { errorHandler, notFoundHandler, asyncHandler } = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
 
 dotenv.config();
 
@@ -9,7 +11,19 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    try {
+      JSON.parse(buf);
+    } catch (e) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid JSON format'
+      });
+      throw new Error('Invalid JSON');
+    }
+  }
+}));
 
 // Sample events data - expanded for better testing
 const sampleEvents = [
@@ -114,6 +128,7 @@ const sampleEvents = [
 // Basic health check route
 app.get('/api/health', (req, res) => {
   res.json({ 
+    success: true,
     message: 'Timeline API is running!',
     timestamp: new Date().toISOString(),
     status: 'healthy',
@@ -122,173 +137,116 @@ app.get('/api/health', (req, res) => {
 });
 
 // Get all events
-app.get('/api/events', (req, res) => {
-  try {
-    console.log('📊 Fetching all events...');
-    res.json({
-      success: true,
-      count: sampleEvents.length,
-      data: sampleEvents
-    });
-  } catch (error) {
-    console.error('❌ Error fetching events:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch events'
-    });
-  }
-});
+app.get('/api/events', asyncHandler(async (req, res) => {
+  logger.info('📊 Fetching all events...');
+  res.json({
+    success: true,
+    count: sampleEvents.length,
+    data: sampleEvents
+  });
+}));
 
 // Get random events for a game (using simpler parameter handling)
-app.get('/api/events/random/:count', (req, res) => {
-  try {
-    const countParam = req.params.count;
-    const count = parseInt(countParam) || 5;
-    
-    console.log(`🎲 Fetching ${count} random events...`);
-    
-    if (count > sampleEvents.length) {
-      return res.status(400).json({
-        success: false,
-        error: `Requested ${count} events but only ${sampleEvents.length} available`
-      });
-    }
-    
-    if (count < 1) {
-      return res.status(400).json({
-        success: false,
-        error: 'Count must be at least 1'
-      });
-    }
-    
-    // Create a copy and shuffle
-    const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
-    const selectedEvents = shuffled.slice(0, count);
-    
-    res.json({
-      success: true,
-      count: selectedEvents.length,
-      requested: count,
-      data: selectedEvents
-    });
-  } catch (error) {
-    console.error('❌ Error in random events:', error);
-    res.status(500).json({
+app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
+  const countParam = req.params.count;
+  const count = parseInt(countParam);
+  
+  logger.info(`🎲 Fetching ${count} random events...`);
+  
+  // Handle invalid or negative counts
+  if (isNaN(count) || count < 1) {
+    return res.status(400).json({
       success: false,
-      error: 'Failed to fetch random events'
+      error: 'Count must be at least 1'
     });
   }
-});
+  
+  if (count > sampleEvents.length) {
+    return res.status(400).json({
+      success: false,
+      error: `Requested ${count} events but only ${sampleEvents.length} available`
+    });
+  }
+  
+  // Create a copy and shuffle
+  const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
+  const selectedEvents = shuffled.slice(0, count);
+  
+  res.json({
+    success: true,
+    count: selectedEvents.length,
+    requested: count,
+    data: selectedEvents
+  });
+}));
 
 // Alternative route without parameters (fallback)
-app.get('/api/events/random', (req, res) => {
-  try {
-    const count = parseInt(req.query.count) || 5;
-    console.log(`🎲 Fetching ${count} random events (query param)...`);
-    
-    const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
-    const selectedEvents = shuffled.slice(0, count);
-    
-    res.json({
-      success: true,
-      count: selectedEvents.length,
-      data: selectedEvents
-    });
-  } catch (error) {
-    console.error('❌ Error in random events (query):', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch random events'
-    });
-  }
-});
+app.get('/api/events/random', asyncHandler(async (req, res) => {
+  const count = parseInt(req.query.count) || 5;
+  logger.info(`🎲 Fetching ${count} random events (query param)...`);
+  
+  const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
+  const selectedEvents = shuffled.slice(0, count);
+  
+  res.json({
+    success: true,
+    count: selectedEvents.length,
+    data: selectedEvents
+  });
+}));
 
 // Get available categories
-app.get('/api/categories', (req, res) => {
-  try {
-    console.log('📁 Fetching categories...');
-    const categories = [...new Set(sampleEvents.map(event => event.category))];
-    
-    res.json({
-      success: true,
-      count: categories.length,
-      data: categories
-    });
-  } catch (error) {
-    console.error('❌ Error fetching categories:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch categories'
-    });
-  }
-});
+app.get('/api/categories', asyncHandler(async (req, res) => {
+  logger.info('📁 Fetching categories...');
+  const categories = [...new Set(sampleEvents.map(event => event.category))];
+  
+  res.json({
+    success: true,
+    count: categories.length,
+    data: categories
+  });
+}));
 
 // Get events by category (using query parameters instead of path parameters)
-app.get('/api/events/category', (req, res) => {
-  try {
-    const category = req.query.name;
-    if (!category) {
-      return res.status(400).json({
-        success: false,
-        error: 'Category name is required as query parameter (?name=History)'
-      });
-    }
-    
-    console.log(`📂 Fetching events for category: ${category}`);
-    const filtered = sampleEvents.filter(event => 
-      event.category.toLowerCase() === category.toLowerCase()
-    );
-    
-    res.json({
-      success: true,
-      count: filtered.length,
-      category: category,
-      data: filtered
-    });
-  } catch (error) {
-    console.error('❌ Error fetching events by category:', error);
-    res.status(500).json({
+app.get('/api/events/category', asyncHandler(async (req, res) => {
+  const category = req.query.name;
+  if (!category || category.trim() === '') {
+    return res.status(400).json({
       success: false,
-      error: 'Failed to fetch events by category'
+      error: 'Category name is required as query parameter (?name=History)'
     });
   }
-});
+  
+  logger.info(`📂 Fetching events for category: ${category}`);
+  const filtered = sampleEvents.filter(event => 
+    event.category.toLowerCase() === category.toLowerCase()
+  );
+  
+  res.json({
+    success: true,
+    count: filtered.length,
+    category: category,
+    data: filtered
+  });
+}));
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('🚨 Server Error:', err.stack);
-  res.status(500).json({ 
-    success: false,
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!'
-  });
-});
+app.use(errorHandler);
 
 // Handle 404s
-app.use('*', (req, res) => {
-  console.log(`🔍 Route not found: ${req.method} ${req.originalUrl}`);
-  res.status(404).json({ 
-    success: false,
-    error: 'Route not found',
-    availableRoutes: [
-      'GET /api/health',
-      'GET /api/events',
-      'GET /api/events/random/:count',
-      'GET /api/events/random?count=5',
-      'GET /api/categories',
-      'GET /api/events/category?name=History'
-    ]
-  });
+app.use('*', notFoundHandler);
+
+const server = app.listen(PORT, () => {
+  logger.info('🚀 Timeline API Server Successfully Started!');
+  logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  logger.info(`📍 Server: http://localhost:${PORT}`);
+  logger.info(`💓 Health: http://localhost:${PORT}/api/health`);
+  logger.info(`📊 Events: http://localhost:${PORT}/api/events`);
+  logger.info(`🎲 Random: http://localhost:${PORT}/api/events/random/5`);
+  logger.info(`📁 Categories: http://localhost:${PORT}/api/categories`);
+  logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  logger.info('✅ Ready for frontend connections!');
 });
 
-app.listen(PORT, () => {
-  console.log('🚀 Timeline API Server Successfully Started!');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`📍 Server: http://localhost:${PORT}`);
-  console.log(`💓 Health: http://localhost:${PORT}/api/health`);
-  console.log(`📊 Events: http://localhost:${PORT}/api/events`);
-  console.log(`🎲 Random: http://localhost:${PORT}/api/events/random/5`);
-  console.log(`📁 Categories: http://localhost:${PORT}/api/categories`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('✅ Ready for frontend connections!');
-});
+// Export for testing
+module.exports = { app, server };
