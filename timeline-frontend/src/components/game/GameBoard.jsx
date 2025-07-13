@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Timeline from '../Timeline/Timeline';
 import PlayerHand from '../PlayerHand/PlayerHand';
 import AIHand from '../player/AIHand';
@@ -6,7 +6,7 @@ import GameHeader from './GameHeader';
 import GameStatus from './GameStatus';
 import TurnIndicator from './TurnIndicator';
 
-const GameBoard = ({
+const GameBoard = memo(({
   gameState,
   onCardSelect,
   onCardPlay,
@@ -71,6 +71,8 @@ const GameBoard = ({
       </div>
     </div>
   );
-};
+});
+
+GameBoard.displayName = 'GameBoard';
 
 export default GameBoard; 

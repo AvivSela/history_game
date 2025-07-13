@@ -1,80 +1,201 @@
-// Performance monitoring for animations
-export class AnimationPerformanceMonitor {
+/**
+ * Performance monitoring utilities for the Timeline Game
+ * Tracks component render times, bundle performance, and user interactions
+ */
+
+class PerformanceMonitor {
   constructor() {
-    this.metrics = new Map();
-    this.frameCount = 0;
-    this.lastFrameTime = performance.now();
-  }
-  
-  // Start monitoring an animation
-  startMonitoring(animationId) {
-    this.metrics.set(animationId, {
-      startTime: performance.now(),
-      frameCount: 0,
-      frameDrops: 0,
-      lastFrameTime: performance.now()
-    });
-  }
-  
-  // Record frame during animation
-  recordFrame(animationId) {
-    const metric = this.metrics.get(animationId);
-    if (!metric) return;
-    
-    const currentTime = performance.now();
-    const frameTime = currentTime - metric.lastFrameTime;
-    
-    metric.frameCount++;
-    metric.lastFrameTime = currentTime;
-    
-    // Detect frame drops (frames taking longer than 16.67ms at 60fps)
-    if (frameTime > 16.67) {
-      metric.frameDrops++;
-    }
-  }
-  
-  // End monitoring and get results
-  endMonitoring(animationId) {
-    const metric = this.metrics.get(animationId);
-    if (!metric) return null;
-    
-    const totalTime = performance.now() - metric.startTime;
-    const fps = (metric.frameCount / totalTime) * 1000;
-    const frameDropRate = (metric.frameDrops / metric.frameCount) * 100;
-    
-    const result = {
-      animationId,
-      totalTime: totalTime.toFixed(2),
-      frameCount: metric.frameCount,
-      fps: fps.toFixed(1),
-      frameDropRate: frameDropRate.toFixed(1),
-      performance: fps >= 55 ? 'excellent' : fps >= 45 ? 'good' : 'poor'
+    this.metrics = {
+      componentRenders: new Map(),
+      userInteractions: new Map(),
+      bundleMetrics: {},
+      gamePerformance: {}
     };
     
-    // Log performance issues
-    if (result.performance === 'poor') {
-      console.warn(`Poor animation performance: ${animationId}`, result);
-    }
+    this.isEnabled = process.env.NODE_ENV === 'development';
+  }
+
+  /**
+   * Start timing a component render
+   * @param {string} componentName - Name of the component
+   * @param {string} operation - Operation being timed (e.g., 'render', 'update')
+   */
+  startTimer(componentName, operation = 'render') {
+    if (!this.isEnabled) return;
     
-    this.metrics.delete(animationId);
+    const key = `${componentName}:${operation}`;
+    this.metrics.componentRenders.set(key, {
+      startTime: performance.now(),
+      componentName,
+      operation
+    });
+  }
+
+  /**
+   * End timing a component render and log the duration
+   * @param {string} componentName - Name of the component
+   * @param {string} operation - Operation being timed
+   * @param {Object} additionalData - Additional data to log
+   */
+  endTimer(componentName, operation = 'render', additionalData = {}) {
+    if (!this.isEnabled) return;
+    
+    const key = `${componentName}:${operation}`;
+    const timer = this.metrics.componentRenders.get(key);
+    
+    if (timer) {
+      const duration = performance.now() - timer.startTime;
+      console.log(`⏱️ ${componentName} ${operation}: ${duration.toFixed(2)}ms`, additionalData);
+      
+      // Store for analysis
+      if (!this.metrics.gamePerformance[componentName]) {
+        this.metrics.gamePerformance[componentName] = [];
+      }
+      this.metrics.gamePerformance[componentName].push({
+        operation,
+        duration,
+        timestamp: Date.now(),
+        ...additionalData
+      });
+    }
+  }
+
+  /**
+   * Track user interaction performance
+   * @param {string} interaction - Type of interaction
+   * @param {Function} callback - Function to measure
+   * @param {Object} context - Additional context
+   */
+  trackInteraction(interaction, callback, context = {}) {
+    if (!this.isEnabled) {
+      return callback();
+    }
+
+    const startTime = performance.now();
+    const result = callback();
+    const duration = performance.now() - startTime;
+
+    console.log(`👆 ${interaction}: ${duration.toFixed(2)}ms`, context);
+    
+    if (!this.metrics.userInteractions.has(interaction)) {
+      this.metrics.userInteractions.set(interaction, []);
+    }
+    this.metrics.userInteractions.get(interaction).push({
+      duration,
+      timestamp: Date.now(),
+      context
+    });
+
     return result;
   }
-  
-  // Get overall performance summary
-  getPerformanceSummary() {
-    const results = Array.from(this.metrics.values());
-    if (results.length === 0) return null;
+
+  /**
+   * Track bundle performance metrics
+   */
+  trackBundlePerformance() {
+    if (!this.isEnabled) return;
+
+    // Track initial load time
+    const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+    this.metrics.bundleMetrics.initialLoadTime = loadTime;
     
-    const avgFps = results.reduce((sum, r) => sum + r.fps, 0) / results.length;
-    const avgFrameDropRate = results.reduce((sum, r) => sum + r.frameDropRate, 0) / results.length;
+    console.log(`📦 Initial bundle load: ${loadTime}ms`);
     
-    return {
-      averageFps: avgFps.toFixed(1),
-      averageFrameDropRate: avgFrameDropRate.toFixed(1),
-      totalAnimations: results.length
+    // Track DOM content loaded
+    const domContentLoaded = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
+    this.metrics.bundleMetrics.domContentLoaded = domContentLoaded;
+    
+    console.log(`🌐 DOM Content Loaded: ${domContentLoaded}ms`);
+  }
+
+  /**
+   * Track game-specific performance metrics
+   * @param {string} metric - Metric name
+   * @param {any} value - Metric value
+   */
+  trackGameMetric(metric, value) {
+    if (!this.isEnabled) return;
+    
+    this.metrics.gamePerformance[metric] = value;
+    console.log(`🎮 Game Metric - ${metric}:`, value);
+  }
+
+  /**
+   * Get performance summary
+   * @returns {Object} Performance summary
+   */
+  getSummary() {
+    const summary = {
+      componentAverages: {},
+      interactionAverages: {},
+      bundleMetrics: this.metrics.bundleMetrics,
+      gamePerformance: this.metrics.gamePerformance
+    };
+
+    // Calculate component render averages
+    for (const [componentName, renders] of Object.entries(this.metrics.gamePerformance)) {
+      if (Array.isArray(renders)) {
+        const avgDuration = renders.reduce((sum, render) => sum + render.duration, 0) / renders.length;
+        summary.componentAverages[componentName] = avgDuration.toFixed(2);
+      }
+    }
+
+    // Calculate interaction averages
+    for (const [interaction, times] of this.metrics.userInteractions) {
+      const avgDuration = times.reduce((sum, time) => sum + time.duration, 0) / times.length;
+      summary.interactionAverages[interaction] = avgDuration.toFixed(2);
+    }
+
+    return summary;
+  }
+
+  /**
+   * Log performance summary
+   */
+  logSummary() {
+    if (!this.isEnabled) return;
+    
+    const summary = this.getSummary();
+    console.log('📊 Performance Summary:', summary);
+  }
+
+  /**
+   * Clear all metrics
+   */
+  clear() {
+    this.metrics = {
+      componentRenders: new Map(),
+      userInteractions: new Map(),
+      bundleMetrics: {},
+      gamePerformance: {}
     };
   }
 }
 
-// Global performance monitor instance
-export const performanceMonitor = new AnimationPerformanceMonitor(); 
+// Create singleton instance
+const performanceMonitor = new PerformanceMonitor();
+
+// Auto-track bundle performance on load
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => {
+    performanceMonitor.trackBundlePerformance();
+  });
+}
+
+export default performanceMonitor;
+
+// React performance HOC
+export const withPerformanceTracking = (WrappedComponent, componentName) => {
+  return function PerformanceTrackedComponent(props) {
+    performanceMonitor.startTimer(componentName);
+    
+    const result = <WrappedComponent {...props} />;
+    
+    performanceMonitor.endTimer(componentName, 'render', {
+      propsCount: Object.keys(props).length,
+      hasChildren: !!props.children
+    });
+    
+    return result;
+  };
+}; 

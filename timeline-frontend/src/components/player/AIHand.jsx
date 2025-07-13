@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const AIHand = ({ aiHand }) => {
+const AIHand = memo(({ aiHand }) => {
   if (!aiHand || aiHand.length === 0) {
     return null;
   }
@@ -22,6 +22,8 @@ const AIHand = ({ aiHand }) => {
       </div>
     </div>
   );
-};
+});
+
+AIHand.displayName = 'AIHand';
 
 export default AIHand; 

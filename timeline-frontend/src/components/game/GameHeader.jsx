@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const GameHeader = ({ gameState, onRestartGame, onTogglePause }) => {
+const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
   return (
     <div className="flex justify-between items-center bg-gradient-to-r from-gray-50/60 to-blue-100/100 px-10 py-8 rounded-2xl shadow-lg my-8 border border-blue-200 relative gap-8">
       <div className="flex-1 min-w-[220px]">
@@ -63,6 +63,8 @@ const GameHeader = ({ gameState, onRestartGame, onTogglePause }) => {
       </div>
     </div>
   );
-};
+});
+
+GameHeader.displayName = 'GameHeader';
 
 export default GameHeader; 

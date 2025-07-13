@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const TurnIndicator = ({ isPlayerTurn }) => {
+const TurnIndicator = memo(({ isPlayerTurn }) => {
   return (
     <div className={`text-center py-3 px-6 rounded-lg mb-6 ${isPlayerTurn ? 'bg-success/10 border border-success/30 text-success' : 'bg-warning/10 border border-warning/30 text-warning'}`}>
       <div className="font-medium">
@@ -12,6 +12,8 @@ const TurnIndicator = ({ isPlayerTurn }) => {
       </div>
     </div>
   );
-};
+});
+
+TurnIndicator.displayName = 'TurnIndicator';
 
 export default TurnIndicator; 

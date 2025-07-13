@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const GameStatus = ({ gameState, onRestartGame, onTogglePause }) => {
+const GameStatus = memo(({ gameState, onRestartGame, onTogglePause }) => {
   const getGameStatusMessage = () => {
     switch (gameState.gameStatus) {
       case 'won':
@@ -72,6 +72,8 @@ const GameStatus = ({ gameState, onRestartGame, onTogglePause }) => {
       )}
     </>
   );
-};
+});
+
+GameStatus.displayName = 'GameStatus';
 
 export default GameStatus; 

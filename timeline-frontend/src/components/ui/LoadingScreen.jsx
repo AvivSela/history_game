@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const LoadingScreen = () => {
+const LoadingScreen = memo(() => {
   return (
     <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -12,6 +12,8 @@ const LoadingScreen = () => {
       </div>
     </div>
   );
-};
+});
+
+LoadingScreen.displayName = 'LoadingScreen';
 
 export default LoadingScreen; 
