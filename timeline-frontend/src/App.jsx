@@ -13,7 +13,7 @@ const Navigation = () => {
   };
 
   return (
-    <header className="bg-gradient-to-br from-primary to-secondary text-white shadow-lg sticky top-0 z-50">
+    <header className="bg-gradient-to-br from-primary to-secondary text-white shadow-lg fixed top-0 left-0 right-0 z-50">
       <nav className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
         <Link to="/" className="flex flex-col gap-0.5 no-underline text-inherit transition-all duration-300 hover:scale-105">
           <h1 className="logo-text">⏰ Timeline</h1>
@@ -55,7 +55,7 @@ function App() {
       <div className="min-h-screen flex flex-col w-full max-w-none">
         <Navigation />
         
-        <main className="flex-1 flex flex-col w-full max-w-none">
+        <main className="flex-1 flex flex-col w-full max-w-none pt-20">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<Game />} />
