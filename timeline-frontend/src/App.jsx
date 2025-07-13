@@ -13,7 +13,7 @@ const Navigation = () => {
   };
 
   return (
-    <header className="bg-gradient-to-br from-primary to-secondary text-white shadow-lg">
+    <header className="bg-gradient-to-br from-slate-900 to-primary text-white shadow-lg">
       <nav className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto transform-none">
         <Link to="/" className="flex flex-col gap-0.5 no-underline text-inherit">
           <h1 className="logo-text">⏰ Timeline</h1>

@@ -140,19 +140,20 @@
   }
   
   .nav-link:hover {
-    @apply bg-white/10;
+    @apply bg-amber-500/20 text-amber-100;
   }
   
   .nav-link.active {
-    @apply bg-white/20 font-semibold;
+    @apply bg-amber-500/30 text-amber-100 font-semibold;
   }
   
   .logo-text {
-    @apply text-7xl font-bold m-0 bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent drop-shadow-sm;
+    @apply text-7xl font-bold m-0 bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent;
+    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
   }
   
   .logo-subtitle {
-    @apply text-xs opacity-90 font-normal tracking-wider uppercase;
+    @apply text-xs text-amber-200 font-normal tracking-wider uppercase;
   }
 }
 
