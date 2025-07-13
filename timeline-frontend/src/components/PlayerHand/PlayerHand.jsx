@@ -147,7 +147,7 @@ const PlayerHand = ({
                 <Card
                   event={card}
                   isSelected={isSelected}
-                  size="medium"
+                  size="small"
                   onClick={() => handleCardClick(card)}
                   onMouseEnter={() => setHoveredCard(card.id)}
                   onMouseLeave={() => setHoveredCard(null)}
