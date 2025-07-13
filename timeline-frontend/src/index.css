@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Define custom CSS variables for colors */
+/* CSS Custom Properties */
 :root {
   --color-primary: #2c3e50;
   --color-secondary: #3498db;
@@ -13,21 +13,58 @@
   --color-text-light: #7f8c8d;
   --color-border: #bdc3c7;
   --color-star: #ffd700;
+  
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+  
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+  --max-width: 1600px;
 }
 
-/* Custom base styles that can't be easily converted to Tailwind */
+/* Base Layer */
 @layer base {
   html {
     scroll-behavior: smooth;
+    font-size: 16px;
   }
   
   body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  
+  #root {
+    width: 100%;
+    max-width: none;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+  
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1.125rem; }
+  h6 { font-size: 1rem; }
+  
+  p {
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
 }
 
-/* Custom component styles */
+/* Components Layer */
 @layer components {
   .btn {
     @apply inline-block px-6 py-3 border-none rounded-lg cursor-pointer text-base font-medium no-underline text-center transition-all duration-300 select-none whitespace-nowrap;
@@ -44,7 +81,7 @@
   
   .btn-primary:hover:not(:disabled) {
     @apply bg-slate-700 -translate-y-0.5;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-medium);
   }
   
   .btn-secondary {
@@ -54,7 +91,7 @@
   
   .btn-secondary:hover:not(:disabled) {
     @apply bg-blue-600 -translate-y-0.5;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-medium);
   }
   
   .btn-success {
@@ -77,12 +114,12 @@
   .card {
     background-color: var(--color-card);
     @apply rounded-lg transition-all duration-300 overflow-hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-light);
   }
   
   .card:hover {
     @apply -translate-y-0.5;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-medium);
   }
   
   .card-header {
@@ -97,10 +134,43 @@
     @apply px-5 py-4 border-t bg-gray-50;
     border-top-color: var(--color-border);
   }
+  
+  .nav-link {
+    @apply text-white no-underline font-medium text-base px-4 py-2 rounded-full transition-all duration-300 relative overflow-hidden;
+  }
+  
+  .nav-link:hover {
+    @apply bg-white/10 -translate-y-0.5;
+  }
+  
+  .nav-link.active {
+    @apply bg-white/20 font-semibold;
+  }
+  
+  .logo-text {
+    @apply text-7xl font-bold m-0 bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent drop-shadow-sm;
+  }
+  
+  .logo-subtitle {
+    @apply text-xs opacity-90 font-normal tracking-wider uppercase;
+  }
 }
 
-/* Custom utilities */
+/* Utilities Layer */
 @layer utilities {
+  .text-primary { color: var(--color-primary); }
+  .text-secondary { color: var(--color-secondary); }
+  .text-accent { color: var(--color-accent); }
+  .text-success { color: var(--color-success); }
+  .text-warning { color: var(--color-warning); }
+  .text-text { color: var(--color-text); }
+  .text-text-light { color: var(--color-text-light); }
+  .border-border { border-color: var(--color-border); }
+  
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-success { background-color: var(--color-success); }
+  
   .text-gradient {
     @apply bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent;
   }
@@ -113,37 +183,44 @@
     @apply absolute top-2/5 left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0;
   }
   
+  .loading {
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
+  }
+  
+  .loading-large {
+    @apply w-8 h-8;
+  }
+  
+  .loading-small {
+    @apply w-4 h-4;
+  }
+}
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.25rem; }
   
-  .text-primary {
-    color: var(--color-primary);
+  .btn {
+    @apply px-4 py-2 text-sm;
   }
   
-  .text-secondary {
-    color: var(--color-secondary);
+  .btn-large {
+    @apply px-6 py-3 text-base;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.125rem; }
+  
+  .btn {
+    @apply px-3 py-1.5 text-sm;
   }
   
-  .text-accent {
-    color: var(--color-accent);
-  }
-  
-  .text-success {
-    color: var(--color-success);
-  }
-  
-  .text-warning {
-    color: var(--color-warning);
-  }
-  
-  .text-text {
-    color: var(--color-text);
-  }
-  
-  .text-text-light {
-    color: var(--color-text-light);
-  }
-  
-  .border-border {
-    border-color: var(--color-border);
+  .btn-large {
+    @apply px-4 py-2 text-sm;
   }
 }

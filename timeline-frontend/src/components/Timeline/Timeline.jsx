@@ -57,6 +57,7 @@ const Timeline = ({
         onMouseEnter={() => handleInsertionPointHover(index, true)}
         onMouseLeave={() => handleInsertionPointHover(index, false)}
         data-drop-zone={`timeline-${index}`}
+        data-testid="insertion-point"
         style={{
           width: '80px',
           minHeight: '320px',
@@ -77,9 +78,9 @@ const Timeline = ({
   };
 
   const scrollTimeline = (direction) => {
-    if (timelineRef.current) {
+    if (timelineRef.current && timelineRef.current.scrollTo) {
       const scrollAmount = 300;
-      const currentScroll = timelineRef.current.scrollLeft;
+      const currentScroll = timelineRef.current.scrollLeft || 0;
       const newScroll = direction === 'left' 
         ? currentScroll - scrollAmount 
         : currentScroll + scrollAmount;
@@ -92,9 +93,9 @@ const Timeline = ({
 
   if (sortedEvents.length === 0) {
     return (
-      <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none">
+      <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none" data-testid="timeline-container">
         <div className="relative">
-          <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}>
+          <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }} data-testid="timeline-content">
             <div className="absolute top-[40%] left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0"></div>
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-10 shadow-sm"></div>
           </div>
@@ -112,9 +113,9 @@ const Timeline = ({
   }
 
   return (
-    <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none">
+    <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none" data-testid="timeline-container">
       <div className="relative">
-        <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}>
+        <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }} data-testid="timeline-content">
           <div className="absolute top-[40%] left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0"></div>
           <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-10 shadow-sm"></div>
           <div className="flex items-center justify-center gap-8 min-h-[320px] relative z-20 px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2">
@@ -122,7 +123,7 @@ const Timeline = ({
             {renderInsertionPoint(0)}
             {sortedEvents.map((event, index) => (
               <React.Fragment key={event.id}>
-                <div className="flex flex-col items-center gap-4 flex-shrink-0 relative md:gap-3 sm:gap-2">
+                <div className="flex flex-col items-center gap-4 flex-shrink-0 relative md:gap-3 sm:gap-2" data-testid="timeline-card-wrapper">
                   <div className="flex flex-col items-center gap-2 mb-2 md:gap-1 md:mb-1">
                     <div className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border min-w-[80px] md:px-2 md:py-1 md:min-w-[70px] sm:px-1 sm:py-1 sm:min-w-[60px]">
                       <div className="text-base font-bold text-primary leading-none md:text-sm sm:text-xs">
@@ -151,7 +152,7 @@ const Timeline = ({
         </div>
         {/* Scroll Controls */}
         {sortedEvents.length > 2 && (
-          <div className="absolute top-1/2 transform -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
+          <div className="absolute top-1/2 transform -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none" data-testid="timeline-scroll">
             <button 
               className="w-12 h-12 bg-white/80 hover:bg-white text-primary text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto" 
               onClick={() => scrollTimeline('left')}

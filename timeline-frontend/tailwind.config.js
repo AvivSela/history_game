@@ -29,6 +29,7 @@ export default {
       },
       fontFamily: {
         'card': ['Georgia', 'serif'],
+        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in',
@@ -50,6 +51,16 @@ export default {
           '0%': { opacity: '0', transform: 'scale(0.3) translateY(-50px)' },
           '50%': { opacity: '1', transform: 'scale(1.05) translateY(10px)' },
           '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+      },
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          sm: '2rem',
+          lg: '4rem',
+          xl: '5rem',
+          '2xl': '6rem',
         },
       },
     },

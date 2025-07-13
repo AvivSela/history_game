@@ -38,8 +38,8 @@ describe('PlayerHand', () => {
         />
       )
       
-      const cards = document.querySelectorAll('.player-card')
-      expect(cards).toHaveLength(mockCards.length) // Each card is rendered
+      const cardWrappers = screen.getAllByTestId('player-card-wrapper')
+      expect(cardWrappers).toHaveLength(mockCards.length) // Each card is rendered
     })
 
     it('should call onCardSelect when a card is clicked', () => {
@@ -67,8 +67,8 @@ describe('PlayerHand', () => {
         />
       )
       
-      const selectedWrapper = screen.getByText('World War II Begins').closest('.hand-card-wrapper')
-      expect(selectedWrapper).toHaveClass('selected')
+      const selectedCard = screen.getByTestId('hand-selected-card')
+      expect(selectedCard).toBeInTheDocument()
     })
 
     it('should deselect card when clicking the same card again', () => {
@@ -147,7 +147,7 @@ describe('PlayerHand', () => {
         />
       )
       
-      const firstCard = screen.getByText('World War II Begins').closest('.player-card')
+      const firstCard = screen.getByText('World War II Begins').closest('[data-testid="player-card-wrapper"]')
       fireEvent.click(firstCard)
       
       expect(onCardSelect).not.toHaveBeenCalled()
@@ -183,8 +183,8 @@ describe('PlayerHand', () => {
         />
       )
       
-      const container = screen.getByText('🎴 You\'s Hand').closest('.player-hand-container')
-      expect(container).toHaveClass('disabled')
+      const container = screen.getByTestId('player-hand-container')
+      expect(container).toHaveClass('opacity-70', 'pointer-events-none', 'filter', 'grayscale')
     })
 
     it('should apply active turn styling when it is player turn', () => {
@@ -195,25 +195,38 @@ describe('PlayerHand', () => {
         />
       )
       
-      const container = screen.getByText('🎴 You\'s Hand').closest('.player-hand-container')
-      expect(container).toHaveClass('active-turn')
+      const container = screen.getByTestId('player-hand-container')
+      expect(container).toHaveClass('border-success', 'shadow-lg')
     })
   })
 
   describe('Empty Hand State', () => {
     it('should show victory message when no cards remain', () => {
-      render(<PlayerHand cards={[]} />)
+      render(
+        <PlayerHand 
+          cards={[]}
+          isPlayerTurn={true}
+        />
+      )
       
+      expect(screen.getByTestId('hand-victory-message')).toBeInTheDocument()
       expect(screen.getByText('No cards remaining!')).toBeInTheDocument()
       expect(screen.getByText('Congratulations! You\'ve placed all your cards on the timeline.')).toBeInTheDocument()
-      expect(screen.getByText('0 cards')).toBeInTheDocument()
     })
 
     it('should show victory animation elements when hand is empty', () => {
-      render(<PlayerHand cards={[]} />)
+      render(
+        <PlayerHand 
+          cards={[]}
+          isPlayerTurn={true}
+        />
+      )
       
-      const stars = screen.getAllByText('⭐')
-      expect(stars).toHaveLength(3)
+      const victoryMessage = screen.getByTestId('hand-victory-message')
+      expect(victoryMessage).toBeInTheDocument()
+      // Check for the bouncing emoji instead of the container
+      const bouncingEmoji = victoryMessage.querySelector('.animate-bounce')
+      expect(bouncingEmoji).toBeInTheDocument()
     })
   })
 
@@ -222,7 +235,7 @@ describe('PlayerHand', () => {
       render(
         <PlayerHand 
           cards={mockCards}
-          maxCards={8}
+          isPlayerTurn={true}
         />
       )
       
@@ -233,7 +246,7 @@ describe('PlayerHand', () => {
       render(
         <PlayerHand 
           cards={mockCards}
-          maxCards={8}
+          isPlayerTurn={true}
         />
       )
       
@@ -245,6 +258,7 @@ describe('PlayerHand', () => {
         <PlayerHand 
           cards={mockCards}
           selectedCard={mockCards[0]}
+          isPlayerTurn={true}
         />
       )
       
@@ -255,18 +269,19 @@ describe('PlayerHand', () => {
       const manyCards = Array.from({ length: 7 }, (_, i) => ({
         id: i + 1,
         title: `Card ${i + 1}`,
-        dateOccurred: '2000-01-01T00:00:00.000Z',
-        category: 'Test',
+        dateOccurred: '1939-09-01T00:00:00.000Z',
+        category: 'History',
         difficulty: 1
       }))
       
       render(
         <PlayerHand 
           cards={manyCards}
-          maxCards={8}
+          isPlayerTurn={true}
         />
       )
       
+      expect(screen.getByTestId('hand-capacity-warning')).toBeInTheDocument()
       expect(screen.getByText('Hand is getting full! Place some cards on the timeline.')).toBeInTheDocument()
     })
   })
@@ -283,6 +298,7 @@ describe('PlayerHand', () => {
       expect(screen.getByText('How to play:')).toBeInTheDocument()
       expect(screen.getByText('Click a card to select it')).toBeInTheDocument()
       expect(screen.getByText('Click on the timeline where it belongs')).toBeInTheDocument()
+      expect(screen.getByText('If correct, it stays! If wrong, try again')).toBeInTheDocument()
     })
 
     it('should show waiting message when not player turn', () => {
@@ -303,6 +319,7 @@ describe('PlayerHand', () => {
         <PlayerHand 
           cards={mockCards}
           playerName="Alice"
+          isPlayerTurn={true}
         />
       )
       

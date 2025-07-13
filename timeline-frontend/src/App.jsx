@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import Game from './pages/Game';
 import Settings from './pages/Settings';
 
-
 // Navigation component
 const Navigation = () => {
   const location = useLocation();
@@ -14,20 +13,20 @@ const Navigation = () => {
   };
 
   return (
-            <header className="bg-gradient-to-br from-primary to-secondary text-white shadow-lg sticky top-0 z-50">
+    <header className="bg-gradient-to-br from-primary to-secondary text-white shadow-lg sticky top-0 z-50">
       <nav className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
         <Link to="/" className="flex flex-col gap-0.5 no-underline text-inherit transition-all duration-300 hover:scale-105">
-          <h1 className="text-7xl font-bold m-0 bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent drop-shadow-sm">⏰ Timeline</h1>
-          <span className="text-xs opacity-90 font-normal tracking-wider uppercase">Historical Card Game</span>
+          <h1 className="logo-text">⏰ Timeline</h1>
+          <span className="logo-subtitle">Historical Card Game</span>
         </Link>
         <div className="flex gap-6 items-center">
-          <Link to="/" className={`text-white no-underline font-medium text-base px-4 py-2 rounded-full transition-all duration-300 relative overflow-hidden ${isActive('/') === 'nav-link active' ? 'bg-white/20 font-semibold' : 'hover:bg-white/10 hover:-translate-y-0.5'}`}>
+          <Link to="/" className={isActive('/')}>
             Home
           </Link>
-          <Link to="/game" className={`text-white no-underline font-medium text-base px-4 py-2 rounded-full transition-all duration-300 relative overflow-hidden ${isActive('/game') === 'nav-link active' ? 'bg-white/20 font-semibold' : 'hover:bg-white/10 hover:-translate-y-0.5'}`}>
+          <Link to="/game" className={isActive('/game')}>
             Play
           </Link>
-          <Link to="/settings" className={`text-white no-underline font-medium text-base px-4 py-2 rounded-full transition-all duration-300 relative overflow-hidden ${isActive('/settings') === 'nav-link active' ? 'bg-white/20 font-semibold' : 'hover:bg-white/10 hover:-translate-y-0.5'}`}>
+          <Link to="/settings" className={isActive('/settings')}>
             Settings
           </Link>
         </div>

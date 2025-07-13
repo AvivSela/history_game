@@ -78,13 +78,13 @@ const PlayerHand = ({
 
   if (cards.length === 0) {
     return (
-      <div className="bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none">
+      <div className="bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none" data-testid="player-hand-container">
         <div className="flex justify-between items-start mb-5 pb-4 border-b-2 border-border">
           <h3 className="text-primary text-xl font-bold m-0 mb-2">🎴 {playerName}'s Hand</h3>
           <span className="bg-accent text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">0 cards</span>
         </div>
         <div className="text-center py-12">
-          <div className="bg-gradient-to-br from-success/10 to-success/5 rounded-lg p-8 border border-success/20">
+          <div className="bg-gradient-to-br from-success/10 to-success/5 rounded-lg p-8 border border-success/20" data-testid="hand-victory-message">
             <div className="text-6xl mb-4 animate-bounce">🎉</div>
             <h4 className="text-primary text-lg font-bold mb-2">No cards remaining!</h4>
             <p className="text-text-light mb-4">Congratulations! You've placed all your cards on the timeline.</p>
@@ -100,7 +100,7 @@ const PlayerHand = ({
   }
 
   return (
-    <div className={`bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`}>
+    <div className={`bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`} data-testid="player-hand-container">
       {isPlayerTurn && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-success via-green-500 to-success animate-pulse"></div>
       )}
@@ -128,23 +128,28 @@ const PlayerHand = ({
       </div>
       <div className="mb-5">
         <div className="relative flex justify-center items-end py-[120px] px-[60px] pb-5 min-h-[360px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible md:py-[100px] md:px-5 md:min-h-[320px] sm:py-[80px] sm:px-2 sm:min-h-[300px]">
-          {cards.map((card, index) => (
-            <div
-              key={card.id}
-              className="absolute cursor-pointer drop-shadow-md"
-              style={getCardStyle(index)}
-            >
-              <Card
-                event={card}
-                isSelected={selectedCard && selectedCard.id === card.id}
-                size="medium"
-                onClick={() => handleCardClick(card)}
-                onMouseEnter={() => setHoveredCard(card.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-                className="player-card"
-              />
-            </div>
-          ))}
+          {cards.map((card, index) => {
+            const isSelected = selectedCard && selectedCard.id === card.id;
+            return (
+              <div
+                key={card.id}
+                className="absolute cursor-pointer drop-shadow-md"
+                style={getCardStyle(index)}
+                data-testid="player-card-wrapper"
+                {...(isSelected ? { 'data-testid': 'hand-selected-card' } : {})}
+              >
+                <Card
+                  event={card}
+                  isSelected={isSelected}
+                  size="medium"
+                  onClick={() => handleCardClick(card)}
+                  onMouseEnter={() => setHoveredCard(card.id)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  className="player-card"
+                />
+              </div>
+            );
+          })}
         </div>
         <div className="mt-4 text-center">
           <div className="w-full h-2 bg-border rounded overflow-hidden mb-2">
@@ -196,7 +201,7 @@ const PlayerHand = ({
       </div>
       {/* Hand capacity warning */}
       {cards.length >= maxCards * 0.8 && (
-        <div className="mt-4 p-3 bg-warning/10 border border-warning/30 rounded-lg flex items-center gap-2 text-warning animate-pulse">
+        <div className="mt-4 p-3 bg-warning/10 border border-warning/30 rounded-lg flex items-center gap-2 text-warning animate-pulse" data-testid="hand-capacity-warning">
           <span className="text-lg">⚠️</span>
           <span className="text-sm font-medium">Hand is getting full! Place some cards on the timeline.</span>
         </div>

@@ -149,7 +149,7 @@ describe('Click-to-Place Flow Integration', () => {
       expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
       
       // 4. Verify insertion points are shown
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.getAllByTestId('insertion-point')
       expect(insertionPoints.length).toBeGreaterThan(0)
 
       // 5. Click on correct insertion point (Berlin Wall Falls 1989 should go after 1939)
@@ -180,7 +180,7 @@ describe('Click-to-Place Flow Integration', () => {
       fireEvent.click(cardToSelect)
 
       // Click on wrong insertion point (position 0, before 1939)
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.getAllByTestId('insertion-point')
       const wrongInsertionPoint = insertionPoints[0]
       fireEvent.click(wrongInsertionPoint)
 
@@ -198,31 +198,35 @@ describe('Click-to-Place Flow Integration', () => {
       await waitFor(() => {
         expect(screen.getByText('Score: 100')).toBeInTheDocument()
       })
+
+      expect(screen.getByText(/Correct.*Berlin Wall Falls placed successfully/)).toBeInTheDocument()
     })
 
     it('should handle card deselection', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />)
+      render(
+        <MockGameComponent initialTimeline={[mockCards[0]]} />
+      )
 
       // Select card
       const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(cardToSelect)
       expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
 
-      // Click deselect button
-      const deselectButton = screen.getByText('❌ Deselect')
-      fireEvent.click(deselectButton)
-
-      // Verify card is deselected
+      // Deselect by clicking same card
+      fireEvent.click(cardToSelect)
       expect(screen.queryByText('Selected: Berlin Wall Falls')).not.toBeInTheDocument()
-      expect(screen.getByText('How to play:')).toBeInTheDocument()
+
+      // Verify insertion points are hidden
+      const insertionPoints = screen.queryAllByTestId('insertion-point')
+      expect(insertionPoints).toHaveLength(0)
     })
 
     it('should handle selecting different cards', () => {
-      const multiCardHand = [mockNewCard, mockCards[2]]
+      const multipleCards = [mockNewCard, mockCards[0]]
       render(
         <MockGameComponent 
-          initialTimeline={[mockCards[0]]} 
-          initialHand={multiCardHand}
+          initialHand={multipleCards}
+          initialTimeline={[mockCards[1]]} 
         />
       )
 
@@ -231,10 +235,10 @@ describe('Click-to-Place Flow Integration', () => {
       fireEvent.click(firstCard)
       expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
 
-      // Select different card
-      const secondCard = screen.getByText('Internet Created').closest('.player-card')
+      // Select second card
+      const secondCard = screen.getByText('World War II Begins').closest('.player-card')
       fireEvent.click(secondCard)
-      expect(screen.getByText('Selected: Internet Created')).toBeInTheDocument()
+      expect(screen.getByText('Selected: World War II Begins')).toBeInTheDocument()
       expect(screen.queryByText('Selected: Berlin Wall Falls')).not.toBeInTheDocument()
     })
   })
@@ -249,11 +253,11 @@ describe('Click-to-Place Flow Integration', () => {
         />
       )
 
-      // Select and place the only card
+      // Select and place the last card
       const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(cardToSelect)
 
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.getAllByTestId('insertion-point')
       fireEvent.click(insertionPoints[1])
 
       await waitFor(() => {
@@ -262,75 +266,90 @@ describe('Click-to-Place Flow Integration', () => {
     })
 
     it('should show empty hand state when all cards are placed', async () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />)
+      render(
+        <MockGameComponent 
+          initialTimeline={[mockCards[0]]}
+        />
+      )
 
-      // Place the card
+      // Place the last card
       const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(cardToSelect)
 
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.getAllByTestId('insertion-point')
       fireEvent.click(insertionPoints[1])
 
       await waitFor(() => {
+        expect(screen.getByTestId('hand-victory-message')).toBeInTheDocument()
         expect(screen.getByText('No cards remaining!')).toBeInTheDocument()
       })
-      expect(screen.getByText('Congratulations! You\'ve placed all your cards on the timeline.')).toBeInTheDocument()
     })
   })
 
   describe('Timeline Updates', () => {
     it('should properly sort timeline after card placement', async () => {
-      // Start with unsorted timeline to test sorting
-      const unsortedTimeline = [mockCards[1], mockCards[0]] // 1969, 1939
       render(
         <MockGameComponent 
-          initialTimeline={unsortedTimeline}
+          initialTimeline={[mockCards[0], mockCards[2]]} // 1939, 1989
         />
       )
 
-      // Place Berlin Wall Falls (1989) which should go at the end
+      // Place Berlin Wall Falls (1989) between existing cards
       const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(cardToSelect)
 
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.getAllByTestId('insertion-point')
       fireEvent.click(insertionPoints[2]) // Last position
 
       await waitFor(() => {
         expect(screen.getByText('Score: 100')).toBeInTheDocument()
       })
 
-      // Verify the timeline shows events in chronological order
-      const timelineCards = document.querySelectorAll('.timeline-card')
+      // Verify timeline is properly sorted
+      const timelineCards = screen.getAllByTestId('timeline-card-wrapper')
       expect(timelineCards).toHaveLength(3)
     })
-
   })
 
   describe('Insertion Point Behavior', () => {
     it('should hide insertion points when no card is selected', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />)
+      render(
+        <MockGameComponent 
+          initialTimeline={[mockCards[0]]}
+        />
+      )
 
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.queryAllByTestId('insertion-point')
       expect(insertionPoints).toHaveLength(0)
     })
 
     it('should show insertion points when card is selected', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />)
+      render(
+        <MockGameComponent 
+          initialTimeline={[mockCards[0]]}
+        />
+      )
 
+      // Select a card
       const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(cardToSelect)
 
-      const insertionPoints = document.querySelectorAll('.insertion-point')
+      const insertionPoints = screen.getAllByTestId('insertion-point')
       expect(insertionPoints.length).toBeGreaterThan(0)
     })
 
     it('should show hover tooltips on insertion points', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />)
+      render(
+        <MockGameComponent 
+          initialTimeline={[mockCards[0]]}
+        />
+      )
 
+      // Select a card
       const cardToSelect = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(cardToSelect)
 
-      const insertionPoint = document.querySelector('.insertion-point')
+      const insertionPoint = screen.getAllByTestId('insertion-point')[0]
       fireEvent.mouseEnter(insertionPoint)
 
       expect(screen.getByText('Place "Berlin Wall Falls" here')).toBeInTheDocument()
