@@ -160,13 +160,7 @@ const Card = ({
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
       </div>
       
-      {/* Selection indicator */}
-      {isSelected && (
-        <div className="absolute -top-2 -left-2 -right-2 -bottom-2 pointer-events-none">
-                  <div className="w-full h-full border-4 border-success rounded-card animate-pulse"></div>
-        <div className="absolute inset-0 border-4 border-success rounded-card animate-ping opacity-75"></div>
-        </div>
-      )}
+
       
     </div>
   );
