@@ -14,7 +14,7 @@ const Navigation = () => {
 
   return (
     <header className="bg-gradient-to-br from-primary to-secondary text-white shadow-lg fixed top-0 left-0 right-0 z-50">
-      <nav className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+      <nav className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto transform-none">
         <Link to="/" className="flex flex-col gap-0.5 no-underline text-inherit">
           <h1 className="logo-text">⏰ Timeline</h1>
           <span className="logo-subtitle">Historical Card Game</span>

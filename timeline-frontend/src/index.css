@@ -140,7 +140,7 @@
   }
   
   .nav-link:hover {
-    @apply bg-white/10 -translate-y-0.5;
+    @apply bg-white/10;
   }
   
   .nav-link.active {
