@@ -65,7 +65,7 @@ const PlayerHand = ({
     const isHovered = hoveredCard === cards[index].id;
     let transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg)`;
     if (isSelected) {
-      transform = `translateX(${position.translateX}px) translateY(-50px) rotate(0deg) scale(1.1)`;
+      transform = `translateX(${position.translateX}px) translateY(-50px) rotate(0deg)`;
     } else if (isHovered) {
       transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg) scale(1.1)`;
     }
