@@ -517,7 +517,7 @@ const Game = () => {
               onCardPlay={handleCardPlay}
               isPlayerTurn={isPlayerTurn}
               playerName="Player 1"
-              maxCards={8}
+              maxCards={gameState.playerHand.length + gameState.timeline.length + (gameState.aiHand?.length || 0)}
             />
             
             {/* AI Hand */}
