@@ -88,7 +88,7 @@ const Card = ({
   const cardClasses = [
     'cursor-pointer transition-transform duration-300 transition-filter duration-300 relative select-none',
     size === 'small' ? 'w-44 h-60' : size === 'large' ? 'w-64 h-80' : 'w-55 h-75',
-    isSelected ? 'scale-110 -translate-y-3 z-50' : '',
+    isSelected ? '-translate-y-3 z-50' : '',
     isHovered ? 'scale-105 -translate-y-2' : '',
     isTimelineCard ? 'timeline-card' : 'player-hand-card',
     className
@@ -97,7 +97,7 @@ const Card = ({
   // Render player hand card content with new design
   const renderPlayerHandContent = () => (
     <>
-      <div className="bg-gray-50 p-4 flex justify-between items-center text-gray-800 flex-shrink-0 border-b border-gray-200">
+      <div className="bg-gray-50 p-2 flex justify-between items-center text-gray-800 flex-shrink-0 border-b border-gray-200">
         <div className="flex gap-1 items-center">
           {Array.from({ length: event.difficulty }, (_, i) => (
             <span key={i} className="text-lg text-star drop-shadow-sm">★</span>
@@ -109,7 +109,9 @@ const Card = ({
         </div>
       </div>
       
-      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-white m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
+      <div className="font-card text-sm font-bold text-gray-800 text-center leading-tight px-3 py-2.5 pb-1 border-b border-gray-200 bg-white m-0 flex-shrink-0 drop-shadow-sm overflow-hidden">
+        <div className="line-clamp-2">{event.title}</div>
+      </div>
       
       <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
         <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
@@ -125,7 +127,7 @@ const Card = ({
   // Render timeline card content with same design as player hand
   const renderTimelineContent = () => (
     <>
-      <div className="bg-gray-50 p-4 flex justify-between items-center text-gray-800 flex-shrink-0 border-b border-gray-200">
+      <div className="bg-gray-50 p-2 flex justify-between items-center text-gray-800 flex-shrink-0 border-b border-gray-200">
         <div className="flex gap-1 items-center">
           {Array.from({ length: event.difficulty }, (_, i) => (
             <span key={i} className="text-lg text-star drop-shadow-sm">★</span>
@@ -137,7 +139,9 @@ const Card = ({
         </div>
       </div>
       
-      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-white m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
+      <div className="font-card text-sm font-bold text-gray-800 text-center leading-tight px-3 py-2.5 pb-1 border-b border-gray-200 bg-white m-0 flex-shrink-0 drop-shadow-sm overflow-hidden">
+        <div className="line-clamp-2">{event.title}</div>
+      </div>
       
       <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
         <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
