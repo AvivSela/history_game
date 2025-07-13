@@ -245,16 +245,7 @@ const PlayerHand = forwardRef(({
             )}
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1.5">
-          <span className="bg-accent text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-            {cards.length} / {maxCards} cards
-          </span>
-          {selectedCard && (
-            <span className="text-xs text-success font-semibold italic bg-success/10 px-2 py-0.5 rounded-lg border border-success/30 max-w-48 overflow-hidden text-ellipsis whitespace-nowrap">
-              "{selectedCard.title}" selected
-            </span>
-          )}
-        </div>
+    
       </div>
       <div className="mb-5 relative">
         <div className="card-area relative flex justify-center items-center py-[80px] px-[60px] min-h-[395px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible md:py-[60px] md:px-5 md:min-h-[355px] sm:py-[40px] sm:px-2 sm:min-h-[335px]">
