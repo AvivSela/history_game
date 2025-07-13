@@ -109,7 +109,7 @@ const Card = ({
         </div>
       </div>
       
-      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-card m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
+      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-white m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
       
       <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
         <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
@@ -135,7 +135,7 @@ const Card = ({
         </div>
       </div>
       
-      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-card m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
+      <div className="font-card text-base font-bold text-gray-800 text-center leading-tight px-3 py-3 pb-1.5 border-b border-gray-200 bg-white m-0 flex-shrink-0 drop-shadow-sm">{event.title}</div>
       
       <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
         <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>

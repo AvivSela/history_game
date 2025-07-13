@@ -96,7 +96,6 @@ const Timeline = ({
       <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none" data-testid="timeline-container">
         <div className="relative">
           <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }} data-testid="timeline-content">
-            <div className="absolute top-[40%] left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0"></div>
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
           </div>
           <div className="text-center py-16 md:py-10 sm:py-6">
@@ -116,7 +115,6 @@ const Timeline = ({
     <div className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none" data-testid="timeline-container">
       <div className="relative">
         <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }} data-testid="timeline-content">
-          <div className="absolute top-[40%] left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0"></div>
           <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
           <div className="flex items-center justify-center gap-8 min-h-[320px] relative z-20 px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2">
             {/* Insertion point before first card */}
@@ -139,7 +137,7 @@ const Timeline = ({
                   </div>
                   <Card
                     event={event}
-                    size="medium"
+                    size="small"
                     onClick={() => onCardClick && onCardClick(event)}
                     className="timeline-card"
                   />
