@@ -205,13 +205,7 @@ const PlayerHand = ({
           </div>
         )}
       </div>
-      {/* Hand capacity warning */}
-      {cards.length >= maxCards * 0.8 && (
-        <div className="mt-4 p-3 bg-warning/10 border border-warning/30 rounded-lg flex items-center gap-2 text-warning animate-pulse" data-testid="hand-capacity-warning">
-          <span className="text-lg">⚠️</span>
-          <span className="text-sm font-medium">Hand is getting full! Place some cards on the timeline.</span>
-        </div>
-      )}
+
     </div>
   );
 };
