@@ -149,14 +149,14 @@ const Card = ({
   
   return (
     <div 
-      className={cardClasses}
+      className={`${cardClasses} ${isSelected ? 'border-success border-2' : 'border-gray-200'}`}
       style={style}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={`relative w-full h-full rounded-card shadow-lg bg-card border flex flex-col p-0 box-border overflow-visible transition-all duration-300 hover:shadow-xl ${isSelected ? 'border-success border-2' : 'border-gray-200'}`}>
+      <div className="relative w-full h-full rounded-card shadow-lg bg-card border border-gray-200 flex flex-col p-0 box-border overflow-visible transition-all duration-300 hover:shadow-xl">
         {isTimelineCard ? renderTimelineContent() : renderPlayerHandContent()}
       </div>
       
