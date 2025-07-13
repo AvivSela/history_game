@@ -113,8 +113,10 @@ const Card = ({
       
       <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
         <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
-        <div className="font-card text-xs text-gray-800 leading-relaxed text-justify flex-grow">
-          {event.description || 'A significant historical event that shaped the course of history.'}
+        <div className="font-card text-xs text-gray-800 leading-relaxed text-justify flex-grow overflow-hidden">
+          <div className="line-clamp-3">
+            {event.description || 'A significant historical event that shaped the course of history.'}
+          </div>
         </div>
       </div>
     </>
@@ -139,8 +141,10 @@ const Card = ({
       
       <div className="bg-white border-t border-gray-200 px-3 py-4 flex-grow flex flex-col">
         <div className="font-card text-xs font-bold text-gray-800 uppercase tracking-wider text-center mb-2.5 drop-shadow-sm">Event Description</div>
-        <div className="font-card text-xs text-gray-800 leading-relaxed text-justify flex-grow">
-          {event.description || 'A significant historical event that shaped the course of history.'}
+        <div className="font-card text-xs text-gray-800 leading-relaxed text-justify flex-grow overflow-hidden">
+          <div className="line-clamp-3">
+            {event.description || 'A significant historical event that shaped the course of history.'}
+          </div>
         </div>
       </div>
     </>
