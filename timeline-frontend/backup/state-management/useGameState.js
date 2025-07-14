@@ -9,9 +9,7 @@ import {
   generateSmartInsertionPoints,
   validateTimeline 
 } from '../utils/timelineLogic';
-import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC, CARD_COUNTS, POOL_CARD_COUNT } from '../constants/gameConstants';
-import { gameAPI, extractData, handleAPIError } from '@utils/api.js';
-import { createAIOpponent } from '@utils/aiLogic.js';
+import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC } from '../constants/gameConstants';
 
 /**
  * useGameState - Comprehensive game state management hook
@@ -28,7 +26,6 @@ import { createAIOpponent } from '@utils/aiLogic.js';
  * - Score calculation and game statistics tracking
  * - Win condition validation and game state transitions
  * - Error handling and loading states
- * - Card pool management for replacement cards
  * 
  * @example
  * ```jsx
@@ -42,7 +39,11 @@ import { createAIOpponent } from '@utils/aiLogic.js';
  * } = useGameState();
  * 
  * // Initialize a new game
- * await initializeGame('single', 'medium');
+ * await initializeGame(events, {
+ *   gameMode: 'ai',
+ *   difficulty: 'medium',
+ *   cardCount: 8
+ * });
  * 
  * // Select a card
  * selectCard(card);
@@ -59,8 +60,6 @@ import { createAIOpponent } from '@utils/aiLogic.js';
  * @returns {Function} returns.restartGame - Restart current game
  * @returns {Function} returns.pauseGame - Pause/unpause game
  * @returns {Function} returns.getGameStats - Get current game statistics
- * @returns {Function} returns.getNewCardFromPool - Get replacement card from pool
- * @returns {Function} returns.executeAITurn - Execute AI turn logic
  */
 export const useGameState = () => {
   const [state, setState] = useState({
@@ -68,7 +67,6 @@ export const useGameState = () => {
     timeline: [],
     playerHand: [],
     aiHand: [],
-    cardPool: [], // Added: Card pool for replacement cards
     
     // Game status
     gameStatus: GAME_STATUS.LOBBY,
@@ -99,16 +97,13 @@ export const useGameState = () => {
     insertionPoints: [],
     timelineAnalysis: null,
     turnHistory: [],
-    achievements: [],
-    
-    // AI
-    aiOpponent: null // Added: AI opponent
+    achievements: []
   });
 
   const gameSessionRef = useRef(null);
 
-  // Initialize new game - Consolidated from GameControls
-  const initializeGame = useCallback(async (mode = 'single', diff = 'medium') => {
+  // Initialize new game
+  const initializeGame = useCallback(async (events, settings = {}) => {
     try {
       setState(prev => ({ 
         ...prev, 
@@ -116,30 +111,12 @@ export const useGameState = () => {
         error: null,
         gameStatus: GAME_STATUS.LOADING
       }));
-      
-      console.log('🎮 Initializing game:', { mode, difficulty: diff });
-      
-      // Create AI opponent if needed
-      let aiOpponent = null;
-      if (mode === 'ai') {
-        aiOpponent = createAIOpponent(diff);
-        console.log('🤖 AI created:', aiOpponent.name);
-      }
-      
-      // Fetch events from API
-      const cardCount = mode === 'ai' ? CARD_COUNTS.AI : CARD_COUNTS.SINGLE;
-      const response = await gameAPI.getRandomEvents(cardCount);
-      const events = extractData(response);
-      
-      // Fetch additional cards for the pool (for replacement when cards are placed incorrectly)
-      const poolResponse = await gameAPI.getRandomEvents(POOL_CARD_COUNT);
-      const poolEvents = extractData(poolResponse);
-      
+
       // Create game session
       const session = createGameSession(events, {
-        cardCount: cardCount - 1,
-        difficulty: diff,
-        gameMode: mode
+        cardCount: settings.cardCount || 4,
+        difficulty: settings.difficulty || 'medium',
+        gameMode: settings.gameMode || 'single'
       });
 
       gameSessionRef.current = session;
@@ -148,10 +125,11 @@ export const useGameState = () => {
       let humanCards = session.playerHand;
       let aiCards = [];
       
-      if (mode === 'ai' && session.playerHand.length > 2) {
-        const half = Math.ceil(session.playerHand.length / 2);
-        humanCards = session.playerHand.slice(0, half);
-        aiCards = session.playerHand.slice(half);
+      if (settings.gameMode === 'ai') {
+        const totalCards = session.playerHand.length;
+        const humanCardCount = Math.ceil(totalCards / 2);
+        humanCards = session.playerHand.slice(0, humanCardCount);
+        aiCards = session.playerHand.slice(humanCardCount);
       }
 
       setState(prev => ({
@@ -159,12 +137,10 @@ export const useGameState = () => {
         timeline: session.timeline,
         playerHand: humanCards,
         aiHand: aiCards,
-        cardPool: poolEvents, // Added: Card pool
         gameStatus: 'playing',
         currentPlayer: 'human',
-        gameMode: mode,
-        difficulty: diff,
-        aiOpponent, // Added: AI opponent
+        gameMode: settings.gameMode || 'single',
+        difficulty: settings.difficulty || 'medium',
         score: { human: 0, ai: 0 },
         startTime: session.startTime,
         turnStartTime: Date.now(),
@@ -180,29 +156,25 @@ export const useGameState = () => {
         selectedCard: null,
         showInsertionPoints: false,
         feedback: null,
-        insertionPoints: [],
         isLoading: false,
         error: null
       }));
 
-      console.log('✅ Game initialized successfully:', {
-        mode,
+      console.log('🎮 Game initialized:', {
+        mode: settings.gameMode,
         humanCards: humanCards.length,
         aiCards: aiCards.length,
-        timeline: session.timeline.length,
-        poolSize: poolEvents.length
+        timeline: session.timeline.length
       });
 
     } catch (error) {
       console.error('❌ Error initializing game:', error);
-      const errorMessage = handleAPIError(error, 'Failed to load game');
       setState(prev => ({
         ...prev,
-        error: errorMessage,
+        error: error.message,
         isLoading: false,
         gameStatus: 'error'
       }));
-      throw error;
     }
   }, []);
 
@@ -442,44 +414,9 @@ export const useGameState = () => {
     }));
   }, []);
 
-  // Get new card from pool - Consolidated from GameControls
-  const getNewCardFromPool = useCallback(async (currentGameState) => {
-    // Gather all card IDs currently in the timeline and playerHand
-    const timelineIds = new Set(currentGameState.timeline.map(card => card.id));
-    const handIds = new Set(currentGameState.playerHand.map(card => card.id));
-    const forbiddenIds = new Set([...timelineIds, ...handIds]);
-
-    // Filter pool to only cards not in timeline or hand
-    const availablePool = currentGameState.cardPool.filter(card => !forbiddenIds.has(card.id));
-
-    if (availablePool.length > 0) {
-      // Get a random card from the filtered pool
-      const randomIndex = Math.floor(Math.random() * availablePool.length);
-      const newCard = availablePool[randomIndex];
-      // Remove the card from the pool
-      const updatedPool = currentGameState.cardPool.filter(card => card.id !== newCard.id);
-      
-      return { newCard, updatedPool };
-    }
-    
-    // If pool is empty, fetch more cards
-    try {
-      const response = await gameAPI.getRandomEvents(CARD_COUNTS.SINGLE);
-      const newPoolCards = extractData(response);
-      const newCard = newPoolCards[0];
-      const updatedPool = [...currentGameState.cardPool, ...newPoolCards.slice(1)];
-      
-      return { newCard, updatedPool };
-    } catch (error) {
-      console.error('Failed to fetch new cards:', error);
-      return null;
-    }
-  }, []);
-
   return {
     // State
-    state,
-    gameState: state, // Alias for backward compatibility
+    gameState: state,
     
     // Actions
     initializeGame,
@@ -487,8 +424,6 @@ export const useGameState = () => {
     placeCard,
     restartGame,
     togglePause,
-    getNewCardFromPool,
-    executeAITurn,
     
     // Computed values
     isPlayerTurn: state.currentPlayer === 'human',
