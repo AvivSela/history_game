@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
 import Timeline from '../components/Timeline/Timeline';
-
-// Mock animation utilities
-vi.mock('../utils/animationUtils', () => ({
-  animateWrongPlacement: vi.fn(() => Promise.resolve()),
-  cleanupAnimations: vi.fn(),
-}));
 
 describe('Wrong Placement Animation', () => {
   const mockEvents = [
@@ -63,23 +56,6 @@ describe('Wrong Placement Animation', () => {
     );
   };
 
-  it('should trigger wrong placement animation when animateWrongPlacement is called', async () => {
-    const { animateWrongPlacement } = await import('../utils/animationUtils');
-    
-    render(<MockGameComponent />);
-    
-    const triggerButton = screen.getByTestId('trigger-wrong-placement');
-    fireEvent.click(triggerButton);
-    
-    await waitFor(() => {
-      expect(animateWrongPlacement).toHaveBeenCalledWith(
-        null, // cardElement (null in this case)
-        expect.any(HTMLElement), // timelineElement
-        expect.any(HTMLElement) // insertionPointElement
-      );
-    });
-  });
-
   it('should show wrong placement indicator when animation is triggered', async () => {
     render(<MockGameComponent />);
     
@@ -107,5 +83,19 @@ describe('Wrong Placement Animation', () => {
     // Check that the timeline element can receive animation classes
     const timelineContent = screen.getByTestId('timeline-content');
     expect(timelineContent).toBeInTheDocument();
+  });
+
+  it('should add animation class to timeline element when wrong placement is triggered', async () => {
+    render(<MockGameComponent />);
+    const triggerButton = screen.getByTestId('trigger-wrong-placement');
+    fireEvent.click(triggerButton);
+    // Wait for the animation class to be added
+    await waitFor(() => {
+      const timelineContent = screen.getByTestId('timeline-content');
+      // The class may be added to the timeline element or its children
+      // Check for the class existence
+      const hasClass = Array.from(timelineContent.classList).some(cls => cls.includes('wrong-placement'));
+      expect(hasClass).toBe(true);
+    });
   });
 }); 

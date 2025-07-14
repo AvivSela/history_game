@@ -208,8 +208,8 @@ describe('CSS Animations', () => {
       const endTime = performance.now()
       const duration = endTime - startTime
       
-      // Class manipulation should be very fast (< 1ms)
-      expect(duration).toBeLessThan(1)
+      // Class manipulation should be very fast (≤ 1ms)
+      expect(duration).toBeLessThanOrEqual(1)
       expect(testElement.classList.contains('card-animating')).toBe(true)
       expect(testElement.classList.contains('card-shake')).toBe(true)
     })

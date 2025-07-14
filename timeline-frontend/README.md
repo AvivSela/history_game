@@ -112,6 +112,42 @@ The codebase follows a well-organized component structure with clear separation 
 - **User interaction testing**: Full user flow testing with realistic scenarios
 - **Animation testing**: Comprehensive animation and visual feedback testing
 
+### Animation System (FE-001)
+
+The Timeline Game now uses a **unified, optimized animation system** for all UI and game animations. This system provides:
+- Centralized animation management via `AnimationSystem`
+- Device-specific performance optimizations
+- Full accessibility support (reduced motion, screen readers)
+- Consistent GPU acceleration and optimized CSS keyframes
+- Tree-shakable, modular code for smaller bundles
+
+**Key API Usage:**
+
+```js
+import { animations, accessibility, performance } from './utils/animation';
+
+// Animate a card shake
+await animations.cardShake(element);
+
+// Animate a wrong placement sequence
+await animations.wrongPlacement(cardElement, timelineElement, insertionPointElement);
+
+// Check if animations should run (accessibility)
+if (accessibility.shouldAnimate()) {
+  // ...
+}
+
+// Performance monitoring
+performance.logSummary();
+```
+
+**Migration Notes:**
+- All legacy animation files (`animationUtils.js`, `animationQueue.js`, `contextAwareAnimations.js`, `progressiveAnimations.js`) have been removed.
+- All components now use the new API from `src/utils/animation/`.
+- See `src/utils/animation/index.js` for the full API surface.
+
+**For more details, see the [FE-001 Animation Performance Optimization Plan](../docs/FE-001-Animation-Performance-Plan.md) and code comments in `AnimationSystem.js`.**
+
 ## Contributing
 
 1. Install dependencies with `yarn install`

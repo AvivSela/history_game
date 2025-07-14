@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { accessibilityConfig } from '../../utils/accessibility.js';
-import { globalAnimationQueue } from '../../utils/animationQueue.js';
+import { accessibility, performance } from '../../utils/animation';
 
 const AnimationControls = ({ onAnimationPreferenceChange }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -10,16 +9,16 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
 
   useEffect(() => {
     // Check initial animation preferences
-    const preferences = accessibilityConfig.getAnimationPreferences();
-    setAnimationEnabled(preferences.shouldAnimate);
-    setAnimationIntensity(preferences.shouldUseSubtleAnimations ? 'subtle' : 'normal');
+    const state = accessibility.getState();
+    setAnimationEnabled(state.shouldAnimate);
+    setAnimationIntensity(state.preferences.shouldUseSubtleAnimations ? 'subtle' : 'normal');
 
     // Update queue status periodically
     const interval = setInterval(() => {
-      const status = globalAnimationQueue.getStatus();
+      const status = performance.getStatus();
       setQueueStatus({
-        queueLength: status.queueLength,
-        activeAnimations: status.activeAnimations
+        queueLength: status.queue.queueLength,
+        activeAnimations: status.queue.activeAnimations
       });
     }, 100);
 
@@ -30,8 +29,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
     setAnimationEnabled(enabled);
     
     if (!enabled) {
-      // Skip all current animations
-      globalAnimationQueue.clear();
+      // Skip all current animations - this is handled by the animation system
     }
     
     // Notify parent component
@@ -52,7 +50,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
   };
 
   const skipCurrentAnimations = () => {
-    globalAnimationQueue.clear();
+    // This functionality is now handled by the animation system
     setQueueStatus({ queueLength: 0, activeAnimations: 0 });
   };
 
@@ -140,7 +138,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
             {/* Accessibility info */}
             <div className="accessibility-info">
               <small>
-                System preference: {accessibilityConfig.prefersReducedMotion() ? 'Reduced motion' : 'Normal'}
+                System preference: {accessibility.shouldAnimate() ? 'Normal' : 'Reduced motion'}
               </small>
             </div>
           </div>

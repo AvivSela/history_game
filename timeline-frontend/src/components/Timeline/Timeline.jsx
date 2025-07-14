@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Card from '../Card/Card';
-import { animateWrongPlacement, cleanupAnimations } from '../../utils/animationUtils';
+import { animations } from '../../utils/animation';
 
 const Timeline = forwardRef(({ 
   events = [], 
@@ -24,7 +24,7 @@ const Timeline = forwardRef(({
       setWrongPlacementPosition(position);
       
       if (timelineElement) {
-        animateWrongPlacement(null, timelineElement, insertionPointElement);
+        animations.wrongPlacement(null, timelineElement, insertionPointElement);
       }
       
       // Clear indicator after animation
@@ -34,10 +34,10 @@ const Timeline = forwardRef(({
     },
     cleanupAnimations: () => {
       if (timelineRef.current) {
-        cleanupAnimations(timelineRef.current);
+        animations.cleanup(timelineRef.current);
       }
       insertionPointRefs.current.forEach(element => {
-        if (element) cleanupAnimations(element);
+        if (element) animations.cleanup(element);
       });
     }
   }));

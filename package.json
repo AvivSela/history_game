@@ -18,7 +18,9 @@
     "test:watch": "concurrently \"yarn workspace timeline-frontend test:watch\" \"yarn workspace timeline-backend test:watch\"",
     "test:coverage": "concurrently \"yarn workspace timeline-frontend test:coverage\" \"yarn workspace timeline-backend test:coverage\"",
     "test:frontend": "yarn workspace timeline-frontend test",
-    "test:backend": "yarn workspace timeline-backend test"
+    "test:backend": "yarn workspace timeline-backend test",
+    "tech-debt": "node scripts/tech-debt-manager.js",
+    "tech-debt:report": "node scripts/tech-debt-manager.js report"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

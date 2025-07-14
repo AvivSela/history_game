@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import Card from '../Card/Card';
-import { 
-  animateCardSequence, 
-  prefersReducedMotion, 
-  cleanupAnimations,
-  measureAnimationPerformance,
-  ANIMATION_DELAYS
-} from '../../utils/animationUtils';
+import { animations, accessibility, performance } from '../../utils/animation';
 
 const PlayerHand = forwardRef(({ 
   cards = [], 
@@ -71,7 +65,7 @@ const PlayerHand = forwardRef(({
           return;
         }
 
-        if (prefersReducedMotion()) {
+        if (!accessibility.shouldAnimate()) {
           // Apply instant state changes for reduced motion
           if (animationType === 'removal') {
             cardElement.style.opacity = '0';
@@ -89,15 +83,14 @@ const PlayerHand = forwardRef(({
         if (animationType === 'removal') {
           setAnimatingCards(prev => new Set([...prev, cardId]));
           
-          const sequence = [
-            { animation: 'card-shake', duration: ANIMATION_DELAYS.SHAKE_DURATION },
-            { animation: 'card-fade-out', duration: ANIMATION_DELAYS.FADE_OUT_DURATION }
-          ];
-          
-          await animateCardSequence(cardElement, sequence);
+          // Use new animation system
+          await animations.sequence([cardElement], [
+            { animation: 'card-shake' },
+            { animation: 'card-fade-out' }
+          ]);
           
           // Cleanup after animation
-          cleanupAnimations(cardElement);
+          animations.cleanup(cardElement);
           setAnimatingCards(prev => {
             const newSet = new Set(prev);
             newSet.delete(cardId);
@@ -107,31 +100,23 @@ const PlayerHand = forwardRef(({
         } else if (animationType === 'addition') {
           setNewCardId(cardId);
           
-          // Delay before new card animation
-          await new Promise(resolve => setTimeout(resolve, ANIMATION_DELAYS.NEW_CARD_DELAY));
-          
-          const sequence = [
-            { animation: 'card-bounce-in', duration: ANIMATION_DELAYS.BOUNCE_IN_DURATION },
-            { animation: 'card-highlight', duration: ANIMATION_DELAYS.HIGHLIGHT_DURATION }
-          ];
-          
-          await animateCardSequence(cardElement, sequence);
-          
-          // Do NOT auto-select the new card anymore
-          // (Removed: onCardSelect(newCard);)
+          // Use new animation system
+          await animations.sequence([cardElement], [
+            { animation: 'card-bounce-in' },
+            { animation: 'card-highlight' }
+          ]);
           
           setNewCardId(null);
         }
         
-        // Measure and log performance
-        measureAnimationPerformance(`${animationType}_${cardId}`, startTime);
+        // Performance monitoring is handled by the animation system
         
       } catch (error) {
         console.error(`Animation failed for card ${cardId}:`, error);
         // Fallback: apply instant state change
         const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
         if (cardElement) {
-          cleanupAnimations(cardElement);
+          animations.cleanup(cardElement);
         }
       } finally {
         // Cleanup animation reference
@@ -156,7 +141,7 @@ const PlayerHand = forwardRef(({
     return () => {
       // Cleanup all ongoing animations
       currentRefs.forEach(({ element }) => {
-        cleanupAnimations(element);
+        animations.cleanup(element);
       });
       currentRefs.clear();
     };

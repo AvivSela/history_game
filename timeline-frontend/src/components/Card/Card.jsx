@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
-import { cleanupAnimations } from '../../utils/animationUtils';
+import { animations } from '../../utils/animation';
 
 const Card = forwardRef(({ 
   event, 
@@ -34,7 +34,7 @@ const Card = forwardRef(({
     const currentRef = cardRef.current;
     return () => {
       if (currentRef) {
-        cleanupAnimations(currentRef);
+        animations.cleanup(currentRef);
       }
     };
   }, []);
