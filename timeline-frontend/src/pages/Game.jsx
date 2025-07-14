@@ -251,7 +251,16 @@ const Game = () => {
       }
 
     } else {
-      // Incorrect placement
+      // Incorrect placement - trigger animations
+      if (timelineRef.current) {
+        timelineRef.current.animateWrongPlacement(position);
+      }
+
+      // Trigger card removal animation for the selected card
+      if (playerHandRef.current && selectedCard) {
+        playerHandRef.current.animateCardRemoval(selectedCard.id);
+      }
+
       const newHand = [...gameState.playerHand];
       const cardIndex = newHand.findIndex(card => card.id === selectedCard.id);
       
@@ -265,6 +274,13 @@ const Game = () => {
             playerHand: newHand,
             cardPool: poolResult.updatedPool
           };
+          
+          // Trigger new card animation after a delay
+          setTimeout(() => {
+            if (playerHandRef.current) {
+              playerHandRef.current.animateNewCard(poolResult.newCard.id);
+            }
+          }, 800); // Delay to match the wrong placement animation
         }
       }
 
