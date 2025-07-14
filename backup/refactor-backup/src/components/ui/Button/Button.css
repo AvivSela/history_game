@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* Button Component Styles */
+
+/* Base Button */
+.btn {
+  @apply inline-block px-6 py-3 border-none rounded-lg cursor-pointer text-base font-medium no-underline text-center transition-all duration-300 select-none whitespace-nowrap;
+}
+
+.btn:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+/* Button Variants */
+.btn-primary {
+  background-color: var(--color-primary);
+  @apply text-white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  @apply bg-slate-700 -translate-y-0.5;
+  box-shadow: var(--shadow-medium);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  @apply text-white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  @apply bg-blue-600 -translate-y-0.5;
+  box-shadow: var(--shadow-medium);
+}
+
+.btn-success {
+  background-color: var(--color-success);
+  @apply text-white;
+}
+
+.btn-success:hover:not(:disabled) {
+  @apply bg-green-600 -translate-y-0.5;
+}
+
+/* Button Sizes */
+.btn-large {
+  @apply px-8 py-4 text-lg font-semibold;
+}
+
+.btn-small {
+  @apply px-4 py-2 text-sm;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .btn {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .btn-large {
+    @apply px-6 py-3 text-base;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    @apply px-3 py-2 text-sm;
+  }
+  
+  .btn-large {
+    @apply px-5 py-3 text-base;
+  }
+} 

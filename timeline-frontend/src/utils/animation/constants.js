@@ -1,6 +1,6 @@
 // Optimized Animation Timing Constants
 // Reduced durations for better performance while maintaining UX quality
-import { TIMING } from '../../constants/gameConstants';
+import { TIMING } from '@constants/gameConstants';
 
 export const OPTIMIZED_TIMINGS = {
   // Quick feedback animations

@@ -8,10 +8,14 @@ const Feedback = ({ message, type, isVisible, onAnimationComplete }) => {
     if (isVisible && !isAnimating) {
       setIsAnimating(true);
       // Animate feedback message appearance
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setIsAnimating(false);
         onAnimationComplete?.();
       }, 2000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     }
   }, [isVisible, isAnimating, onAnimationComplete]);
 

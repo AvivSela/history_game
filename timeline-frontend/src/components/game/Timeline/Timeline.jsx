@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Card from '../Card';
-import { animations } from '../../../utils/animation';
-import { UI_DIMENSIONS, TIMING } from '../../../constants/gameConstants';
+import { animations } from '@utils/animation';
+import { UI_DIMENSIONS, TIMING } from '@constants/gameConstants';
 import './Timeline.css';
 
 /**

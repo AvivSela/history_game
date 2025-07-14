@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { gameAPI, extractData, handleAPIError } from '../../../utils/api.js';
-import { createAIOpponent, getAIThinkingTime } from '../../../utils/aiLogic.js';
-import { createGameSession } from '../../../utils/gameLogic.js';
-import { CARD_COUNTS, POOL_CARD_COUNT } from '../../../constants/gameConstants';
+import { gameAPI, extractData, handleAPIError } from '@utils/api.js';
+import { createAIOpponent, getAIThinkingTime } from '@utils/aiLogic.js';
+import { createGameSession } from '@utils/gameLogic.js';
+import { CARD_COUNTS, POOL_CARD_COUNT } from '@constants/gameConstants';
 
 const useGameControls = () => {
   const [isLoading, setIsLoading] = useState(true);

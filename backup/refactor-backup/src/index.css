@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/*
+ * Global CSS Organization
+ * 
+ * This file contains only global styles, CSS custom properties, and utility classes.
+ * Component-specific styles have been moved to their respective component CSS files:
+ * 
+ * - Card styles: src/components/game/Card/Card.css
+ * - Timeline styles: src/components/game/Timeline/Timeline.css
+ * - Button styles: src/components/ui/Button.css
+ * - Navigation styles: src/components/layout/Navigation/Navigation.css
+ * - Loading styles: src/components/ui/LoadingScreen/LoadingScreen.css
+ * - Feedback styles: src/components/ui/Feedback/Feedback.css
+ * 
+ * This organization follows the principle of colocation - keeping styles close to their components.
+ */
+
+/* CSS Custom Properties */
+:root {
+  --color-primary: #2c3e50;
+  --color-secondary: #3498db;
+  --color-accent: #e74c3c;
+  --color-success: #27ae60;
+  --color-warning: #f39c12;
+  --color-background: #ecf0f1;
+  --color-card: #ffffff;
+  --color-text: #2c3e50;
+  --color-text-light: #7f8c8d;
+  --color-border: #bdc3c7;
+  --color-star: #ffd700;
+  
+  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+  
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+  --max-width: 1600px;
+}
+
+/* Base Layer */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  #root {
+    width: 100%;
+    max-width: none;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+  
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1.125rem; }
+  h6 { font-size: 1rem; }
+  
+  p {
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+}
+
+/* Components Layer */
+@layer components {
+
+  
+
+  
+
+}
+
+/* Utilities Layer */
+@layer utilities {
+  .text-primary { color: var(--color-primary); }
+  .text-secondary { color: var(--color-secondary); }
+  .text-accent { color: var(--color-accent); }
+  .text-success { color: var(--color-success); }
+  .text-warning { color: var(--color-warning); }
+  .text-text { color: var(--color-text); }
+  .text-text-light { color: var(--color-text-light); }
+  .border-border { border-color: var(--color-border); }
+  
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-success { background-color: var(--color-success); }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent;
+  }
+  
+
+  
+
+  
+
+}
+
+
+
+
+
+
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.125rem; }
+}

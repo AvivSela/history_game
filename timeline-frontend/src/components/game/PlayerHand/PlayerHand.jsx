@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import Card from '../Card';
-import { animations, accessibility, performance } from '../../../utils/animation';
-import { UI_DIMENSIONS, TIMING, STYLING } from '../../../constants/gameConstants';
+import { animations, accessibility, performance } from '@utils/animation';
+import { UI_DIMENSIONS, TIMING, STYLING } from '@constants/gameConstants';
 
 /**
  * PlayerHand - Component for displaying and managing the player's hand of cards

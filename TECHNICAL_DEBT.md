@@ -9,9 +9,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ## 🎯 Current Status
 
 **Last Updated**: $(date)
-**Total Debt Items**: 11
+**Total Debt Items**: 20
 **High Priority Items**: 2
-**Estimated Refactoring Time**: 22 days
+**Estimated Refactoring Time**: 28.5 days
 
 ## 📋 Debt Categories
 
@@ -75,6 +75,12 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-009 | Constants Management | ✅ **RESOLVED** - Consolidated all scattered constants into centralized gameConstants.js with comprehensive organization by category (UI dimensions, timing, AI config, game logic, performance, API, accessibility, styling, development). Added detailed documentation and migration guide. Eliminated magic numbers across 15+ files. | Low | 0.5 days | $(date) | **Resolved** |
 | FE-010 | PlayerHand New Card Animation Test | The test for 'should NOT auto-select the new card after addition animation' was removed due to persistent mocking issues with performance.now in the test environment. A robust test should be re-implemented to ensure this behavior is covered. | Low | 0.5 days | $(date) | Open |
 | FE-011 | Failing Test Implementation | Two tests are currently failing: 1) 'New Card Animation' test suite is empty and needs proper implementation, 2) Test looking for '[data-testid="player-card-wrapper"]' element cannot find it. These tests need to be properly implemented or removed to maintain test suite integrity. | Medium | 1 day | $(date) | Open |
+| FE-012 | Console Logging in Production | Multiple console.log, console.error, and console.warn statements found throughout the codebase (15+ files). These should be replaced with proper logging system or removed for production builds. | Low | 1 day | $(date) | Open |
+| FE-013 | Duplicate Component Files | Found duplicate PlayerHand components in both `src/components/game/PlayerHand/` and `src/components/PlayerHand/` directories. This creates confusion and maintenance overhead. | Medium | 0.5 days | $(date) | Open |
+| FE-014 | Backup Directory Cleanup | The `backup/` directory contains old test files and duplicate components that should be removed to reduce repository size and confusion. | Low | 0.5 days | $(date) | Open |
+| FE-015 | Deep Import Paths | Multiple components use deep relative import paths (../../../) which are fragile and hard to maintain. Should implement proper path aliases or barrel exports. | Medium | 1 day | $(date) | Open |
+| FE-016 | Inconsistent Error Handling | Error handling patterns vary across components - some use try-catch, others use .catch(), and some have no error handling at all. Should standardize error handling approach. | Medium | 1.5 days | $(date) | Open |
+| FE-017 | Memory Leaks in Timers | Multiple setTimeout and setInterval calls without proper cleanup in useEffect hooks, particularly in AnimationControls and Game components. | Medium | 1 day | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -98,6 +104,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | BE-005 | Test Coverage | Limited test coverage for backend | Low | 2 days | $(date) | Open |
 | BE-006 | Configuration Management | Environment variables could be better organized | Low | 0.5 days | $(date) | Open |
+| BE-007 | Hardcoded Sample Data | Server.js contains 12 hardcoded sample events that should be moved to a separate data file or database. This makes the server file large and hard to maintain. | Medium | 1 day | $(date) | Open |
+| BE-008 | Missing Input Validation | API endpoints lack proper input validation for parameters like count, category names, and request bodies. Should implement validation middleware. | Medium | 1.5 days | $(date) | Open |
+| BE-009 | Inconsistent API Response Format | Some endpoints return different response structures. Should standardize API response format across all endpoints. | Low | 1 day | $(date) | Open |
 
 ### Infrastructure Technical Debt
 
@@ -114,6 +123,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | INF-003 | Monitoring | No application monitoring or logging | Low | 2 days | $(date) | Open |
 | INF-004 | Backup Strategy | No data backup or recovery plan | Low | 1 day | $(date) | Open |
+| INF-005 | Missing Environment Files | No .env.example files for either frontend or backend to guide developers on required environment variables. | Low | 0.5 days | $(date) | Open |
+| INF-006 | No Health Check Monitoring | Backend has a health check endpoint but no monitoring or alerting system to track server status. | Medium | 1 day | $(date) | Open |
 
 ## 🎯 Refactoring Priorities
 
@@ -125,8 +136,14 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ### Sprint 2 (Medium Impact, Medium Effort)
 1. **FE-005**: API Error Handling
 2. **FE-006**: Mobile Optimization
-3. **BE-003**: API Documentation
-4. **BE-004**: Logging Strategy
+3. **FE-013**: Duplicate Component Files
+4. **FE-015**: Deep Import Paths
+5. **FE-016**: Inconsistent Error Handling
+6. **FE-017**: Memory Leaks in Timers
+7. **BE-003**: API Documentation
+8. **BE-004**: Logging Strategy
+9. **BE-007**: Hardcoded Sample Data
+10. **BE-008**: Missing Input Validation
 
 ### Sprint 3 (High Impact, High Effort)
 1. **FE-004**: State Management
@@ -134,11 +151,18 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 3. **BE-002**: Error Handling
 4. **FE-011**: Failing Test Implementation
 
-### Sprint 4 (Infrastructure)
+### Sprint 4 (Low Impact, Low Effort)
+1. **FE-012**: Console Logging in Production
+2. **FE-014**: Backup Directory Cleanup
+3. **BE-009**: Inconsistent API Response Format
+4. **INF-005**: Missing Environment Files
+
+### Sprint 5 (Infrastructure)
 1. **INF-001**: Docker Setup
 2. **INF-002**: CI/CD Pipeline
 3. **INF-003**: Monitoring
 4. **INF-004**: Backup Strategy
+5. **INF-006**: No Health Check Monitoring
 
 ## 📈 Debt Metrics
 
@@ -146,15 +170,15 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | Month | New Debt | Resolved Debt | Net Change | Total Debt |
 |-------|----------|---------------|------------|------------|
-| $(date +%B %Y) | 1 | 3 | -2 | 14 |
+| $(date +%B %Y) | 9 | 3 | +6 | 20 |
 
 ### Debt by Category
 
 | Category | Count | Total Effort | Priority Distribution |
 |----------|-------|--------------|----------------------|
-| Frontend | 6 | 5.5 days | 🔴1 🟡4 🟢1 |
-| Backend | 6 | 11.5 days | 🔴2 🟡2 🟢2 |
-| Infrastructure | 4 | 8 days | 🔴0 🟡2 🟢2 |
+| Frontend | 12 | 8.5 days | 🔴1 🟡8 🟢3 |
+| Backend | 9 | 14.5 days | 🔴2 🟡4 🟢3 |
+| Infrastructure | 6 | 11.5 days | 🔴0 🟡3 🟢3 |
 
 ### Recent Achievements
 - ✅ **FE-001 Animation Performance**: Completed with 30-40% performance improvement

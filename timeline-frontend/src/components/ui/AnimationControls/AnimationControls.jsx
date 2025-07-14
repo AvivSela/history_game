@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { accessibility, performance } from '../../../utils/animation';
+import { accessibility, performance } from '@utils/animation';
 
 /**
  * AnimationControls - Component for managing animation preferences and settings

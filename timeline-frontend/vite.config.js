@@ -14,6 +14,13 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@': resolve(__dirname, './src'),
+      '@components': resolve(__dirname, './src/components'),
+      '@utils': resolve(__dirname, './src/utils'),
+      '@constants': resolve(__dirname, './src/constants'),
+      '@pages': resolve(__dirname, './src/pages'),
+      '@hooks': resolve(__dirname, './src/hooks'),
+      '@tests': resolve(__dirname, './src/tests'),
       src: resolve(__dirname, './src'),
     },
   },
@@ -52,6 +59,13 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/tests/setup.js',
     alias: {
+      '@': resolve(__dirname, './src'),
+      '@components': resolve(__dirname, './src/components'),
+      '@utils': resolve(__dirname, './src/utils'),
+      '@constants': resolve(__dirname, './src/constants'),
+      '@pages': resolve(__dirname, './src/pages'),
+      '@hooks': resolve(__dirname, './src/hooks'),
+      '@tests': resolve(__dirname, './src/tests'),
       src: resolve(__dirname, './src'),
     },
     include: ['src/**/*.{test,spec}.{js,jsx}'],

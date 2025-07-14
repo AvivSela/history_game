@@ -1,0 +1,300 @@
+// AI Opponent Logic for Timeline Game
+import { AI_CONFIG, GAME_LOGIC } from '../constants/gameConstants';
+
+const AI_DIFFICULTIES = AI_CONFIG.DIFFICULTIES;
+
+class TimelineAI {
+  constructor(difficulty = 'medium') {
+    this.difficulty = AI_DIFFICULTIES[difficulty] || AI_DIFFICULTIES.medium;
+    this.name = this.difficulty.name;
+    this.memory = new Map();
+  }
+
+  /**
+   * AI selects which card to play
+   * @param {Array} hand - AI's current hand
+   * @param {Array} timeline - Current timeline
+   * @param {Object} gameState - Current game state
+   * @returns {Object} - Selected card with confidence
+   */
+  selectCard(hand, timeline) {
+    if (hand.length === 0) return null;
+
+    const cardAnalysis = hand.map(card => ({
+      card,
+      confidence: this.analyzeCardPlacement(card, timeline),
+      strategicValue: this.calculateStrategicValue(card, hand, timeline),
+      difficulty: card.difficulty || 1
+    }));
+
+    // Sort by combined score (confidence + strategic value)
+    cardAnalysis.sort((a, b) => {
+      const scoreA = (a.confidence * AI_CONFIG.DECISION_WEIGHTS.CONFIDENCE) + (a.strategicValue * AI_CONFIG.DECISION_WEIGHTS.STRATEGIC_VALUE);
+      const scoreB = (b.confidence * AI_CONFIG.DECISION_WEIGHTS.CONFIDENCE) + (b.strategicValue * AI_CONFIG.DECISION_WEIGHTS.STRATEGIC_VALUE);
+      return scoreB - scoreA;
+    });
+
+    // Add some randomness based on AI difficulty
+    const randomFactor = 1 - this.difficulty.accuracy;
+    const selectedIndex = this.weightedRandomSelection(cardAnalysis, randomFactor);
+
+    const selection = cardAnalysis[selectedIndex];
+    
+    console.log(`🤖 ${this.name} selected: ${selection.card.title} (confidence: ${selection.confidence.toFixed(2)})`);
+
+    return {
+      card: selection.card,
+      confidence: selection.confidence,
+      reasoning: this.generateReasoning(selection, timeline)
+    };
+  }
+
+  /**
+   * AI determines where to place the selected card
+   * @param {Object} card - Card to place
+   * @param {Array} timeline - Current timeline
+   * @returns {Object} - Placement decision
+   */
+  determineCardPlacement(card, timeline) {
+    const correctPosition = this.findCorrectPosition(card, timeline);
+    
+    // Calculate if AI should make a mistake based on difficulty
+    const shouldMakeMistake = Math.random() < this.difficulty.mistakeChance;
+    
+    let finalPosition = correctPosition;
+    let confidence = this.difficulty.accuracy;
+
+    if (shouldMakeMistake) {
+      finalPosition = this.introduceError(correctPosition, timeline.length);
+      confidence *= 0.6; // Reduce confidence when making mistakes
+    }
+
+    // Ensure position is within bounds
+    finalPosition = Math.max(0, Math.min(timeline.length, finalPosition));
+
+    return {
+      position: finalPosition,
+      correctPosition,
+      confidence,
+      isMistake: shouldMakeMistake,
+      reasoning: this.generatePlacementReasoning(card, timeline, finalPosition)
+    };
+  }
+
+  /**
+   * Analyze how confident AI is about placing a card
+   * @param {Object} card - Card to analyze
+   * @param {Array} timeline - Current timeline
+   * @returns {number} - Confidence score (0-1)
+   */
+  analyzeCardPlacement(card, timeline) {
+    const cardDate = new Date(card.dateOccurred);
+    let confidence = 0.8; // Base confidence
+
+    if (timeline.length === 0) {
+      return 0.9; // High confidence for first placement
+    }
+
+    // Check for nearby events that AI recognizes
+    const nearbyEvents = timeline.filter(event => {
+      const eventDate = new Date(event.dateOccurred);
+      const yearDiff = Math.abs(cardDate.getFullYear() - eventDate.getFullYear());
+      return yearDiff <= GAME_LOGIC.NEARBY_YEAR_THRESHOLD;
+    });
+
+    if (nearbyEvents.length > 0) {
+      confidence += AI_CONFIG.CONFIDENCE_BOOST_NEARBY; // Boost confidence for familiar periods
+    }
+
+    // Reduce confidence for very close dates
+    const veryCloseEvents = timeline.filter(event => {
+      const eventDate = new Date(event.dateOccurred);
+      const yearDiff = Math.abs(cardDate.getFullYear() - eventDate.getFullYear());
+      return yearDiff <= GAME_LOGIC.VERY_CLOSE_YEAR_THRESHOLD;
+    });
+
+    if (veryCloseEvents.length > 0) {
+      confidence -= AI_CONFIG.CONFIDENCE_REDUCTION_CLOSE; // Reduce confidence for very close dates
+    }
+
+    // Check AI's memory for similar cards
+    const memoryKey = this.generateMemoryKey(card);
+    if (this.memory.has(memoryKey)) {
+      const pastPerformance = this.memory.get(memoryKey);
+      confidence = (confidence + pastPerformance.accuracy) / 2;
+    }
+
+    return Math.max(AI_CONFIG.MIN_CONFIDENCE, Math.min(AI_CONFIG.MAX_CONFIDENCE, confidence));
+  }
+
+  /**
+   * Calculate strategic value of playing a card
+   * @param {Object} card - Card to evaluate
+   * @param {Array} hand - AI's full hand
+   * @param {Array} timeline - Current timeline
+   * @returns {number} - Strategic value (0-1)
+   */
+  calculateStrategicValue(card, hand, timeline) {
+    let strategicValue = GAME_LOGIC.BASE_STRATEGIC_VALUE; // Base value
+
+    // Prefer easier cards early in the game
+    if (timeline.length < 3) {
+      strategicValue += (4 - card.difficulty) * GAME_LOGIC.EASY_CARD_BONUS;
+    }
+
+    // Prefer cards that create good spacing
+    const cardDate = new Date(card.dateOccurred);
+    const timelineYears = timeline.map(event => new Date(event.dateOccurred).getFullYear());
+    
+    if (timelineYears.length > 0) {
+      const minYear = Math.min(...timelineYears);
+      const maxYear = Math.max(...timelineYears);
+      const cardYear = cardDate.getFullYear();
+      
+      // Prefer cards that extend the timeline range
+      if (cardYear < minYear || cardYear > maxYear) {
+        strategicValue += GAME_LOGIC.TIMELINE_EXTENSION_BONUS;
+      }
+    }
+
+    // Consider hand composition
+    const handDifficulties = hand.map(c => c.difficulty);
+    const avgDifficulty = handDifficulties.reduce((a, b) => a + b, 0) / handDifficulties.length;
+    
+    if (card.difficulty < avgDifficulty) {
+      strategicValue += GAME_LOGIC.EASY_CARD_BONUS; // Prefer easier cards when hand is difficult
+    }
+
+    return Math.max(GAME_LOGIC.MIN_STRATEGIC_VALUE, Math.min(GAME_LOGIC.MAX_STRATEGIC_VALUE, strategicValue));
+  }
+
+  /**
+   * Find the correct position for a card
+   * @param {Object} card - Card to place
+   * @param {Array} timeline - Current timeline
+   * @returns {number} - Correct position index
+   */
+  findCorrectPosition(card, timeline) {
+    const cardDate = new Date(card.dateOccurred);
+    const sortedTimeline = [...timeline].sort((a, b) => 
+      new Date(a.dateOccurred) - new Date(b.dateOccurred)
+    );
+
+    for (let i = 0; i < sortedTimeline.length; i++) {
+      const timelineDate = new Date(sortedTimeline[i].dateOccurred);
+      if (cardDate <= timelineDate) {
+        return i;
+      }
+    }
+
+    return sortedTimeline.length; // Place at end
+  }
+
+  /**
+   * Introduce strategic errors based on AI difficulty
+   * @param {number} correctPosition - The correct position
+   * @param {number} timelineLength - Current timeline length
+   * @returns {number} - Modified position
+   */
+  introduceError(correctPosition, timelineLength) {
+    const maxError = Math.max(1, Math.floor(timelineLength * 0.3));
+    const errorDirection = Math.random() < 0.5 ? -1 : 1;
+    const errorMagnitude = Math.floor(Math.random() * maxError) + 1;
+    
+    return correctPosition + (errorDirection * errorMagnitude);
+  }
+
+  /**
+   * Weighted random selection based on scores
+   * @param {Array} options - Array of options with scores
+   * @param {number} randomFactor - How much randomness to introduce
+   * @returns {number} - Selected index
+   */
+  weightedRandomSelection(options, randomFactor) {
+    if (Math.random() < randomFactor) {
+      // Introduce randomness
+      return Math.floor(Math.random() * Math.min(options.length, 3));
+    }
+    
+    // Select best option most of the time
+    return 0;
+  }
+
+  /**
+   * Generate memory key for learning
+   * @param {Object} card - Card to generate key for
+   * @returns {string} - Memory key
+   */
+  generateMemoryKey(card) {
+    const year = new Date(card.dateOccurred).getFullYear();
+    const decade = Math.floor(year / 10) * 10;
+    return `${card.category}_${decade}_${card.difficulty}`;
+  }
+
+
+  /**
+   * Generate reasoning for card selection
+   * @param {Object} selection - Selected card analysis
+   * @param {Array} timeline - Current timeline
+   * @returns {string} - Human-readable reasoning
+   */
+  generateReasoning(selection) {
+    const card = selection.card;
+    const year = new Date(card.dateOccurred).getFullYear();
+    
+    const reasonings = [
+      `I'm confident about ${card.title} from ${year}`,
+      `${card.title} seems like a good strategic choice`,
+      `I have high confidence in placing ${card.title}`,
+      `${card.title} should fit well in the timeline`,
+      `This ${card.category} event from ${year} looks promising`
+    ];
+
+    return reasonings[Math.floor(Math.random() * reasonings.length)];
+  }
+
+  /**
+   * Generate reasoning for placement decision
+   * @param {Object} card - Card being placed
+   * @param {Array} timeline - Current timeline
+   * @param {number} position - Chosen position
+   * @returns {string} - Human-readable reasoning
+   */
+  generatePlacementReasoning(card, timeline, position) {
+    const year = new Date(card.dateOccurred).getFullYear();
+    
+    if (timeline.length === 0) {
+      return `Starting the timeline with ${card.title} from ${year}`;
+    }
+
+    if (position === 0) {
+      return `${card.title} should go at the beginning`;
+    } else if (position === timeline.length) {
+      return `${card.title} belongs at the end of our timeline`;
+    } else {
+      return `${card.title} fits somewhere in the middle`;
+    }
+  }
+
+
+}
+
+/**
+ * Create AI opponent based on difficulty
+ * @param {string} difficulty - Difficulty level
+ * @returns {TimelineAI} - AI opponent instance
+ */
+export const createAIOpponent = (difficulty = 'medium') => {
+  return new TimelineAI(difficulty);
+};
+
+/**
+ * Get AI thinking time based on difficulty
+ * @param {string} difficulty - AI difficulty level
+ * @returns {number} - Thinking time in milliseconds
+ */
+export const getAIThinkingTime = (difficulty = 'medium') => {
+  const config = AI_DIFFICULTIES[difficulty] || AI_DIFFICULTIES.medium;
+  const { min, max } = config.thinkingTime;
+  return Math.floor(Math.random() * (max - min)) + min;
+};
