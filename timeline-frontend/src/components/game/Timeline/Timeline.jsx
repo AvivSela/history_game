@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
-import Card from '../Card/Card';
-import { animations } from '../../utils/animation';
+import Card from '../Card';
+import { animations } from '../../../utils/animation';
 
 const Timeline = forwardRef(({ 
   events = [], 

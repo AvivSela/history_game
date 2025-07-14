@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { gameAPI, extractData, handleAPIError } from '../../utils/api.js';
-import { createAIOpponent, getAIThinkingTime } from '../../utils/aiLogic.js';
-import { createGameSession } from '../../utils/gameLogic.js';
+import { gameAPI, extractData, handleAPIError } from '../../../utils/api.js';
+import { createAIOpponent, getAIThinkingTime } from '../../../utils/aiLogic.js';
+import { createGameSession } from '../../../utils/gameLogic.js';
 
 const useGameControls = () => {
   const [isLoading, setIsLoading] = useState(true);

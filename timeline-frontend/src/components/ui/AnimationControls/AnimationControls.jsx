@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { accessibility, performance } from '../../utils/animation';
+import { accessibility, performance } from '../../../utils/animation';
 
 const AnimationControls = ({ onAnimationPreferenceChange }) => {
   const [isVisible, setIsVisible] = useState(false);

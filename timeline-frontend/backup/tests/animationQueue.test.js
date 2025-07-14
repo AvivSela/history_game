@@ -5,9 +5,8 @@ import {
   queueAnimation, 
   queueCardAnimation, 
   queueParallelAnimations, 
-  queueSequentialAnimations,
-  getQueuePerformance 
-} from '../utils/animationQueue.js'
+  queueSequentialAnimations
+} from '../utils/animation/AnimationQueue.js'
 
 describe('AnimationQueue', () => {
   let queue
@@ -394,9 +393,9 @@ describe('Performance Monitoring', () => {
     globalAnimationQueue.clear()
   })
 
-  describe('getQueuePerformance', () => {
+  describe('getPerformanceSummary', () => {
     it('should return performance metrics', () => {
-      const performance = getQueuePerformance()
+      const performance = globalAnimationQueue.getPerformanceSummary()
       
       expect(performance).toHaveProperty('queueLength')
       expect(performance).toHaveProperty('isProcessing')
@@ -407,7 +406,7 @@ describe('Performance Monitoring', () => {
     })
 
     it('should indicate optimal performance when under limit', () => {
-      const performance = getQueuePerformance()
+      const performance = globalAnimationQueue.getPerformanceSummary()
       
       expect(performance.performance.isOptimal).toBe(true)
       expect(performance.performance.activeAnimationCount).toBe(0)
@@ -425,7 +424,7 @@ describe('Performance Monitoring', () => {
       // Wait a bit for processing to start
       await new Promise(resolve => setTimeout(resolve, 10))
 
-      const performance = getQueuePerformance()
+      const performance = globalAnimationQueue.getPerformanceSummary()
       
       expect(performance.performance.activeAnimationCount).toBeLessThanOrEqual(3)
       

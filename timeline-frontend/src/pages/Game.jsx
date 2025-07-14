@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import GameBoard from '../components/game/GameBoard';
-import useGameControls from '../components/game/GameControls.jsx';
+import { GameBoard } from '../components/core';
+import useGameControls from '../components/core/GameControls/GameControls';
 import { 
   LoadingScreen, 
   ErrorScreen 

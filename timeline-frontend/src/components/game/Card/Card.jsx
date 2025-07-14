@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
-import { animations } from '../../utils/animation';
+import { animations } from '../../../utils/animation';
 
 const Card = forwardRef(({ 
   event, 

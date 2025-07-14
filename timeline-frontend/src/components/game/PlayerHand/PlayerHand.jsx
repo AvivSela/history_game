@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
-import Card from '../Card/Card';
-import { animations, accessibility, performance } from '../../utils/animation';
+import Card from '../Card';
+import { animations, accessibility, performance } from '../../../utils/animation';
 
 const PlayerHand = forwardRef(({ 
   cards = [], 

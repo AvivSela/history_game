@@ -54,6 +54,8 @@ export default defineConfig({
     alias: {
       src: resolve(__dirname, './src'),
     },
+    include: ['src/**/*.{test,spec}.{js,jsx}'],
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'backup']
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],

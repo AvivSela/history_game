@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
-import Timeline from '../Timeline/Timeline';
-import PlayerHand from '../PlayerHand/PlayerHand';
-import AIHand from '../player/AIHand';
-import GameHeader from './GameHeader';
-import GameStatus from './GameStatus';
-import TurnIndicator from './TurnIndicator';
+import Timeline from '../../game/Timeline';
+import PlayerHand from '../../game/PlayerHand';
+import AIHand from '../../game/AIHand';
+import GameHeader from '../GameHeader';
+import GameStatus from '../GameStatus';
+import TurnIndicator from '../TurnIndicator';
 
 const GameBoard = memo(({
   gameState,
