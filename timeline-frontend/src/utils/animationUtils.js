@@ -1,26 +1,26 @@
 // Animation timing constants with detailed breakdown
 export const ANIMATION_DELAYS = {
-  SHAKE_DURATION: 600,
-  FADE_OUT_DURATION: 500,
-  FEEDBACK_DELAY: 300,
-  NEW_CARD_DELAY: 800,
-  BOUNCE_IN_DURATION: 800,
-  HIGHLIGHT_DURATION: 1200,
-  WRONG_PLACEMENT_DURATION: 1200,
-  TIMELINE_SHAKE_DURATION: 800,
-  INSERTION_POINT_ERROR_DURATION: 600,
-  TOTAL_ANIMATION_DURATION: 2900 // Total time for complete sequence
+  SHAKE_DURATION: 400,              // Reduced from 600ms
+  FADE_OUT_DURATION: 300,           // Reduced from 500ms
+  FEEDBACK_DELAY: 200,              // Reduced from 300ms
+  NEW_CARD_DELAY: 600,              // Reduced from 800ms
+  BOUNCE_IN_DURATION: 600,          // Reduced from 800ms
+  HIGHLIGHT_DURATION: 400,          // Reduced from 1200ms
+  WRONG_PLACEMENT_DURATION: 800,    // Reduced from 1200ms
+  TIMELINE_SHAKE_DURATION: 600,     // Reduced from 800ms
+  INSERTION_POINT_ERROR_DURATION: 400, // Reduced from 600ms
+  TOTAL_ANIMATION_DURATION: 2000    // Reduced from 2900ms
 };
 
 // Animation easing functions for smooth transitions
 export const EASING = {
   SHAKE: 'cubic-bezier(0.36, 0, 0.66, 1)',
   FADE_OUT: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  BOUNCE_IN: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  BOUNCE_IN: 'cubic-bezier(0.4, 0, 0.2, 1)',         // Changed to ease-out
   HIGHLIGHT: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  WRONG_PLACEMENT: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  WRONG_PLACEMENT: 'cubic-bezier(0.36, 0, 0.66, 1)', // Changed to shake easing
   TIMELINE_SHAKE: 'cubic-bezier(0.36, 0, 0.66, 1)',
-  INSERTION_POINT_ERROR: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  INSERTION_POINT_ERROR: 'cubic-bezier(0.4, 0, 0.2, 1)' // Changed to ease-out
 };
 
 // Utility to add/remove animation classes with error handling

@@ -220,13 +220,13 @@
 }
 
 .card-shake {
-  animation: cardShake 0.6s cubic-bezier(0.36, 0, 0.66, 1);
+  animation: cardShake 0.4s cubic-bezier(0.36, 0, 0.66, 1);
   animation-fill-mode: both;
 }
 
 /* Card fade out with scale reduction */
 .card-fade-out {
-  animation: fadeOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes fadeOut {
@@ -249,7 +249,7 @@
 
 /* Card bounce in with spring effect */
 .card-bounce-in {
-  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: bounceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   animation-fill-mode: both;
 }
 
@@ -276,7 +276,7 @@
 
 /* Card highlight with pulsing glow */
 .card-highlight {
-  animation: highlight 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: highlight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes highlight {
@@ -284,16 +284,8 @@
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
     transform: scale(1) translateZ(0);
   }
-  25% { 
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.4);
-    transform: scale(1.02) translateZ(0);
-  }
   50% { 
-    box-shadow: 0 0 0 12px rgba(59, 130, 246, 0.2);
-    transform: scale(1.05) translateZ(0);
-  }
-  75% { 
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.3);
     transform: scale(1.02) translateZ(0);
   }
   100% { 
@@ -302,65 +294,48 @@
   }
 }
 
-/* Wrong placement animation - card bounces back to hand */
+/* Wrong placement animation - card shakes and fades out */
 .card-wrong-placement {
-  animation: wrongPlacement 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: wrongPlacement 0.8s cubic-bezier(0.36, 0, 0.66, 1);
   animation-fill-mode: both;
 }
 
 @keyframes wrongPlacement {
-  0% { 
+  0%, 100% { 
+    transform: translateX(0) scale(1) translateZ(0); 
     opacity: 1; 
-    transform: scale(1) translateZ(0);
     filter: brightness(1);
   }
-  15% { 
-    opacity: 1; 
-    transform: scale(1.15) translateZ(0);
-    filter: brightness(1.2);
-    box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+  10%, 30%, 50% { 
+    transform: translateX(-8px) scale(0.95) translateZ(0); 
+    opacity: 0.8; 
+    filter: brightness(1.1) hue-rotate(0deg);
   }
-  30% { 
-    opacity: 1; 
-    transform: scale(1.05) translateZ(0);
-    filter: brightness(1.1);
-    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
-  }
-  45% { 
-    opacity: 1; 
-    transform: scale(1.1) translateZ(0);
-    filter: brightness(1.05);
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+  20%, 40% { 
+    transform: translateX(8px) scale(0.95) translateZ(0); 
+    opacity: 0.8; 
+    filter: brightness(1.1) hue-rotate(0deg);
   }
   60% { 
-    opacity: 0.9; 
-    transform: scale(0.95) translateY(-10px) translateZ(0);
-    filter: brightness(0.95);
-    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+    transform: translateX(0) scale(0.9) translateZ(0); 
+    opacity: 0.6; 
+    filter: brightness(0.9);
   }
-  75% { 
-    opacity: 0.7; 
-    transform: scale(0.9) translateY(-20px) translateZ(0);
+  80% { 
+    transform: translateX(0) scale(0.8) translateZ(0); 
+    opacity: 0.3; 
     filter: brightness(0.8);
-    box-shadow: 0 0 8px rgba(231, 76, 60, 0.2);
-  }
-  90% { 
-    opacity: 0.4; 
-    transform: scale(0.8) translateY(-30px) translateZ(0);
-    filter: brightness(0.6);
-    box-shadow: 0 0 5px rgba(231, 76, 60, 0.1);
   }
   100% { 
+    transform: translateX(0) scale(0.7) translateZ(0); 
     opacity: 0; 
-    transform: scale(0.7) translateY(-40px) translateZ(0);
-    filter: brightness(0.4);
-    box-shadow: 0 0 0 rgba(231, 76, 60, 0);
+    filter: brightness(0.7);
   }
 }
 
 /* Timeline shake animation for wrong placement */
 .timeline-wrong-placement {
-  animation: timelineShake 0.8s cubic-bezier(0.36, 0, 0.66, 1);
+  animation: timelineShake 0.6s cubic-bezier(0.36, 0, 0.66, 1);
 }
 
 @keyframes timelineShake {
@@ -378,7 +353,7 @@
 
 /* Insertion point error animation */
 .insertion-point-error {
-  animation: insertionPointError 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: insertionPointError 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes insertionPointError {
@@ -408,7 +383,7 @@
   font-size: 48px;
   color: #e74c3c;
   z-index: 1000;
-  animation: wrongPlacementIndicator 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: wrongPlacementIndicator 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
 }
 

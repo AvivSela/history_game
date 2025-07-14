@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  GameBoard, 
-  useGameControls 
-} from '../components/game';
+import GameBoard from '../components/game/GameBoard';
+import useGameControls from '../components/game/GameControls.jsx';
 import { 
   LoadingScreen, 
   ErrorScreen 
@@ -280,7 +278,7 @@ const Game = () => {
             if (playerHandRef.current) {
               playerHandRef.current.animateNewCard(poolResult.newCard.id);
             }
-          }, 800); // Delay to match the wrong placement animation
+          }, 600); // Reduced from 800ms to match optimized timing
         }
       }
 

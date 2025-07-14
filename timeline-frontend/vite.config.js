@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,6 +12,11 @@ export default defineConfig({
       config: './tailwind.config.js',
     })
   ],
+  resolve: {
+    alias: {
+      src: resolve(__dirname, './src'),
+    },
+  },
   css: {
     devSourcemap: true,
   },
@@ -45,6 +51,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/tests/setup.js',
+    alias: {
+      src: resolve(__dirname, './src'),
+    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
