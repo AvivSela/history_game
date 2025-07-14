@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Card from '../Card';
 import { animations } from '../../../utils/animation';
+import { UI_DIMENSIONS, TIMING } from '../../../constants/gameConstants';
 import './Timeline.css';
 
 /**
@@ -72,7 +73,7 @@ const Timeline = forwardRef(({
       // Clear indicator after animation
       setTimeout(() => {
         setWrongPlacementPosition(null);
-      }, 1000);
+      }, TIMING.WRONG_PLACEMENT_INDICATOR);
     },
     cleanupAnimations: () => {
       if (timelineRef.current) {
@@ -139,8 +140,8 @@ const Timeline = forwardRef(({
         data-drop-zone={`timeline-${index}`}
         data-testid="insertion-point"
         style={{
-          width: '80px',
-          minHeight: '320px',
+          width: `${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_WIDTH}px`,
+          minHeight: `${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_HEIGHT}px`,
         }}
       >
         <div className="w-12 h-12 border-4 border-dashed border-secondary rounded-full flex items-center justify-center bg-secondary/10 transition-all duration-200 relative">
@@ -159,7 +160,7 @@ const Timeline = forwardRef(({
 
   const scrollTimeline = (direction) => {
     if (timelineRef.current && timelineRef.current.scrollTo) {
-      const scrollAmount = 300;
+      const scrollAmount = UI_DIMENSIONS.TIMELINE_SCROLL_AMOUNT;
       const currentScroll = timelineRef.current.scrollLeft || 0;
       const newScroll = direction === 'left' 
         ? currentScroll - scrollAmount 
@@ -196,7 +197,7 @@ const Timeline = forwardRef(({
       <div className="relative">
         <div className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3" ref={timelineRef} style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }} data-testid="timeline-content">
           <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
-          <div className="flex items-center justify-center gap-8 min-h-[320px] relative z-20 px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2">
+          <div className={`flex items-center justify-center gap-8 min-h-[${UI_DIMENSIONS.TIMELINE_MIN_HEIGHT}px] relative z-20 px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2`}>
             {/* Insertion point before first card */}
             {renderInsertionPoint(0)}
             {sortedEvents.map((event, index) => (

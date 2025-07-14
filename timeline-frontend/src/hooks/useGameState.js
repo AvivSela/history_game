@@ -9,6 +9,7 @@ import {
   generateSmartInsertionPoints,
   validateTimeline 
 } from '../utils/timelineLogic';
+import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC } from '../constants/gameConstants';
 
 /**
  * useGameState - Comprehensive game state management hook
@@ -68,8 +69,8 @@ export const useGameState = () => {
     aiHand: [],
     
     // Game status
-    gameStatus: 'lobby', // 'lobby', 'playing', 'paused', 'won', 'lost', 'draw'
-    currentPlayer: 'human', // 'human', 'ai'
+    gameStatus: GAME_STATUS.LOBBY,
+    currentPlayer: PLAYER_TYPES.HUMAN,
     gameMode: 'single', // 'single', 'ai', 'multiplayer'
     difficulty: 'medium', // 'easy', 'medium', 'hard'
     
@@ -108,7 +109,7 @@ export const useGameState = () => {
         ...prev, 
         isLoading: true, 
         error: null,
-        gameStatus: 'loading'
+        gameStatus: GAME_STATUS.LOADING
       }));
 
       // Create game session
@@ -203,7 +204,7 @@ export const useGameState = () => {
       return;
     }
 
-    const turnTime = (Date.now() - state.turnStartTime) / 1000;
+          const turnTime = (Date.now() - state.turnStartTime) / GAME_LOGIC.SECONDS_TO_MILLISECONDS;
     const cardAttempts = (state.attempts[selectedCard.id] || 0) + 1;
 
     // Advanced validation with tolerance

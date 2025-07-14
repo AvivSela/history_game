@@ -1,26 +1,27 @@
 // Optimized Animation Timing Constants
 // Reduced durations for better performance while maintaining UX quality
+import { TIMING } from '../../constants/gameConstants';
 
 export const OPTIMIZED_TIMINGS = {
   // Quick feedback animations
-  QUICK_FEEDBACK: 100,      // Reduced from 300ms
-  CARD_SELECTION: 150,      // Reduced from 250ms
+  QUICK_FEEDBACK: TIMING.QUICK_FEEDBACK,
+  CARD_SELECTION: TIMING.CARD_SELECTION,
   
   // Card animations
-  CARD_SHAKE: 400,          // Reduced from 600ms
-  CARD_HIGHLIGHT: 400,      // Reduced from 1200ms
-  CARD_FADE_OUT: 300,       // Reduced from 500ms
-  CARD_BOUNCE_IN: 600,      // Reduced from 800ms
+  CARD_SHAKE: TIMING.CARD_SHAKE,
+  CARD_HIGHLIGHT: TIMING.CARD_HIGHLIGHT,
+  CARD_FADE_OUT: TIMING.CARD_FADE_OUT,
+  CARD_BOUNCE_IN: TIMING.CARD_BOUNCE_IN,
   
   // Wrong placement sequence
-  WRONG_PLACEMENT: 800,     // Reduced from 1200ms
-  TIMELINE_SHAKE: 600,      // Reduced from 800ms
-  INSERTION_POINT_ERROR: 400, // Reduced from 600ms
-  TOTAL_SEQUENCE: 2000,     // Reduced from 2900ms
+  WRONG_PLACEMENT: TIMING.WRONG_PLACEMENT,
+  TIMELINE_SHAKE: TIMING.TIMELINE_SHAKE,
+  INSERTION_POINT_ERROR: TIMING.INSERTION_POINT_ERROR,
+  TOTAL_SEQUENCE: TIMING.TOTAL_SEQUENCE,
   
   // Transition animations
-  TRANSITION_DURATION: 250, // Reduced from 400ms
-  LOADING_DURATION: 500,    // Reduced from 800ms
+  TRANSITION_DURATION: TIMING.TRANSITION_DURATION,
+  LOADING_DURATION: TIMING.LOADING_DURATION,
 };
 
 // Optimized easing functions for smooth transitions
@@ -55,8 +56,8 @@ export const ANIMATION_PRIORITY = {
 
 // Performance thresholds
 export const PERFORMANCE_THRESHOLDS = {
-  FRAME_BUDGET: 16.67,      // 60fps target (16.67ms per frame)
-  ANIMATION_TIMEOUT: 5000,  // 5 second timeout for animations
-  MEMORY_LIMIT: 50,         // 50MB memory limit for animations
-  CONCURRENT_LIMIT: 3       // Maximum 3 concurrent animations
+  FRAME_BUDGET: TIMING.FRAME_BUDGET,
+  ANIMATION_TIMEOUT: TIMING.ANIMATION_TIMEOUT,
+  MEMORY_LIMIT: TIMING.MEMORY_LIMIT,
+  CONCURRENT_LIMIT: TIMING.CONCURRENT_ANIMATION_LIMIT
 }; 

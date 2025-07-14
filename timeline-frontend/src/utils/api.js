@@ -1,9 +1,10 @@
 import axios from 'axios';
+import { API } from '../constants/gameConstants';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  timeout: 10000,
+  baseURL: API.BASE_URL,
+  timeout: API.TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -36,9 +37,9 @@ api.interceptors.response.use(
       const { status, data } = error.response;
       
       switch (status) {
-        case 404:
+        case API.STATUS_CODES.NOT_FOUND:
           throw new Error('Resource not found');
-        case 500:
+        case API.STATUS_CODES.INTERNAL_SERVER_ERROR:
           throw new Error('Server error. Please try again later.');
         default:
           throw new Error(data?.error || 'An unexpected error occurred');

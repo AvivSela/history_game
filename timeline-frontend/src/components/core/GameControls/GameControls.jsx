@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { gameAPI, extractData, handleAPIError } from '../../../utils/api.js';
 import { createAIOpponent, getAIThinkingTime } from '../../../utils/aiLogic.js';
 import { createGameSession } from '../../../utils/gameLogic.js';
+import { CARD_COUNTS, POOL_CARD_COUNT } from '../../../constants/gameConstants';
 
 const useGameControls = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,12 +26,12 @@ const useGameControls = () => {
       }
       
       // Fetch events from API
-      const cardCount = mode === 'ai' ? 8 : 5;
+      const cardCount = mode === 'ai' ? CARD_COUNTS.AI : CARD_COUNTS.SINGLE;
       const response = await gameAPI.getRandomEvents(cardCount);
       const events = extractData(response);
       
       // Fetch additional cards for the pool (for replacement when cards are placed incorrectly)
-      const poolResponse = await gameAPI.getRandomEvents(10);
+      const poolResponse = await gameAPI.getRandomEvents(POOL_CARD_COUNT);
       const poolEvents = extractData(poolResponse);
       
       // Create game session
@@ -112,7 +113,7 @@ const useGameControls = () => {
     
     // If pool is empty, fetch more cards
     try {
-      const response = await gameAPI.getRandomEvents(5);
+      const response = await gameAPI.getRandomEvents(CARD_COUNTS.SINGLE);
       const newPoolCards = extractData(response);
       const newCard = newPoolCards[0];
       const updatedPool = [...currentGameState.cardPool, ...newPoolCards.slice(1)];

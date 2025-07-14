@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import Card from '../Card';
 import { animations, accessibility, performance } from '../../../utils/animation';
+import { UI_DIMENSIONS, TIMING, STYLING } from '../../../constants/gameConstants';
 
 /**
  * PlayerHand - Component for displaying and managing the player's hand of cards
@@ -67,8 +68,8 @@ const PlayerHand = forwardRef(({
     const positions = cards.map((_, index) => {
       const totalCards = cards.length;
       if (totalCards <= 3) {
-        const cardWidth = 160;
-        const spacing = cardWidth + 20;
+        const cardWidth = UI_DIMENSIONS.CARD_WIDTH;
+        const spacing = cardWidth + UI_DIMENSIONS.CARD_SPACING;
         const totalWidth = (totalCards - 1) * spacing;
         const startX = -totalWidth / 2;
         return {
@@ -78,12 +79,12 @@ const PlayerHand = forwardRef(({
           zIndex: index
         };
       } else {
-        const cardWidth = 160;
-        const overlapFactor = Math.max(0.3, 1 - (totalCards * 0.05));
+        const cardWidth = UI_DIMENSIONS.CARD_WIDTH;
+        const overlapFactor = Math.max(UI_DIMENSIONS.CARD_OVERLAP_FACTOR, 1 - (totalCards * UI_DIMENSIONS.CARD_OVERLAP_REDUCTION));
         const spacing = cardWidth * overlapFactor;
         const totalWidth = (totalCards - 1) * spacing;
         const startX = -totalWidth / 2;
-        const maxAngle = Math.min(totalCards * 3, 25);
+        const maxAngle = Math.min(totalCards * UI_DIMENSIONS.HAND_ANGLE_MULTIPLIER, UI_DIMENSIONS.HAND_MAX_ANGLE);
         const angleStep = totalCards > 1 ? maxAngle / (totalCards - 1) : 0;
         const angle = (-maxAngle / 2) + (index * angleStep);
         return {
@@ -215,14 +216,14 @@ const PlayerHand = forwardRef(({
     const isHovered = hoveredCard === cards[index].id;
     let transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg)`;
     if (isSelected) {
-      transform = `translateX(${position.translateX}px) translateY(-20px) rotate(0deg)`;
+      transform = `translateX(${position.translateX}px) translateY(-${UI_DIMENSIONS.HAND_SELECTED_OFFSET}px) rotate(0deg)`;
     } else if (isHovered) {
-      transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg) scale(1.1)`;
+      transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg) scale(${UI_DIMENSIONS.HAND_HOVER_SCALE})`;
     }
     return {
       transform,
-      zIndex: isSelected ? 1000 : (isHovered ? 999 : position.zIndex),
-      transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      zIndex: isSelected ? UI_DIMENSIONS.Z_INDEX.SELECTED_CARD : (isHovered ? UI_DIMENSIONS.Z_INDEX.HOVERED_CARD : position.zIndex),
+      transition: `all ${TIMING.TRANSITION_DURATION}ms ${STYLING.TRANSITION_EASING}`,
       transformOrigin: 'center bottom'
     };
   };

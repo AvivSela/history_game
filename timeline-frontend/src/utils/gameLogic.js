@@ -48,18 +48,20 @@
  * calculateScore(false, 3.0, 1, 1); // 0
  * ```
  */
+import { GAME_LOGIC } from '../constants/gameConstants';
+
 export const calculateScore = (isCorrect, timeToPlace = 0, attempts = 1, difficulty = 1) => {
   if (!isCorrect) return 0;
   
-  let baseScore = 100 * difficulty; // Base score increases with difficulty
+  let baseScore = GAME_LOGIC.BASE_SCORE * difficulty; // Base score increases with difficulty
   
   // Time bonus (max 50 points for placing within 5 seconds)
-  const timeBonus = Math.max(0, 50 - (timeToPlace * 10));
+  const timeBonus = Math.max(0, GAME_LOGIC.TIME_BONUS_MAX - (timeToPlace * GAME_LOGIC.TIME_BONUS_RATE));
   
   // Attempt penalty (lose 25 points per additional attempt)
-  const attemptPenalty = (attempts - 1) * 25;
+  const attemptPenalty = (attempts - 1) * GAME_LOGIC.ATTEMPT_PENALTY;
   
-  const finalScore = Math.max(10, baseScore + timeBonus - attemptPenalty);
+  const finalScore = Math.max(GAME_LOGIC.MIN_SCORE, baseScore + timeBonus - attemptPenalty);
   
   return Math.round(finalScore);
 };

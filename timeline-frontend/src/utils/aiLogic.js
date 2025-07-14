@@ -1,35 +1,7 @@
 // AI Opponent Logic for Timeline Game
+import { AI_CONFIG, GAME_LOGIC } from '../constants/gameConstants';
 
-const AI_DIFFICULTIES = {
-  easy: {
-    name: 'Beginner Bot',
-    accuracy: 0.6,
-    thinkingTime: { min: 2000, max: 4000 },
-    mistakeChance: 0.4,
-    description: 'Makes frequent mistakes, good for beginners'
-  },
-  medium: {
-    name: 'Scholar Bot',
-    accuracy: 0.8,
-    thinkingTime: { min: 1500, max: 3000 },
-    mistakeChance: 0.2,
-    description: 'Balanced opponent, makes occasional errors'
-  },
-  hard: {
-    name: 'Historian Pro',
-    accuracy: 0.95,
-    thinkingTime: { min: 1000, max: 2000 },
-    mistakeChance: 0.05,
-    description: 'Expert-level AI, rarely makes mistakes'
-  },
-  expert: {
-    name: 'Timeline Master',
-    accuracy: 0.98,
-    thinkingTime: { min: 800, max: 1500 },
-    mistakeChance: 0.02,
-    description: 'Near-perfect AI, extremely challenging'
-  }
-};
+const AI_DIFFICULTIES = AI_CONFIG.DIFFICULTIES;
 
 class TimelineAI {
   constructor(difficulty = 'medium') {
@@ -57,8 +29,8 @@ class TimelineAI {
 
     // Sort by combined score (confidence + strategic value)
     cardAnalysis.sort((a, b) => {
-      const scoreA = (a.confidence * 0.7) + (a.strategicValue * 0.3);
-      const scoreB = (b.confidence * 0.7) + (b.strategicValue * 0.3);
+      const scoreA = (a.confidence * AI_CONFIG.DECISION_WEIGHTS.CONFIDENCE) + (a.strategicValue * AI_CONFIG.DECISION_WEIGHTS.STRATEGIC_VALUE);
+      const scoreB = (b.confidence * AI_CONFIG.DECISION_WEIGHTS.CONFIDENCE) + (b.strategicValue * AI_CONFIG.DECISION_WEIGHTS.STRATEGIC_VALUE);
       return scoreB - scoreA;
     });
 
@@ -127,22 +99,22 @@ class TimelineAI {
     const nearbyEvents = timeline.filter(event => {
       const eventDate = new Date(event.dateOccurred);
       const yearDiff = Math.abs(cardDate.getFullYear() - eventDate.getFullYear());
-      return yearDiff <= 10;
+      return yearDiff <= GAME_LOGIC.NEARBY_YEAR_THRESHOLD;
     });
 
     if (nearbyEvents.length > 0) {
-      confidence += 0.1; // Boost confidence for familiar periods
+      confidence += AI_CONFIG.CONFIDENCE_BOOST_NEARBY; // Boost confidence for familiar periods
     }
 
     // Reduce confidence for very close dates
     const veryCloseEvents = timeline.filter(event => {
       const eventDate = new Date(event.dateOccurred);
       const yearDiff = Math.abs(cardDate.getFullYear() - eventDate.getFullYear());
-      return yearDiff <= 2;
+      return yearDiff <= GAME_LOGIC.VERY_CLOSE_YEAR_THRESHOLD;
     });
 
     if (veryCloseEvents.length > 0) {
-      confidence -= 0.2; // Reduce confidence for very close dates
+      confidence -= AI_CONFIG.CONFIDENCE_REDUCTION_CLOSE; // Reduce confidence for very close dates
     }
 
     // Check AI's memory for similar cards
@@ -152,7 +124,7 @@ class TimelineAI {
       confidence = (confidence + pastPerformance.accuracy) / 2;
     }
 
-    return Math.max(0.2, Math.min(1.0, confidence));
+    return Math.max(AI_CONFIG.MIN_CONFIDENCE, Math.min(AI_CONFIG.MAX_CONFIDENCE, confidence));
   }
 
   /**
@@ -163,11 +135,11 @@ class TimelineAI {
    * @returns {number} - Strategic value (0-1)
    */
   calculateStrategicValue(card, hand, timeline) {
-    let strategicValue = 0.5; // Base value
+    let strategicValue = GAME_LOGIC.BASE_STRATEGIC_VALUE; // Base value
 
     // Prefer easier cards early in the game
     if (timeline.length < 3) {
-      strategicValue += (4 - card.difficulty) * 0.1;
+      strategicValue += (4 - card.difficulty) * GAME_LOGIC.EASY_CARD_BONUS;
     }
 
     // Prefer cards that create good spacing
@@ -181,7 +153,7 @@ class TimelineAI {
       
       // Prefer cards that extend the timeline range
       if (cardYear < minYear || cardYear > maxYear) {
-        strategicValue += 0.2;
+        strategicValue += GAME_LOGIC.TIMELINE_EXTENSION_BONUS;
       }
     }
 
@@ -190,10 +162,10 @@ class TimelineAI {
     const avgDifficulty = handDifficulties.reduce((a, b) => a + b, 0) / handDifficulties.length;
     
     if (card.difficulty < avgDifficulty) {
-      strategicValue += 0.1; // Prefer easier cards when hand is difficult
+      strategicValue += GAME_LOGIC.EASY_CARD_BONUS; // Prefer easier cards when hand is difficult
     }
 
-    return Math.max(0.1, Math.min(1.0, strategicValue));
+    return Math.max(GAME_LOGIC.MIN_STRATEGIC_VALUE, Math.min(GAME_LOGIC.MAX_STRATEGIC_VALUE, strategicValue));
   }
 
   /**

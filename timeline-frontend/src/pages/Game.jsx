@@ -13,7 +13,7 @@ import {
   validatePlacementWithTolerance, 
   generateSmartInsertionPoints 
 } from '../utils/timelineLogic';
-import { GAME_STATUS, PLAYER_TYPES } from '../constants/gameConstants';
+import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC } from '../constants/gameConstants';
 import performanceMonitor from '../utils/performanceMonitor';
 
 /**
@@ -163,7 +163,7 @@ const Game = () => {
 
     performanceMonitor.startTimer('Game', 'cardPlacement');
 
-    const turnTime = (Date.now() - gameState.turnStartTime) / 1000;
+    const turnTime = (Date.now() - gameState.turnStartTime) / GAME_LOGIC.SECONDS_TO_MILLISECONDS;
     const cardAttempts = (gameState.attempts[selectedCard.id] || 0) + 1;
 
     // Validate placement
