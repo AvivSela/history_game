@@ -117,13 +117,8 @@ const PlayerHand = forwardRef(({
           
           await animateCardSequence(cardElement, sequence);
           
-          // Auto-select the new card
-          if (onCardSelect) {
-            const newCard = cards.find(card => card.id === cardId);
-            if (newCard) {
-              onCardSelect(newCard);
-            }
-          }
+          // Do NOT auto-select the new card anymore
+          // (Removed: onCardSelect(newCard);)
           
           setNewCardId(null);
         }
