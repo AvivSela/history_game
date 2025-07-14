@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './Feedback.css';
 
 const Feedback = ({ message, type, isVisible, onAnimationComplete }) => {
   const [isAnimating, setIsAnimating] = useState(false);

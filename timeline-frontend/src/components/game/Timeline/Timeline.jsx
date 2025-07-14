@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Card from '../Card';
 import { animations } from '../../../utils/animation';
+import './Timeline.css';
 
 /**
  * Timeline - Horizontal timeline component for displaying historical events in chronological order

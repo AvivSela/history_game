@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/*
+ * Global CSS Organization
+ * 
+ * This file contains only global styles, CSS custom properties, and utility classes.
+ * Component-specific styles have been moved to their respective component CSS files:
+ * 
+ * - Card styles: src/components/game/Card/Card.css
+ * - Timeline styles: src/components/game/Timeline/Timeline.css
+ * - Button styles: src/components/ui/Button.css
+ * - Navigation styles: src/components/layout/Navigation/Navigation.css
+ * - Loading styles: src/components/ui/LoadingScreen/LoadingScreen.css
+ * - Feedback styles: src/components/ui/Feedback/Feedback.css
+ * 
+ * This organization follows the principle of colocation - keeping styles close to their components.
+ */
+
 /* CSS Custom Properties */
 :root {
   --color-primary: #2c3e50;
@@ -66,95 +82,11 @@
 
 /* Components Layer */
 @layer components {
-  .btn {
-    @apply inline-block px-6 py-3 border-none rounded-lg cursor-pointer text-base font-medium no-underline text-center transition-all duration-300 select-none whitespace-nowrap;
-  }
+
   
-  .btn:disabled {
-    @apply opacity-60 cursor-not-allowed;
-  }
+
   
-  .btn-primary {
-    background-color: var(--color-primary);
-    @apply text-white;
-  }
-  
-  .btn-primary:hover:not(:disabled) {
-    @apply bg-slate-700 -translate-y-0.5;
-    box-shadow: var(--shadow-medium);
-  }
-  
-  .btn-secondary {
-    background-color: var(--color-secondary);
-    @apply text-white;
-  }
-  
-  .btn-secondary:hover:not(:disabled) {
-    @apply bg-blue-600 -translate-y-0.5;
-    box-shadow: var(--shadow-medium);
-  }
-  
-  .btn-success {
-    background-color: var(--color-success);
-    @apply text-white;
-  }
-  
-  .btn-success:hover:not(:disabled) {
-    @apply bg-green-600 -translate-y-0.5;
-  }
-  
-  .btn-large {
-    @apply px-8 py-4 text-lg font-semibold;
-  }
-  
-  .btn-small {
-    @apply px-4 py-2 text-sm;
-  }
-  
-  .card {
-    background-color: var(--color-card);
-    @apply rounded-lg transition-all duration-300 overflow-hidden;
-    box-shadow: var(--shadow-light);
-  }
-  
-  .card:hover {
-    @apply -translate-y-0.5;
-    box-shadow: var(--shadow-medium);
-  }
-  
-  .card-header {
-    border-bottom: 1px solid var(--color-border);
-  }
-  
-  .card-body {
-    @apply p-5;
-  }
-  
-  .card-footer {
-    @apply px-5 py-4 border-t bg-gray-50;
-    border-top-color: var(--color-border);
-  }
-  
-  .nav-link {
-    @apply text-white no-underline font-medium text-base px-4 py-2 rounded-full transition-all duration-300 relative overflow-hidden;
-  }
-  
-  .nav-link:hover {
-    @apply bg-amber-500/20 text-amber-100;
-  }
-  
-  .nav-link.active {
-    @apply bg-amber-500/30 text-amber-100 font-semibold;
-  }
-  
-  .logo-text {
-    @apply text-7xl font-bold m-0 bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent;
-    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
-  }
-  
-  .logo-subtitle {
-    @apply text-xs text-amber-200 font-normal tracking-wider uppercase;
-  }
+
 }
 
 /* Utilities Layer */
@@ -176,335 +108,30 @@
     @apply bg-gradient-to-r from-white to-gray-100 bg-clip-text text-transparent;
   }
   
-  .card-fan {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:brightness-110;
-  }
+
   
-  .timeline-track {
-    @apply absolute top-2/5 left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0;
-  }
+
   
-  .loading {
-    @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
-  }
-  
-  .loading-large {
-    @apply w-8 h-8;
-  }
-  
-  .loading-small {
-    @apply w-4 h-4;
-  }
+
 }
 
-/* Animation Classes */
-/* Performance optimization for animations */
-.card-animating {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0); /* Force GPU acceleration */
-}
 
-/* Card shake animation - subtle but noticeable */
-@keyframes cardShake {
-  0%, 100% { transform: translateX(0) translateZ(0); }
-  10% { transform: translateX(-4px) translateZ(0); }
-  20% { transform: translateX(4px) translateZ(0); }
-  30% { transform: translateX(-4px) translateZ(0); }
-  40% { transform: translateX(4px) translateZ(0); }
-  50% { transform: translateX(-2px) translateZ(0); }
-  60% { transform: translateX(2px) translateZ(0); }
-  70% { transform: translateX(-1px) translateZ(0); }
-  80% { transform: translateX(1px) translateZ(0); }
-  90% { transform: translateX(-0.5px) translateZ(0); }
-}
 
-.card-shake {
-  animation: cardShake 0.4s cubic-bezier(0.36, 0, 0.66, 1);
-  animation-fill-mode: both;
-}
 
-/* Card fade out with scale reduction */
-.card-fade-out {
-  animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
 
-@keyframes fadeOut {
-  0% { 
-    opacity: 1; 
-    transform: scale(1) translateZ(0);
-    filter: brightness(1);
-  }
-  50% { 
-    opacity: 0.5; 
-    transform: scale(0.95) translateZ(0);
-    filter: brightness(0.8);
-  }
-  100% { 
-    opacity: 0; 
-    transform: scale(0.9) translateZ(0);
-    filter: brightness(0.6);
-  }
-}
 
-/* Card bounce in with spring effect */
-.card-bounce-in {
-  animation: bounceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  animation-fill-mode: both;
-}
 
-@keyframes bounceIn {
-  0% { 
-    opacity: 0; 
-    transform: scale(0.2) translateY(60px) translateZ(0);
-  }
-  50% { 
-    opacity: 1; 
-    transform: scale(1.1) translateY(-8px) translateZ(0);
-  }
-  70% { 
-    transform: scale(0.95) translateY(2px) translateZ(0);
-  }
-  85% { 
-    transform: scale(1.02) translateY(-1px) translateZ(0);
-  }
-  100% { 
-    opacity: 1; 
-    transform: scale(1) translateY(0) translateZ(0);
-  }
-}
 
-/* Card highlight with pulsing glow */
-.card-highlight {
-  animation: highlight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes highlight {
-  0% { 
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
-    transform: scale(1) translateZ(0);
-  }
-  50% { 
-    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.3);
-    transform: scale(1.02) translateZ(0);
-  }
-  100% { 
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-    transform: scale(1) translateZ(0);
-  }
-}
-
-/* Wrong placement animation - card shakes and fades out */
-.card-wrong-placement {
-  animation: wrongPlacement 0.8s cubic-bezier(0.36, 0, 0.66, 1);
-  animation-fill-mode: both;
-}
-
-@keyframes wrongPlacement {
-  0%, 100% { 
-    transform: translateX(0) scale(1) translateZ(0); 
-    opacity: 1; 
-    filter: brightness(1);
-  }
-  10%, 30%, 50% { 
-    transform: translateX(-8px) scale(0.95) translateZ(0); 
-    opacity: 0.8; 
-    filter: brightness(1.1) hue-rotate(0deg);
-  }
-  20%, 40% { 
-    transform: translateX(8px) scale(0.95) translateZ(0); 
-    opacity: 0.8; 
-    filter: brightness(1.1) hue-rotate(0deg);
-  }
-  60% { 
-    transform: translateX(0) scale(0.9) translateZ(0); 
-    opacity: 0.6; 
-    filter: brightness(0.9);
-  }
-  80% { 
-    transform: translateX(0) scale(0.8) translateZ(0); 
-    opacity: 0.3; 
-    filter: brightness(0.8);
-  }
-  100% { 
-    transform: translateX(0) scale(0.7) translateZ(0); 
-    opacity: 0; 
-    filter: brightness(0.7);
-  }
-}
-
-/* Timeline shake animation for wrong placement */
-.timeline-wrong-placement {
-  animation: timelineShake 0.6s cubic-bezier(0.36, 0, 0.66, 1);
-}
-
-@keyframes timelineShake {
-  0%, 100% { transform: translateX(0) translateZ(0); }
-  10% { transform: translateX(-6px) translateZ(0); }
-  20% { transform: translateX(6px) translateZ(0); }
-  30% { transform: translateX(-4px) translateZ(0); }
-  40% { transform: translateX(4px) translateZ(0); }
-  50% { transform: translateX(-2px) translateZ(0); }
-  60% { transform: translateX(2px) translateZ(0); }
-  70% { transform: translateX(-1px) translateZ(0); }
-  80% { transform: translateX(1px) translateZ(0); }
-  90% { transform: translateX(-0.5px) translateZ(0); }
-}
-
-/* Insertion point error animation */
-.insertion-point-error {
-  animation: insertionPointError 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes insertionPointError {
-  0% { 
-    background-color: rgba(231, 76, 60, 0.3);
-    transform: scale(1);
-    box-shadow: 0 0 0 rgba(231, 76, 60, 0.5);
-  }
-  50% { 
-    background-color: rgba(231, 76, 60, 0.6);
-    transform: scale(1.2);
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.8);
-  }
-  100% { 
-    background-color: rgba(231, 76, 60, 0.3);
-    transform: scale(1);
-    box-shadow: 0 0 0 rgba(231, 76, 60, 0.5);
-  }
-}
-
-/* Wrong placement indicator animation */
-.wrong-placement-indicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  color: #e74c3c;
-  z-index: 1000;
-  animation: wrongPlacementIndicator 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-@keyframes wrongPlacementIndicator {
-  0% { 
-    opacity: 0; 
-    transform: translate(-50%, -50%) scale(0.5);
-  }
-  50% { 
-    opacity: 1; 
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-  100% { 
-    opacity: 0; 
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-/* Feedback message animations */
-.feedback-message {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.3s ease-out;
-}
-
-.feedback-message.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.feedback-message.animating {
-  animation: feedbackPulse 0.5s ease-out;
-}
-
-@keyframes feedbackPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-/* Reduced motion alternatives */
-@media (prefers-reduced-motion: reduce) {
-  .card-shake {
-    animation: none;
-    transform: translateX(0);
-  }
-  
-  .card-fade-out {
-    animation: none;
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  
-  .card-bounce-in {
-    animation: none;
-    opacity: 1;
-    transform: scale(1);
-  }
-  
-  .card-highlight {
-    animation: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-  }
-  
-  .card-wrong-placement {
-    animation: none;
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  
-  .timeline-wrong-placement {
-    animation: none;
-    transform: translateX(0);
-  }
-  
-  .insertion-point-error {
-    animation: none;
-    background-color: rgba(231, 76, 60, 0.3);
-    transform: scale(1);
-  }
-  
-  .wrong-placement-indicator {
-    animation: none;
-    opacity: 0;
-  }
-  
-  .feedback-message {
-    transition: none;
-  }
-  
-  .feedback-message.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
   h1 { font-size: 2rem; }
   h2 { font-size: 1.75rem; }
   h3 { font-size: 1.25rem; }
-  
-  .btn {
-    @apply px-4 py-2 text-sm;
-  }
-  
-  .btn-large {
-    @apply px-6 py-3 text-base;
-  }
 }
 
 @media (max-width: 480px) {
   h1 { font-size: 1.75rem; }
   h2 { font-size: 1.5rem; }
   h3 { font-size: 1.125rem; }
-  
-  .btn {
-    @apply px-3 py-1.5 text-sm;
-  }
-  
-  .btn-large {
-    @apply px-4 py-2 text-sm;
-  }
 }

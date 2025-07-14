@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import './LoadingScreen.css';
 
 /**
  * LoadingScreen - Component for displaying a loading state while game data is being fetched

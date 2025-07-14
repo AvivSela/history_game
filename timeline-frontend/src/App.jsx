@@ -1,5 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import './components/layout/Navigation/Navigation.css';
+import './components/ui/Button/Button.css';
 
 // Lazy load page components for better performance
 const Home = lazy(() => import('./pages/Home'));
