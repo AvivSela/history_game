@@ -4,7 +4,14 @@
 
 /* Timeline Track */
 .timeline-track {
-  @apply absolute top-2/5 left-0 right-0 h-6 bg-blue-500/5 rounded-xl z-0;
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 0.75rem;
+  z-index: 0;
 }
 
 /* Timeline Wrong Placement Animation */
