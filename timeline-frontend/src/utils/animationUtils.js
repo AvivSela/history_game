@@ -1,3 +1,6 @@
+// Import animation queue system
+import { queueAnimation, queueCardAnimation, queueParallelAnimations } from './animationQueue.js';
+
 // Animation timing constants with detailed breakdown
 export const ANIMATION_DELAYS = {
   SHAKE_DURATION: 400,              // Reduced from 600ms
@@ -25,37 +28,7 @@ export const EASING = {
 
 // Utility to add/remove animation classes with error handling
 export const animateCard = (element, animationClass, duration) => {
-  return new Promise((resolve, reject) => {
-    if (!element) {
-      reject(new Error('Element not found for animation'));
-      return;
-    }
-
-    try {
-      // Add performance optimization class
-      element.classList.add('card-animating');
-      element.classList.add(animationClass);
-      
-      // Use requestAnimationFrame for smooth timing
-      const startTime = performance.now();
-      
-      const animate = (currentTime) => {
-        const elapsed = currentTime - startTime;
-        
-        if (elapsed >= duration) {
-          element.classList.remove(animationClass);
-          element.classList.remove('card-animating');
-          resolve();
-        } else {
-          requestAnimationFrame(animate);
-        }
-      };
-      
-      requestAnimationFrame(animate);
-    } catch (error) {
-      reject(error);
-    }
-  });
+  return queueCardAnimation(element, animationClass, duration);
 };
 
 // Enhanced animation sequence with proper timing
@@ -98,27 +71,27 @@ export const animateWrongPlacement = async (cardElement, timelineElement, insert
 
     // Animate the card wrong placement
     if (cardElement) {
-      animations.push(
+      animations.push(() => 
         animateCard(cardElement, 'card-wrong-placement', ANIMATION_DELAYS.WRONG_PLACEMENT_DURATION)
       );
     }
 
     // Animate timeline shake
     if (timelineElement) {
-      animations.push(
+      animations.push(() => 
         animateCard(timelineElement, 'timeline-wrong-placement', ANIMATION_DELAYS.TIMELINE_SHAKE_DURATION)
       );
     }
 
     // Animate insertion point error
     if (insertionPointElement) {
-      animations.push(
+      animations.push(() => 
         animateCard(insertionPointElement, 'insertion-point-error', ANIMATION_DELAYS.INSERTION_POINT_ERROR_DURATION)
       );
     }
 
-    // Run all animations in parallel
-    await Promise.all(animations);
+    // Run all animations in parallel using queue
+    await queueParallelAnimations(animations, 'high');
 
     // Cleanup animations
     if (cardElement) cleanupAnimations(cardElement);

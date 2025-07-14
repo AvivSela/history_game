@@ -1,9 +1,36 @@
 // Accessibility utilities for animations
 export const accessibilityConfig = {
-  // Reduced motion detection with fallback
+  // Enhanced reduced motion detection with fallback
   prefersReducedMotion: () => {
     if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    try {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (error) {
+      console.warn('Could not detect reduced motion preference:', error);
+      return false;
+    }
+  },
+  
+  // Enhanced animation preferences detection
+  getAnimationPreferences: () => {
+    if (typeof window === 'undefined') {
+      return { shouldAnimate: false, durationMultiplier: 0.5, shouldUseSubtleAnimations: true };
+    }
+    
+    try {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const prefersReducedData = window.matchMedia('(prefers-reduced-data: reduce)').matches;
+      
+      return {
+        shouldAnimate: !prefersReducedMotion && !prefersReducedData,
+        durationMultiplier: prefersReducedMotion ? 0.5 : 1,
+        shouldUseSubtleAnimations: prefersReducedMotion
+      };
+    } catch (error) {
+      console.warn('Could not detect animation preferences:', error);
+      return { shouldAnimate: true, durationMultiplier: 1, shouldUseSubtleAnimations: false };
+    }
   },
   
   // Screen reader announcements

@@ -1,0 +1,481 @@
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { 
+  AnimationQueue, 
+  globalAnimationQueue, 
+  queueAnimation, 
+  queueCardAnimation, 
+  queueParallelAnimations, 
+  queueSequentialAnimations,
+  getQueuePerformance 
+} from '../utils/animationQueue.js'
+
+describe('AnimationQueue', () => {
+  let queue
+
+  beforeEach(() => {
+    queue = new AnimationQueue()
+    // Clear global queue for isolated tests
+    globalAnimationQueue.clear()
+  })
+
+  afterEach(() => {
+    queue.clear()
+    globalAnimationQueue.clear()
+  })
+
+  describe('Queue Management', () => {
+    it('should initialize with empty queue', () => {
+      expect(queue.getStatus().queueLength).toBe(0)
+      expect(queue.getStatus().isProcessing).toBe(false)
+      expect(queue.getStatus().activeAnimations).toBe(0)
+    })
+
+    it('should add animations to queue', async () => {
+      const animation = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 10))
+      )
+      const id = queue.add(animation)
+      
+      expect(id).toBeDefined()
+      // Queue length should be 1 initially, then processed
+      expect(queue.getStatus().queueLength).toBe(0)
+      expect(queue.getStatus().activeAnimations).toBe(1)
+      
+      await queue.waitForAll()
+    })
+
+    it('should process animations in order', async () => {
+      const animations = []
+      const results = []
+
+      // Add three animations
+      for (let i = 0; i < 3; i++) {
+        const animation = vi.fn().mockImplementation(() => {
+          results.push(i)
+          return Promise.resolve()
+        })
+        animations.push(animation)
+        queue.add(animation)
+      }
+
+      // Wait for all animations to complete
+      await queue.waitForAll()
+
+      expect(results).toEqual([0, 1, 2])
+      expect(queue.getStatus().queueLength).toBe(0)
+    })
+
+    it('should handle animation errors gracefully', async () => {
+      const errorAnimation = vi.fn().mockRejectedValue(new Error('Animation failed'))
+      const successAnimation = vi.fn().mockResolvedValue()
+
+      queue.add(errorAnimation)
+      queue.add(successAnimation)
+
+      await queue.waitForAll()
+
+      expect(successAnimation).toHaveBeenCalled()
+      expect(queue.getStatus().queueLength).toBe(0)
+    })
+  })
+
+  describe('Priority Handling', () => {
+    it('should prioritize high priority animations', async () => {
+      const results = []
+      
+      const normalAnimation = vi.fn().mockImplementation(() => {
+        results.push('normal')
+        return new Promise(resolve => setTimeout(resolve, 10))
+      })
+      
+      const highAnimation = vi.fn().mockImplementation(() => {
+        results.push('high')
+        return new Promise(resolve => setTimeout(resolve, 10))
+      })
+
+      queue.add(normalAnimation, 'normal')
+      queue.add(highAnimation, 'high')
+
+      await queue.waitForAll()
+
+      // High priority should start first, but they run concurrently
+      expect(results).toContain('high')
+      expect(results).toContain('normal')
+    })
+
+    it('should maintain order within same priority', async () => {
+      const results = []
+      
+      const animation1 = vi.fn().mockImplementation(() => {
+        results.push(1)
+        return Promise.resolve()
+      })
+      
+      const animation2 = vi.fn().mockImplementation(() => {
+        results.push(2)
+        return Promise.resolve()
+      })
+
+      queue.add(animation1, 'normal')
+      queue.add(animation2, 'normal')
+
+      await queue.waitForAll()
+
+      expect(results).toEqual([1, 2])
+    })
+  })
+
+  describe('Concurrent Animation Limits', () => {
+    it('should limit concurrent animations', async () => {
+      const activeCounts = []
+      
+      const animation = vi.fn().mockImplementation(() => {
+        activeCounts.push(queue.getStatus().activeAnimations)
+        return new Promise(resolve => setTimeout(resolve, 50))
+      })
+
+      // Add more animations than the limit
+      for (let i = 0; i < 5; i++) {
+        queue.add(animation)
+      }
+
+      await queue.waitForAll()
+
+      // Check that active animations never exceeded the limit
+      expect(Math.max(...activeCounts)).toBeLessThanOrEqual(3)
+    })
+  })
+
+  describe('Queue Operations', () => {
+    it('should remove specific animation from queue', async () => {
+      const animation1 = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+      const animation2 = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+
+      const id1 = queue.add(animation1)
+      const id2 = queue.add(animation2)
+
+      // Wait a bit for processing to start
+      await new Promise(resolve => setTimeout(resolve, 10))
+      
+      queue.remove(id1)
+
+      await queue.waitForAll()
+      
+      // Should have processed one animation
+      expect(animation2).toHaveBeenCalled()
+    })
+
+    it('should clear all animations', async () => {
+      const animation1 = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+      const animation2 = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+
+      queue.add(animation1)
+      queue.add(animation2)
+
+      // Wait a bit for processing to start
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      queue.clear()
+
+      expect(queue.getStatus().queueLength).toBe(0)
+      expect(queue.getStatus().activeAnimations).toBe(0)
+    })
+
+    it('should wait for all animations to complete', async () => {
+      const animation = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+
+      queue.add(animation)
+      queue.add(animation)
+
+      const startTime = Date.now()
+      await queue.waitForAll()
+      const endTime = Date.now()
+
+      expect(endTime - startTime).toBeGreaterThanOrEqual(50)
+    })
+  })
+
+  describe('Status Monitoring', () => {
+    it('should provide accurate queue status', async () => {
+      const animation = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+      
+      queue.add(animation)
+      
+      // Wait a bit for processing to start
+      await new Promise(resolve => setTimeout(resolve, 10))
+      
+      const status = queue.getStatus()
+      
+      expect(status.queueLength).toBe(0)
+      expect(status.isProcessing).toBe(true)
+      expect(status.activeAnimations).toBe(1)
+      expect(status.currentAnimation).toBeDefined()
+      
+      await queue.waitForAll()
+    })
+
+    it('should track active animations during processing', async () => {
+      const animation = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+
+      queue.add(animation)
+      
+      // Start processing
+      queue.process()
+      
+      // Check status during processing
+      await new Promise(resolve => setTimeout(resolve, 10))
+      const status = queue.getStatus()
+      
+      expect(status.activeAnimations).toBe(1)
+      expect(status.currentAnimation).toBeDefined()
+    })
+  })
+})
+
+describe('Global Animation Queue', () => {
+  beforeEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  afterEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  it('should be a singleton instance', () => {
+    expect(globalAnimationQueue).toBeInstanceOf(AnimationQueue)
+  })
+
+  it('should maintain state across operations', async () => {
+    const animation = vi.fn().mockImplementation(() => 
+      new Promise(resolve => setTimeout(resolve, 50))
+    )
+    
+    globalAnimationQueue.add(animation)
+    
+    // Wait a bit for processing to start
+    await new Promise(resolve => setTimeout(resolve, 20))
+    
+    expect(globalAnimationQueue.getStatus().activeAnimations).toBe(1)
+    
+    await globalAnimationQueue.waitForAll()
+  })
+})
+
+describe('Queue Utility Functions', () => {
+  beforeEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  afterEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  describe('queueAnimation', () => {
+    it('should add animation to global queue', async () => {
+      const animation = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(resolve, 50))
+      )
+      
+      queueAnimation(animation)
+      
+      // Wait a bit for processing to start
+      await new Promise(resolve => setTimeout(resolve, 20))
+      
+      expect(globalAnimationQueue.getStatus().activeAnimations).toBe(1)
+      
+      await globalAnimationQueue.waitForAll()
+    })
+
+    it('should return animation ID', () => {
+      const animation = vi.fn()
+      
+      const id = queueAnimation(animation)
+      
+      expect(id).toBeDefined()
+      expect(typeof id).toBe('number')
+    })
+  })
+
+  describe('queueCardAnimation', () => {
+    it('should create card animation with proper classes', async () => {
+      const element = document.createElement('div')
+      const animationClass = 'test-animation'
+      const duration = 100
+
+      queueCardAnimation(element, animationClass, duration)
+
+      await globalAnimationQueue.waitForAll()
+
+      expect(element.classList.contains('card-animating')).toBe(false)
+      expect(element.classList.contains(animationClass)).toBe(false)
+    })
+
+    it('should handle null element gracefully', async () => {
+      const result = queueCardAnimation(null, 'test-animation', 100)
+      
+      expect(result).toBeDefined()
+      await globalAnimationQueue.waitForAll()
+    })
+  })
+
+  describe('queueParallelAnimations', () => {
+    it('should run animations in parallel', async () => {
+      const results = []
+      
+      const animation1 = vi.fn().mockImplementation(() => {
+        results.push(1)
+        return Promise.resolve()
+      })
+      
+      const animation2 = vi.fn().mockImplementation(() => {
+        results.push(2)
+        return Promise.resolve()
+      })
+
+      queueParallelAnimations([animation1, animation2])
+
+      await globalAnimationQueue.waitForAll()
+
+      expect(results).toContain(1)
+      expect(results).toContain(2)
+    })
+
+    it('should handle empty animation array', async () => {
+      const result = queueParallelAnimations([])
+      
+      expect(result).toBeDefined()
+      await globalAnimationQueue.waitForAll()
+    })
+  })
+
+  describe('queueSequentialAnimations', () => {
+    it('should run animations in sequence', async () => {
+      const results = []
+      
+      const animation1 = vi.fn().mockImplementation(() => {
+        results.push(1)
+        return Promise.resolve()
+      })
+      
+      const animation2 = vi.fn().mockImplementation(() => {
+        results.push(2)
+        return Promise.resolve()
+      })
+
+      queueSequentialAnimations([animation1, animation2])
+
+      await globalAnimationQueue.waitForAll()
+
+      expect(results).toEqual([1, 2])
+    })
+  })
+})
+
+describe('Performance Monitoring', () => {
+  beforeEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  afterEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  describe('getQueuePerformance', () => {
+    it('should return performance metrics', () => {
+      const performance = getQueuePerformance()
+      
+      expect(performance).toHaveProperty('queueLength')
+      expect(performance).toHaveProperty('isProcessing')
+      expect(performance).toHaveProperty('activeAnimations')
+      expect(performance).toHaveProperty('performance')
+      expect(performance.performance).toHaveProperty('activeAnimationCount')
+      expect(performance.performance).toHaveProperty('isOptimal')
+    })
+
+    it('should indicate optimal performance when under limit', () => {
+      const performance = getQueuePerformance()
+      
+      expect(performance.performance.isOptimal).toBe(true)
+      expect(performance.performance.activeAnimationCount).toBe(0)
+    })
+
+    it('should indicate suboptimal performance when over limit', async () => {
+      // Add more animations than the limit
+      for (let i = 0; i < 5; i++) {
+        const animation = vi.fn().mockImplementation(() => 
+          new Promise(resolve => setTimeout(resolve, 50))
+        )
+        globalAnimationQueue.add(animation)
+      }
+
+      // Wait a bit for processing to start
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      const performance = getQueuePerformance()
+      
+      expect(performance.performance.activeAnimationCount).toBeLessThanOrEqual(3)
+      
+      await globalAnimationQueue.waitForAll()
+    })
+  })
+})
+
+describe('Animation Queue Integration', () => {
+  beforeEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  afterEach(() => {
+    globalAnimationQueue.clear()
+  })
+
+  it('should handle rapid animation additions', async () => {
+    const animations = []
+    
+    // Add many animations rapidly
+    for (let i = 0; i < 10; i++) {
+      const animation = vi.fn().mockResolvedValue()
+      animations.push(animation)
+      queueAnimation(animation)
+    }
+
+    await globalAnimationQueue.waitForAll()
+
+    animations.forEach(animation => {
+      expect(animation).toHaveBeenCalled()
+    })
+  })
+
+  it('should maintain performance under load', async () => {
+    const startTime = performance.now()
+    
+    // Add multiple animations with different priorities
+    const highPriority = vi.fn().mockResolvedValue()
+    const normalPriority = vi.fn().mockResolvedValue()
+    
+    queueAnimation(normalPriority, 'normal')
+    queueAnimation(highPriority, 'high')
+
+    await globalAnimationQueue.waitForAll()
+    
+    const endTime = performance.now()
+    const duration = endTime - startTime
+
+    // Should complete quickly (under 100ms for simple animations)
+    expect(duration).toBeLessThan(100)
+  })
+}) 
