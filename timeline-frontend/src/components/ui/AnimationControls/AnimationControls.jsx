@@ -1,6 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { accessibility, performance } from '../../../utils/animation';
 
+/**
+ * AnimationControls - Component for managing animation preferences and settings
+ * 
+ * This component provides a collapsible interface for users to control animation
+ * settings including enabling/disabling animations, adjusting intensity levels,
+ * and monitoring the animation queue status. It integrates with the animation
+ * system to provide real-time feedback and control over animation behavior.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <AnimationControls
+ *   onAnimationPreferenceChange={handleAnimationPreferenceChange}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Function} [props.onAnimationPreferenceChange] - Callback when animation preferences change
+ * @param {Object} props.onAnimationPreferenceChange.preferences - Updated animation preferences
+ * @param {boolean} props.onAnimationPreferenceChange.preferences.shouldAnimate - Whether animations are enabled
+ * @param {string} props.onAnimationPreferenceChange.preferences.intensity - Animation intensity level
+ * 
+ * @returns {JSX.Element} Animation controls interface with settings panel
+ */
 const AnimationControls = ({ onAnimationPreferenceChange }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [animationEnabled, setAnimationEnabled] = useState(true);

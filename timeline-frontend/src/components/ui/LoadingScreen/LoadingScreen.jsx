@@ -1,5 +1,21 @@
 import React, { memo } from 'react';
 
+/**
+ * LoadingScreen - Component for displaying a loading state while game data is being fetched
+ * 
+ * This component provides a user-friendly loading interface with a spinning animation
+ * and informative text. It's displayed while the application is fetching historical
+ * events and initializing the game state. The component uses a gradient background
+ * and centered layout to provide a polished loading experience.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <LoadingScreen />
+ * ```
+ * 
+ * @returns {JSX.Element} The loading screen with spinner and loading message
+ */
 const LoadingScreen = memo(() => {
   return (
     <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">

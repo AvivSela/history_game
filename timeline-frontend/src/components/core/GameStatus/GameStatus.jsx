@@ -1,5 +1,43 @@
 import React, { memo } from 'react';
 
+/**
+ * GameStatus - Component for displaying game status overlays and feedback messages
+ * 
+ * This component handles the display of game status information including win/lose
+ * screens, pause overlays, and feedback toast notifications. It provides different
+ * visual treatments based on the game status and includes relevant game statistics
+ * and action buttons for game flow control.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <GameStatus
+ *   gameState={gameState}
+ *   onRestartGame={handleRestartGame}
+ *   onTogglePause={handleTogglePause}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.gameState - Current game state object
+ * @param {string} props.gameState.gameStatus - Current game status ('playing', 'won', 'lost', 'paused')
+ * @param {Object} props.gameState.score - Current scores for both players
+ * @param {number} props.gameState.score.human - Human player's score
+ * @param {number} props.gameState.score.ai - AI player's score
+ * @param {Object} props.gameState.gameStats - Game statistics
+ * @param {number} props.gameState.gameStats.totalMoves - Total number of moves made
+ * @param {number} props.gameState.gameStats.correctMoves - Number of correct moves
+ * @param {number} props.gameState.gameStats.averageTimePerMove - Average time per move in seconds
+ * @param {Object|null} props.gameState.feedback - Current feedback message object
+ * @param {string} props.gameState.feedback.type - Feedback type ('success' or 'error')
+ * @param {string} props.gameState.feedback.message - Feedback message text
+ * @param {number} [props.gameState.feedback.points] - Points earned (if applicable)
+ * @param {number} [props.gameState.feedback.attempts] - Number of attempts (if applicable)
+ * @param {Function} props.onRestartGame - Callback to restart the game
+ * @param {Function} props.onTogglePause - Callback to toggle game pause state
+ * 
+ * @returns {JSX.Element} Game status overlays and feedback messages
+ */
 const GameStatus = memo(({ gameState, onRestartGame, onTogglePause }) => {
   const getGameStatusMessage = () => {
     switch (gameState.gameStatus) {

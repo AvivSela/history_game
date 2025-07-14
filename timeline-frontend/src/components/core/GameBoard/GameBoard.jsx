@@ -6,6 +6,51 @@ import GameHeader from '../GameHeader';
 import GameStatus from '../GameStatus';
 import TurnIndicator from '../TurnIndicator';
 
+/**
+ * GameBoard - Main game interface component that orchestrates the timeline game layout
+ * 
+ * This component serves as the central hub for the timeline game, managing the layout
+ * and coordination between different game elements including the timeline, player hand,
+ * AI hand, game status, and turn indicators. It handles the visual arrangement and
+ * state flow between game components.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <GameBoard
+ *   gameState={gameState}
+ *   onCardSelect={handleCardSelect}
+ *   onCardPlay={handleCardPlay}
+ *   onInsertionPointClick={handleInsertionPointClick}
+ *   onTimelineCardClick={handleTimelineCardClick}
+ *   onRestartGame={handleRestartGame}
+ *   onTogglePause={handleTogglePause}
+ *   playerHandRef={playerHandRef}
+ *   timelineRef={timelineRef}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.gameState - Current game state object containing all game data
+ * @param {string} props.gameState.currentPlayer - Current player ('human' or 'ai')
+ * @param {string} props.gameState.gameMode - Game mode ('ai' or 'local')
+ * @param {string} props.gameState.gameStatus - Current game status ('playing', 'paused', 'won', 'lost')
+ * @param {Array} props.gameState.timeline - Array of events currently on the timeline
+ * @param {Array} props.gameState.playerHand - Array of cards in player's hand
+ * @param {Array} props.gameState.aiHand - Array of cards in AI's hand
+ * @param {Object|null} props.gameState.selectedCard - Currently selected card object
+ * @param {boolean} props.gameState.showInsertionPoints - Whether to show insertion points on timeline
+ * @param {Function} props.onCardSelect - Callback when a card is selected from player hand
+ * @param {Function} props.onCardPlay - Callback when a card is played
+ * @param {Function} props.onInsertionPointClick - Callback when an insertion point is clicked
+ * @param {Function} props.onTimelineCardClick - Callback when a timeline card is clicked
+ * @param {Function} props.onRestartGame - Callback to restart the game
+ * @param {Function} props.onTogglePause - Callback to toggle game pause state
+ * @param {React.RefObject} props.playerHandRef - Ref to the player hand component
+ * @param {React.RefObject} props.timelineRef - Ref to the timeline component
+ * 
+ * @returns {JSX.Element} The main game board layout
+ */
 const GameBoard = memo(({
   gameState,
   onCardSelect,

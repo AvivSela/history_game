@@ -17,20 +17,28 @@ import { GAME_STATUS, PLAYER_TYPES } from '../constants/gameConstants';
 import performanceMonitor from '../utils/performanceMonitor';
 
 /**
- * Main Game component that manages the Timeline Game state and logic
+ * Game - Main game page component that manages the Timeline Game state and logic
  * 
- * This component orchestrates the entire game flow including:
+ * This component orchestrates the entire game flow including game initialization,
+ * player interactions, AI opponent logic, game status updates, and win conditions.
+ * It serves as the central controller for the timeline game, managing all game
+ * state and coordinating between different game components.
+ * 
+ * Key responsibilities:
  * - Game initialization and state management
- * - Player interactions and card placement
- * - AI opponent logic
- * - Game status updates and win conditions
- * - Performance monitoring
+ * - Player interactions and card placement validation
+ * - AI opponent logic and turn management
+ * - Game status updates and win condition checking
+ * - Performance monitoring and analytics
+ * - Score calculation and game statistics
  * 
  * @component
  * @example
  * ```jsx
  * <Game />
  * ```
+ * 
+ * @returns {JSX.Element} The complete game interface with all game components
  */
 const Game = () => {
   const [gameState, setGameState] = useState({

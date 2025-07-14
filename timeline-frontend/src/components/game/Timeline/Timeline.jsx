@@ -2,6 +2,47 @@ import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } f
 import Card from '../Card';
 import { animations } from '../../../utils/animation';
 
+/**
+ * Timeline - Horizontal timeline component for displaying historical events in chronological order
+ * 
+ * This component renders a horizontal timeline with historical events arranged chronologically.
+ * It supports insertion points for placing new cards, scroll controls for navigation,
+ * and animations for wrong placement feedback. The timeline automatically sorts events
+ * by date and provides visual indicators for the chronological flow.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <Timeline
+ *   events={[
+ *     {
+ *       id: 1,
+ *       title: "World War II",
+ *       dateOccurred: "1939-09-01",
+ *       category: "Military"
+ *     }
+ *   ]}
+ *   onCardClick={handleTimelineCardClick}
+ *   highlightInsertionPoints={true}
+ *   onInsertionPointClick={handleInsertionPointClick}
+ *   selectedCard={selectedCard}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Array} [props.events=[]] - Array of event objects to display on timeline
+ * @param {Object} props.events[].id - Unique identifier for the event
+ * @param {string} props.events[].title - Title of the historical event
+ * @param {string} props.events[].dateOccurred - Date when the event occurred (ISO format)
+ * @param {string} props.events[].category - Category of the event
+ * @param {Function} [props.onCardClick] - Callback when a timeline card is clicked
+ * @param {boolean} [props.highlightInsertionPoints=false] - Whether to show insertion points
+ * @param {Function} [props.onInsertionPointClick] - Callback when insertion point is clicked
+ * @param {Object|null} [props.selectedCard=null] - Currently selected card for placement
+ * @param {React.Ref} ref - Forwarded ref with animation methods
+ * 
+ * @returns {JSX.Element} The timeline component with chronological event display
+ */
 const Timeline = forwardRef(({ 
   events = [], 
   onCardClick,

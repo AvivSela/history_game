@@ -2,6 +2,22 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
 
+/**
+ * Home - Landing page component for the Timeline Game
+ * 
+ * This component serves as the main entry point for the application, providing
+ * an introduction to the game, instructions on how to play, and navigation to
+ * start playing or access settings. It includes a hero section with call-to-action
+ * buttons, game instructions, and feature highlights.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <Home />
+ * ```
+ * 
+ * @returns {JSX.Element} The home page with game introduction and navigation
+ */
 const Home = () => {
   return (
     <div className="home-page">

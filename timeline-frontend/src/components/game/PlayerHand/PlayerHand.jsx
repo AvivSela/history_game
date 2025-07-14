@@ -2,6 +2,50 @@ import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, f
 import Card from '../Card';
 import { animations, accessibility, performance } from '../../../utils/animation';
 
+/**
+ * PlayerHand - Component for displaying and managing the player's hand of cards
+ * 
+ * This component renders the player's hand with cards arranged in a spread layout.
+ * It supports card selection, animations for card addition/removal, and provides
+ * visual feedback for hover and selection states. The component automatically
+ * adjusts the card layout based on the number of cards and provides smooth
+ * animations with accessibility support.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <PlayerHand
+ *   cards={[
+ *     {
+ *       id: 1,
+ *       title: "World War II",
+ *       dateOccurred: "1939-09-01",
+ *       category: "Military"
+ *     }
+ *   ]}
+ *   selectedCard={selectedCard}
+ *   onCardSelect={handleCardSelect}
+ *   isPlayerTurn={true}
+ *   playerName="Player 1"
+ *   maxCards={8}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Array} [props.cards=[]] - Array of card objects in the player's hand
+ * @param {Object} props.cards[].id - Unique identifier for the card
+ * @param {string} props.cards[].title - Title of the historical event
+ * @param {string} props.cards[].dateOccurred - Date when the event occurred (ISO format)
+ * @param {string} props.cards[].category - Category of the event
+ * @param {Object|null} [props.selectedCard=null] - Currently selected card
+ * @param {Function} [props.onCardSelect] - Callback when a card is selected/deselected
+ * @param {boolean} [props.isPlayerTurn=true] - Whether it's currently the player's turn
+ * @param {string} [props.playerName="You"] - Name of the player to display
+ * @param {number} [props.maxCards=8] - Maximum number of cards that can be in hand
+ * @param {React.Ref} ref - Forwarded ref with animation methods
+ * 
+ * @returns {JSX.Element} The player hand component with spread card layout
+ */
 const PlayerHand = forwardRef(({ 
   cards = [], 
   selectedCard = null,

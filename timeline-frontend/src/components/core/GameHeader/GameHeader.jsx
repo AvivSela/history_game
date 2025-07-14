@@ -1,5 +1,39 @@
 import React, { memo } from 'react';
 
+/**
+ * GameHeader - Header component displaying game information and controls
+ * 
+ * This component provides the main header interface for the timeline game, showing
+ * the game title, current scores, card counts, and game control buttons. It displays
+ * different information based on the game mode (AI vs local) and provides quick
+ * access to restart and pause functionality.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <GameHeader
+ *   gameState={gameState}
+ *   onRestartGame={handleRestartGame}
+ *   onTogglePause={handleTogglePause}
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.gameState - Current game state object
+ * @param {string} props.gameState.gameMode - Game mode ('ai' or 'local')
+ * @param {Object} props.gameState.aiOpponent - AI opponent information (if applicable)
+ * @param {string} props.gameState.aiOpponent.name - Name of the AI opponent
+ * @param {Object} props.gameState.score - Current scores for both players
+ * @param {number} props.gameState.score.human - Human player's score
+ * @param {number} props.gameState.score.ai - AI player's score
+ * @param {Array} props.gameState.playerHand - Array of cards in player's hand
+ * @param {Array} props.gameState.timeline - Array of events on the timeline
+ * @param {string} props.gameState.gameStatus - Current game status
+ * @param {Function} props.onRestartGame - Callback to restart the game
+ * @param {Function} props.onTogglePause - Callback to toggle game pause state
+ * 
+ * @returns {JSX.Element} The game header with title, scores, and controls
+ */
 const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
   return (
     <div className="flex justify-between items-center bg-gradient-to-r from-gray-50/60 to-blue-100/100 px-10 py-8 rounded-2xl shadow-lg my-8 border border-blue-200 relative gap-8">

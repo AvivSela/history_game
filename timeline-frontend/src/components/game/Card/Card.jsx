@@ -1,6 +1,54 @@
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import { animations } from '../../../utils/animation';
 
+/**
+ * Card - Reusable card component for displaying historical events
+ * 
+ * This component renders individual cards that represent historical events in the timeline game.
+ * It supports different sizes, states (selected, animating, new), and interactive behaviors.
+ * The card displays event information including title, description, category, difficulty,
+ * and date in a visually appealing format with hover effects and animations.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <Card
+ *   event={{
+ *     id: 1,
+ *     title: "World War II",
+ *     description: "Global conflict from 1939-1945",
+ *     category: "Military",
+ *     difficulty: 3,
+ *     dateOccurred: "1939-09-01"
+ *   }}
+ *   isSelected={true}
+ *   onClick={handleCardClick}
+ *   size="medium"
+ * />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.event - Event object containing historical event data
+ * @param {string|number} props.event.id - Unique identifier for the event
+ * @param {string} props.event.title - Title of the historical event
+ * @param {string} props.event.description - Description of the event
+ * @param {string} props.event.category - Category of the event (Military, Political, etc.)
+ * @param {number} props.event.difficulty - Difficulty level (1-5 stars)
+ * @param {string} props.event.dateOccurred - Date when the event occurred (ISO format)
+ * @param {boolean} [props.isSelected=false] - Whether the card is currently selected
+ * @param {boolean} [props.isAnimating=false] - Whether the card is currently animating
+ * @param {boolean} [props.isNewCard=false] - Whether this is a newly added card
+ * @param {string} [props.size='medium'] - Size of the card ('small', 'medium', 'large')
+ * @param {Function} [props.onClick] - Callback when card is clicked
+ * @param {Function} [props.onDoubleClick] - Callback when card is double-clicked
+ * @param {Function} [props.onMouseEnter] - Callback when mouse enters card
+ * @param {Function} [props.onMouseLeave] - Callback when mouse leaves card
+ * @param {Object} [props.style={}] - Additional inline styles
+ * @param {string} [props.className=''] - Additional CSS classes
+ * @param {React.Ref} ref - Forwarded ref to the card element
+ * 
+ * @returns {JSX.Element} The card component with event information
+ */
 const Card = forwardRef(({ 
   event, 
   isSelected = false,

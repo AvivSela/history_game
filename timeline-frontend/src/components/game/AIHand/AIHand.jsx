@@ -1,5 +1,24 @@
 import React, { memo } from 'react';
 
+/**
+ * AIHand - Component for displaying the AI opponent's hand of cards
+ * 
+ * This component shows a visual representation of the AI's hand without revealing
+ * the actual card details. It displays placeholder cards to indicate how many
+ * cards the AI has remaining, providing players with strategic information
+ * about the game state.
+ * 
+ * @component
+ * @example
+ * ```jsx
+ * <AIHand aiHand={[1, 2, 3]} />
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {Array} [props.aiHand] - Array representing AI's hand (length indicates card count)
+ * 
+ * @returns {JSX.Element|null} AI hand display or null if no cards
+ */
 const AIHand = memo(({ aiHand }) => {
   if (!aiHand || aiHand.length === 0) {
     return null;

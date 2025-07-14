@@ -1,16 +1,52 @@
-// Game Logic Utilities for Timeline Game
-
-
-
-
+/**
+ * Game Logic Utilities for Timeline Game
+ * 
+ * This module contains core game logic functions for the Timeline Game, including
+ * score calculation, win condition checking, game session management, and card
+ * placement validation. These utilities provide the mathematical and logical
+ * foundation for the game mechanics.
+ * 
+ * @module gameLogic
+ * @example
+ * ```js
+ * import { calculateScore, checkWinCondition, createGameSession } from './gameLogic';
+ * 
+ * // Calculate score for correct placement
+ * const score = calculateScore(true, 3.5, 1, 2); // 225 points
+ * 
+ * // Check if player has won
+ * const hasWon = checkWinCondition(playerHand); // true if hand is empty
+ * 
+ * // Create new game session
+ * const session = createGameSession(events, { cardCount: 8, difficulty: 'medium' });
+ * ```
+ */
 
 /**
  * Calculate score based on placement accuracy and speed
+ * 
+ * This function calculates the points earned for placing a card correctly on the timeline.
+ * The score is based on the card's difficulty level, time taken to place it, and number
+ * of attempts made. Higher difficulty cards earn more points, faster placement provides
+ * time bonuses, and multiple attempts incur penalties.
+ * 
  * @param {boolean} isCorrect - Whether placement was correct
- * @param {number} timeToPlace - Time taken to place card (seconds)
- * @param {number} attempts - Number of attempts for this card
- * @param {number} difficulty - Card difficulty (1-3)
- * @returns {number} - Points earned
+ * @param {number} [timeToPlace=0] - Time taken to place card in seconds
+ * @param {number} [attempts=1] - Number of attempts for this card
+ * @param {number} [difficulty=1] - Card difficulty level (1-5)
+ * @returns {number} Points earned (minimum 10 points for correct placement)
+ * 
+ * @example
+ * ```js
+ * // Perfect placement: 100 base + 50 time bonus - 0 penalty = 150 points
+ * calculateScore(true, 2.5, 1, 1); // 150
+ * 
+ * // Multiple attempts: 200 base + 30 time bonus - 25 penalty = 205 points
+ * calculateScore(true, 4.0, 2, 2); // 205
+ * 
+ * // Incorrect placement: 0 points
+ * calculateScore(false, 3.0, 1, 1); // 0
+ * ```
  */
 export const calculateScore = (isCorrect, timeToPlace = 0, attempts = 1, difficulty = 1) => {
   if (!isCorrect) return 0;

@@ -11,8 +11,54 @@ import {
 } from '../utils/timelineLogic';
 
 /**
- * Comprehensive game state management hook
- * Handles all game logic, state updates, and turn management
+ * useGameState - Comprehensive game state management hook
+ * 
+ * This hook provides complete game state management for the Timeline Game, including
+ * game initialization, turn management, card placement validation, score calculation,
+ * and win condition checking. It encapsulates all game logic and provides a clean
+ * interface for components to interact with the game state.
+ * 
+ * Key features:
+ * - Game session initialization and management
+ * - Card selection and placement logic
+ * - Turn-based gameplay with AI opponent support
+ * - Score calculation and game statistics tracking
+ * - Win condition validation and game state transitions
+ * - Error handling and loading states
+ * 
+ * @example
+ * ```jsx
+ * const {
+ *   state,
+ *   initializeGame,
+ *   selectCard,
+ *   placeCard,
+ *   restartGame,
+ *   pauseGame
+ * } = useGameState();
+ * 
+ * // Initialize a new game
+ * await initializeGame(events, {
+ *   gameMode: 'ai',
+ *   difficulty: 'medium',
+ *   cardCount: 8
+ * });
+ * 
+ * // Select a card
+ * selectCard(card);
+ * 
+ * // Place card at position
+ * placeCard(2);
+ * ```
+ * 
+ * @returns {Object} Game state management object
+ * @returns {Object} returns.state - Current game state
+ * @returns {Function} returns.initializeGame - Initialize new game session
+ * @returns {Function} returns.selectCard - Select a card from hand
+ * @returns {Function} returns.placeCard - Place card on timeline
+ * @returns {Function} returns.restartGame - Restart current game
+ * @returns {Function} returns.pauseGame - Pause/unpause game
+ * @returns {Function} returns.getGameStats - Get current game statistics
  */
 export const useGameState = () => {
   const [state, setState] = useState({
