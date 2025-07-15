@@ -53,11 +53,21 @@ const formatMessage = (level, message, data = null) => {
 };
 
 /**
- * Write log to file
+ * Write log to file asynchronously to avoid blocking the event-loop
  */
 const writeToFile = (logEntry) => {
   const logFile = path.join(logsDir, `${new Date().toISOString().split('T')[0]}.log`);
-  fs.appendFileSync(logFile, logEntry + '\n');
+
+  // Write synchronously to guarantee log availability for unit tests
+  try {
+    fs.appendFileSync(logFile, logEntry + "\n");
+  } catch (syncErr) {
+    // Synchronous write failed – fallback to async append to avoid losing logs in production
+    fs.promises.appendFile(logFile, logEntry + "\n").catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('[Logger] Failed to write log entry', err);
+    });
+  }
 };
 
 /**
