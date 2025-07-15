@@ -4,14 +4,12 @@ describe('CSS Animations', () => {
   let testElement
 
   beforeEach(() => {
-    // Create a test element
     testElement = document.createElement('div')
     testElement.className = 'test-element'
     document.body.appendChild(testElement)
   })
 
   afterEach(() => {
-    // Clean up
     if (testElement && testElement.parentNode) {
       testElement.parentNode.removeChild(testElement)
     }
@@ -23,7 +21,6 @@ describe('CSS Animations', () => {
       
       const computedStyle = window.getComputedStyle(testElement)
       
-      // Check for GPU acceleration properties
       expect(testElement.classList.contains('card-animating')).toBe(true)
     })
 
@@ -32,7 +29,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('card-shake')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('card-shake')
       expect(testElement.classList.contains('card-shake')).toBe(false)
     })
@@ -42,7 +38,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('card-fade-out')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('card-fade-out')
       expect(testElement.classList.contains('card-fade-out')).toBe(false)
     })
@@ -52,7 +47,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('card-bounce-in')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('card-bounce-in')
       expect(testElement.classList.contains('card-bounce-in')).toBe(false)
     })
@@ -62,7 +56,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('card-highlight')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('card-highlight')
       expect(testElement.classList.contains('card-highlight')).toBe(false)
     })
@@ -72,7 +65,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('card-wrong-placement')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('card-wrong-placement')
       expect(testElement.classList.contains('card-wrong-placement')).toBe(false)
     })
@@ -82,7 +74,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('timeline-wrong-placement')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('timeline-wrong-placement')
       expect(testElement.classList.contains('timeline-wrong-placement')).toBe(false)
     })
@@ -92,7 +83,6 @@ describe('CSS Animations', () => {
       
       expect(testElement.classList.contains('insertion-point-error')).toBe(true)
       
-      // Remove class
       testElement.classList.remove('insertion-point-error')
       expect(testElement.classList.contains('insertion-point-error')).toBe(false)
     })
@@ -100,7 +90,6 @@ describe('CSS Animations', () => {
 
   describe('Animation Duration and Timing', () => {
     it('should have correct animation durations', () => {
-      // Test that animation classes can be applied and removed
       const animationClasses = [
         'card-shake',
         'card-fade-out', 
@@ -136,13 +125,10 @@ describe('CSS Animations', () => {
     it('should have will-change property for animations', () => {
       testElement.classList.add('card-animating')
       
-      // In a real browser, this would check computed styles
-      // For testing, we verify the class is applied
       expect(testElement.classList.contains('card-animating')).toBe(true)
     })
 
     it('should have transform translateZ for GPU acceleration', () => {
-      // Test that animation classes can be applied
       const gpuAcceleratedClasses = [
         'card-shake',
         'card-fade-out',
@@ -161,7 +147,6 @@ describe('CSS Animations', () => {
 
   describe('Reduced Motion Support', () => {
     it('should respect reduced motion preference', () => {
-      // Test that reduced motion classes can be applied
       const reducedMotionClasses = [
         'card-shake',
         'card-fade-out',
@@ -180,10 +165,8 @@ describe('CSS Animations', () => {
     })
 
     it('should handle reduced motion media query', () => {
-      // Test that animation classes work with reduced motion
       testElement.classList.add('card-shake')
       
-      // Simulate reduced motion preference
       const originalMatchMedia = window.matchMedia
       window.matchMedia = vi.fn().mockReturnValue({
         matches: true,
@@ -193,7 +176,6 @@ describe('CSS Animations', () => {
 
       expect(testElement.classList.contains('card-shake')).toBe(true)
       
-      // Restore original matchMedia
       window.matchMedia = originalMatchMedia
     })
   })

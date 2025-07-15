@@ -66,7 +66,6 @@ const mockPlayerCards = [
   }
 ]
 
-// Mock Game Interface for testing user interactions
 const MockGameInterface = ({ 
   isAIMode = false,
   initialPlayerTurn = true 
@@ -92,7 +91,6 @@ const MockGameInterface = ({
   const handleInsertionPointClick = (position) => {
     if (!selectedCard || !isPlayerTurn) return
     
-    // Simulate successful placement
     const newTimeline = [...timeline]
     newTimeline.splice(position, 0, selectedCard)
     setTimeline(newTimeline)
@@ -100,15 +98,12 @@ const MockGameInterface = ({
     setSelectedCard(null)
     setScore(prev => prev + 100)
 
-    // Switch turns in AI mode
     if (isAIMode) {
       setIsPlayerTurn(false)
-      // Simulate AI turn
       setTimeout(() => setIsPlayerTurn(true), 1000)
     }
 
-    // Check win condition
-    if (playerHand.length === 1) { // Will be 0 after this placement
+    if (playerHand.length === 1) {
       setGameStatus('won')
     }
   }
@@ -139,7 +134,6 @@ const MockGameInterface = ({
         )}
       </div>
 
-      {/* Always render victory message if gameStatus is 'won' */}
       {gameStatus === 'won' && (
         <div data-testid="victory-message">
           🎉 Congratulations! You won with a score of {score}!
@@ -178,12 +172,10 @@ describe('User Interactions', () => {
     it('should allow switching between card selections', () => {
       render(<MockGameInterface />)
       
-      // Select first card
       const firstCard = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(firstCard)
       expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
       
-      // Select second card
       const secondCard = screen.getByText('World War I Begins').closest('.player-card')
       fireEvent.click(secondCard)
       expect(screen.getByText('Selected: World War I Begins')).toBeInTheDocument()
@@ -195,11 +187,9 @@ describe('User Interactions', () => {
       
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       
-      // Select card
       fireEvent.click(card)
       expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
       
-      // Deselect card
       fireEvent.click(card)
       expect(screen.queryByText('Selected: Berlin Wall Falls')).not.toBeInTheDocument()
     })
@@ -209,10 +199,8 @@ describe('User Interactions', () => {
       
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       
-      // Hover over card
       fireEvent.mouseEnter(card)
       
-      // Card should still be present and clickable
       expect(card).toBeInTheDocument()
     })
   })
@@ -221,15 +209,12 @@ describe('User Interactions', () => {
     it('should show insertion point tooltips on hover', () => {
       render(<MockGameInterface />)
       
-      // Select a card first
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(card)
       
-      // Wait for insertion points to appear
       const insertionPoints = screen.getAllByTestId('insertion-point')
       expect(insertionPoints.length).toBeGreaterThan(0)
       
-      // Hover over insertion point
       const insertionPoint = insertionPoints[0]
       fireEvent.mouseEnter(insertionPoint)
       
@@ -258,7 +243,6 @@ describe('User Interactions', () => {
     it('should restart the game when restart button is clicked', () => {
       render(<MockGameInterface />)
       
-      // Place a card to change the game state
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       fireEvent.click(card)
       const insertionPoint = screen.getAllByTestId('insertion-point')[0]
@@ -266,13 +250,11 @@ describe('User Interactions', () => {
       
       expect(screen.getByTestId('game-status').textContent).toContain('Status: playing')
       
-      // Click restart
       const restartButton = screen.getByTestId('restart-btn')
       fireEvent.click(restartButton)
       
-      // Verify game is reset
       expect(screen.getByTestId('game-status').textContent).toContain('Score: 0')
-      expect(screen.getByText('Berlin Wall Falls')).toBeInTheDocument() // Card back in hand
+      expect(screen.getByText('Berlin Wall Falls')).toBeInTheDocument()
     })
   })
 
@@ -280,10 +262,8 @@ describe('User Interactions', () => {
     it('should show victory message after winning', async () => {
       render(<MockGameInterface />)
       
-      // Place all cards to win - use a more robust approach
       const cardWrappers = screen.getAllByTestId('player-card-wrapper')
       for (let i = 0; i < cardWrappers.length; i++) {
-        // Find the first available card by looking for any card text
         const cardTexts = ['Berlin Wall Falls', 'World War I Begins', 'First iPhone Released', 'COVID-19 Pandemic', 'Fall of the Soviet Union']
         let card = null
         for (const text of cardTexts) {
@@ -294,7 +274,7 @@ describe('User Interactions', () => {
           }
         }
         
-        if (!card) break // No more cards to place
+        if (!card) break
         
         fireEvent.click(card)
         const insertionPoint = screen.getAllByTestId('insertion-point')[0]
@@ -309,10 +289,8 @@ describe('User Interactions', () => {
     it('should disable further interactions after game completion', async () => {
       render(<MockGameInterface />)
       
-      // Place all cards to win - use a more robust approach
       const cardWrappers = screen.getAllByTestId('player-card-wrapper')
       for (let i = 0; i < cardWrappers.length; i++) {
-        // Find the first available card by looking for any card text
         const cardTexts = ['Berlin Wall Falls', 'World War I Begins', 'First iPhone Released', 'COVID-19 Pandemic', 'Fall of the Soviet Union']
         let card = null
         for (const text of cardTexts) {
@@ -323,7 +301,7 @@ describe('User Interactions', () => {
           }
         }
         
-        if (!card) break // No more cards to place
+        if (!card) break
         
         fireEvent.click(card)
         const insertionPoint = screen.getAllByTestId('insertion-point')[0]
@@ -334,9 +312,8 @@ describe('User Interactions', () => {
         expect(screen.getByTestId('victory-message')).toBeInTheDocument()
       })
       
-      // Try to interact with cards after game completion
       const remainingCards = screen.queryAllByTestId('player-card-wrapper')
-      expect(remainingCards).toHaveLength(0) // No cards left to interact with
+      expect(remainingCards).toHaveLength(0)
     })
   })
 
@@ -346,7 +323,6 @@ describe('User Interactions', () => {
       
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       
-      // Test keyboard interaction - use click instead of keyDown since that's what the component actually handles
       fireEvent.click(card)
       expect(screen.getByText('Selected: Berlin Wall Falls')).toBeInTheDocument()
     })
@@ -354,7 +330,6 @@ describe('User Interactions', () => {
     it('should provide proper ARIA labels and roles', () => {
       render(<MockGameInterface />)
       
-      // Check that key elements have proper accessibility attributes
       expect(screen.getByTestId('player-hand-container')).toBeInTheDocument()
       expect(screen.getByTestId('timeline-container')).toBeInTheDocument()
     })
@@ -366,21 +341,18 @@ describe('User Interactions', () => {
       
       const card = screen.getByText('Berlin Wall Falls').closest('.player-card')
       
-      // Rapidly click the card
       for (let i = 0; i < 10; i++) {
         fireEvent.click(card)
       }
       
-      // Should still be functional
       expect(card).toBeInTheDocument()
     })
 
     it('should handle clicking insertion points without selection gracefully', () => {
       render(<MockGameInterface />)
       
-      // Try to click insertion points without selecting a card
       const insertionPoints = screen.queryAllByTestId('insertion-point')
-      expect(insertionPoints.length).toBe(0) // No insertion points when no card is selected
+      expect(insertionPoints.length).toBe(0)
     })
   })
 })

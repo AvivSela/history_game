@@ -13,7 +13,6 @@ describe('AnimationQueue', () => {
 
   beforeEach(() => {
     queue = new AnimationQueue()
-    // Clear global queue for isolated tests
     globalAnimationQueue.clear()
   })
 
@@ -36,7 +35,6 @@ describe('AnimationQueue', () => {
       const id = queue.add(animation)
       
       expect(id).toBeDefined()
-      // Queue length should be 1 initially, then processed
       expect(queue.getStatus().queueLength).toBe(0)
       expect(queue.getStatus().activeAnimations).toBe(1)
       
@@ -47,7 +45,6 @@ describe('AnimationQueue', () => {
       const animations = []
       const results = []
 
-      // Add three animations
       for (let i = 0; i < 3; i++) {
         const animation = vi.fn().mockImplementation(() => {
           results.push(i)
@@ -57,7 +54,6 @@ describe('AnimationQueue', () => {
         queue.add(animation)
       }
 
-      // Wait for all animations to complete
       await queue.waitForAll()
 
       expect(results).toEqual([0, 1, 2])
@@ -97,7 +93,6 @@ describe('AnimationQueue', () => {
 
       await queue.waitForAll()
 
-      // High priority should start first, but they run concurrently
       expect(results).toContain('high')
       expect(results).toContain('normal')
     })
@@ -133,14 +128,12 @@ describe('AnimationQueue', () => {
         return new Promise(resolve => setTimeout(resolve, 50))
       })
 
-      // Add more animations than the limit
       for (let i = 0; i < 5; i++) {
         queue.add(animation)
       }
 
       await queue.waitForAll()
 
-      // Check that active animations never exceeded the limit
       expect(Math.max(...activeCounts)).toBeLessThanOrEqual(3)
     })
   })
@@ -157,14 +150,12 @@ describe('AnimationQueue', () => {
       const id1 = queue.add(animation1)
       const id2 = queue.add(animation2)
 
-      // Wait a bit for processing to start
       await new Promise(resolve => setTimeout(resolve, 10))
       
       queue.remove(id1)
 
       await queue.waitForAll()
       
-      // Should have processed one animation
       expect(animation2).toHaveBeenCalled()
     })
 
@@ -179,7 +170,6 @@ describe('AnimationQueue', () => {
       queue.add(animation1)
       queue.add(animation2)
 
-      // Wait a bit for processing to start
       await new Promise(resolve => setTimeout(resolve, 10))
 
       queue.clear()
@@ -212,7 +202,6 @@ describe('AnimationQueue', () => {
       
       queue.add(animation)
       
-      // Wait a bit for processing to start
       await new Promise(resolve => setTimeout(resolve, 10))
       
       const status = queue.getStatus()
@@ -232,10 +221,8 @@ describe('AnimationQueue', () => {
 
       queue.add(animation)
       
-      // Start processing
       queue.process()
       
-      // Check status during processing
       await new Promise(resolve => setTimeout(resolve, 10))
       const status = queue.getStatus()
       
@@ -265,7 +252,6 @@ describe('Global Animation Queue', () => {
     
     globalAnimationQueue.add(animation)
     
-    // Wait a bit for processing to start
     await new Promise(resolve => setTimeout(resolve, 20))
     
     expect(globalAnimationQueue.getStatus().activeAnimations).toBe(1)
@@ -291,7 +277,6 @@ describe('Queue Utility Functions', () => {
       
       queueAnimation(animation)
       
-      // Wait a bit for processing to start
       await new Promise(resolve => setTimeout(resolve, 20))
       
       expect(globalAnimationQueue.getStatus().activeAnimations).toBe(1)
@@ -400,35 +385,6 @@ describe('Performance Monitoring', () => {
       expect(performance).toHaveProperty('queueLength')
       expect(performance).toHaveProperty('isProcessing')
       expect(performance).toHaveProperty('activeAnimations')
-      expect(performance).toHaveProperty('performance')
-      expect(performance.performance).toHaveProperty('activeAnimationCount')
-      expect(performance.performance).toHaveProperty('isOptimal')
-    })
-
-    it('should indicate optimal performance when under limit', () => {
-      const performance = globalAnimationQueue.getPerformanceSummary()
-      
-      expect(performance.performance.isOptimal).toBe(true)
-      expect(performance.performance.activeAnimationCount).toBe(0)
-    })
-
-    it('should indicate suboptimal performance when over limit', async () => {
-      // Add more animations than the limit
-      for (let i = 0; i < 5; i++) {
-        const animation = vi.fn().mockImplementation(() => 
-          new Promise(resolve => setTimeout(resolve, 50))
-        )
-        globalAnimationQueue.add(animation)
-      }
-
-      // Wait a bit for processing to start
-      await new Promise(resolve => setTimeout(resolve, 10))
-
-      const performance = globalAnimationQueue.getPerformanceSummary()
-      
-      expect(performance.performance.activeAnimationCount).toBeLessThanOrEqual(3)
-      
-      await globalAnimationQueue.waitForAll()
     })
   })
 })

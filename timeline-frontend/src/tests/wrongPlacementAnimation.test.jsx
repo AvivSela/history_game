@@ -37,7 +37,7 @@ describe('Wrong Placement Animation', () => {
 
     const handleWrongPlacement = () => {
       if (timelineRef.current) {
-        timelineRef.current.animateWrongPlacement(1); // Wrong position
+        timelineRef.current.animateWrongPlacement(1);
       }
     };
 
@@ -62,13 +62,11 @@ describe('Wrong Placement Animation', () => {
     const triggerButton = screen.getByTestId('trigger-wrong-placement');
     fireEvent.click(triggerButton);
     
-    // The indicator should appear briefly
     await waitFor(() => {
       const indicator = screen.getByText('❌');
       expect(indicator).toBeInTheDocument();
     });
     
-    // After 1 second, it should disappear
     await waitFor(() => {
       expect(screen.queryByText('❌')).not.toBeInTheDocument();
     }, { timeout: 2000 });
@@ -80,7 +78,6 @@ describe('Wrong Placement Animation', () => {
     const timelineContainer = screen.getByTestId('timeline-container');
     expect(timelineContainer).toBeInTheDocument();
     
-    // Check that the timeline element can receive animation classes
     const timelineContent = screen.getByTestId('timeline-content');
     expect(timelineContent).toBeInTheDocument();
   });
@@ -89,11 +86,9 @@ describe('Wrong Placement Animation', () => {
     render(<MockGameComponent />);
     const triggerButton = screen.getByTestId('trigger-wrong-placement');
     fireEvent.click(triggerButton);
-    // Wait for the animation class to be added
+    
     await waitFor(() => {
       const timelineContent = screen.getByTestId('timeline-content');
-      // The class may be added to the timeline element or its children
-      // Check for the class existence
       const hasClass = Array.from(timelineContent.classList).some(cls => cls.includes('wrong-placement'));
       expect(hasClass).toBe(true);
     });

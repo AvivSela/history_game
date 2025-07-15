@@ -1,18 +1,13 @@
 /**
  * Test Setup Utilities
  * 
- * Provides common mock setup, cleanup, and utility functions
- * to make tests more robust and maintainable.
+ * Common mock setup, cleanup, and utility functions for tests.
  */
 
 import { vi } from 'vitest';
 import { apiMock } from '../__mocks__/api.js';
 
-/**
- * Setup common mocks for all tests
- */
 export const setupCommonMocks = () => {
-  // Mock API module with proper structure
   vi.mock('../utils/api', () => ({
     gameAPI: apiMock.gameAPI,
     extractData: apiMock.extractData,
@@ -20,13 +15,11 @@ export const setupCommonMocks = () => {
     default: apiMock.default
   }));
 
-  // Mock game constants
   vi.mock('../constants/gameConstants', () => {
     const constants = require('../__mocks__/gameConstants.js');
     return constants;
   });
 
-  // Mock state persistence
   vi.mock('../utils/statePersistence', () => ({
     saveGameStateToStorage: vi.fn().mockReturnValue(true),
     loadGameStateFromStorage: vi.fn().mockReturnValue(null),
@@ -36,7 +29,6 @@ export const setupCommonMocks = () => {
     resetStorageCache: vi.fn()
   }));
 
-  // Mock AI logic
   vi.mock('../utils/aiLogic', () => ({
     createAIOpponent: vi.fn(() => ({ name: 'Test AI', difficulty: 'medium' })),
     makeAIMove: vi.fn(),
@@ -44,17 +36,11 @@ export const setupCommonMocks = () => {
   }));
 };
 
-/**
- * Reset all mocks to their default state
- */
 export const resetAllMocks = () => {
   vi.clearAllMocks();
   apiMock.reset();
 };
 
-/**
- * Create a mock game state for testing
- */
 export const createMockGameState = (overrides = {}) => {
   const defaultState = {
     timeline: [
@@ -83,9 +69,6 @@ export const createMockGameState = (overrides = {}) => {
   return { ...defaultState, ...overrides };
 };
 
-/**
- * Create mock events for testing
- */
 export const createMockEvents = (count = 5) => {
   const events = [];
   for (let i = 0; i < count; i++) {
@@ -100,27 +83,18 @@ export const createMockEvents = (count = 5) => {
   return events;
 };
 
-/**
- * Setup API responses for specific test scenarios
- */
 export const setupAPIResponses = (responses = {}) => {
   Object.entries(responses).forEach(([method, response]) => {
     apiMock.setResponse(method, response);
   });
 };
 
-/**
- * Setup API errors for testing error scenarios
- */
 export const setupAPIErrors = (errors = {}) => {
   Object.entries(errors).forEach(([method, error]) => {
     apiMock.setError(method, error);
   });
 };
 
-/**
- * Wait for async operations to complete
- */
 export const waitForAsync = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
@@ -147,10 +121,8 @@ export const mockConsole = () => {
  * Call this in afterEach to ensure clean test state
  */
 export const cleanupTimeouts = () => {
-  // Clear all pending timeouts
   vi.clearAllTimers();
   
-  // Wait for any pending state updates
   return new Promise(resolve => setTimeout(resolve, 0));
 };
 
@@ -203,7 +175,7 @@ export const runOptimizedTest = async (result, testFn, options = {}) => {
   while (iterations < maxIterations && (Date.now() - startTime) < timeout) {
     try {
       await testFn(result);
-      return; // Success
+      return;
     } catch (error) {
       iterations++;
       if (iterations >= maxIterations) {
