@@ -104,7 +104,6 @@ describe('useGameState - State Persistence Integration', () => {
       const allCardIds = [
         ...state.timeline.map(card => card.id),
         ...state.playerHand.map(card => card.id),
-        ...state.aiHand.map(card => card.id),
         ...state.cardPool.map(card => card.id)
       ];
 

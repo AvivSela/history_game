@@ -129,13 +129,11 @@ describe('Game State Management', () => {
       await initializeGameForTesting(result, 'single', 'medium');
 
       // Test initial state structure
-      expect(result.current.state.currentPlayer).toBe(PLAYER_TYPES.HUMAN);
       expect(result.current.state.selectedCard).toBeNull();
       expect(result.current.state.showInsertionPoints).toBe(false);
       expect(result.current.state.feedback).toBeNull();
       expect(result.current.state.isLoading).toBe(false);
       expect(result.current.state.score.human).toBe(0);
-      expect(result.current.state.score.ai).toBe(0);
       expect(result.current.state.startTime).toBeTruthy();
     });
   });

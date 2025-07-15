@@ -10,7 +10,7 @@ import {
 } from '../utils/timelineLogic';
 import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC, CARD_COUNTS, POOL_CARD_COUNT } from '../constants/gameConstants';
 import { gameAPI, extractData, handleAPIError } from '@utils/api.js';
-import { createAIOpponent } from '@utils/aiLogic.js';
+
 import { 
   saveGameStateToStorage, 
   loadGameStateFromStorage, 
@@ -29,7 +29,7 @@ import {
  * Key features:
  * - Game session initialization and management
  * - Card selection and placement logic
- * - Turn-based gameplay with AI opponent support
+ * - Single-player gameplay
  * - Score calculation and game statistics tracking
  * - Win condition validation and game state transitions
  * - Error handling and loading states
@@ -65,20 +65,18 @@ import {
  * @returns {Function} returns.pauseGame - Pause/unpause game
  * @returns {Function} returns.getGameStats - Get current game statistics
  * @returns {Function} returns.getNewCardFromPool - Get replacement card from pool
- * @returns {Function} returns.executeAITurn - Execute AI turn logic
+
  */
 export const useGameState = () => {
   const [state, setState] = useState({
     // Core game data
     timeline: [],
     playerHand: [],
-    aiHand: [],
     cardPool: [], // Added: Card pool for replacement cards
     
     // Game status
     gameStatus: GAME_STATUS.LOBBY,
-    currentPlayer: PLAYER_TYPES.HUMAN,
-    gameMode: 'single', // 'single', 'ai', 'multiplayer'
+    gameMode: 'single', // 'single' only
     difficulty: 'medium', // 'easy', 'medium', 'hard'
     
     // UI state
@@ -89,7 +87,7 @@ export const useGameState = () => {
     error: null,
     
     // Game metrics
-    score: { human: 0, ai: 0 },
+    score: { human: 0 },
     attempts: {},
     startTime: null,
     turnStartTime: null,
@@ -104,10 +102,7 @@ export const useGameState = () => {
     insertionPoints: [],
     timelineAnalysis: null,
     turnHistory: [],
-    achievements: [],
-    
-    // AI
-    aiOpponent: null // Added: AI opponent
+    achievements: []
   });
 
   const gameSessionRef = useRef(null);
@@ -147,10 +142,8 @@ export const useGameState = () => {
   }, [
     state.timeline,
     state.playerHand,
-    state.aiHand,
     state.cardPool,
     state.gameStatus,
-    state.currentPlayer,
     state.gameMode,
     state.difficulty,
     state.score,
@@ -161,7 +154,6 @@ export const useGameState = () => {
     state.timelineAnalysis,
     state.turnHistory,
     state.achievements,
-    state.aiOpponent,
     state.selectedCard
   ]);
 
@@ -178,14 +170,8 @@ export const useGameState = () => {
         gameStatus: GAME_STATUS.LOADING
       }));
       
-      // Create AI opponent if needed
-      let aiOpponent = null;
-      if (mode === 'ai') {
-        aiOpponent = createAIOpponent(diff);
-      }
-      
       // Fetch events from API
-      const cardCount = mode === 'ai' ? CARD_COUNTS.AI : CARD_COUNTS.SINGLE;
+      const cardCount = CARD_COUNTS.SINGLE;
       const response = await gameAPI.getRandomEvents(cardCount);
       const events = extractData(response);
       
@@ -202,28 +188,18 @@ export const useGameState = () => {
 
       gameSessionRef.current = session;
 
-      // Split cards between human and AI if needed
-      let humanCards = session.playerHand;
-      let aiCards = [];
-      
-      if (mode === 'ai' && session.playerHand.length > 2) {
-        const half = Math.ceil(session.playerHand.length / 2);
-        humanCards = session.playerHand.slice(0, half);
-        aiCards = session.playerHand.slice(half);
-      }
+      // All cards go to human player
+      const humanCards = session.playerHand;
 
       setState(prev => ({
         ...prev,
         timeline: session.timeline,
         playerHand: humanCards,
-        aiHand: aiCards,
         cardPool: poolEvents, // Added: Card pool
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: mode,
         difficulty: diff,
-        aiOpponent, // Added: AI opponent
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         startTime: session.startTime,
         turnStartTime: Date.now(),
         attempts: {},
@@ -246,8 +222,7 @@ export const useGameState = () => {
       // Debug: Check for duplicate IDs
       const allCardIds = [
         ...session.timeline.map(card => card.id),
-        ...humanCards.map(card => card.id),
-        ...aiCards.map(card => card.id)
+        ...humanCards.map(card => card.id)
       ];
       const uniqueIds = new Set(allCardIds);
       if (allCardIds.length !== uniqueIds.size) {
@@ -271,175 +246,7 @@ export const useGameState = () => {
     }
   }, []);
 
-  // AI turn execution - defined before placeCard to avoid circular dependency
-  const executeAITurn = useCallback(() => {
-    if (state.currentPlayer !== 'ai' || state.aiHand.length === 0) {
-      return;
-    }
 
-    // Simple AI strategy: pick a random card and try to place it correctly
-    const availableCards = state.aiHand;
-    const selectedCard = availableCards[Math.floor(Math.random() * availableCards.length)];
-    
-    // AI calculates the correct position
-    const validation = validatePlacementWithTolerance(selectedCard, state.timeline, 0);
-    const aiPosition = validation.correctPosition;
-    
-    // Add some randomness to AI placement based on difficulty
-    let finalPosition = aiPosition;
-    if (state.difficulty === 'easy') {
-      // AI makes more mistakes on easy (to help player feel better)
-      if (Math.random() < 0.3) {
-        finalPosition += Math.random() < 0.5 ? -1 : 1;
-      }
-    } else if (state.difficulty === 'hard') {
-      // AI is more accurate on hard
-      // AI chooses correct position 90% of the time
-      if (Math.random() > 0.9) {
-        finalPosition += Math.random() < 0.5 ? -1 : 1;
-      }
-    }
-
-    finalPosition = Math.max(0, Math.min(state.timeline.length, finalPosition));
-
-    // Temporarily set selected card for AI
-    setState(prev => ({ ...prev, selectedCard }));
-    
-    // Execute AI placement after a short delay
-    setTimeout(() => {
-      // Instead of calling placeCard, we'll implement the AI logic directly here
-      // This avoids the circular dependency issue
-      const aiSelectedCard = selectedCard;
-      const aiPosition = finalPosition;
-      const aiPlayer = 'ai';
-      
-      // Validate the AI's placement
-      const aiValidation = validatePlacementWithTolerance(
-        aiSelectedCard, 
-        state.timeline, 
-        aiPosition
-      );
-
-      const aiTurnTime = (Date.now() - state.turnStartTime) / GAME_LOGIC.SECONDS_TO_MILLISECONDS;
-      const aiCardAttempts = (state.attempts[aiSelectedCard.id] || 0) + 1;
-
-      // Record AI turn in history
-      const aiTurnRecord = {
-        id: `turn_${Date.now()}`,
-        player: aiPlayer,
-        card: aiSelectedCard,
-        position: aiPosition,
-        validation: aiValidation,
-        turnTime: aiTurnTime,
-        attempts: aiCardAttempts,
-        timestamp: Date.now()
-      };
-
-      if (aiValidation.isCorrect) {
-        // AI successful placement
-        const aiScoreEarned = Math.round(
-          calculateScore(true, aiTurnTime, aiCardAttempts, aiSelectedCard.difficulty)
-        );
-
-        // Add card to timeline at AI's chosen position
-        const newTimeline = [...state.timeline];
-        newTimeline.splice(aiPosition, 0, {
-          ...aiSelectedCard,
-          isRevealed: true,
-          placedAt: Date.now(),
-          placedBy: aiPlayer
-        });
-
-        // Remove card from AI's hand
-        const newAiHand = state.aiHand.filter(card => card.id !== aiSelectedCard.id);
-
-        // Update scores
-        const newScore = { ...state.score };
-        newScore[aiPlayer] += aiScoreEarned;
-
-        // Check win condition
-        const hasWon = checkWinCondition(newAiHand);
-        let newGameStatus = state.gameStatus;
-        
-        if (hasWon) {
-          if (state.gameMode === 'ai') {
-            const humanHandEmpty = state.playerHand.length === 0;
-            if (humanHandEmpty || newAiHand.length === 0) {
-              newGameStatus = 'won';
-            }
-          } else {
-            newGameStatus = 'won';
-          }
-        }
-
-        // Switch back to human player
-        const nextPlayer = newGameStatus === 'playing' ? 'human' : state.currentPlayer;
-
-        setState(prev => ({
-          ...prev,
-          timeline: newTimeline,
-          aiHand: newAiHand,
-          score: newScore,
-          selectedCard: null,
-          showInsertionPoints: false,
-          insertionPoints: [],
-          currentPlayer: nextPlayer,
-          turnStartTime: Date.now(),
-          gameStatus: newGameStatus,
-          attempts: { ...prev.attempts, [aiSelectedCard.id]: aiCardAttempts },
-          turnHistory: [...prev.turnHistory, aiTurnRecord],
-          gameStats: {
-            ...prev.gameStats,
-            totalMoves: prev.gameStats.totalMoves + 1,
-            correctMoves: prev.gameStats.correctMoves + 1,
-            averageTimePerMove: calculateAverageTime(prev.gameStats, aiTurnTime)
-          },
-          feedback: {
-            type: 'success',
-            message: `AI placed ${aiSelectedCard.title} correctly!`,
-            points: aiScoreEarned,
-            isClose: false
-          },
-          timelineAnalysis: null
-        }));
-
-        // Clear AI feedback after delay
-        setTimeout(() => {
-          setState(prev => ({ ...prev, feedback: null }));
-        }, 3000);
-
-      } else {
-        // AI incorrect placement
-        setState(prev => ({
-          ...prev,
-          selectedCard: null,
-          showInsertionPoints: false,
-          insertionPoints: [],
-          attempts: { ...prev.attempts, [aiSelectedCard.id]: aiCardAttempts },
-          turnHistory: [...prev.turnHistory, aiTurnRecord],
-          gameStats: {
-            ...prev.gameStats,
-            totalMoves: prev.gameStats.totalMoves + 1,
-            averageTimePerMove: calculateAverageTime(prev.gameStats, aiTurnTime)
-          },
-          feedback: {
-            type: 'error',
-            message: `AI placed ${aiSelectedCard.title} incorrectly!`,
-            correctPosition: aiValidation.correctPosition,
-            attempts: aiCardAttempts
-          },
-          currentPlayer: 'human',
-          turnStartTime: Date.now()
-        }));
-
-        // Clear AI feedback after delay
-        setTimeout(() => {
-          setState(prev => ({ ...prev, feedback: null }));
-        }, 4000);
-      }
-    }, 500);
-
-  }, [state.currentPlayer, state.aiHand, state.timeline, state.difficulty]);
 
   // Clear saved game state
   const clearSavedGame = useCallback(() => {
@@ -464,15 +271,13 @@ export const useGameState = () => {
         // Clear all game data
         timeline: [],
         playerHand: [],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'lobby',
-        currentPlayer: 'human',
         selectedCard: null,
         showInsertionPoints: false,
         feedback: null,
         error: null,
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         attempts: {},
         startTime: null,
         turnStartTime: null,
@@ -485,8 +290,7 @@ export const useGameState = () => {
         insertionPoints: [],
         timelineAnalysis: null,
         turnHistory: [],
-        achievements: [],
-        aiOpponent: null
+        achievements: []
       };
     });
   }, []);
@@ -494,7 +298,7 @@ export const useGameState = () => {
   // Select a card
   const selectCard = useCallback((card) => {
     
-    if (state.gameStatus !== 'playing' || state.currentPlayer !== 'human') {
+    if (state.gameStatus !== 'playing') {
       return;
     }
 
@@ -508,7 +312,7 @@ export const useGameState = () => {
       insertionPoints,
       feedback: null
     }));
-  }, [state.gameStatus, state.currentPlayer, state.timeline]);
+  }, [state.gameStatus, state.timeline]);
 
   // Get new card from pool - Consolidated from GameControls
   const getNewCardFromPool = useCallback(async (currentGameState) => {
@@ -716,24 +520,17 @@ export const useGameState = () => {
     restartGame,
     togglePause,
     getNewCardFromPool,
-    executeAITurn,
     clearSavedGame,
     
     // Persistence
     hasSavedGame: () => hasSavedGameState(),
     
     // Computed values
-    isPlayerTurn: state.currentPlayer === 'human',
-    canSelectCard: state.gameStatus === 'playing' && state.currentPlayer === 'human',
+    isPlayerTurn: true, // Always player's turn in single-player mode
+    canSelectCard: state.gameStatus === 'playing',
     canPlaceCard: state.selectedCard && state.gameStatus === 'playing',
     gameProgress: {
-      human: state.gameMode === 'ai' ? 
-        (state.aiHand.length + state.playerHand.length > 0 ? 
-          (1 - state.playerHand.length / (state.aiHand.length + state.playerHand.length)) : 1) :
-        (state.playerHand.length === 0 ? 1 : (4 - state.playerHand.length) / 4),
-      ai: state.gameMode === 'ai' ? 
-        (state.aiHand.length + state.playerHand.length > 0 ? 
-          (1 - state.aiHand.length / (state.aiHand.length + state.playerHand.length)) : 1) : 0
+      human: state.playerHand.length === 0 ? 1 : (4 - state.playerHand.length) / 4
     }
   };
 };

@@ -29,11 +29,7 @@ export const setupCommonMocks = () => {
     resetStorageCache: vi.fn()
   }));
 
-  vi.mock('../utils/aiLogic', () => ({
-    createAIOpponent: vi.fn(() => ({ name: 'Test AI', difficulty: 'medium' })),
-    makeAIMove: vi.fn(),
-    calculateAIDifficulty: vi.fn()
-  }));
+
 };
 
 export const resetAllMocks = () => {
@@ -50,17 +46,13 @@ export const createMockGameState = (overrides = {}) => {
       { id: 'player-1', title: 'Player Event 1', dateOccurred: '1960-01-01', category: 'History' },
       { id: 'player-2', title: 'Player Event 2', dateOccurred: '1970-01-01', category: 'History' }
     ],
-    aiHand: [
-      { id: 'ai-1', title: 'AI Event 1', dateOccurred: '1980-01-01', category: 'History' }
-    ],
     cardPool: [
       { id: 'pool-1', title: 'Pool Event 1', dateOccurred: '1990-01-01', category: 'History' }
     ],
     gameStatus: 'playing',
-    currentPlayer: 'human',
     gameMode: 'single',
     difficulty: 'medium',
-    score: 0,
+    score: { human: 0 },
     moves: 0,
     startTime: Date.now(),
     lastMoveTime: Date.now()

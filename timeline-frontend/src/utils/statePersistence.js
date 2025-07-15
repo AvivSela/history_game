@@ -118,12 +118,10 @@ export const saveGameStateToStorage = (state) => {
       // Core game data
       timeline: state.timeline,
       playerHand: state.playerHand,
-      aiHand: state.aiHand,
       cardPool: state.cardPool,
       
       // Game status
       gameStatus: state.gameStatus,
-      currentPlayer: state.currentPlayer,
       gameMode: state.gameMode,
       difficulty: state.difficulty,
       
@@ -139,8 +137,6 @@ export const saveGameStateToStorage = (state) => {
       turnHistory: state.turnHistory,
       achievements: state.achievements,
       
-      // AI
-      aiOpponent: state.aiOpponent,
       selectedCard: state.selectedCard
     };
 
@@ -192,7 +188,7 @@ export const loadGameStateFromStorage = () => {
     }
 
     // Validate required fields
-    const requiredFields = ['timeline', 'playerHand', 'gameStatus', 'currentPlayer'];
+    const requiredFields = ['timeline', 'playerHand', 'gameStatus'];
     for (const field of requiredFields) {
       if (!(field in loadedState)) {
         console.warn(`Missing required field: ${field}`);

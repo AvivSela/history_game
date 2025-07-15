@@ -21,24 +21,21 @@
  * @typedef {Object} GameState
  * @property {Card[]} timeline - Cards placed on the timeline
  * @property {Card[]} playerHand - Cards in player's hand
- * @property {Card[]} aiHand - Cards in AI's hand
  * @property {Card[]} cardPool - Additional cards for replacement
  * @property {string} gameStatus - Current game status
- * @property {string} currentPlayer - Current player ('human' or 'ai')
- * @property {string} gameMode - Game mode ('single' or 'ai')
+ * @property {string} gameMode - Game mode ('single')
  * @property {string} difficulty - Game difficulty
  * @property {Card|null} selectedCard - Currently selected card
  * @property {boolean} showInsertionPoints - Whether to show insertion points
  * @property {Object|null} feedback - Current feedback message
  * @property {boolean} isLoading - Loading state
  * @property {string|null} error - Error message
- * @property {Object} score - Player scores
+ * @property {Object} score - Player score
  * @property {Object} attempts - Attempt counts per card
  * @property {number} startTime - Game start timestamp
  * @property {number} turnStartTime - Turn start timestamp
  * @property {Object} gameStats - Game statistics
  * @property {Array} insertionPoints - Available insertion points
- * @property {Object|null} aiOpponent - AI opponent data
  */
 
 /**
@@ -52,7 +49,6 @@
 /**
  * @typedef {Object} Score
  * @property {number} human - Human player score
- * @property {number} ai - AI player score
  */
 
 /**
@@ -63,12 +59,7 @@
  * @property {number} [attempts] - Number of attempts
  */
 
-/**
- * @typedef {Object} AIOpponent
- * @property {string} name - AI opponent name
- * @property {string} difficulty - AI difficulty level
- * @property {Object} personality - AI personality traits
- */
+
 
 /**
  * @typedef {Object} InsertionPoint
@@ -100,7 +91,6 @@ export const GAME_TYPES = {
   GameStats: 'GameStats',
   Score: 'Score',
   Feedback: 'Feedback',
-  AIOpponent: 'AIOpponent',
   InsertionPoint: 'InsertionPoint',
   GameSession: 'GameSession',
   ValidationResult: 'ValidationResult'

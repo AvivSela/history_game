@@ -170,10 +170,8 @@ describe('State Persistence', () => {
       expect(savedState.version).toBe('1.0.0');
       expect(savedState.timeline).toEqual(mockGameState.timeline);
       expect(savedState.playerHand).toEqual(mockGameState.playerHand);
-      expect(savedState.aiHand).toEqual(mockGameState.aiHand);
       expect(savedState.cardPool).toEqual(mockGameState.cardPool);
       expect(savedState.gameStatus).toBe('playing');
-      expect(savedState.currentPlayer).toBe('human');
       
       // UI-only state should not be persisted
       expect(savedState.showInsertionPoints).toBeUndefined();
@@ -247,10 +245,8 @@ describe('State Persistence', () => {
       expect(loadedState).not.toBeNull();
       expect(loadedState.timeline).toEqual(mockGameState.timeline);
       expect(loadedState.playerHand).toEqual(mockGameState.playerHand);
-      expect(loadedState.aiHand).toEqual(mockGameState.aiHand);
       expect(loadedState.cardPool).toEqual(mockGameState.cardPool);
       expect(loadedState.gameStatus).toBe('playing');
-      expect(loadedState.currentPlayer).toBe('human');
     });
 
     it('should return null when no saved state exists', () => {

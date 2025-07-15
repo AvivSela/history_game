@@ -16,13 +16,11 @@ export const GAME_STATUS = {
 };
 
 export const PLAYER_TYPES = {
-  HUMAN: 'human',
-  AI: 'ai'
+  HUMAN: 'human'
 };
 
 export const CARD_COUNTS = {
-  SINGLE: 5,
-  AI: 8
+  SINGLE: 5
 };
 
 export const POOL_CARD_COUNT = 10;

@@ -1,10 +1,8 @@
 import React, { memo } from 'react';
 import Timeline from '../../game/Timeline';
 import PlayerHand from '../../game/PlayerHand';
-import AIHand from '../../game/AIHand';
 import GameHeader from '../GameHeader';
 import GameStatus from '../GameStatus';
-import TurnIndicator from '../TurnIndicator';
 
 /**
  * GameBoard - Main game interface component that orchestrates the timeline game layout
@@ -32,12 +30,10 @@ import TurnIndicator from '../TurnIndicator';
  * 
  * @param {Object} props - Component props
  * @param {Object} props.gameState - Current game state object containing all game data
- * @param {string} props.gameState.currentPlayer - Current player ('human' or 'ai')
- * @param {string} props.gameState.gameMode - Game mode ('ai' or 'local')
+ * @param {string} props.gameState.gameMode - Game mode ('single')
  * @param {string} props.gameState.gameStatus - Current game status ('playing', 'paused', 'won', 'lost')
  * @param {Array} props.gameState.timeline - Array of events currently on the timeline
  * @param {Array} props.gameState.playerHand - Array of cards in player's hand
- * @param {Array} props.gameState.aiHand - Array of cards in AI's hand
  * @param {Object|null} props.gameState.selectedCard - Currently selected card object
  * @param {boolean} props.gameState.showInsertionPoints - Whether to show insertion points on timeline
  * @param {Function} props.onCardSelect - Callback when a card is selected from player hand
@@ -62,7 +58,7 @@ const GameBoard = memo(({
   playerHandRef,
   timelineRef
 }) => {
-  const isPlayerTurn = gameState.currentPlayer === 'human';
+  const isPlayerTurn = true; // Always player's turn in single-player mode
 
   return (
     <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none" style={{ overflow: 'visible' }}>
@@ -80,10 +76,7 @@ const GameBoard = memo(({
         onTogglePause={onTogglePause}
       />
 
-      {/* Turn Indicator */}
-      {gameState.gameMode === 'ai' && gameState.gameStatus === 'playing' && (
-        <TurnIndicator isPlayerTurn={isPlayerTurn} />
-      )}
+
 
       {/* Game Board */}
       <div className="flex flex-col lg:flex-row gap-8" style={{ overflow: 'visible' }}>
@@ -107,11 +100,8 @@ const GameBoard = memo(({
             onCardPlay={onCardPlay}
             isPlayerTurn={isPlayerTurn}
             playerName="Player 1"
-            maxCards={gameState.playerHand.length + (gameState.timeline.length - 1) + (gameState.aiHand?.length || 0)}
+            maxCards={gameState.playerHand.length + (gameState.timeline.length - 1)}
           />
-          
-          {/* AI Hand */}
-          {gameState.gameMode === 'ai' && <AIHand aiHand={gameState.aiHand} />}
         </div>
       </div>
     </div>

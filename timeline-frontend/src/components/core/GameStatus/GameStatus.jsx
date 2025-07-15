@@ -21,9 +21,8 @@ import React, { memo } from 'react';
  * @param {Object} props - Component props
  * @param {Object} props.gameState - Current game state object
  * @param {string} props.gameState.gameStatus - Current game status ('playing', 'won', 'lost', 'paused')
- * @param {Object} props.gameState.score - Current scores for both players
+ * @param {Object} props.gameState.score - Current score
  * @param {number} props.gameState.score.human - Human player's score
- * @param {number} props.gameState.score.ai - AI player's score
  * @param {Object} props.gameState.gameStats - Game statistics
  * @param {number} props.gameState.gameStats.totalMoves - Total number of moves made
  * @param {number} props.gameState.gameStats.correctMoves - Number of correct moves
@@ -47,12 +46,7 @@ const GameStatus = memo(({ gameState, onRestartGame, onTogglePause }) => {
           title: '🎉 Congratulations!',
           message: `You've successfully placed all cards in chronological order!\n\nFinal Score: ${gameState.score.human} points\nTotal Moves: ${gameState.gameStats.totalMoves}\nCorrect Moves: ${gameState.gameStats.correctMoves}\nAverage Time: ${gameState.gameStats.averageTimePerMove.toFixed(1)}s per move`
         };
-      case 'lost':
-        return {
-          type: 'error',
-          title: '😔 Game Over',
-          message: `The AI has won this round!\n\nYour Score: ${gameState.score.human} points\nAI Score: ${gameState.score.ai} points\n\nBetter luck next time!`
-        };
+
       case 'paused':
         return {
           type: 'info',

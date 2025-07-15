@@ -10,7 +10,7 @@ import { GAME_STATUS, PLAYER_TYPES, CARD_COUNTS, POOL_CARD_COUNT } from '../__mo
 
 /**
  * Initialize a game state for testing
- * @param {string} mode - Game mode ('single', 'ai', 'multiplayer')
+ * @param {string} mode - Game mode ('single')
  * @param {string} difficulty - Game difficulty ('easy', 'medium', 'hard')
  * @param {Object} result - Hook result from renderHook
  * @returns {Promise<void>}
@@ -95,7 +95,7 @@ export const completeGameForTesting = async (result) => {
  * @returns {Object} Expected card counts
  */
 export const getExpectedCardCounts = (mode = 'single') => {
-  const baseCount = mode === 'ai' ? CARD_COUNTS.AI : CARD_COUNTS.SINGLE;
+  const baseCount = CARD_COUNTS.SINGLE;
   
   return {
     timeline: 1, // Always starts with 1 card
@@ -139,7 +139,6 @@ export const validateGameStateStructure = (state, mode = 'single') => {
 
   // Validate core properties
   expect(state).toHaveProperty('gameStatus');
-  expect(state).toHaveProperty('currentPlayer');
   expect(state).toHaveProperty('gameMode');
   expect(state).toHaveProperty('difficulty');
   expect(state).toHaveProperty('selectedCard');
@@ -210,7 +209,6 @@ export const createTestScenario = (overrides = {}) => {
       { id: 'pool-1', title: 'Pool Event 1', dateOccurred: '1990-01-01', category: 'History' }
     ],
     gameStatus: GAME_STATUS.PLAYING,
-    currentPlayer: PLAYER_TYPES.HUMAN,
     gameMode: 'single',
     difficulty: 'medium',
     selectedCard: null,
@@ -218,7 +216,7 @@ export const createTestScenario = (overrides = {}) => {
     feedback: null,
     isLoading: false,
     error: null,
-    score: { human: 0, ai: 0 },
+    score: { human: 0 },
     attempts: {},
     startTime: Date.now(),
     turnStartTime: Date.now()
@@ -285,7 +283,6 @@ export const assertValidPlayingState = (state) => {
   expect(state.gameStatus).toBe(GAME_STATUS.PLAYING);
   expect(state.isLoading).toBe(false);
   expect(state.error).toBeNull();
-  expect(state.currentPlayer).toBe(PLAYER_TYPES.HUMAN);
   expect(state.playerHand.length).toBeGreaterThan(0);
   expect(state.timeline.length).toBeGreaterThan(0);
 };

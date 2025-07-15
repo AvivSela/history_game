@@ -20,12 +20,9 @@ import React, { memo } from 'react';
  * 
  * @param {Object} props - Component props
  * @param {Object} props.gameState - Current game state object
- * @param {string} props.gameState.gameMode - Game mode ('ai' or 'local')
- * @param {Object} props.gameState.aiOpponent - AI opponent information (if applicable)
- * @param {string} props.gameState.aiOpponent.name - Name of the AI opponent
- * @param {Object} props.gameState.score - Current scores for both players
+ * @param {string} props.gameState.gameMode - Game mode ('single')
+ * @param {Object} props.gameState.score - Current score
  * @param {number} props.gameState.score.human - Human player's score
- * @param {number} props.gameState.score.ai - AI player's score
  * @param {Array} props.gameState.playerHand - Array of cards in player's hand
  * @param {Array} props.gameState.timeline - Array of events on the timeline
  * @param {string} props.gameState.gameStatus - Current game status
@@ -44,13 +41,6 @@ const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
         <p className="m-0 text-gray-600 text-base font-medium">
           Place historical events in chronological order
         </p>
-        {gameState.gameMode === 'ai' && gameState.aiOpponent && (
-          <div className="mt-2">
-            <span className="text-sm text-primary font-medium">
-              🤖 vs {gameState.aiOpponent.name}
-            </span>
-          </div>
-        )}
       </div>
       
       <div className="flex flex-row gap-5 items-center bg-white/70">
@@ -67,19 +57,10 @@ const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
       <div className="flex gap-6">
         <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
           <div className="text-xs text-text-light font-medium uppercase tracking-wider">
-            Your Score
+            Score
           </div>
           <div className="text-2xl font-bold text-primary">{gameState.score.human}</div>
         </div>
-        
-        {gameState.gameMode === 'ai' && (
-          <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
-            <div className="text-xs text-text-light font-medium uppercase tracking-wider">
-              AI Score
-            </div>
-            <div className="text-2xl font-bold text-primary">{gameState.score.ai}</div>
-          </div>
-        )}
         
         <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
           <div className="text-xs text-text-light font-medium uppercase tracking-wider">

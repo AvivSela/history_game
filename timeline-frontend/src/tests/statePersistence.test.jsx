@@ -69,13 +69,11 @@ describe('State Persistence', () => {
       const mockState = {
         timeline: [{ id: 1, title: 'Event 1', year: 1000 }],
         playerHand: [{ id: 2, title: 'Event 2', year: 1500 }],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 100, ai: 0 },
+        score: { human: 100 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -83,7 +81,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null,
         // UI-only state that should not be persisted
         showInsertionPoints: false,
@@ -124,13 +121,11 @@ describe('State Persistence', () => {
       const mockState = {
         timeline: [],
         playerHand: [],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -138,7 +133,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null
       };
 
@@ -159,13 +153,11 @@ describe('State Persistence', () => {
       const mockState = {
         timeline: [],
         playerHand: [],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -173,7 +165,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null
       };
 
@@ -190,13 +181,11 @@ describe('State Persistence', () => {
         timestamp: Date.now(),
         timeline: [{ id: 1, title: 'Event 1', year: 1000 }],
         playerHand: [{ id: 2, title: 'Event 2', year: 1500 }],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 100, ai: 0 },
+        score: { human: 100 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -204,7 +193,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null
       };
 
@@ -248,13 +236,11 @@ describe('State Persistence', () => {
       const mockState = {
         timeline: [],
         playerHand: [],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -262,7 +248,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null
       };
 
@@ -281,13 +266,11 @@ describe('State Persistence', () => {
       const mockState = {
         timeline: [],
         playerHand: [],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -295,7 +278,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null
       };
 
@@ -321,13 +303,11 @@ describe('State Persistence', () => {
       const mockState = {
         timeline: [],
         playerHand: [],
-        aiHand: [],
         cardPool: [],
         gameStatus: 'playing',
-        currentPlayer: 'human',
         gameMode: 'single',
         difficulty: 'medium',
-        score: { human: 0, ai: 0 },
+        score: { human: 0 },
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
@@ -335,7 +315,6 @@ describe('State Persistence', () => {
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        aiOpponent: null,
         selectedCard: null
       };
 

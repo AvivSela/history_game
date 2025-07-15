@@ -11,15 +11,12 @@ export const GAME_STATUS = {
 
 // Player Types
 export const PLAYER_TYPES = {
-  HUMAN: 'human',
-  AI: 'ai'
+  HUMAN: 'human'
 };
 
 // Game Modes
 export const GAME_MODES = {
-  SINGLE: 'single',
-  AI: 'ai',
-  MULTIPLAYER: 'multiplayer'
+  SINGLE: 'single'
 };
 
 // Difficulty Levels
@@ -32,8 +29,7 @@ export const DIFFICULTY_LEVELS = {
 
 // Card Counts by Game Mode
 export const CARD_COUNTS = {
-  SINGLE: 5,
-  AI: 8
+  SINGLE: 5
 };
 
 // Pool Card Count
@@ -49,12 +45,7 @@ export const FEEDBACK_TYPES = {
 // Animation Durations (in milliseconds)
 export const ANIMATION_DURATIONS = {
   CARD_PLACE: 300,
-  FEEDBACK_SHOW: 2000,
-  AI_THINKING: {
-    EASY: 1000,
-    MEDIUM: 2000,
-    HARD: 3000
-  }
+  FEEDBACK_SHOW: 2000
 };
 
 // Score Multipliers
@@ -116,8 +107,7 @@ export const TIMING = {
   TRANSITION_DURATION: 250,
   LOADING_DURATION: 500,
   
-  // Game timings
-  AI_THINKING_DELAY: 1500,
+
   FEEDBACK_DISPLAY: 2000,
   WRONG_PLACEMENT_INDICATOR: 1000,
   ACCESSIBILITY_DELAY: 1000,
@@ -133,52 +123,7 @@ export const TIMING = {
   PERFORMANCE_MONITOR_INTERVAL: 5000
 };
 
-// AI Configuration
-export const AI_CONFIG = {
-  DIFFICULTIES: {
-    easy: {
-      name: 'Beginner Bot',
-      accuracy: 0.6,
-      thinkingTime: { min: 2000, max: 4000 },
-      mistakeChance: 0.4,
-      description: 'Makes frequent mistakes, good for beginners'
-    },
-    medium: {
-      name: 'Scholar Bot',
-      accuracy: 0.8,
-      thinkingTime: { min: 1500, max: 3000 },
-      mistakeChance: 0.2,
-      description: 'Balanced opponent, makes occasional errors'
-    },
-    hard: {
-      name: 'Historian Pro',
-      accuracy: 0.95,
-      thinkingTime: { min: 1000, max: 2000 },
-      mistakeChance: 0.05,
-      description: 'Expert-level AI, rarely makes mistakes'
-    },
-    expert: {
-      name: 'Timeline Master',
-      accuracy: 0.98,
-      thinkingTime: { min: 800, max: 1500 },
-      mistakeChance: 0.02,
-      description: 'Near-perfect AI, extremely challenging'
-    }
-  },
-  
-  // AI decision weights
-  DECISION_WEIGHTS: {
-    CONFIDENCE: 0.7,
-    STRATEGIC_VALUE: 0.3
-  },
-  
-  // AI memory and learning
-  MEMORY_RETENTION: 0.8,
-  CONFIDENCE_BOOST_NEARBY: 0.1,
-  CONFIDENCE_REDUCTION_CLOSE: 0.2,
-  MIN_CONFIDENCE: 0.2,
-  MAX_CONFIDENCE: 1.0
-};
+
 
 // Game Logic Constants
 export const GAME_LOGIC = {
