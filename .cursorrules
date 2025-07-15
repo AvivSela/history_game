@@ -1,5 +1,13 @@
 # Timeline Game - Cursor Rules
 
+
+## When fixing failing tests:
+- Always attempt to fix all failing tests automatically
+- Continue trying different approaches until all tests pass
+- Don't ask for permission between retry attempts
+- Only ask for guidance after 3-5 failed attempts
+- Show progress after each attempt but keep working
+
 ## 🎮 Project Overview
 This is a React-based historical card game with Node.js backend. Use Yarn for package management exclusively. The project emphasizes performance, accessibility, and maintainable code architecture.
 
