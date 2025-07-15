@@ -159,7 +159,6 @@ export const saveGameStateToStorage = (state) => {
     }
 
     storage.setItem(STORAGE_KEY, serializedState);
-    console.log('✅ Game state saved to storage');
     return true;
   } catch (error) {
     console.error('❌ Error saving game state:', error);
@@ -201,7 +200,6 @@ export const loadGameStateFromStorage = () => {
       }
     }
 
-    console.log('✅ Game state loaded from storage');
     return loadedState;
   } catch (error) {
     console.error('❌ Error loading game state:', error);
@@ -210,7 +208,6 @@ export const loadGameStateFromStorage = () => {
       const storage = getStorage();
       if (storage) {
         storage.removeItem(STORAGE_KEY);
-        console.log('✅ Game state cleared from storage');
       }
     } catch (clearError) {
       console.error('❌ Error clearing corrupted data:', clearError);
@@ -231,7 +228,6 @@ export const clearGameStateFromStorage = () => {
     }
 
     storage.removeItem(STORAGE_KEY);
-    console.log('✅ Game state cleared from storage');
     return true;
   } catch (error) {
     console.error('❌ Error clearing game state:', error);

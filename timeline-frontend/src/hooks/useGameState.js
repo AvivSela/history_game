@@ -650,7 +650,7 @@ export const useGameState = () => {
           );
           newCardPool = cardReplacement.updatedPool;
         } else {
-          console.log('⚠️ Could not get replacement card from pool');
+          // Continue to next position
         }
 
         // Update game state for incorrect placement
@@ -676,11 +676,6 @@ export const useGameState = () => {
 
         setState(newGameState);
         saveGameStateToStorage(newGameState);
-
-        // Trigger animations for incorrect placement
-        // Note: Animation triggers would need to be passed from Game component
-        // For now, we'll rely on the feedback system to show the error
-        console.log('🎬 Incorrect placement animations should trigger here');
 
         // Clear feedback after delay
         setTimeout(() => {
