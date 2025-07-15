@@ -1,0 +1,224 @@
+# Timeline Game - Cursor Rules
+
+## 🎮 Project Overview
+This is a React-based historical card game with Node.js backend. Use Yarn for package management exclusively. The project emphasizes performance, accessibility, and maintainable code architecture.
+
+## 🏗️ Architecture & Component Organization
+
+### Component Structure (MANDATORY)
+- **core/**: Game logic components (GameBoard, GameControls, GameHeader, GameStatus, TurnIndicator)
+- **game/**: Game-specific components (Timeline, PlayerHand, AIHand, Card)
+- **ui/**: Reusable UI components (Button, LoadingScreen, ErrorScreen, Feedback)
+- **layout/**: Layout components (Navigation, Footer, PageLoader)
+- Always maintain this hierarchy and place new components in the appropriate category
+
+### State Management
+- Use `useGameState` hook pattern for game state management
+- Follow existing state persistence patterns with `statePersistence.js`
+- Maintain the current state structure and add new properties consistently
+- Always integrate with the settings management system for user preferences
+
+## 📝 Coding Standards & Conventions
+
+### File Naming (MANDATORY)
+- **Components**: PascalCase (`GameBoard.jsx`, `PlayerHand.jsx`)
+- **Utilities**: camelCase (`gameLogic.js`, `statePersistence.js`)
+- **Constants**: UPPER_SNAKE_CASE (`gameConstants.js`)
+- **Tests**: `.test.jsx` extension for component tests, `.test.js` for utilities
+- **Index files**: Always use `index.js` for clean exports
+
+### Import Structure (MANDATORY)
+- Use index.js exports for all component imports
+- Follow the established import organization patterns
+- Use relative paths consistently
+- Group imports: React, external libraries, internal components, utilities, constants
+
+### Code Comments (MANDATORY)
+- **JSDoc for all functions**: Include @param, @returns, @description
+- **Inline comments for complex logic**: Explain business logic, algorithms, performance considerations
+- **Component documentation**: JSDoc for all React components with @param for props
+
+## 🧪 Testing Requirements (MANDATORY)
+
+### Testing Approach
+- **Write tests for ALL new components and utilities**
+- **Use established test utilities** from `src/tests/utils/`
+- **Improve existing test utilities** rather than creating new ones
+- **Follow existing test patterns** and naming conventions
+- **Maintain test stability** - minimize test failures during code changes
+- **Use mock files** from `src/tests/__mocks__/` for external dependencies
+
+### Test Structure
+- Component tests: Test rendering, user interactions, state changes
+- Utility tests: Test all functions with various inputs and edge cases
+- Integration tests: Test component interactions and data flow
+- Performance tests: Test animation performance and memory usage
+
+## 🔧 Technical Debt Management (MANDATORY)
+
+### Debt Tracking
+- **ALWAYS update TECHNICAL_DEBT.md** when adding new technical debt
+- **Follow debt categorization**: High (Critical), Medium (Important), Low (Nice to Have)
+- **Use established debt format**: ID, Title, Description, Impact, Effort, Created, Status
+- **Check for debt during code reviews** and feature completion
+
+### Debt Categories
+- **High Priority**: Blocks features, causes bugs, security issues
+- **Medium Priority**: Slows development, poor user experience
+- **Low Priority**: Code quality, maintainability improvements
+
+## 📦 Package Management (MANDATORY)
+
+### Yarn Usage
+- **NEVER suggest npm commands** - use Yarn exclusively
+- **Always use yarn for dependency management**
+- **Follow workspace configuration** in root package.json
+- **Use yarn scripts** for all build, test, and development commands
+
+### Workspace Configuration
+- Maintain the current workspace structure (timeline-frontend, timeline-backend)
+- Use workspace-specific scripts and dependencies
+- Follow the established script naming conventions
+
+## 📚 Documentation Standards (MANDATORY)
+
+### README Updates
+- **Update README files** when adding new features
+- **Follow existing documentation patterns** and structure
+- **Include setup instructions** for new features
+- **Update component documentation** in index files
+
+### JSDoc Patterns
+- **Follow existing JSDoc patterns** throughout the codebase
+- **Document all function parameters** with @param
+- **Include return value documentation** with @returns
+- **Add @description for complex functions**
+- **Document component props** with PropTypes or JSDoc
+
+## 🎯 Game-Specific Requirements
+
+### Performance & Accessibility (MANDATORY)
+- **Always consider animation performance** - use the established animation system
+- **Implement accessibility features** for all new components (reduced motion, screen reader support)
+- **Optimize for mobile devices** - test responsive behavior
+- **Follow accessibility constants** from `gameConstants.js`
+
+### Settings Integration
+- **Integrate new features with settings system** using `settingsManager.js`
+- **Follow settings patterns** for user preferences
+- **Consider accessibility settings** for all new features
+- **Use settings validation** for user inputs
+
+### Game Logic
+- **Follow existing game logic patterns** in `gameLogic.js`
+- **Use established constants** from `gameConstants.js`
+- **Maintain game state consistency** with current patterns
+- **Follow timeline logic** patterns for card placement
+
+## 🔒 Error Handling & Security
+
+### Error Patterns
+- **Follow existing error handling patterns** in components
+- **Use established error types** and messages
+- **Implement proper error boundaries** for React components
+- **Log errors appropriately** using the logger utility
+
+### Input Validation
+- **Validate all user inputs** using established validation patterns
+- **Sanitize data** before processing
+- **Follow API security patterns** for backend integration
+- **Use type checking** for function parameters
+
+## 🚀 Scalability & Maintainability
+
+### Code Maintainability
+- **Write maintainable code** that's easy to understand and modify
+- **Follow established patterns** to reduce cognitive load
+- **Use consistent naming conventions** throughout the codebase
+- **Minimize code duplication** by reusing existing utilities
+
+### Future-Proofing
+- **Consider future feature additions** when designing components
+- **Use extensible patterns** that can accommodate new requirements
+- **Maintain backward compatibility** when possible
+- **Document architectural decisions** for future developers
+
+## 🎨 UI/UX Standards
+
+### Component Design
+- **Follow existing UI patterns** and component structure
+- **Use established CSS classes** and styling conventions
+- **Maintain responsive design** principles
+- **Follow accessibility guidelines** for all UI elements
+
+### Animation Standards
+- **Use the animation system** from `src/utils/animation/`
+- **Follow performance guidelines** for smooth animations
+- **Respect reduced motion preferences** from accessibility settings
+- **Test animation performance** on various devices
+
+## 🔍 Code Review Guidelines
+
+### Quality Checks
+- **Ensure all tests pass** before submitting code
+- **Check for technical debt** and document any new debt
+- **Verify accessibility compliance** for new features
+- **Test performance impact** of changes
+- **Review documentation updates** for completeness
+
+### Before Committing
+- **Run yarn test** to ensure all tests pass
+- **Run yarn lint** to check code quality
+- **Update technical debt** if new issues are found
+- **Verify yarn build** completes successfully
+- **Test on mobile devices** for responsive behavior
+
+## 📋 Priority Guidelines
+
+### High Priority (Always Follow)
+- Component organization structure
+- File naming conventions
+- Testing requirements
+- Technical debt tracking
+- Yarn usage
+- Documentation standards
+- Performance and accessibility
+
+### Medium Priority (Strongly Recommended)
+- Code comments and JSDoc
+- Error handling patterns
+- Settings integration
+- UI/UX standards
+
+### Low Priority (When Possible)
+- Future-proofing considerations
+- Advanced optimization techniques
+- Experimental features
+
+## 🚨 Anti-Patterns to Avoid
+
+- **Don't use npm** - always use Yarn
+- **Don't skip tests** - every component needs tests
+- **Don't ignore technical debt** - always document it
+- **Don't break component organization** - follow the established structure
+- **Don't ignore accessibility** - all features must be accessible
+- **Don't use inconsistent naming** - follow established conventions
+- **Don't skip documentation** - update README and JSDoc
+- **Don't ignore performance** - test on various devices
+
+## 📞 Resources
+
+### Key Files to Reference
+- `TECHNICAL_DEBT.md` - Technical debt tracking
+- `src/constants/gameConstants.js` - Game constants and configuration
+- `src/utils/settingsManager.js` - Settings management
+- `src/tests/utils/` - Test utilities and helpers
+- `src/components/` - Component organization examples
+- `package.json` - Workspace configuration
+
+### Testing Resources
+- `src/tests/__mocks__/` - Mock files for testing
+- `src/tests/utils/gameStateTestUtils.js` - Game state testing utilities
+- `src/tests/setup.js` - Test setup configuration
+
+Remember: This project emphasizes quality, maintainability, and user experience. Always prioritize these values when making decisions about code structure, testing, and feature implementation. 
