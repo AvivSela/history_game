@@ -8,8 +8,9 @@ import {
   validatePlacementWithTolerance, 
   generateSmartInsertionPoints
 } from '../utils/timelineLogic';
-import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC, CARD_COUNTS, POOL_CARD_COUNT } from '../constants/gameConstants';
+import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC, CARD_COUNTS, POOL_CARD_COUNT, DIFFICULTY_LEVELS } from '../constants/gameConstants';
 import { gameAPI, extractData, handleAPIError } from '@utils/api.js';
+import { SettingsManager } from '../utils/settingsManager.js';
 
 import { 
   saveGameStateToStorage, 
@@ -19,21 +20,22 @@ import {
 } from '../utils/statePersistence.js';
 
 /**
- * useGameState - Comprehensive game state management hook
+ * useGameState - Comprehensive game state management hook with settings integration
  * 
  * This hook provides complete game state management for the Timeline Game, including
  * game initialization, turn management, card placement validation, score calculation,
- * and win condition checking. It encapsulates all game logic and provides a clean
- * interface for components to interact with the game state.
+ * and win condition checking. It integrates with the settings system to apply user
+ * preferences for difficulty, card count, categories, and other game settings.
  * 
  * Key features:
- * - Game session initialization and management
+ * - Game session initialization and management with settings integration
  * - Card selection and placement logic
  * - Single-player gameplay
  * - Score calculation and game statistics tracking
  * - Win condition validation and game state transitions
  * - Error handling and loading states
  * - Card pool management for replacement cards
+ * - Settings-based game configuration
  * 
  * @example
  * ```jsx
@@ -46,7 +48,7 @@ import {
  *   pauseGame
  * } = useGameState();
  * 
- * // Initialize a new game
+ * // Initialize a new game with settings
  * await initializeGame('single', 'medium');
  * 
  * // Select a card
@@ -65,7 +67,8 @@ import {
  * @returns {Function} returns.pauseGame - Pause/unpause game
  * @returns {Function} returns.getGameStats - Get current game statistics
  * @returns {Function} returns.getNewCardFromPool - Get replacement card from pool
-
+ * @returns {Object} returns.settings - Current game settings
+ * @returns {Function} returns.updateGameSettings - Update game settings
  */
 export const useGameState = () => {
   const [state, setState] = useState({
@@ -105,8 +108,91 @@ export const useGameState = () => {
     achievements: []
   });
 
+  // Settings integration
+  const [settings, setSettings] = useState({
+    difficulty: DIFFICULTY_LEVELS.MEDIUM,
+    cardCount: CARD_COUNTS.SINGLE,
+    categories: [],
+    animations: true,
+    soundEffects: true,
+    reducedMotion: false,
+    highContrast: false,
+    largeText: false,
+    screenReaderSupport: true,
+    autoSave: true,
+    performanceMode: false
+  });
+
   const gameSessionRef = useRef(null);
   const restartTimeoutRef = useRef(null);
+  const settingsManagerRef = useRef(null);
+  const stateRef = useRef(state);
+
+  // Keep stateRef up to date
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  /**
+   * Apply settings changes to active game
+   * @param {string} key - Setting key that changed
+   * @param {*} newValue - New setting value
+   */
+  const applySettingsToActiveGame = useCallback((key, newValue) => {
+    switch (key) {
+      case 'difficulty':
+        // Update difficulty tolerance for current game
+        setState(prev => ({
+          ...prev,
+          difficulty: newValue
+        }));
+        break;
+        
+      case 'animations':
+      case 'reducedMotion':
+        // These settings affect UI behavior but not game logic
+        // They're handled by the animation system
+        break;
+        
+      case 'autoSave':
+        // Auto-save setting affects persistence behavior
+        // Handled by the persistence system
+        break;
+        
+      default:
+        // Other settings don't affect active game
+        break;
+    }
+  }, []);
+
+  // Initialize settings manager
+  useEffect(() => {
+    try {
+      settingsManagerRef.current = new SettingsManager();
+      
+      // Load initial settings
+      const initialSettings = settingsManagerRef.current.getSettings();
+      setSettings(initialSettings);
+      
+      // Listen for settings changes
+      const handleSettingsChange = (key, newValue, oldValue) => {
+        console.log(`🔄 Settings changed: ${key} = ${newValue} (was: ${oldValue})`);
+        setSettings(prev => ({ ...prev, [key]: newValue }));
+        
+        // Apply settings changes to active game if relevant
+        if (stateRef.current.gameStatus === GAME_STATUS.PLAYING || stateRef.current.gameStatus === GAME_STATUS.PAUSED) {
+          applySettingsToActiveGame(key, newValue);
+        }
+      };
+      
+      settingsManagerRef.current.onChange(handleSettingsChange);
+      
+      console.log('✅ Settings manager integrated with useGameState');
+    } catch (error) {
+      console.error('❌ Error initializing settings manager:', error);
+      // Continue with default settings
+    }
+  }, [applySettingsToActiveGame]);
 
   // Load saved game state on mount
   useEffect(() => {
@@ -135,8 +221,8 @@ export const useGameState = () => {
 
   // Save state to storage whenever relevant state changes
   useEffect(() => {
-    // Only save if game is in progress
-    if (state.gameStatus === 'playing' || state.gameStatus === 'paused') {
+    // Only save if game is in progress and auto-save is enabled
+    if ((state.gameStatus === 'playing' || state.gameStatus === 'paused') && settings.autoSave) {
       saveGameStateToStorage(state);
     }
   }, [
@@ -154,11 +240,39 @@ export const useGameState = () => {
     state.timelineAnalysis,
     state.turnHistory,
     state.achievements,
-    state.selectedCard
+    state.selectedCard,
+    settings.autoSave
   ]);
 
-  // Initialize new game - Consolidated from GameControls
-  const initializeGame = useCallback(async (mode = 'single', diff = 'medium') => {
+  /**
+   * Get card count based on settings
+   * @param {string} mode - Game mode
+   * @returns {number} Card count for the game
+   */
+  const getCardCountFromSettings = useCallback((mode = 'single') => {
+    // Use settings card count if available, otherwise fall back to constants
+    return settings.cardCount || CARD_COUNTS.SINGLE;
+  }, [settings.cardCount]);
+
+  /**
+   * Get difficulty from settings
+   * @param {string} fallbackDifficulty - Fallback difficulty if settings not available
+   * @returns {string} Difficulty level
+   */
+  const getDifficultyFromSettings = useCallback((fallbackDifficulty = 'medium') => {
+    return settings.difficulty || fallbackDifficulty;
+  }, [settings.difficulty]);
+
+  /**
+   * Get categories filter from settings
+   * @returns {Array} Array of category filters
+   */
+  const getCategoriesFromSettings = useCallback(() => {
+    return settings.categories || [];
+  }, [settings.categories]);
+
+  // Initialize new game - Consolidated from GameControls with settings integration
+  const initializeGame = useCallback(async (mode = 'single', diff = null) => {
     try {
       // Clear any saved state when starting a new game
       clearGameStateFromStorage();
@@ -170,19 +284,30 @@ export const useGameState = () => {
         gameStatus: GAME_STATUS.LOADING
       }));
       
-      // Fetch events from API
-      const cardCount = CARD_COUNTS.SINGLE;
-      const response = await gameAPI.getRandomEvents(cardCount);
+      // Get settings-based configuration
+      const cardCount = getCardCountFromSettings(mode);
+      const difficulty = diff || getDifficultyFromSettings();
+      const categories = getCategoriesFromSettings();
+      
+      console.log('🎮 Initializing game with settings:', {
+        mode,
+        difficulty,
+        cardCount,
+        categories: categories.length > 0 ? categories : 'all'
+      });
+      
+      // Fetch events from API with category filtering
+      const response = await gameAPI.getRandomEvents(cardCount, categories);
       const events = extractData(response);
       
       // Fetch additional cards for the pool (for replacement when cards are placed incorrectly)
-      const poolResponse = await gameAPI.getRandomEvents(POOL_CARD_COUNT);
+      const poolResponse = await gameAPI.getRandomEvents(POOL_CARD_COUNT, categories);
       const poolEvents = extractData(poolResponse);
       
-      // Create game session
+      // Create game session with settings-based configuration
       const session = createGameSession(events, {
         cardCount: cardCount - 1,
-        difficulty: diff,
+        difficulty: difficulty,
         gameMode: mode
       });
 
@@ -198,7 +323,7 @@ export const useGameState = () => {
         cardPool: poolEvents, // Added: Card pool
         gameStatus: 'playing',
         gameMode: mode,
-        difficulty: diff,
+        difficulty: difficulty,
         score: { human: 0 },
         startTime: session.startTime,
         turnStartTime: Date.now(),
@@ -244,7 +369,7 @@ export const useGameState = () => {
       }));
       throw error;
     }
-  }, []);
+  }, [getCardCountFromSettings, getDifficultyFromSettings, getCategoriesFromSettings]);
 
 
 
@@ -334,9 +459,10 @@ export const useGameState = () => {
       return { newCard, updatedPool };
     }
     
-    // If pool is empty, fetch more cards
+    // If pool is empty, fetch more cards with category filtering
     try {
-      const response = await gameAPI.getRandomEvents(CARD_COUNTS.SINGLE);
+      const categories = getCategoriesFromSettings();
+      const response = await gameAPI.getRandomEvents(CARD_COUNTS.SINGLE, categories);
       const newPoolCards = extractData(response);
       const newCard = newPoolCards[0];
       const updatedPool = [...currentGameState.cardPool, ...newPoolCards.slice(1)];
@@ -346,7 +472,7 @@ export const useGameState = () => {
       console.error('Failed to fetch new cards:', error);
       return null;
     }
-  }, []);
+  }, [getCategoriesFromSettings]);
 
   // Place a card on the timeline
   const placeCard = useCallback(async (position, player = 'human') => {
@@ -531,6 +657,33 @@ export const useGameState = () => {
     canPlaceCard: state.selectedCard && state.gameStatus === 'playing',
     gameProgress: {
       human: state.playerHand.length === 0 ? 1 : (4 - state.playerHand.length) / 4
+    },
+    
+    // Settings integration
+    settings,
+    updateGameSettings: (newSettings) => {
+      if (settingsManagerRef.current) {
+        return settingsManagerRef.current.updateSettings(newSettings);
+      } else {
+        console.warn('⚠️ SettingsManager not initialized');
+        return false;
+      }
+    },
+    updateGameSetting: (key, value) => {
+      if (settingsManagerRef.current) {
+        return settingsManagerRef.current.updateSetting(key, value);
+      } else {
+        console.warn('⚠️ SettingsManager not initialized');
+        return false;
+      }
+    },
+    getGameSettings: () => {
+      if (settingsManagerRef.current) {
+        return settingsManagerRef.current.getSettings();
+      } else {
+        console.warn('⚠️ SettingsManager not initialized');
+        return settings;
+      }
     }
   };
 };

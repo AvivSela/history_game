@@ -61,7 +61,15 @@ export const gameAPI = {
   
   // Events
   getAllEvents: () => api.get('/events'),
-  getRandomEvents: (count = 5) => api.get(`/events/random/${count}`),
+  getRandomEvents: (count = 5, categories = []) => {
+    const params = new URLSearchParams();
+    if (categories && categories.length > 0) {
+      params.append('categories', categories.join(','));
+    }
+    const queryString = params.toString();
+    const url = `/events/random/${count}${queryString ? `?${queryString}` : ''}`;
+    return api.get(url);
+  },
   getEventsByCategory: (category) => api.get(`/events/category/${category}`),
   getEventsByDifficulty: (level) => api.get(`/events/difficulty/${level}`),
   
