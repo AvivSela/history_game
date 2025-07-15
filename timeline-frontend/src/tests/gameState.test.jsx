@@ -72,9 +72,9 @@ vi.mock('../utils/api', () => {
   return apiMock;
 });
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { setupCommonMocks, resetAllMocks } from './utils/testSetup';
+import { setupCommonMocks, resetAllMocks, cleanupTimeouts } from './utils/testSetup';
 import {
   initializeGameForTesting,
   selectCardForTesting,
@@ -105,6 +105,11 @@ describe('Game State Management', () => {
     // Ensure API mock is reset to default behavior
     const { apiMock } = require('./__mocks__/api');
     apiMock.reset();
+  });
+
+  afterEach(async () => {
+    // Clean up any pending timeouts to prevent act() warnings
+    await cleanupTimeouts();
   });
 
   describe('1. Game Initialization (Single Player)', () => {
