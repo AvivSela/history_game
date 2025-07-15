@@ -133,7 +133,7 @@ const Timeline = forwardRef(({
             insertionPointRefs.current.delete(index);
           }
         }}
-        className={`flex items-center justify-center h-80 w-20 cursor-pointer transition-all duration-200 opacity-0 flex-shrink-0 relative bg-transparent p-5 -m-5 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : ''} ${isClickable ? 'opacity-60' : ''}`}
+        className={`flex items-center justify-center h-80 w-20 cursor-pointer transition-all duration-200 flex-shrink-0 relative bg-transparent p-5 -m-5 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : 'opacity-60'} ${!isClickable ? 'opacity-30' : ''}`}
         onClick={() => handleInsertionPointClick(index)}
         onMouseEnter={() => handleInsertionPointHover(index, true)}
         onMouseLeave={() => handleInsertionPointHover(index, false)}

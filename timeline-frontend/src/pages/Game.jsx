@@ -108,13 +108,7 @@ const Game = () => {
    * @param {number} position - Position in timeline to place card
    */
   const handleInsertionPointClick = async (position) => {
-    console.log('Insertion point clicked', {
-      position,
-      selectedCard: gameState.selectedCard,
-      gameStatus: gameState.gameStatus,
-      currentPlayer: gameState.currentPlayer
-    });
-    if (!gameState.selectedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
+    if (!gameState.selectedCard || gameState.gameStatus !== 'playing') {
       return;
     }
 
