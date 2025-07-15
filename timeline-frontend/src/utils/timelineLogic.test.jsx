@@ -74,24 +74,24 @@ describe('timelineLogic', () => {
       expect(result.feedbackType).toBe('miss')
     })
 
-    it('should accept close placements with tolerance', () => {
-      // Test with medium tolerance (0.5) - should accept 1 position off for small timeline
+    it('should reject close placements with tolerance', () => {
+      // Test with medium tolerance (0.5) - should reject 1 position off for small timeline
       const result = validatePlacementWithTolerance(testCard, mockTimeline, 2, 0.5)
-      expect(result.isCorrect).toBe(true)
-      expect(result.isClose).toBe(true)
+      expect(result.isCorrect).toBe(false)
+      expect(result.isClose).toBe(false)
       expect(result.correctPosition).toBe(3)
       expect(result.positionDiff).toBe(1)
-      // Check for encouraging language in feedback (since it's randomized)
-      const hasEncouragement = /Very close|Almost perfect|Great attempt|Good work/.test(result.feedback)
-      expect(hasEncouragement).toBe(true)
+      // Check for error language in feedback (since it's randomized)
+      const hasError = /❌|🚫|⚠️|💭/.test(result.feedback)
+      expect(hasError).toBe(true)
     })
 
-    it('should accept close placements for small timelines', () => {
-      // Test with small timeline (3 cards) - should accept 1 position off regardless of tolerance
+    it('should reject close placements for small timelines', () => {
+      // Test with small timeline (3 cards) - should reject 1 position off regardless of tolerance
       const smallTimeline = mockTimeline.slice(0, 3)
       const result = validatePlacementWithTolerance(testCard, smallTimeline, 2, 0.1) // Low tolerance
-      expect(result.isCorrect).toBe(true)
-      expect(result.isClose).toBe(true)
+      expect(result.isCorrect).toBe(false)
+      expect(result.isClose).toBe(false)
       expect(result.correctPosition).toBe(3)
       expect(result.positionDiff).toBe(1)
     })

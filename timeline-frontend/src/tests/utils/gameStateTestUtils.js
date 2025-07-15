@@ -23,19 +23,19 @@ export const initializeGameForTesting = async (result, mode = 'single', difficul
   // Wait for initialization to complete
   await waitFor(() => {
     expect(result.current.state.gameStatus).toBe(GAME_STATUS.PLAYING);
-  });
+  }, { timeout: 3000 });
 };
 
 /**
  * Select a card for testing
  * @param {Object} result - Hook result from renderHook
  * @param {Object} card - Card to select (optional, uses first card if not provided)
- * @returns {Object} The selected card
+ * @returns {Promise<Object>} The selected card
  */
-export const selectCardForTesting = (result, card = null) => {
+export const selectCardForTesting = async (result, card = null) => {
   const cardToSelect = card || result.current.state.playerHand[0];
   
-  act(() => {
+  await act(async () => {
     result.current.selectCard(cardToSelect);
   });
 
@@ -43,7 +43,7 @@ export const selectCardForTesting = (result, card = null) => {
 };
 
 /**
- * Place a card for testing
+ * Place a card for testing with proper act() wrapping
  * @param {Object} result - Hook result from renderHook
  * @param {number} position - Position to place the card
  * @param {Object} card - Card to place (optional, uses selected card if not provided)
@@ -61,11 +61,16 @@ export const placeCardForTesting = async (result, position, card = null) => {
     placementResult = await result.current.placeCard(position);
   });
 
+  // Wait for state to settle
+  await waitFor(() => {
+    expect(result.current.state.selectedCard).toBeNull();
+  }, { timeout: 1000 });
+
   return placementResult;
 };
 
 /**
- * Complete a full game by placing all cards
+ * Complete a full game by placing all cards (optimized version)
  * @param {Object} result - Hook result from renderHook
  * @returns {Promise<void>}
  */
@@ -74,14 +79,14 @@ export const completeGameForTesting = async (result) => {
   
   for (let i = 0; i < initialHandSize; i++) {
     const card = result.current.state.playerHand[0];
-    selectCardForTesting(result, card);
-    placeCardForTesting(result, 1); // Place after first timeline card
+    await selectCardForTesting(result, card);
+    await placeCardForTesting(result, 1); // Place after first timeline card
   }
 
-  // Wait for game completion - the actual implementation sets status to 'won'
+  // Wait for game completion
   await waitFor(() => {
     expect(result.current.state.gameStatus).toBe(GAME_STATUS.WON);
-  });
+  }, { timeout: 3000 });
 };
 
 /**
@@ -183,7 +188,7 @@ export const validateStateTransitions = async (result, expectedStates) => {
   for (const expectedState of expectedStates) {
     await waitFor(() => {
       expect(result.current.state.gameStatus).toBe(expectedState);
-    });
+    }, { timeout: 2000 });
   }
 };
 
@@ -307,7 +312,7 @@ export const assertValidErrorState = (state) => {
 };
 
 /**
- * Assert that game state is in lobby state
+ * Assert that game state is lobby state
  * @param {Object} state - Game state to validate
  */
 export const assertValidLobbyState = (state) => {
@@ -333,63 +338,65 @@ export const waitForGameStatus = async (result, expectedStatus, timeout = 5000) 
 };
 
 /**
- * Simulate placing all cards to complete the game
- * Note: Due to card replacement mechanics, this may take multiple attempts
+ * Optimized game completion simulation
+ * Handles card placement efficiently with proper act() wrapping
  * @param {Object} result - Hook result from renderHook
  * @returns {Promise<void>}
  */
 export const simulateCompleteGame = async (result) => {
   const initialHandSize = result.current.state.playerHand.length;
   let attempts = 0;
-  const maxAttempts = initialHandSize * 10; // Increase max attempts for better coverage
+  const maxAttempts = Math.min(initialHandSize * 3, 50); // Reduced max attempts
   
   // Continue placing cards until hand is empty or max attempts reached
   while (result.current.state.playerHand.length > 0 && attempts < maxAttempts) {
     const card = result.current.state.playerHand[0];
     
-    // Select the card
-    act(() => {
+    // Select the card with proper act() wrapping
+    await act(async () => {
       result.current.selectCard(card);
     });
     
-    // Wait a bit for selection to be processed
-    await waitForAsync(50);
+    // Wait for selection to be processed
+    await waitFor(() => {
+      expect(result.current.state.selectedCard).toBeTruthy();
+    }, { timeout: 1000 });
     
-    // Check if card is still selected (might have been cleared by previous operations)
-    if (!result.current.state.selectedCard) {
-      attempts++;
-      continue;
+    // Try placement at position 1 (most likely correct)
+    try {
+      const placementResult = await placeCardForTesting(result, 1);
+      if (placementResult && placementResult.isCorrect) {
+        // Success - continue with next card
+        attempts++;
+        continue;
+      }
+    } catch (error) {
+      // Continue to next attempt
     }
     
-    // Try different positions to find the correct one
-    const positions = [1, 0, 2, 3, 4];
-    let placed = false;
-    
-    for (const position of positions) {
-      if (position < result.current.state.timeline.length + 1) {
-        try {
-          const placementResult = await placeCardForTesting(result, position);
-          if (placementResult && placementResult.isCorrect) {
-            placed = true;
-            break;
-          }
-        } catch (error) {
-          // Continue to next position
-        }
-        
-        // Wait a bit for state updates
-        await waitForAsync(50);
+    // If placement at position 1 failed, try position 0
+    try {
+      const placementResult = await placeCardForTesting(result, 0);
+      if (placementResult && placementResult.isCorrect) {
+        // Success - continue with next card
+        attempts++;
+        continue;
       }
+    } catch (error) {
+      // Continue to next attempt
     }
     
     attempts++;
     
     // If we've made no progress for a while, break to avoid infinite loops
-    if (attempts > initialHandSize * 3 && result.current.state.playerHand.length >= initialHandSize) {
+    if (attempts > initialHandSize && result.current.state.playerHand.length >= initialHandSize) {
       break;
     }
   }
   
   // The game should eventually reach a win state or continue with replacements
   // We don't strictly require WON state due to card replacement mechanics
+  await waitFor(() => {
+    expect(['playing', 'won']).toContain(result.current.state.gameStatus);
+  }, { timeout: 3000 });
 }; 

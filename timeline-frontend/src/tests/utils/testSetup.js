@@ -152,4 +152,66 @@ export const cleanupTimeouts = () => {
   
   // Wait for any pending state updates
   return new Promise(resolve => setTimeout(resolve, 0));
+};
+
+/**
+ * Enhanced async state update handler to prevent act() warnings
+ * Wraps state updates in act() and waits for them to complete
+ * @param {Function} stateUpdateFn - Function that triggers state updates
+ * @param {number} timeout - Maximum time to wait for updates
+ * @returns {Promise<void>}
+ */
+export const waitForStateUpdate = async (stateUpdateFn, timeout = 1000) => {
+  const startTime = Date.now();
+  
+  return new Promise((resolve, reject) => {
+    const checkComplete = () => {
+      try {
+        stateUpdateFn();
+        resolve();
+      } catch (error) {
+        if (Date.now() - startTime > timeout) {
+          reject(new Error(`State update timeout after ${timeout}ms`));
+        } else {
+          setTimeout(checkComplete, 10);
+        }
+      }
+    };
+    
+    checkComplete();
+  });
+};
+
+/**
+ * Optimized test runner for complex game scenarios
+ * Handles multiple state updates efficiently to prevent act() warnings
+ * @param {Object} result - Hook result from renderHook
+ * @param {Function} testFn - Test function to run
+ * @param {Object} options - Options for test execution
+ * @returns {Promise<void>}
+ */
+export const runOptimizedTest = async (result, testFn, options = {}) => {
+  const {
+    maxIterations = 100,
+    iterationDelay = 10,
+    timeout = 5000
+  } = options;
+  
+  const startTime = Date.now();
+  let iterations = 0;
+  
+  while (iterations < maxIterations && (Date.now() - startTime) < timeout) {
+    try {
+      await testFn(result);
+      return; // Success
+    } catch (error) {
+      iterations++;
+      if (iterations >= maxIterations) {
+        throw error;
+      }
+      await waitForAsync(iterationDelay);
+    }
+  }
+  
+  throw new Error(`Test failed after ${maxIterations} iterations or ${timeout}ms timeout`);
 }; 

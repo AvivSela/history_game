@@ -13,31 +13,24 @@ export const validatePlacementWithTolerance = (card, timeline, userPosition, tol
   const positionDiff = Math.abs(userPosition - correctPosition);
   const isExact = positionDiff === 0;
   
-  // Calculate tolerance threshold based on timeline size and tolerance parameter
-  const timelineSize = timeline.length;
-  const toleranceThreshold = Math.max(1, Math.floor(timelineSize * tolerance));
-  const isClose = positionDiff <= toleranceThreshold && positionDiff > 0;
-  const isCorrect = isExact || isClose;
+  // No tolerance - only exact matches are correct
+  const isCorrect = isExact;
   
   let feedbackType = 'miss';
   if (isExact) {
     feedbackType = 'perfect';
-  } else if (isClose) {
-    feedbackType = 'close';
   }
 
   let feedback = '';
   if (isExact) {
     feedback = generateExactMatchFeedback(card);
-  } else if (isClose) {
-    feedback = generateCloseMatchFeedback(card, userPosition - correctPosition);
   } else {
     feedback = generateMissedFeedback(card, userPosition, correctPosition);
   }
 
   return {
     isCorrect,
-    isClose,
+    isClose: false, // Always false since we don't allow close matches
     correctPosition,
     userPosition,
     positionDiff,

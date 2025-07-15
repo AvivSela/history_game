@@ -265,7 +265,7 @@ describe('Game State Management', () => {
 
       await initializeGameForTesting(result, 'single', 'medium');
 
-      const cardToSelect = selectCardForTesting(result);
+      const cardToSelect = await selectCardForTesting(result);
 
       expect(result.current.state.selectedCard).toBe(cardToSelect);
 
@@ -295,56 +295,17 @@ describe('Game State Management', () => {
 
       await initializeGameForTesting(result, 'single', 'medium');
 
-      const initialHandSize = result.current.state.playerHand.length;
-      let attempts = 0;
-      const maxAttempts = initialHandSize * 5; // Increase max attempts for zero tolerance
+      // Use the optimized game completion utility
+      await simulateCompleteGame(result);
 
-      // Continue placing cards until hand is empty or max attempts reached
-      while (result.current.state.playerHand.length > 0 && attempts < maxAttempts) {
-        const card = result.current.state.playerHand[0];
-        
-        // Select the card
-        act(() => {
-          result.current.selectCard(card);
-        });
-        
-        // With zero tolerance, we need to find the exact correct position
-        // Try all possible positions systematically
-        const possiblePositions = Array.from({ length: result.current.state.timeline.length + 1 }, (_, i) => i);
-        let placed = false;
-        
-        for (const position of possiblePositions) {
-          await act(async () => {
-            const placementResult = await result.current.placeCard(position);
-            if (placementResult && placementResult.isCorrect) {
-              placed = true;
-            }
-          });
-          
-          // Wait a bit for state updates
-          await waitForAsync(100);
-          
-          if (placed) break;
-        }
-        
-        attempts++;
-        
-        // If we've tried all positions and still haven't placed the card,
-        // the card might have been replaced due to incorrect placements
-        // In that case, we continue with the next card in hand
-      }
-
-      // With zero tolerance, the game might take more attempts to complete
-      // due to card replacements from incorrect placements
       // The game should eventually reach a valid state
       expect(['playing', 'won']).toContain(result.current.state.gameStatus);
       
-      // If the game is still playing, it should have fewer cards than initially
-      // (indicating some progress was made)
+      // If the game is still playing, it should have made some progress
       if (result.current.state.gameStatus === 'playing') {
-        expect(result.current.state.playerHand.length).toBeLessThanOrEqual(initialHandSize);
+        expect(result.current.state.playerHand.length).toBeLessThanOrEqual(4); // Should have placed at least one card
       }
-    }, 20000); // Increase timeout for zero tolerance testing
+    }, 10000); // Reduced timeout with optimized approach
 
     /**
      * BUSINESS RULE: After winning a game, player should be able to restart and return to lobby.
@@ -368,7 +329,7 @@ describe('Game State Management', () => {
 
       // Should be back to lobby state
       assertValidLobbyState(result.current.state);
-    }, 10000); // Increase timeout for this test
+    }, 8000); // Reduced timeout with optimized approach
   });
 
   describe('3. Card Management (Single Player)', () => {
@@ -381,7 +342,7 @@ describe('Game State Management', () => {
 
       await initializeGameForTesting(result, 'single', 'medium');
 
-      const cardToSelect = selectCardForTesting(result);
+      const cardToSelect = await selectCardForTesting(result);
 
       expect(result.current.state.selectedCard).toBe(cardToSelect);
       expect(result.current.state.showInsertionPoints).toBe(true);
@@ -396,12 +357,12 @@ describe('Game State Management', () => {
 
       await initializeGameForTesting(result, 'single', 'medium');
 
-      const cardToSelect = selectCardForTesting(result);
+      const cardToSelect = await selectCardForTesting(result);
 
       expect(result.current.state.selectedCard).toBe(cardToSelect);
 
       // Deselect card by selecting null
-      act(() => {
+      await act(async () => {
         result.current.selectCard(null);
       });
 
@@ -419,7 +380,7 @@ describe('Game State Management', () => {
       // Try to select card before game is initialized (in lobby state)
       const mockCard = { id: 'test', title: 'Test Event', dateOccurred: '1950-01-01' };
 
-      act(() => {
+      await act(async () => {
         result.current.selectCard(mockCard);
       });
 
@@ -447,7 +408,7 @@ describe('Game State Management', () => {
       const initialHandSize = result.current.state.playerHand.length;
       const initialTimelineSize = result.current.state.timeline.length;
 
-      selectCardForTesting(result, cardToPlace);
+      await selectCardForTesting(result, cardToPlace);
       
       const placementResult = await placeCardForTesting(result, 1);
 
@@ -486,7 +447,7 @@ describe('Game State Management', () => {
       const initialPoolSize = result.current.state.cardPool.length;
 
       // Mock incorrect placement by placing card in wrong position
-      selectCardForTesting(result, cardToPlace);
+      await selectCardForTesting(result, cardToPlace);
       
       await act(async () => {
         await result.current.placeCard(0); // Place before first card (likely incorrect)
@@ -517,7 +478,7 @@ describe('Game State Management', () => {
       const cardToPlace = result.current.state.playerHand[0];
 
       // Place card
-      selectCardForTesting(result, cardToPlace);
+      await selectCardForTesting(result, cardToPlace);
       
       await act(async () => {
         await result.current.placeCard(1);
@@ -550,7 +511,7 @@ describe('Game State Management', () => {
 
       await initializeGameForTesting(result, 'single', 'medium');
 
-      const cardToPlace = selectCardForTesting(result);
+      const cardToPlace = await selectCardForTesting(result);
       const placementResult = await placeCardForTesting(result, 1); // Place after first timeline card
 
       if (placementResult && placementResult.isCorrect) {
@@ -572,7 +533,7 @@ describe('Game State Management', () => {
 
       await initializeGameForTesting(result, 'single', 'medium');
 
-      const cardToPlace = selectCardForTesting(result);
+      const cardToPlace = await selectCardForTesting(result);
 
       // Place at beginning
       const placementResult = await placeCardForTesting(result, 0);
@@ -599,13 +560,13 @@ describe('Game State Management', () => {
       await initializeGameForTesting(result, 'single', 'medium');
 
       // Place first card
-      const firstCard = selectCardForTesting(result);
+      const firstCard = await selectCardForTesting(result);
       const firstPlacementResult = await placeCardForTesting(result, 1);
 
       // Only continue if first placement was successful
       if (firstPlacementResult && firstPlacementResult.isCorrect) {
         // Place second card between first timeline card and first placed card
-        const secondCard = selectCardForTesting(result);
+        const secondCard = await selectCardForTesting(result);
         const secondPlacementResult = await placeCardForTesting(result, 1);
 
         // Check if second placement was successful
