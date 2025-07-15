@@ -476,25 +476,7 @@
 }
 
 /* Import Textarea */
-.import-textarea {
-  width: 100%;
-  min-height: 200px;
-  padding: 12px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
-  background: var(--background-color);
-  color: var(--text-color);
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  resize: vertical;
-  margin-bottom: 20px;
-}
 
-.import-textarea:focus {
-  outline: none;
-  border-color: var(--secondary-color);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-}
 
 /* Button Styles */
 .btn-danger {

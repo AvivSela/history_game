@@ -22,8 +22,7 @@ const mockSettings = {
 const mockUpdateSetting = vi.fn();
 const mockUpdateSettings = vi.fn();
 const mockResetSettings = vi.fn();
-const mockExportSettings = vi.fn(() => ({ success: true, data: mockSettings }));
-const mockImportSettings = vi.fn(() => ({ success: true }));
+
 const mockHasUnsavedChanges = vi.fn(() => false);
 const mockGetSettingsDiff = vi.fn(() => ({}));
 const mockClearAllErrors = vi.fn();
@@ -42,8 +41,7 @@ vi.mock('../hooks/useSettings', () => ({
     updateSetting: mockUpdateSetting,
     updateSettings: mockUpdateSettings,
     resetSettings: mockResetSettings,
-    exportSettings: mockExportSettings,
-    importSettings: mockImportSettings,
+
     hasUnsavedChanges: mockHasUnsavedChanges,
     getSettingsDiff: mockGetSettingsDiff,
     clearAllErrors: mockClearAllErrors,
@@ -164,8 +162,7 @@ describe('Settings Page', () => {
       await waitFor(() => {
         expect(screen.getByText('💾 Save Settings')).toBeInTheDocument();
         expect(screen.getByText('🔄 Reset to Defaults')).toBeInTheDocument();
-        expect(screen.getByText('📤 Export Settings')).toBeInTheDocument();
-        expect(screen.getByText('📥 Import Settings')).toBeInTheDocument();
+        
         expect(screen.getByText('🎮 Start Game')).toBeInTheDocument();
       });
     });

@@ -122,51 +122,7 @@ export function useSettingsEnhanced(options = {}) {
     }
   }, [settingsContext.updateSettings]);
 
-  // Export settings to JSON
-  const exportSettings = useCallback(() => {
-    try {
-      const settings = settingsContext.getSettings();
-      const exportData = {
-        settings,
-        version: '1.0.0',
-        exportedAt: new Date().toISOString(),
-        metadata: {
-          totalSettings: Object.keys(settings).length,
-          lastUpdated: settingsContext.lastUpdated
-        }
-      };
-      
-      return { success: true, data: exportData };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }, [settingsContext.getSettings, settingsContext.lastUpdated]);
 
-  // Import settings from JSON
-  const importSettings = useCallback((importData) => {
-    try {
-      // Validate import data structure
-      if (!importData || typeof importData !== 'object') {
-        return { success: false, error: 'Invalid import data format' };
-      }
-
-      if (!importData.settings || typeof importData.settings !== 'object') {
-        return { success: false, error: 'No settings data found in import' };
-      }
-
-      // Validate settings
-      const validation = validateSettings(importData.settings);
-      if (Object.keys(validation.errors).length > 0) {
-        return { success: false, errors: validation.errors };
-      }
-
-      // Apply settings
-      const success = settingsContext.updateSettings(importData.settings);
-      return { success, errors: success ? {} : { general: 'Failed to import settings' } };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }, [settingsContext.updateSettings]);
 
   // Check if settings have unsaved changes
   const hasUnsavedChanges = useCallback(() => {
@@ -215,8 +171,7 @@ export function useSettingsEnhanced(options = {}) {
     updateSettingWithValidation,
     updateMultipleSettingsWithValidation,
     restoreSettings,
-    exportSettings,
-    importSettings,
+
     hasUnsavedChanges,
     getSettingsDiff,
     useSettingWatcher,

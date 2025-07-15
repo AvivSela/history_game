@@ -27,9 +27,6 @@ const SettingsContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState({ type: '', message: '' });
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importData, setImportData] = useState('');
 
   // Use enhanced settings hook with error handling
   const {
@@ -40,8 +37,6 @@ const SettingsContent = () => {
     updateSetting,
     updateSettings,
     resetSettings,
-    exportSettings,
-    importSettings,
     hasUnsavedChanges,
     getSettingsDiff,
     clearAllErrors,
@@ -144,44 +139,9 @@ const SettingsContent = () => {
     }
   };
 
-  // Handle export settings
-  const handleExportSettings = () => {
-    try {
-      const result = exportSettings();
-      if (result.success) {
-        const dataStr = JSON.stringify(result.data, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `timeline-settings-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-        setSaveStatus({ type: 'success', message: 'Settings exported successfully!' });
-      } else {
-        setSaveStatus({ type: 'error', message: 'Failed to export settings' });
-      }
-    } catch (error) {
-      setSaveStatus({ type: 'error', message: 'Failed to export settings' });
-    }
-  };
 
-  // Handle import settings
-  const handleImportSettings = () => {
-    try {
-      const data = JSON.parse(importData);
-      const result = importSettings(data);
-      if (result.success) {
-        setSaveStatus({ type: 'success', message: 'Settings imported successfully!' });
-        setShowImportModal(false);
-        setImportData('');
-      } else {
-        setSaveStatus({ type: 'error', message: `Import failed: ${result.error || 'Invalid data'}` });
-      }
-    } catch (error) {
-      setSaveStatus({ type: 'error', message: 'Invalid JSON format' });
-    }
-  };
+
+
 
   // Show loading state
   if (isLoading || settingsLoading) {
@@ -501,12 +461,7 @@ const SettingsContent = () => {
             >
               🔄 Reset to Defaults
             </button>
-            <button onClick={() => setShowExportModal(true)} className="btn btn-info">
-              📤 Export Settings
-            </button>
-            <button onClick={() => setShowImportModal(true)} className="btn btn-info">
-              📥 Import Settings
-            </button>
+
             <a href="/game" className="btn btn-success">
               🎮 Start Game
             </a>
@@ -576,51 +531,7 @@ const SettingsContent = () => {
         </div>
       )}
 
-      {/* Export Modal */}
-      {showExportModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>📤 Export Settings</h3>
-            <p>Export your current settings to a JSON file. You can use this file to backup your settings or share them with others.</p>
-            <div className="modal-actions">
-              <button onClick={handleExportSettings} className="btn btn-primary">
-                Export Settings
-              </button>
-              <button onClick={() => setShowExportModal(false)} className="btn btn-secondary">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Import Modal */}
-      {showImportModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>📥 Import Settings</h3>
-            <p>Paste your settings JSON data below to import settings:</p>
-            <textarea
-              value={importData}
-              onChange={(e) => setImportData(e.target.value)}
-              placeholder="Paste JSON settings data here..."
-              className="import-textarea"
-              rows={10}
-            />
-            <div className="modal-actions">
-              <button onClick={handleImportSettings} className="btn btn-primary">
-                Import Settings
-              </button>
-              <button onClick={() => {
-                setShowImportModal(false);
-                setImportData('');
-              }} className="btn btn-secondary">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
