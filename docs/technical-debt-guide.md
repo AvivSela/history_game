@@ -4,32 +4,26 @@
 
 ### 1. View Current Technical Debt
 ```bash
-# Open the technical debt tracker
-yarn tech-debt
-
-# Or view the markdown file directly
+# View the markdown file directly
 cat TECHNICAL_DEBT.md
 ```
 
 ### 2. Add New Debt Item
 ```bash
-yarn tech-debt
-# Select option 1: "Add new debt item"
-# Follow the prompts to enter details
+# Edit TECHNICAL_DEBT.md directly
+# Add a new entry following the existing format
 ```
 
 ### 3. Update Debt Status
 ```bash
-yarn tech-debt
-# Select option 2: "Update debt status"
-# Choose the item and new status
+# Edit TECHNICAL_DEBT.md directly
+# Update the status field for the relevant item
 ```
 
 ### 4. Generate Report
 ```bash
-yarn tech-debt
-# Select option 3: "Generate report"
-# View metrics and summary
+# Review TECHNICAL_DEBT.md manually
+# Use the summary section at the top of the file
 ```
 
 ## Debt Categories
@@ -202,7 +196,6 @@ yarn build --analyze
 
 ### Documentation
 - [TECHNICAL_DEBT.md](../TECHNICAL_DEBT.md) - Main tracking file
-- [scripts/tech-debt-manager.js](../scripts/tech-debt-manager.js) - Management tool
 
 ### External Resources
 - [Martin Fowler on Technical Debt](https://martinfowler.com/bliki/TechnicalDebt.html)

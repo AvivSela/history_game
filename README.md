@@ -59,8 +59,7 @@ timeline-game-project/
 - `yarn start` - Start backend server only
 - `yarn frontend:dev` - Start frontend development server only
 - `yarn backend:start` - Start backend server only
-- `yarn tech-debt` - Manage technical debt tracking
-- `yarn tech-debt:report` - Generate technical debt report
+
 
 ### Frontend Only
 ```bash
@@ -115,14 +114,14 @@ The game is fully responsive and works on:
 4. Make your changes
 5. Run tests: `yarn test`
 6. Ensure linting passes: `yarn lint`
-7. Check for technical debt: `yarn tech-debt`
+7. Review technical debt: Check [TECHNICAL_DEBT.md](./TECHNICAL_DEBT.md)
 8. Commit your changes: `git commit -m 'Add amazing feature'`
 9. Push to the branch: `git push origin feature/amazing-feature`
 10. Open a Pull Request
 
 ### Code Quality
 - Review [Technical Debt Guide](./docs/technical-debt-guide.md) for best practices
-- Use `yarn tech-debt` to track and manage technical debt
+- Review [TECHNICAL_DEBT.md](./TECHNICAL_DEBT.md) to track and manage technical debt
 - Follow established patterns and conventions
 - Write tests for new functionality
 
