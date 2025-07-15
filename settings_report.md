@@ -77,7 +77,7 @@ const [settings, setSettings] = useState({
 
 ## 🎯 Recommended Improvements
 
-### **1. Enhanced Settings Architecture**
+### **1. Enhanced Game Settings Architecture**
 
 #### **A. Settings Manager Implementation**
 ```javascript
@@ -104,53 +104,17 @@ class SettingsManager {
 }
 ```
 
-#### **B. Expanded Settings Categories**
+#### **B. Expanded Game Settings Categories**
 
-**Game Settings**
-- Difficulty level (easy, medium, hard, expert)
-- Card count (3-15 cards)
-- Event categories (with multi-select)
-- Game mode (single, AI, multiplayer)
-- Auto-save preferences
-- Confirmation dialogs
-
-**Audio Settings**
-- Master volume (0-100%)
-- Sound effects toggle + individual controls
-- Music toggle + volume
-- Audio feedback preferences
-- Mute during gameplay option
-
-**Visual Settings**
-- Theme (light, dark, auto, custom)
-- Animation speed (slow, normal, fast)
-- Card size (small, normal, large)
-- Show hints toggle
-- Show insertion points toggle
-- High contrast mode
-
-**Accessibility Settings**
-- Screen reader support
-- Keyboard navigation
-- Focus indicators
-- Color blind support
-- Dyslexia-friendly fonts
-- Large text mode
-- Reduced motion preferences
-
-**Performance Settings**
-- Auto-optimize for device
-- Device profile detection
-- Animation quality (low, normal, high)
-- Memory usage limits
-- Performance monitoring
-
-**Advanced Settings**
-- Debug mode
-- FPS counter
-- Analytics preferences
-- Data collection consent
-- Experimental features
+**🎮 Game Settings**
+- Difficulty level (easy, medium, hard, expert, adaptive)
+- Card count (3-20 cards with difficulty scaling)
+- Event categories (with multi-select and favorites)
+- Game mode (single, AI, multiplayer, collaborative)
+- Auto-save preferences (every action, every minute, manual)
+- Confirmation dialogs (destructive actions, game exit)
+- Learning objectives (focus areas, skill targets)
+- Progress tracking (detailed, summary, disabled)
 
 ### **2. Integration with Existing Systems**
 
@@ -169,40 +133,6 @@ export const useGameState = () => {
   }, []);
   
   // ... rest of implementation
-};
-```
-
-#### **B. Animation System Integration**
-```javascript
-// Modified: timeline-frontend/src/utils/animation/AnimationSystem.js
-import { getAnimationSettings } from '../settingsManager';
-
-class AnimationSystem {
-  constructor() {
-    this.animationSettings = getAnimationSettings();
-    this.setupSettingsListener();
-  }
-  
-  setupSettingsListener() {
-    addSettingsListener((settings) => {
-      this.updateAnimationSettings(settings.visual);
-    });
-  }
-}
-```
-
-#### **C. Accessibility Integration**
-```javascript
-// Modified: timeline-frontend/src/utils/accessibility.js
-import { getAccessibilitySettings } from '../settingsManager';
-
-export const accessibilityConfig = {
-  getSettings: () => getAccessibilitySettings(),
-  
-  shouldAnimate: () => {
-    const settings = getAccessibilitySettings();
-    return settings.reducedMotion === false;
-  }
 };
 ```
 
@@ -225,11 +155,6 @@ const Settings = () => {
       
       <SettingsContent>
         {activeTab === 'game' && <GameSettings />}
-        {activeTab === 'audio' && <AudioSettings />}
-        {activeTab === 'visual' && <VisualSettings />}
-        {activeTab === 'accessibility' && <AccessibilitySettings />}
-        {activeTab === 'performance' && <PerformanceSettings />}
-        {activeTab === 'advanced' && <AdvancedSettings />}
       </SettingsContent>
       
       <SettingsActions />
@@ -322,8 +247,6 @@ export const validateSettings = (settings) => {
   return { isValid: errors.length === 0, errors };
 };
 ```
-
-### **5. Settings Migration & Backwards Compatibility**
 
 #### **A. Version Management**
 ```javascript
