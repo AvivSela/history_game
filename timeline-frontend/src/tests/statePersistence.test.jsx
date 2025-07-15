@@ -11,11 +11,24 @@ import {
 describe('State Persistence', () => {
   let originalLocalStorage;
   let originalSessionStorage;
+  let originalConsole;
 
   beforeEach(() => {
     // Store original storage objects
     originalLocalStorage = global.localStorage;
     originalSessionStorage = global.sessionStorage;
+    
+    // Store original console methods
+    originalConsole = {
+      log: console.log,
+      warn: console.warn,
+      error: console.error
+    };
+    
+    // Mock console methods to suppress output during tests
+    console.log = vi.fn();
+    console.warn = vi.fn();
+    console.error = vi.fn();
 
     // Create mock storage objects
     const mockStorage = {
@@ -42,6 +55,12 @@ describe('State Persistence', () => {
     // Restore original storage objects
     global.localStorage = originalLocalStorage;
     global.sessionStorage = originalSessionStorage;
+    
+    // Restore original console methods
+    console.log = originalConsole.log;
+    console.warn = originalConsole.warn;
+    console.error = originalConsole.error;
+    
     vi.clearAllMocks();
   });
 
