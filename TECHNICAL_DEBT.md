@@ -81,6 +81,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-015 | Deep Import Paths | ✅ **RESOLVED** - Implemented comprehensive path aliases (@components, @utils, @constants, @pages, @hooks, @tests) in vite.config.js and jsconfig.json. Replaced all deep import paths (../../../) with clean aliases across 8+ component files. | Medium | 1 day | $(date) | **Resolved** |
 | FE-016 | Inconsistent Error Handling | Error handling patterns vary across components - some use try-catch, others use .catch(), and some have no error handling at all. Should standardize error handling approach. | Medium | 1.5 days | $(date) | Open |
 | FE-017 | Memory Leaks in Timers | ✅ **RESOLVED** - Fixed setTimeout cleanup in Feedback component. Verified AnimationControls already had proper setInterval cleanup. Documented timer usage patterns for future maintenance. | Medium | 1 day | $(date) | **Resolved** |
+| FE-018 | Settings Page Test Coverage | Several modal/ARIA/keyboard tests were removed due to persistent test environment issues and need to be re-implemented for full coverage. | Low | 0.5 days | $(date) | In Progress |
 
 ### Backend Technical Debt
 
