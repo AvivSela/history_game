@@ -12,6 +12,8 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json({
+  // Limit JSON payload size to prevent large-body DoS attacks
+  limit: '100kb',
   verify: (req, res, buf) => {
     try {
       JSON.parse(buf);
@@ -149,7 +151,7 @@ app.get('/api/events', asyncHandler(async (req, res) => {
 // Get random events for a game (using simpler parameter handling)
 app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   const countParam = req.params.count;
-  const count = parseInt(countParam);
+  const count = parseInt(countParam, 10);
   
   logger.info(`🎲 Fetching ${count} random events...`);
   
@@ -182,7 +184,7 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
 
 // Alternative route without parameters (fallback)
 app.get('/api/events/random', asyncHandler(async (req, res) => {
-  const count = parseInt(req.query.count) || 5;
+  const count = parseInt(req.query.count, 10) || 5;
   logger.info(`🎲 Fetching ${count} random events (query param)...`);
   
   const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
