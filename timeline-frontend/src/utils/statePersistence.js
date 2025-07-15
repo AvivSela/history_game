@@ -8,17 +8,28 @@
 const STORAGE_KEY = 'timelineGameState-v1.0.0';
 const VERSION = '1.0.0';
 
+// Cache storage availability to avoid repeated checks
+let storageCache = null;
+let localStorageAvailable = null;
+let sessionStorageAvailable = null;
+
 /**
  * Check if localStorage is available
  * @returns {boolean}
  */
 const isLocalStorageAvailable = () => {
+  if (localStorageAvailable !== null) {
+    return localStorageAvailable;
+  }
+  
   try {
     const test = '__localStorage_test__';
     localStorage.setItem(test, test);
     localStorage.removeItem(test);
+    localStorageAvailable = true;
     return true;
   } catch (e) {
+    localStorageAvailable = false;
     return false;
   }
 };
@@ -28,30 +39,52 @@ const isLocalStorageAvailable = () => {
  * @returns {boolean}
  */
 const isSessionStorageAvailable = () => {
+  if (sessionStorageAvailable !== null) {
+    return sessionStorageAvailable;
+  }
+  
   try {
     const test = '__sessionStorage_test__';
     sessionStorage.setItem(test, test);
     sessionStorage.removeItem(test);
+    sessionStorageAvailable = true;
     return true;
   } catch (e) {
+    sessionStorageAvailable = false;
     return false;
   }
 };
 
 /**
- * Get the appropriate storage object
+ * Get the appropriate storage object (cached)
  * @returns {Storage|null}
  */
 const getStorage = () => {
+  if (storageCache !== null) {
+    return storageCache;
+  }
+
   if (isLocalStorageAvailable()) {
-    return localStorage;
+    storageCache = localStorage;
+    return storageCache;
   }
   if (isSessionStorageAvailable()) {
     console.warn('localStorage not available, falling back to sessionStorage');
-    return sessionStorage;
+    storageCache = sessionStorage;
+    return storageCache;
   }
   console.warn('No storage available');
+  storageCache = null;
   return null;
+};
+
+/**
+ * Reset storage cache (useful for testing)
+ */
+export const resetStorageCache = () => {
+  storageCache = null;
+  localStorageAvailable = null;
+  sessionStorageAvailable = null;
 };
 
 /**
@@ -104,7 +137,12 @@ export const saveGameStateToStorage = (state) => {
     // Check storage quota
     if (serializedState.length > 4.5 * 1024 * 1024) { // 4.5MB limit
       console.warn('Game state too large for storage, clearing old data');
-      clearGameStateFromStorage();
+      // Clear old data directly instead of calling clearGameStateFromStorage
+      try {
+        storage.removeItem(STORAGE_KEY);
+      } catch (clearError) {
+        console.error('❌ Error clearing old data:', clearError);
+      }
       return false;
     }
 
@@ -155,8 +193,16 @@ export const loadGameStateFromStorage = () => {
     return loadedState;
   } catch (error) {
     console.error('❌ Error loading game state:', error);
-    // Clear corrupted data
-    clearGameStateFromStorage();
+    // Clear corrupted data directly instead of calling clearGameStateFromStorage
+    try {
+      const storage = getStorage();
+      if (storage) {
+        storage.removeItem(STORAGE_KEY);
+        console.log('✅ Game state cleared from storage');
+      }
+    } catch (clearError) {
+      console.error('❌ Error clearing corrupted data:', clearError);
+    }
     return null;
   }
 };

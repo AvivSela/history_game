@@ -81,7 +81,9 @@ describe('timelineLogic', () => {
       expect(result.isClose).toBe(true)
       expect(result.correctPosition).toBe(3)
       expect(result.positionDiff).toBe(1)
-      expect(result.feedback).toContain('Great attempt')
+      // Check for encouraging language in feedback (since it's randomized)
+      const hasEncouragement = /Very close|Almost perfect|Great attempt|Good work/.test(result.feedback)
+      expect(hasEncouragement).toBe(true)
     })
 
     it('should accept close placements for small timelines', () => {

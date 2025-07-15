@@ -8,23 +8,40 @@
  * @param {number} tolerance - Tolerance level (0-1, where 1 is most forgiving)
  * @returns {Object} - Validation result with detailed feedback
  */
-export const validatePlacementWithTolerance = (card, timeline, userPosition) => {
+export const validatePlacementWithTolerance = (card, timeline, userPosition, tolerance = 0) => {
   const correctPosition = findCorrectPosition(card, timeline);
   const positionDiff = Math.abs(userPosition - correctPosition);
-  const isCorrect = positionDiff === 0;
+  const isExact = positionDiff === 0;
+  
+  // Calculate tolerance threshold based on timeline size and tolerance parameter
+  const timelineSize = timeline.length;
+  const toleranceThreshold = Math.max(1, Math.floor(timelineSize * tolerance));
+  const isClose = positionDiff <= toleranceThreshold && positionDiff > 0;
+  const isCorrect = isExact || isClose;
+  
+  let feedbackType = 'miss';
+  if (isExact) {
+    feedbackType = 'perfect';
+  } else if (isClose) {
+    feedbackType = 'close';
+  }
 
   let feedback = '';
-  if (isCorrect) {
+  if (isExact) {
     feedback = generateExactMatchFeedback(card);
+  } else if (isClose) {
+    feedback = generateCloseMatchFeedback(card, userPosition - correctPosition);
   } else {
     feedback = generateMissedFeedback(card, userPosition, correctPosition);
   }
 
   return {
     isCorrect,
+    isClose,
     correctPosition,
     userPosition,
     positionDiff,
+    feedbackType,
     feedback
   };
 };

@@ -4,7 +4,8 @@ import {
   loadGameStateFromStorage,
   clearGameStateFromStorage,
   hasSavedGameState,
-  getStorageInfo
+  getStorageInfo,
+  resetStorageCache
 } from './statePersistence';
 
 // Mock localStorage
@@ -137,17 +138,23 @@ describe('State Persistence', () => {
     sessionStorageMock.getItem.mockReturnValue(null);
     sessionStorageMock.setItem.mockImplementation(() => {});
     sessionStorageMock.removeItem.mockImplementation(() => {});
+
+    // Reset storage cache
+    resetStorageCache();
   });
 
   afterEach(() => {
     // Clean up mocks
     vi.clearAllMocks();
+    // Reset storage cache
+    resetStorageCache();
   });
 
   describe('saveGameStateToStorage', () => {
     it('should save valid game state to localStorage', () => {
-      // Clear any previous calls
+      // Clear any previous calls and reset cache
       localStorageMock.setItem.mockClear();
+      resetStorageCache();
       
       const result = saveGameStateToStorage(mockGameState);
       
@@ -175,6 +182,10 @@ describe('State Persistence', () => {
     });
 
     it('should handle localStorage errors gracefully', () => {
+      // Clear any previous calls and reset cache
+      sessionStorageMock.setItem.mockClear();
+      resetStorageCache();
+      
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Storage quota exceeded');
       });
@@ -202,8 +213,9 @@ describe('State Persistence', () => {
     });
 
     it('should fall back to sessionStorage when localStorage is unavailable', () => {
-      // Clear any previous calls
+      // Clear any previous calls and reset cache
       sessionStorageMock.setItem.mockClear();
+      resetStorageCache();
       
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('localStorage not available');
@@ -294,6 +306,10 @@ describe('State Persistence', () => {
     });
 
     it('should handle storage errors gracefully', () => {
+      // Clear any previous calls and reset cache
+      sessionStorageMock.removeItem.mockClear();
+      resetStorageCache();
+      
       localStorageMock.removeItem.mockImplementation(() => {
         throw new Error('Storage error');
       });

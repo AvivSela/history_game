@@ -6,7 +6,14 @@ import * as gameAPI from '../utils/api';
 
 // Mock dependencies
 vi.mock('../utils/statePersistence');
-vi.mock('../utils/api');
+vi.mock('../utils/api', () => ({
+  gameAPI: {
+    getRandomEvents: vi.fn(),
+    extractData: vi.fn()
+  },
+  extractData: vi.fn(),
+  handleAPIError: vi.fn()
+}));
 vi.mock('../utils/aiLogic', () => ({
   createAIOpponent: vi.fn(() => ({ name: 'Test AI', difficulty: 'medium' }))
 }));
@@ -30,8 +37,24 @@ vi.mock('../constants/gameConstants', () => ({
     SINGLE: 5,
     AI: 8
   },
-  POOL_CARD_COUNT: 10
+  POOL_CARD_COUNT: 10,
+  API: {
+    BASE_URL: 'http://localhost:5000/api',
+    TIMEOUT: 10000,
+    STATUS_CODES: {
+      OK: 200,
+      CREATED: 201,
+      BAD_REQUEST: 400,
+      UNAUTHORIZED: 401,
+      NOT_FOUND: 404,
+      INTERNAL_SERVER_ERROR: 500
+    }
+  }
 }));
+
+// Get mocked modules
+const mockedGameAPI = vi.mocked(gameAPI);
+const mockedStatePersistence = vi.mocked(statePersistence);
 
 // Mock sample data
 const mockEvents = [
@@ -93,21 +116,33 @@ describe('useGameState - State Persistence Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Mock API responses
-    gameAPI.getRandomEvents.mockResolvedValue({ data: mockEvents });
-    gameAPI.extractData.mockImplementation((response) => response.data);
+    // Mock API responses - ensure functions exist before mocking
+    if (mockedGameAPI.gameAPI?.getRandomEvents) {
+      mockedGameAPI.gameAPI.getRandomEvents.mockResolvedValue({ data: mockEvents });
+    }
+    if (mockedGameAPI.extractData) {
+      mockedGameAPI.extractData.mockImplementation((response) => response?.data || response);
+    }
     
     // Mock persistence functions
-    statePersistence.saveGameStateToStorage.mockReturnValue(true);
-    statePersistence.loadGameStateFromStorage.mockReturnValue(null);
-    statePersistence.clearGameStateFromStorage.mockReturnValue(true);
-    statePersistence.hasSavedGameState.mockReturnValue(false);
+    if (mockedStatePersistence.saveGameStateToStorage) {
+      mockedStatePersistence.saveGameStateToStorage.mockReturnValue(true);
+    }
+    if (mockedStatePersistence.loadGameStateFromStorage) {
+      mockedStatePersistence.loadGameStateFromStorage.mockReturnValue(null);
+    }
+    if (mockedStatePersistence.clearGameStateFromStorage) {
+      mockedStatePersistence.clearGameStateFromStorage.mockReturnValue(true);
+    }
+    if (mockedStatePersistence.hasSavedGameState) {
+      mockedStatePersistence.hasSavedGameState.mockReturnValue(false);
+    }
   });
 
   afterEach(() => {
     // Clean up any saved state
     act(() => {
-      statePersistence.clearGameStateFromStorage();
+      mockedStatePersistence.clearGameStateFromStorage();
     });
   });
 
@@ -119,7 +154,7 @@ describe('useGameState - State Persistence Integration', () => {
         await result.current.initializeGame('single', 'medium');
       });
 
-      expect(statePersistence.clearGameStateFromStorage).toHaveBeenCalled();
+      expect(mockedStatePersistence.clearGameStateFromStorage).toHaveBeenCalled();
     });
 
     it('should not load saved state when starting a new game', async () => {
@@ -130,7 +165,7 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Should not call loadGameStateFromStorage during new game initialization
-      expect(statePersistence.loadGameStateFromStorage).not.toHaveBeenCalled();
+      expect(mockedStatePersistence.loadGameStateFromStorage).not.toHaveBeenCalled();
     });
 
     it('should create unique card IDs for new games', async () => {
@@ -179,7 +214,7 @@ describe('useGameState - State Persistence Integration', () => {
         selectedCard: null
       };
 
-      statePersistence.loadGameStateFromStorage.mockReturnValue(savedState);
+      mockedStatePersistence.loadGameStateFromStorage.mockReturnValue(savedState);
 
       const { result } = renderHook(() => useGameState());
 
@@ -210,7 +245,7 @@ describe('useGameState - State Persistence Integration', () => {
         selectedCard: null
       };
 
-      statePersistence.loadGameStateFromStorage.mockReturnValue(savedState);
+      mockedStatePersistence.loadGameStateFromStorage.mockReturnValue(savedState);
 
       const { result } = renderHook(() => useGameState());
 
@@ -230,9 +265,9 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // State should be saved after initialization
-      expect(statePersistence.saveGameStateToStorage).toHaveBeenCalled();
+      expect(mockedStatePersistence.saveGameStateToStorage).toHaveBeenCalled();
       
-      const savedState = statePersistence.saveGameStateToStorage.mock.calls[0][0];
+      const savedState = mockedStatePersistence.saveGameStateToStorage.mock.calls[0][0];
       expect(savedState.gameStatus).toBe('playing');
       expect(savedState.timeline.length).toBeGreaterThan(0);
       expect(savedState.playerHand.length).toBeGreaterThan(0);
@@ -242,7 +277,7 @@ describe('useGameState - State Persistence Integration', () => {
       const { result } = renderHook(() => useGameState());
 
       // Initial state is lobby, should not save
-      expect(statePersistence.saveGameStateToStorage).not.toHaveBeenCalled();
+      expect(mockedStatePersistence.saveGameStateToStorage).not.toHaveBeenCalled();
     });
 
     it('should save state when cards are placed', async () => {
@@ -253,7 +288,7 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Clear previous save calls
-      statePersistence.saveGameStateToStorage.mockClear();
+      mockedStatePersistence.saveGameStateToStorage.mockClear();
 
       // Select a card
       const selectedCard = result.current.state.playerHand[0];
@@ -267,7 +302,7 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // State should be saved after card placement
-      expect(statePersistence.saveGameStateToStorage).toHaveBeenCalled();
+      expect(mockedStatePersistence.saveGameStateToStorage).toHaveBeenCalled();
     });
   });
 
@@ -343,14 +378,14 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Clear previous calls
-      statePersistence.clearGameStateFromStorage.mockClear();
+      mockedStatePersistence.clearGameStateFromStorage.mockClear();
 
       // Restart the game
       act(() => {
         result.current.restartGame();
       });
 
-      expect(statePersistence.clearGameStateFromStorage).toHaveBeenCalled();
+      expect(mockedStatePersistence.clearGameStateFromStorage).toHaveBeenCalled();
     });
 
     it('should reset game state to lobby when restarting', async () => {
@@ -375,7 +410,7 @@ describe('useGameState - State Persistence Integration', () => {
   describe('Error Handling', () => {
     it('should handle persistence errors gracefully', async () => {
       // Mock persistence to fail
-      statePersistence.saveGameStateToStorage.mockReturnValue(false);
+      mockedStatePersistence.saveGameStateToStorage.mockReturnValue(false);
 
       const { result } = renderHook(() => useGameState());
 
@@ -390,7 +425,7 @@ describe('useGameState - State Persistence Integration', () => {
 
     it('should handle corrupted saved state gracefully', () => {
       // Mock corrupted saved state
-      statePersistence.loadGameStateFromStorage.mockReturnValue({
+      mockedStatePersistence.loadGameStateFromStorage.mockReturnValue({
         timeline: null, // Invalid data
         playerHand: null,
         gameStatus: 'playing',

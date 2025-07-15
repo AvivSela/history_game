@@ -4,7 +4,8 @@ import {
   loadGameStateFromStorage,
   clearGameStateFromStorage,
   hasSavedGameState,
-  getStorageInfo
+  getStorageInfo,
+  resetStorageCache
 } from '../utils/statePersistence.js';
 
 describe('State Persistence', () => {
@@ -34,6 +35,7 @@ describe('State Persistence', () => {
     // Replace global storage objects with mocks
     global.localStorage = mockStorage;
     global.sessionStorage = { ...mockStorage, store: {} };
+    resetStorageCache(); // Reset storage cache between tests
   });
 
   afterEach(() => {
