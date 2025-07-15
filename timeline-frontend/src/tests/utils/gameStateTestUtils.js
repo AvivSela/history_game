@@ -357,7 +357,6 @@ export const simulateCompleteGame = async (result) => {
     
     // Check if card is still selected (might have been cleared by previous operations)
     if (!result.current.state.selectedCard) {
-      console.log('⚠️ No card selected, skipping placement attempt');
       attempts++;
       continue;
     }
@@ -375,7 +374,6 @@ export const simulateCompleteGame = async (result) => {
             break;
           }
         } catch (error) {
-          console.log('⚠️ Placement failed:', error.message);
           // Continue to next position
         }
         
@@ -388,12 +386,10 @@ export const simulateCompleteGame = async (result) => {
     
     // If we've made no progress for a while, break to avoid infinite loops
     if (attempts > initialHandSize * 3 && result.current.state.playerHand.length >= initialHandSize) {
-      console.log('⚠️ Breaking simulation - no progress made');
       break;
     }
   }
   
   // The game should eventually reach a win state or continue with replacements
   // We don't strictly require WON state due to card replacement mechanics
-  console.log(`Game simulation completed after ${attempts} attempts`);
 }; 

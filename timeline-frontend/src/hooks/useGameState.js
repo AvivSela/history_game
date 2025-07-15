@@ -119,7 +119,6 @@ export const useGameState = () => {
       try {
         const savedState = loadGameStateFromStorage();
         if (savedState && savedState.gameStatus !== 'lobby') {
-          console.log('🔄 Restoring saved game state');
           setState(prev => ({
             ...prev,
             ...savedState,
@@ -179,13 +178,10 @@ export const useGameState = () => {
         gameStatus: GAME_STATUS.LOADING
       }));
       
-      console.log('🎮 Initializing game:', { mode, difficulty: diff });
-      
       // Create AI opponent if needed
       let aiOpponent = null;
       if (mode === 'ai') {
         aiOpponent = createAIOpponent(diff);
-        console.log('🤖 AI created:', aiOpponent.name);
       }
       
       // Fetch events from API
@@ -247,14 +243,6 @@ export const useGameState = () => {
         error: null
       }));
 
-      console.log('✅ Game initialized successfully:', {
-        mode,
-        humanCards: humanCards.length,
-        aiCards: aiCards.length,
-        timeline: session.timeline.length,
-        poolSize: poolEvents.length
-      });
-
       // Debug: Check for duplicate IDs
       const allCardIds = [
         ...session.timeline.map(card => card.id),
@@ -313,8 +301,6 @@ export const useGameState = () => {
     }
 
     finalPosition = Math.max(0, Math.min(state.timeline.length, finalPosition));
-
-    console.log('🤖 AI placing card:', selectedCard.title, 'at position', finalPosition);
 
     // Temporarily set selected card for AI
     setState(prev => ({ ...prev, selectedCard }));
@@ -458,12 +444,10 @@ export const useGameState = () => {
   // Clear saved game state
   const clearSavedGame = useCallback(() => {
     clearGameStateFromStorage();
-    console.log('🗑️ Saved game state cleared');
   }, []);
 
   // Restart game
   const restartGame = useCallback(() => {
-    console.log('🔄 restartGame called');
     
     // Clear any pending restart timeout
     if (restartTimeoutRef.current) {
@@ -475,7 +459,6 @@ export const useGameState = () => {
     clearGameStateFromStorage();
     
     setState(prev => {
-      console.log('🔄 Resetting game state to lobby');
       return {
         ...prev,
         // Clear all game data
@@ -510,15 +493,8 @@ export const useGameState = () => {
 
   // Select a card
   const selectCard = useCallback((card) => {
-    console.log('🎯 selectCard called:', { 
-      card: card?.title, 
-      gameStatus: state.gameStatus, 
-      currentPlayer: state.currentPlayer,
-      canSelect: state.gameStatus === 'playing' && state.currentPlayer === 'human'
-    });
     
     if (state.gameStatus !== 'playing' || state.currentPlayer !== 'human') {
-      console.log('❌ Cannot select card:', { gameStatus: state.gameStatus, currentPlayer: state.currentPlayer });
       return;
     }
 
@@ -570,32 +546,25 @@ export const useGameState = () => {
 
   // Place a card on the timeline
   const placeCard = useCallback(async (position, player = 'human') => {
-    console.log('🎯 placeCard called:', { position, player, currentState: state });
     
     if (!state.selectedCard || state.gameStatus !== 'playing') {
-      console.log('❌ Cannot place card:', { selectedCard: state.selectedCard, gameStatus: state.gameStatus });
       return { success: false, reason: 'invalid_state' };
     }
 
     const selectedCard = state.selectedCard;
-    console.log('🎯 Attempting to place card:', selectedCard.title, 'at position:', position);
 
     try {
       // Validate placement
       const validation = validatePlacementWithTolerance(selectedCard, state.timeline, position);
-      console.log('🎯 Card placement validation:', validation);
 
       if (validation.isCorrect) {
-        console.log('✅ Card placement is correct!');
         
         // Update timeline
         const newTimeline = [...state.timeline];
         newTimeline.splice(position, 0, selectedCard);
-        console.log('📅 New timeline length:', newTimeline.length);
 
         // Remove card from player's hand
         const newPlayerHand = state.playerHand.filter(card => card.id !== selectedCard.id);
-        console.log('👤 Player hand after removal:', newPlayerHand.length, 'cards');
 
         // Calculate score
         const scoreEarned = calculateScore(validation);
@@ -610,7 +579,6 @@ export const useGameState = () => {
 
         // Check win condition
         const isGameWon = newPlayerHand.length === 0;
-        console.log('🏆 Win condition check:', { playerHandLength: newPlayerHand.length, isGameWon });
 
         const newGameState = {
           ...state,
@@ -633,29 +601,20 @@ export const useGameState = () => {
         };
 
         if (isGameWon) {
-          console.log('🎉 Game won! Setting status to won');
           newGameState.gameStatus = 'won';
         }
-
-        console.log('🔄 Setting new game state:', { 
-          gameStatus: newGameState.gameStatus, 
-          timelineLength: newGameState.timeline.length,
-          playerHandLength: newGameState.playerHand.length
-        });
 
         setState(newGameState);
         saveGameStateToStorage(newGameState);
 
         // If game is won, show feedback and restart after delay
         if (isGameWon) {
-          console.log('⏰ Game won - will restart after delay');
           // Clear any existing restart timeout
           if (restartTimeoutRef.current) {
             clearTimeout(restartTimeoutRef.current);
           }
           // Set new restart timeout
           restartTimeoutRef.current = setTimeout(() => {
-            console.log('🔄 Restarting game after win');
             restartGame();
           }, 3000);
         }
@@ -667,7 +626,6 @@ export const useGameState = () => {
           validation 
         };
       } else {
-        console.log('❌ Card placement is incorrect');
         
         // Calculate score for incorrect placement (usually 0 or negative)
         const scoreEarned = calculateScore(validation);
@@ -691,8 +649,6 @@ export const useGameState = () => {
             card.id === selectedCard.id ? cardReplacement.newCard : card
           );
           newCardPool = cardReplacement.updatedPool;
-          console.log('🔄 Replaced incorrect card with:', cardReplacement.newCard.title, 'ID:', cardReplacement.newCard.id);
-          console.log('🔄 New player hand after replacement:', newPlayerHand.map(card => ({ id: card.id, title: card.title })));
         } else {
           console.log('⚠️ Could not get replacement card from pool');
         }
@@ -717,12 +673,6 @@ export const useGameState = () => {
             attempts: newAttempts[selectedCard.id]
           }
         };
-
-        console.log('🔄 Setting new game state for incorrect placement:', { 
-          gameStatus: newGameState.gameStatus, 
-          timelineLength: newGameState.timeline.length,
-          playerHandLength: newGameState.playerHand.length
-        });
 
         setState(newGameState);
         saveGameStateToStorage(newGameState);
