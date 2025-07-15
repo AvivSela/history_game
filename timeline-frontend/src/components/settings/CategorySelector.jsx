@@ -13,7 +13,7 @@ import './CategorySelector.css';
  * <CategorySelector 
  *   value={['history', 'science']} 
  *   categories={availableCategories}
- *   onChange={(categories) => console.log(categories)}
+ *   onChange={(categories) => {}}
  *   disabled={false}
  * />
  * ```
@@ -55,7 +55,7 @@ const CategorySelector = ({
     try {
       localStorage.setItem('timeline-game-favorites', JSON.stringify(favorites));
     } catch (error) {
-      console.warn('Failed to save favorites to localStorage:', error);
+      // Failed to save favorites to localStorage
     }
   }, [favorites]);
 

@@ -7,7 +7,6 @@ export const accessibilityConfig = {
     try {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     } catch (error) {
-      console.warn('Could not detect reduced motion preference:', error);
       return false;
     }
   },
@@ -28,7 +27,6 @@ export const accessibilityConfig = {
         shouldUseSubtleAnimations: prefersReducedMotion
       };
     } catch (error) {
-      console.warn('Could not detect animation preferences:', error);
       return { shouldAnimate: true, durationMultiplier: 1, shouldUseSubtleAnimations: false };
     }
   },

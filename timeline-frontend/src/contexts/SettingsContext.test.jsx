@@ -20,7 +20,6 @@ vi.mock('../utils/settingsManager', () => {
     isInitialized: true,
     isReady: vi.fn().mockReturnValue(true),
     getSettings: vi.fn().mockImplementation(() => {
-      console.log('🔍 Mock getSettings called');
       return { ...settingsStore };
     }),
     onChange: vi.fn().mockImplementation((cb) => {
@@ -28,7 +27,6 @@ vi.mock('../utils/settingsManager', () => {
       return () => { changeCallback = null; };
     }),
     updateSettings: vi.fn().mockImplementation((updates) => {
-      console.log('🔍 Mock updateSettings called with:', updates);
       settingsStore = { ...settingsStore, ...updates };
       if (changeCallback) {
         changeCallback({ ...settingsStore, key: undefined });
@@ -36,7 +34,6 @@ vi.mock('../utils/settingsManager', () => {
       return true;
     }),
     resetToDefaults: vi.fn().mockImplementation(() => {
-      console.log('🔍 Mock resetToDefaults called');
       settingsStore = getDefaultSettings();
       if (changeCallback) {
         changeCallback({ ...settingsStore, key: undefined });
@@ -146,7 +143,6 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
         dispatch({ type: 'SET_LOADING', payload: true });
         
         const currentSettings = mockSettingsManager.getSettings();
-        console.log('🔍 TestProvider: getSettings returned:', currentSettings);
         dispatch({ type: 'SET_SETTINGS', payload: currentSettings });
 
         const unsubscribe = mockSettingsManager.onChange((changeInfo) => {
@@ -168,7 +164,6 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
 
         return unsubscribe;
       } catch (error) {
-        console.error('❌ Error initializing test settings:', error);
         dispatch({
           type: 'SET_ERROR',
           payload: error.message || 'Failed to initialize settings'
@@ -180,7 +175,7 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
     initializeSettings().then((unsub) => {
       unsubscribe = unsub;
     }).catch((error) => {
-      console.error('❌ Failed to initialize test settings:', error);
+      // Failed to initialize test settings
     });
     
     return () => {
@@ -198,7 +193,6 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
       }
       return true;
     } catch (error) {
-      console.error('❌ Error updating setting:', error);
       dispatch({
         type: 'SET_ERROR',
         payload: error.message || 'Failed to update setting'
@@ -215,7 +209,6 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
       }
       return true;
     } catch (error) {
-      console.error('❌ Error resetting settings:', error);
       dispatch({
         type: 'SET_ERROR',
         payload: error.message || 'Failed to reset settings'

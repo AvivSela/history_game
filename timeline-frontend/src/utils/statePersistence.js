@@ -81,11 +81,9 @@ const getStorage = () => {
     return storageCache;
   }
   if (isSessionStorageAvailable()) {
-    console.warn('localStorage not available, falling back to sessionStorage');
     storageCache = sessionStorage;
     return storageCache;
   }
-  console.warn('No storage available');
   storageCache = null;
   return null;
 };
@@ -144,12 +142,11 @@ export const saveGameStateToStorage = (state) => {
     
     // Check storage quota
     if (serializedState.length > 4.5 * 1024 * 1024) { // 4.5MB limit
-      console.warn('Game state too large for storage, clearing old data');
       // Clear old data directly instead of calling clearGameStateFromStorage
       try {
         storage.removeItem(STORAGE_KEY);
       } catch (clearError) {
-        console.error('❌ Error clearing old data:', clearError);
+        // Error clearing old data
       }
       return false;
     }
@@ -157,7 +154,6 @@ export const saveGameStateToStorage = (state) => {
     storage.setItem(STORAGE_KEY, serializedState);
     return true;
   } catch (error) {
-    console.error('❌ Error saving game state:', error);
     return false;
   }
 };
@@ -182,7 +178,6 @@ export const loadGameStateFromStorage = () => {
     
     // Validate version
     if (loadedState.version !== VERSION) {
-      console.warn(`Version mismatch: expected ${VERSION}, got ${loadedState.version}`);
       // For now, we'll ignore version mismatches and try to load anyway
       // In the future, we could implement migration logic here
     }
@@ -191,14 +186,12 @@ export const loadGameStateFromStorage = () => {
     const requiredFields = ['timeline', 'playerHand', 'gameStatus'];
     for (const field of requiredFields) {
       if (!(field in loadedState)) {
-        console.warn(`Missing required field: ${field}`);
         return null;
       }
     }
 
     return loadedState;
   } catch (error) {
-    console.error('❌ Error loading game state:', error);
     // Clear corrupted data directly instead of calling clearGameStateFromStorage
     try {
       const storage = getStorage();
@@ -206,7 +199,7 @@ export const loadGameStateFromStorage = () => {
         storage.removeItem(STORAGE_KEY);
       }
     } catch (clearError) {
-      console.error('❌ Error clearing corrupted data:', clearError);
+      // Error clearing corrupted data
     }
     return null;
   }
@@ -226,7 +219,6 @@ export const clearGameStateFromStorage = () => {
     storage.removeItem(STORAGE_KEY);
     return true;
   } catch (error) {
-    console.error('❌ Error clearing game state:', error);
     return false;
   }
 };
@@ -244,7 +236,6 @@ export const hasSavedGameState = () => {
 
     return storage.getItem(STORAGE_KEY) !== null;
   } catch (error) {
-    console.error('❌ Error checking saved game state:', error);
     return false;
   }
 };

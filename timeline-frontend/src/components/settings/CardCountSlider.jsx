@@ -15,7 +15,7 @@ import './CardCountSlider.css';
  *   value={5} 
  *   min={3} 
  *   max={10} 
- *   onChange={(count) => console.log(count)}
+ *   onChange={(count) => {}}
  *   disabled={false}
  *   label="Custom Label"
  *   step={1}

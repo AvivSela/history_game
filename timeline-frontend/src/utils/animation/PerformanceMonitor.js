@@ -171,7 +171,7 @@ class AnimationPerformanceMonitor {
     
     // Log performance data
     if (duration > PERFORMANCE_THRESHOLDS.FRAME_BUDGET) {
-      console.warn(`Animation ${timer.name} took ${duration.toFixed(2)}ms (target: <${PERFORMANCE_THRESHOLDS.FRAME_BUDGET}ms)`);
+      // Animation performance warning
     }
     
     // Generate optimization recommendations
@@ -198,12 +198,8 @@ class AnimationPerformanceMonitor {
     if (type === 'frame_drop') {
       const now = Date.now();
       if (!this.lastFrameDropWarning || now - this.lastFrameDropWarning > 5000) {
-        console.warn(`Performance issue detected: ${type}`, details);
         this.lastFrameDropWarning = now;
       }
-    } else {
-      // Log other issues immediately
-      console.warn(`Performance issue detected: ${type}`, details);
     }
   }
 
@@ -341,12 +337,7 @@ class AnimationPerformanceMonitor {
     if (!this.isEnabled) return;
     
     const summary = this.getPerformanceSummary();
-    console.log('🎬 Animation Performance Summary:', summary);
-    
     const recommendations = this.getOptimizationRecommendations();
-    if (recommendations.length > 0) {
-      console.log('💡 Optimization Recommendations:', recommendations);
-    }
   }
 }
 

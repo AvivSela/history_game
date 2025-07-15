@@ -46,11 +46,9 @@ const SettingsContent = () => {
     getValidationError
   } = useSettingsEnhanced({
     onError: (error) => {
-      console.error('❌ Settings error:', error);
       setSaveStatus({ type: 'error', message: `Settings error: ${error}` });
     },
     onValidationError: (errors) => {
-      console.warn('⚠️ Settings validation errors:', errors);
       setSaveStatus({ type: 'warning', message: 'Some settings have validation errors' });
     }
   });
@@ -74,7 +72,6 @@ const SettingsContent = () => {
           }));
           setAvailableCategories(categories);
         } else {
-          console.warn('Failed to load categories, using defaults');
           setAvailableCategories([
             { id: 'history', name: 'History', description: 'Historical events and wars' },
             { id: 'science', name: 'Science', description: 'Scientific discoveries and inventions' },
@@ -84,7 +81,6 @@ const SettingsContent = () => {
           ]);
         }
       } catch (error) {
-        console.error('Error loading categories:', error);
         setAvailableCategories([
           { id: 'history', name: 'History', description: 'Historical events and wars' },
           { id: 'science', name: 'Science', description: 'Scientific discoveries and inventions' },

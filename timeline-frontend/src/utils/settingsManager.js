@@ -65,9 +65,7 @@ class SettingsManager {
     try {
       this.loadSettings();
       this.isInitialized = true;
-      console.log('✅ SettingsManager initialized successfully');
     } catch (error) {
-      console.error('❌ Error initializing SettingsManager:', error);
       // Fallback to default settings
       this.settings = { ...this.defaultSettings };
       this.isInitialized = true;
@@ -88,12 +86,10 @@ class SettingsManager {
           ...this.defaultSettings,
           ...parsedSettings
         };
-        console.log('📥 Settings loaded from localStorage');
       } else {
-        console.log('📝 No saved settings found, using defaults');
+        // No saved settings found, using defaults
       }
     } catch (error) {
-      console.error('❌ Error loading settings from localStorage:', error);
       throw new Error('Failed to load settings from storage');
     }
   }
@@ -106,9 +102,7 @@ class SettingsManager {
     try {
       const settingsToSave = { ...this.settings };
       localStorage.setItem(this.storageKey, JSON.stringify(settingsToSave));
-      console.log('💾 Settings saved to localStorage');
     } catch (error) {
-      console.error('❌ Error saving settings to localStorage:', error);
       throw new Error('Failed to save settings to storage');
     }
   }
@@ -138,12 +132,10 @@ class SettingsManager {
    */
   updateSetting(key, value) {
     if (!this.isInitialized) {
-      console.warn('⚠️ SettingsManager not initialized');
       return false;
     }
 
     if (!(key in this.defaultSettings)) {
-      console.warn(`⚠️ Unknown setting key: ${key}`);
       return false;
     }
 
@@ -153,12 +145,10 @@ class SettingsManager {
     try {
       this.saveSettings();
       this.notifyChangeListeners(key, value, oldValue);
-      console.log(`✅ Setting updated: ${key} = ${value}`);
       return true;
     } catch (error) {
       // Revert on save failure
       this.settings[key] = oldValue;
-      console.error(`❌ Failed to update setting ${key}:`, error);
       return false;
     }
   }
@@ -170,7 +160,6 @@ class SettingsManager {
    */
   updateSettings(settings) {
     if (!this.isInitialized) {
-      console.warn('⚠️ SettingsManager not initialized');
       return false;
     }
 
@@ -180,7 +169,6 @@ class SettingsManager {
     // Validate all settings before applying any
     for (const [key, value] of Object.entries(settings)) {
       if (!(key in this.defaultSettings)) {
-        console.warn(`⚠️ Unknown setting key: ${key}`);
         return false;
       }
       updates[key] = value;
@@ -195,12 +183,10 @@ class SettingsManager {
       Object.entries(updates).forEach(([key, value]) => {
         this.notifyChangeListeners(key, value, oldSettings[key]);
       });
-      console.log('✅ Multiple settings updated successfully');
       return true;
     } catch (error) {
       // Revert all changes on save failure
       this.settings = oldSettings;
-      console.error('❌ Failed to update settings:', error);
       return false;
     }
   }
@@ -211,7 +197,6 @@ class SettingsManager {
    */
   resetToDefaults() {
     if (!this.isInitialized) {
-      console.warn('⚠️ SettingsManager not initialized');
       return false;
     }
 
@@ -224,12 +209,10 @@ class SettingsManager {
       Object.keys(this.settings).forEach(key => {
         this.notifyChangeListeners(key, this.settings[key], oldSettings[key]);
       });
-      console.log('🔄 Settings reset to defaults');
       return true;
     } catch (error) {
       // Revert on save failure
       this.settings = oldSettings;
-      console.error('❌ Failed to reset settings:', error);
       return false;
     }
   }
@@ -241,7 +224,6 @@ class SettingsManager {
    */
   onChange(listener) {
     if (typeof listener !== 'function') {
-      console.warn('⚠️ onChange listener must be a function');
       return () => {};
     }
 
@@ -278,7 +260,7 @@ class SettingsManager {
       try {
         listener(changeInfo);
       } catch (error) {
-        console.error('❌ Error in settings change listener:', error);
+        // Error in settings change listener
       }
     });
   }
@@ -306,10 +288,8 @@ class SettingsManager {
   clearSettings() {
     try {
       localStorage.removeItem(this.storageKey);
-      console.log('🗑️ Settings cleared from localStorage');
       return true;
     } catch (error) {
-      console.error('❌ Error clearing settings:', error);
       return false;
     }
   }

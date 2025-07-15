@@ -142,9 +142,6 @@ describe('Settings Validation', () => {
 
         it(`should reject ${setting} with non-boolean values`, () => {
           const result = validateSetting(setting, 'true');
-          if (setting === 'animations') {
-            console.log('Actual error for animations:', result.errors[0]);
-          }
           expect(result.isValid).toBe(false);
           expect(result.errors).toContain(`${setting} setting must be true or false`);
         });

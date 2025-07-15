@@ -7,18 +7,9 @@ let manager;
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
-  setItem: vi.fn().mockImplementation(() => {
-    // Don't throw errors, just log
-    console.log('Mock localStorage.setItem called');
-  }),
-  removeItem: vi.fn().mockImplementation(() => {
-    // Don't throw errors, just log
-    console.log('Mock localStorage.removeItem called');
-  }),
-  clear: vi.fn().mockImplementation(() => {
-    // Don't throw errors, just log
-    console.log('Mock localStorage.clear called');
-  }),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 global.localStorage = localStorageMock;
 
@@ -42,19 +33,7 @@ describe('SettingsManager', () => {
     localStorageMock.removeItem.mockReset();
     localStorageMock.clear.mockReset();
     
-    // Restore default mock implementations
-    localStorageMock.setItem.mockImplementation(() => {
-      // Don't throw errors, just log
-      console.log('Mock localStorage.setItem called');
-    });
-    localStorageMock.removeItem.mockImplementation(() => {
-      // Don't throw errors, just log
-      console.log('Mock localStorage.removeItem called');
-    });
-    localStorageMock.clear.mockImplementation(() => {
-      // Don't throw errors, just log
-      console.log('Mock localStorage.clear called');
-    });
+
     
     // Create a fresh instance for each test
     manager = new SettingsManager();

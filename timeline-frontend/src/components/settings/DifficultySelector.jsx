@@ -13,7 +13,7 @@ import './DifficultySelector.css';
  * ```jsx
  * <DifficultySelector 
  *   value="medium" 
- *   onChange={(difficulty) => console.log(difficulty)}
+ *   onChange={(difficulty) => {}}
  *   disabled={false}
  * />
  * ```

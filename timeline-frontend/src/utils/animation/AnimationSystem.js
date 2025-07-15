@@ -39,13 +39,7 @@ class AnimationSystem {
     
     this.isInitialized = true;
     
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎬 Animation System initialized with optimizations:', {
-        device: deviceOptimizer.getDeviceInfo(),
-        accessibility: accessibilityManager.getAccessibilityState(),
-        performance: this.options.enablePerformanceMonitoring
-      });
-    }
+
   }
 
   // Inject optimized CSS into the document
@@ -61,11 +55,9 @@ class AnimationSystem {
       document.head.appendChild(style);
       this.cssInjected = true;
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🎨 Optimized CSS injected');
-      }
+
     } catch (error) {
-      console.error('Failed to inject optimized CSS:', error);
+      // Failed to inject optimized CSS
     }
   }
 
@@ -90,19 +82,12 @@ class AnimationSystem {
 
   // Handle accessibility preference changes
   onAccessibilityPreferencesChanged() {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('♿ Accessibility preferences changed:', accessibilityManager.getAccessibilityState());
-    }
   }
 
   // Handle device changes
   onDeviceChanged() {
     deviceOptimizer.updatePerformanceMetrics();
     globalAnimationQueue.updateDeviceSettings();
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📱 Device settings updated:', deviceOptimizer.getDeviceInfo());
-    }
   }
 
   // Core animation method
@@ -131,7 +116,6 @@ class AnimationSystem {
       
       return result;
     } catch (error) {
-      console.error(`Animation failed: ${animation}`, error);
       animationPerformanceMonitor.endAnimationTimer(timerId, { success: false, error });
       throw error;
     }

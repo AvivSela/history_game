@@ -176,7 +176,6 @@ export const useGameState = () => {
       
       // Listen for settings changes
       const handleSettingsChange = (key, newValue, oldValue) => {
-        console.log(`🔄 Settings changed: ${key} = ${newValue} (was: ${oldValue})`);
         setSettings(prev => ({ ...prev, [key]: newValue }));
         
         // Apply settings changes to active game if relevant
@@ -186,10 +185,7 @@ export const useGameState = () => {
       };
       
       settingsManagerRef.current.onChange(handleSettingsChange);
-      
-      console.log('✅ Settings manager integrated with useGameState');
     } catch (error) {
-      console.error('❌ Error initializing settings manager:', error);
       // Continue with default settings
     }
   }, [applySettingsToActiveGame]);
@@ -212,7 +208,7 @@ export const useGameState = () => {
           }));
         }
       } catch (error) {
-        console.error('❌ Error loading saved state:', error);
+        // Error loading saved state
       }
     };
 
@@ -289,12 +285,7 @@ export const useGameState = () => {
       const difficulty = diff || getDifficultyFromSettings();
       const categories = getCategoriesFromSettings();
       
-      console.log('🎮 Initializing game with settings:', {
-        mode,
-        difficulty,
-        cardCount,
-        categories: categories.length > 0 ? categories : 'all'
-      });
+
       
       // Fetch events from API with category filtering
       const response = await gameAPI.getRandomEvents(cardCount, categories);
@@ -344,22 +335,17 @@ export const useGameState = () => {
         error: null
       }));
 
-      // Debug: Check for duplicate IDs
+      // Check for duplicate IDs
       const allCardIds = [
         ...session.timeline.map(card => card.id),
         ...humanCards.map(card => card.id)
       ];
       const uniqueIds = new Set(allCardIds);
       if (allCardIds.length !== uniqueIds.size) {
-        console.warn('⚠️ Duplicate card IDs detected in new game!', {
-          totalCards: allCardIds.length,
-          uniqueCards: uniqueIds.size,
-          duplicates: allCardIds.filter((id, index) => allCardIds.indexOf(id) !== index)
-        });
+        // Duplicate card IDs detected in new game
       }
 
     } catch (error) {
-      console.error('❌ Error initializing game:', error);
       const errorMessage = handleAPIError(error, 'Failed to load game');
       setState(prev => ({
         ...prev,
@@ -469,7 +455,6 @@ export const useGameState = () => {
       
       return { newCard, updatedPool };
     } catch (error) {
-      console.error('Failed to fetch new cards:', error);
       return null;
     }
   }, [getCategoriesFromSettings]);
@@ -621,7 +606,6 @@ export const useGameState = () => {
         };
       }
     } catch (error) {
-      console.error('❌ Error in placeCard:', error);
       return { success: false, reason: 'error', error: error.message };
     }
   }, [state, validatePlacementWithTolerance, calculateScore, saveGameStateToStorage, restartGame, getNewCardFromPool]);
@@ -665,7 +649,6 @@ export const useGameState = () => {
       if (settingsManagerRef.current) {
         return settingsManagerRef.current.updateSettings(newSettings);
       } else {
-        console.warn('⚠️ SettingsManager not initialized');
         return false;
       }
     },
@@ -673,7 +656,6 @@ export const useGameState = () => {
       if (settingsManagerRef.current) {
         return settingsManagerRef.current.updateSetting(key, value);
       } else {
-        console.warn('⚠️ SettingsManager not initialized');
         return false;
       }
     },
@@ -681,7 +663,6 @@ export const useGameState = () => {
       if (settingsManagerRef.current) {
         return settingsManagerRef.current.getSettings();
       } else {
-        console.warn('⚠️ SettingsManager not initialized');
         return settings;
       }
     }

@@ -45,7 +45,6 @@ class PerformanceMonitor {
     
     if (timer) {
       const duration = performance.now() - timer.startTime;
-      console.log(`⏱️ ${componentName} ${operation}: ${duration.toFixed(2)}ms`, additionalData);
       
       // Store for analysis
       if (!this.metrics.gamePerformance[componentName]) {
@@ -75,7 +74,7 @@ class PerformanceMonitor {
     const result = callback();
     const duration = performance.now() - startTime;
 
-    console.log(`👆 ${interaction}: ${duration.toFixed(2)}ms`, context);
+
     
     if (!this.metrics.userInteractions.has(interaction)) {
       this.metrics.userInteractions.set(interaction, []);
@@ -99,13 +98,9 @@ class PerformanceMonitor {
     const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
     this.metrics.bundleMetrics.initialLoadTime = loadTime;
     
-    console.log(`📦 Initial bundle load: ${loadTime}ms`);
-    
     // Track DOM content loaded
     const domContentLoaded = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
     this.metrics.bundleMetrics.domContentLoaded = domContentLoaded;
-    
-    console.log(`🌐 DOM Content Loaded: ${domContentLoaded}ms`);
   }
 
   /**
@@ -117,7 +112,6 @@ class PerformanceMonitor {
     if (!this.isEnabled) return;
     
     this.metrics.gamePerformance[metric] = value;
-    console.log(`🎮 Game Metric - ${metric}:`, value);
   }
 
   /**
@@ -156,7 +150,6 @@ class PerformanceMonitor {
     if (!this.isEnabled) return;
     
     const summary = this.getSummary();
-    console.log('📊 Performance Summary:', summary);
   }
 
   /**

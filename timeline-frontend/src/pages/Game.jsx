@@ -64,24 +64,17 @@ const Game = () => {
         cardCount: 4 // Fixed card count for single player mode
       });
     } catch (error) {
-      console.error('Failed to initialize game:', error);
+      // Failed to initialize game
     }
   }, [initializeGame]);
 
   useEffect(() => {
-    console.log('🔄 useEffect running, hasInitialized:', hasInitialized.current);
     // Only initialize a new game if there's no saved game state
     if (!hasInitialized.current) {
       if (!hasSavedGame()) {
-        console.log('🆕 No saved game found, starting new game');
         handleInitializeGame();
-      } else {
-        console.log('🔄 Saved game found, resuming existing game');
       }
       hasInitialized.current = true;
-      console.log('🔄 hasInitialized set to true');
-    } else {
-      console.log('🔄 hasInitialized is true, skipping initialization');
     }
   }, []); // Empty dependency array - only run once on mount
 
@@ -117,7 +110,6 @@ const Game = () => {
     // Handle the result and trigger animations
     if (result && result.success) {
       if (!result.isCorrect) {
-        console.log('🎬 Triggering wrong placement animations');
         // Trigger wrong placement animations
         if (timelineRef.current) {
           timelineRef.current.animateWrongPlacement(position);
@@ -133,8 +125,6 @@ const Game = () => {
             playerHandRef.current.animateNewCard(result.cardReplaced.id);
           }, 800); // Delay for new card animation
         }
-      } else {
-        console.log('✅ Correct placement - no animations needed');
       }
     }
   };
@@ -143,24 +133,18 @@ const Game = () => {
    * Handles restart game action
    */
   const handleRestartGame = async () => {
-    console.log('🔄 handleRestartGame called');
-    console.log('🔄 hasInitialized before reset:', hasInitialized.current);
-    
     // Clear the game state first
     restartGame();
     
     // Reset the initialization flag so we can start a new game
     hasInitialized.current = false;
-    console.log('🔄 hasInitialized after reset:', hasInitialized.current);
     
     // Start a new game after clearing the state
     setTimeout(async () => {
-      console.log('🆕 Starting new game after restart');
       try {
         await handleInitializeGame();
-        console.log('✅ New game started successfully');
       } catch (error) {
-        console.error('❌ Failed to start new game:', error);
+        // Failed to start new game
       }
     }, 100); // Small delay to ensure state is cleared
   };
@@ -171,7 +155,6 @@ const Game = () => {
    */
   const handleTimelineCardClick = (event) => {
     // Timeline card click handling logic
-    console.log('Timeline card clicked:', event);
   };
 
   /**

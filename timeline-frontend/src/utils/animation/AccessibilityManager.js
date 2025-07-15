@@ -35,7 +35,6 @@ class AccessibilityManager {
         shouldUseSubtleAnimations: prefersReducedMotion
       };
     } catch (error) {
-      console.warn('Could not detect accessibility preferences:', error);
       return {
         prefersReducedMotion: false,
         prefersReducedData: false,
@@ -62,7 +61,6 @@ class AccessibilityManager {
 
       return hasScreenReader;
     } catch (error) {
-      console.warn('Could not detect screen reader:', error);
       return false;
     }
   }
@@ -93,7 +91,7 @@ class AccessibilityManager {
         this.onPreferencesChanged();
       });
     } catch (error) {
-      console.warn('Could not setup accessibility event listeners:', error);
+      // Could not setup accessibility event listeners
     }
   }
 
@@ -157,7 +155,7 @@ class AccessibilityManager {
         }
       }, 1000);
     } catch (error) {
-      console.warn('Could not announce to screen reader:', error);
+      // Could not announce to screen reader
     }
   }
 
@@ -190,7 +188,7 @@ class AccessibilityManager {
         });
       }
     } catch (error) {
-      console.warn('Could not manage focus:', error);
+      // Could not manage focus
     }
   }
 

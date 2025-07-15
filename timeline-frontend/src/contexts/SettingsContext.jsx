@@ -160,7 +160,6 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
         // Cleanup function
         return unsubscribe;
       } catch (error) {
-        console.error('❌ Error initializing settings context:', error);
         dispatch({
           type: SETTINGS_ACTIONS.SET_ERROR,
           payload: error.message || 'Failed to initialize settings'
@@ -172,7 +171,7 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
     initializeSettings().then((unsub) => {
       unsubscribe = unsub;
     }).catch((error) => {
-      console.error('❌ Failed to initialize settings:', error);
+      // Failed to initialize settings
     });
     
     return () => {
@@ -190,7 +189,6 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
         throw new Error('Failed to update settings');
       }
     } catch (error) {
-      console.error('❌ Error updating settings:', error);
       dispatch({
         type: SETTINGS_ACTIONS.SET_ERROR,
         payload: error.message || 'Failed to update settings'
@@ -228,7 +226,6 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
 
       return true;
     } catch (error) {
-      console.error('❌ Error updating setting:', error);
       dispatch({
         type: SETTINGS_ACTIONS.SET_ERROR,
         payload: error.message || 'Failed to update setting'
@@ -267,7 +264,6 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
 
       return true;
     } catch (error) {
-      console.error('❌ Error updating settings:', error);
       dispatch({
         type: SETTINGS_ACTIONS.SET_ERROR,
         payload: error.message || 'Failed to update settings'
@@ -292,7 +288,6 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
 
       return true;
     } catch (error) {
-      console.error('❌ Error resetting settings:', error);
       dispatch({
         type: SETTINGS_ACTIONS.SET_ERROR,
         payload: error.message || 'Failed to reset settings'
@@ -381,7 +376,7 @@ export class SettingsErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('❌ Settings context error:', error, errorInfo);
+    // Settings context error
   }
 
   render() {
@@ -415,7 +410,6 @@ export function useSettingsSafe() {
   try {
     return useSettings();
   } catch (error) {
-    console.warn('⚠️ Settings context not available:', error);
     return {
       settings: {},
       isLoading: false,

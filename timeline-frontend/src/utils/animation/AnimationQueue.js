@@ -108,7 +108,6 @@ class AnimationQueue {
           }
           
         } catch (error) {
-          console.error('Animation failed:', error);
           // Fallback to instant state change
           await this.executeInstantStateChange(item);
         } finally {
@@ -143,7 +142,6 @@ class AnimationQueue {
       this.updatePerformanceMetrics(duration);
       
     } catch (error) {
-      console.error('Animation execution failed:', error);
       throw error;
     }
   }
@@ -157,7 +155,7 @@ class AnimationQueue {
         await instantState();
       }
     } catch (error) {
-      console.error('Instant state change failed:', error);
+      // Instant state change failed
     }
   }
 

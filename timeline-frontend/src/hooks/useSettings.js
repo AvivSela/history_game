@@ -198,10 +198,10 @@ export function useSettingWatcher(key, callback) {
 export function useSettingsWithErrorHandling() {
   const settings = useSettingsEnhanced({
     onError: (error) => {
-      console.error('❌ Settings error:', error);
+      // Settings error
     },
     onValidationError: (errors) => {
-      console.warn('⚠️ Settings validation errors:', errors);
+      // Settings validation errors
     }
   });
 
