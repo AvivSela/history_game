@@ -211,13 +211,7 @@ class SettingsManager {
     }
   }
   
-  exportSettings() {
-    return this.exportSettings();
-  }
-  
-  importSettings(data) {
-    return this.importSettings(data);
-  }
+
 }
 ```
 
@@ -284,7 +278,7 @@ const migrateSettings = (oldSettings, oldVersion, newVersion) => {
 2. ✅ Add accessibility settings
 3. ✅ Add performance settings
 4. ✅ Create categorized UI
-5. ✅ Add settings import/export
+5. ❌ Add settings import/export (removed)
 
 ### **Phase 3: Advanced Features (Low Priority)**
 1. ✅ Add settings search

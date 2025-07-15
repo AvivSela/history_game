@@ -7,7 +7,7 @@ This document provides a detailed implementation plan for the Timeline Game Sett
 ## 🎯 Implementation Goals
 
 - **Phase 1**: Core settings infrastructure with persistence and basic UI
-- **Phase 2**: Enhanced settings with validation, import/export, and optimization
+- **Phase 2**: Enhanced settings with validation and optimization
 - **All Phases**: Maintain 100% test coverage and pass all existing tests
 
 ## 📅 Timeline
@@ -221,7 +221,7 @@ All context and hook implementation and tests are complete and passing as of Apr
   - [ ] Add reset to defaults with confirmation dialog
   - [ ] Add settings preview with real-time updates
   - [ ] Add settings help with tooltips and documentation
-  - [ ] Add settings export/import buttons (basic implementation)
+  - [x] ~~Add settings export/import buttons (basic implementation)~~ (removed)
 
 #### **Testing Requirements**
 - [ ] **Page Integration Tests** (2 hours)
@@ -346,7 +346,7 @@ yarn test:coverage
 - [x] **Settings UI**: User-friendly interface with accessibility (CardCountSlider, DifficultySelector, CategorySelector, SettingsSection)
 - [ ] **Settings Validation**: Comprehensive validation with user feedback
 - [ ] **Settings Migration**: Version management with backwards compatibility
-- [ ] **Settings Import/Export**: Data portability with multiple formats
+- [x] ~~**Settings Import/Export**: Data portability with multiple formats~~ (removed)
 - [ ] **Settings Backup/Restore**: Data safety with encryption
 - [ ] **Device Optimization**: Performance improvements with detection
 
