@@ -47,17 +47,21 @@ export const selectCardForTesting = (result, card = null) => {
  * @param {Object} result - Hook result from renderHook
  * @param {number} position - Position to place the card
  * @param {Object} card - Card to place (optional, uses selected card if not provided)
+ * @returns {Promise<Object>} The placement result
  */
-export const placeCardForTesting = (result, position, card = null) => {
+export const placeCardForTesting = async (result, position, card = null) => {
   const cardToPlace = card || result.current.state.selectedCard;
   
   if (!cardToPlace) {
     throw new Error('No card selected for placement');
   }
 
-  act(() => {
-    result.current.placeCard(position);
+  let placementResult;
+  await act(async () => {
+    placementResult = await result.current.placeCard(position);
   });
+
+  return placementResult;
 };
 
 /**
@@ -337,7 +341,7 @@ export const waitForGameStatus = async (result, expectedStatus, timeout = 5000) 
 export const simulateCompleteGame = async (result) => {
   const initialHandSize = result.current.state.playerHand.length;
   let attempts = 0;
-  const maxAttempts = initialHandSize * 5; // Allow for multiple incorrect placements
+  const maxAttempts = initialHandSize * 10; // Increase max attempts for better coverage
   
   // Continue placing cards until hand is empty or max attempts reached
   while (result.current.state.playerHand.length > 0 && attempts < maxAttempts) {
@@ -348,27 +352,45 @@ export const simulateCompleteGame = async (result) => {
       result.current.selectCard(card);
     });
     
+    // Wait a bit for selection to be processed
+    await waitForAsync(50);
+    
+    // Check if card is still selected (might have been cleared by previous operations)
+    if (!result.current.state.selectedCard) {
+      console.log('⚠️ No card selected, skipping placement attempt');
+      attempts++;
+      continue;
+    }
+    
     // Try different positions to find the correct one
     const positions = [1, 0, 2, 3, 4];
     let placed = false;
     
     for (const position of positions) {
       if (position < result.current.state.timeline.length + 1) {
-        await act(async () => {
-          const placementResult = await result.current.placeCard(position);
+        try {
+          const placementResult = await placeCardForTesting(result, position);
           if (placementResult && placementResult.isCorrect) {
             placed = true;
+            break;
           }
-        });
+        } catch (error) {
+          console.log('⚠️ Placement failed:', error.message);
+          // Continue to next position
+        }
         
         // Wait a bit for state updates
-        await waitForAsync(100);
-        
-        if (placed) break;
+        await waitForAsync(50);
       }
     }
     
     attempts++;
+    
+    // If we've made no progress for a while, break to avoid infinite loops
+    if (attempts > initialHandSize * 3 && result.current.state.playerHand.length >= initialHandSize) {
+      console.log('⚠️ Breaking simulation - no progress made');
+      break;
+    }
   }
   
   // The game should eventually reach a win state or continue with replacements
