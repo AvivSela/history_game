@@ -1,0 +1,189 @@
+/* SettingsSection Component Styles */
+
+.settings-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.settings-section:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.settings-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease-in-out;
+  border-bottom: 1px solid transparent;
+}
+
+.settings-section__header:hover {
+  background-color: #f8fafc;
+}
+
+.settings-section__header:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+  background-color: #f8fafc;
+}
+
+.settings-section__header--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.settings-section__header--disabled:hover {
+  background-color: transparent;
+}
+
+.settings-section__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.settings-section__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+  color: #64748b;
+}
+
+.settings-section__toggle:hover {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.settings-section__toggle:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  background-color: #e2e8f0;
+}
+
+.settings-section__toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.settings-section__toggle-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+  transition: transform 0.2s ease-in-out;
+}
+
+.settings-section__toggle--expanded .settings-section__toggle-icon {
+  transform: rotate(180deg);
+}
+
+.settings-section__content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  padding: 0 1.25rem;
+}
+
+.settings-section__content--expanded {
+  max-height: 1000px;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.settings-section__content-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-section__header {
+    padding: 0.875rem 1rem;
+  }
+  
+  .settings-section__title {
+    font-size: 1rem;
+  }
+  
+  .settings-section__content--expanded {
+    padding: 0.875rem 1rem 1rem;
+  }
+  
+  .settings-section__content-inner {
+    gap: 0.875rem;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .settings-section {
+    border-color: #000000;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .settings-section__header:hover {
+    background-color: #e5e5e5;
+  }
+  
+  .settings-section__toggle:hover {
+    background-color: #000000;
+    color: #ffffff;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .settings-section,
+  .settings-section__header,
+  .settings-section__toggle,
+  .settings-section__toggle-icon,
+  .settings-section__content {
+    transition: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .settings-section {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .settings-section__header:hover {
+    background-color: #334155;
+  }
+  
+  .settings-section__title {
+    color: #f1f5f9;
+  }
+  
+  .settings-section__toggle {
+    color: #94a3b8;
+  }
+  
+  .settings-section__toggle:hover {
+    background-color: #475569;
+    color: #cbd5e1;
+  }
+} 
