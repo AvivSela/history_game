@@ -159,9 +159,11 @@ describe('State Persistence', () => {
       const result = saveGameStateToStorage(mockGameState);
       
       expect(result).toBe(true);
-      expect(localStorageMock.setItem).toHaveBeenCalledTimes(1);
+      // Account for availability check call + actual operation call
+      expect(localStorageMock.setItem).toHaveBeenCalledTimes(2);
       
-      const [key, value] = localStorageMock.setItem.mock.calls[0];
+      // The first call is the availability check, the second is the actual operation
+      const [key, value] = localStorageMock.setItem.mock.calls[1];
       expect(key).toBe('timelineGameState-v1.0.0');
       
       const savedState = JSON.parse(value);
@@ -193,7 +195,8 @@ describe('State Persistence', () => {
       const result = saveGameStateToStorage(mockGameState);
       // Should fall back to sessionStorage when localStorage fails
       expect(result).toBe(true);
-      expect(sessionStorageMock.setItem).toHaveBeenCalledTimes(1);
+      // Account for availability check call + actual operation call
+      expect(sessionStorageMock.setItem).toHaveBeenCalledTimes(2);
     });
 
     it('should handle large state data', () => {
@@ -223,7 +226,8 @@ describe('State Persistence', () => {
       
       const result = saveGameStateToStorage(mockGameState);
       expect(result).toBe(true);
-      expect(sessionStorageMock.setItem).toHaveBeenCalledTimes(1);
+      // Account for availability check call + actual operation call
+      expect(sessionStorageMock.setItem).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -317,7 +321,8 @@ describe('State Persistence', () => {
       const result = clearGameStateFromStorage();
       // Should fall back to sessionStorage when localStorage fails
       expect(result).toBe(true);
-      expect(sessionStorageMock.removeItem).toHaveBeenCalledTimes(1);
+      // Account for availability check call + actual operation call
+      expect(sessionStorageMock.removeItem).toHaveBeenCalledTimes(2);
     });
   });
 

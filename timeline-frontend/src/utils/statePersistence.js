@@ -23,6 +23,12 @@ const isLocalStorageAvailable = () => {
   }
   
   try {
+    // Check if localStorage exists and is accessible
+    if (typeof localStorage === 'undefined') {
+      localStorageAvailable = false;
+      return false;
+    }
+    
     const test = '__localStorage_test__';
     localStorage.setItem(test, test);
     localStorage.removeItem(test);
@@ -44,6 +50,12 @@ const isSessionStorageAvailable = () => {
   }
   
   try {
+    // Check if sessionStorage exists and is accessible
+    if (typeof sessionStorage === 'undefined') {
+      sessionStorageAvailable = false;
+      return false;
+    }
+    
     const test = '__sessionStorage_test__';
     sessionStorage.setItem(test, test);
     sessionStorage.removeItem(test);
