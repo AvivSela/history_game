@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, UNSAFE_future } from 'react-router-dom';
 import './components/layout/Navigation/Navigation.css';
 import './components/ui/Button/Button.css';
 
@@ -68,7 +68,7 @@ const Footer = () => {
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true }}>
       <div className="min-h-screen flex flex-col w-full max-w-none">
         <Navigation />
         
