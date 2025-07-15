@@ -1,4 +1,4 @@
-import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants';
+import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants.js';
 
 /**
  * Settings Validation - Comprehensive validation for game settings
