@@ -56,11 +56,13 @@ class AnimationPerformanceMonitor {
         }
       }
       
-      // Check for performance issues
-      if (frameTime > PERFORMANCE_THRESHOLDS.FRAME_BUDGET) {
+      // Check for performance issues - use a more lenient threshold for frame drops
+      const frameDropThreshold = PERFORMANCE_THRESHOLDS.FRAME_BUDGET * 1.5; // 25ms instead of 16.67ms
+      if (frameTime > frameDropThreshold) {
         this.recordPerformanceIssue('frame_drop', {
           frameTime: frameTime.toFixed(2),
-          expectedTime: PERFORMANCE_THRESHOLDS.FRAME_BUDGET
+          expectedTime: PERFORMANCE_THRESHOLDS.FRAME_BUDGET,
+          threshold: frameDropThreshold
         });
       }
       
@@ -192,8 +194,17 @@ class AnimationPerformanceMonitor {
       this.metrics.performanceIssues.shift();
     }
     
-    // Log issue
-    console.warn(`Performance issue detected: ${type}`, details);
+    // Throttle frame drop warnings to reduce console noise
+    if (type === 'frame_drop') {
+      const now = Date.now();
+      if (!this.lastFrameDropWarning || now - this.lastFrameDropWarning > 5000) {
+        console.warn(`Performance issue detected: ${type}`, details);
+        this.lastFrameDropWarning = now;
+      }
+    } else {
+      // Log other issues immediately
+      console.warn(`Performance issue detected: ${type}`, details);
+    }
   }
 
   // Generate optimization recommendations

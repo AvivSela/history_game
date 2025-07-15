@@ -74,6 +74,26 @@ describe('timelineLogic', () => {
       expect(result.feedbackType).toBe('miss')
     })
 
+    it('should accept close placements with tolerance', () => {
+      // Test with medium tolerance (0.5) - should accept 1 position off for small timeline
+      const result = validatePlacementWithTolerance(testCard, mockTimeline, 2, 0.5)
+      expect(result.isCorrect).toBe(true)
+      expect(result.isClose).toBe(true)
+      expect(result.correctPosition).toBe(3)
+      expect(result.positionDiff).toBe(1)
+      expect(result.feedback).toContain('Great attempt')
+    })
+
+    it('should accept close placements for small timelines', () => {
+      // Test with small timeline (3 cards) - should accept 1 position off regardless of tolerance
+      const smallTimeline = mockTimeline.slice(0, 3)
+      const result = validatePlacementWithTolerance(testCard, smallTimeline, 2, 0.1) // Low tolerance
+      expect(result.isCorrect).toBe(true)
+      expect(result.isClose).toBe(true)
+      expect(result.correctPosition).toBe(3)
+      expect(result.positionDiff).toBe(1)
+    })
+
     it('should calculate position difference correctly', () => {
       const result1 = validatePlacementWithTolerance(testCard, mockTimeline, 1)
       const result2 = validatePlacementWithTolerance(testCard, mockTimeline, 2)

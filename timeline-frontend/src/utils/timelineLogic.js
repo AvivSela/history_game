@@ -11,27 +11,21 @@
 export const validatePlacementWithTolerance = (card, timeline, userPosition) => {
   const correctPosition = findCorrectPosition(card, timeline);
   const positionDiff = Math.abs(userPosition - correctPosition);
-  const isExactMatch = positionDiff === 0;
+  const isCorrect = positionDiff === 0;
 
   let feedback = '';
-  let feedbackType = 'error';
-
-  if (isExactMatch) {
+  if (isCorrect) {
     feedback = generateExactMatchFeedback(card);
-    feedbackType = 'perfect';
   } else {
     feedback = generateMissedFeedback(card, userPosition, correctPosition);
-    feedbackType = 'miss';
   }
 
   return {
-    isCorrect: isExactMatch,
-    isClose: false, // No tolerance - only exact matches are accepted
+    isCorrect,
     correctPosition,
     userPosition,
     positionDiff,
-    feedback,
-    feedbackType
+    feedback
   };
 };
 

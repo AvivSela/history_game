@@ -38,7 +38,8 @@ const Game = () => {
     selectCard,
     placeCard,
     restartGame,
-    togglePause
+    togglePause,
+    hasSavedGame
   } = useGameState();
 
   // Get refs from useGameControls for DOM manipulation
@@ -47,9 +48,8 @@ const Game = () => {
     timelineRef
   } = useGameControls();
 
-  useEffect(() => {
-    handleInitializeGame();
-  }, [handleInitializeGame]);
+  // Ref to prevent multiple initializations
+  const hasInitialized = React.useRef(false);
 
   /**
    * Initializes a new game session
@@ -60,13 +60,30 @@ const Game = () => {
       performanceMonitor.startTimer('Game', 'initialization');
       await initializeGame('single', 'medium');
       performanceMonitor.endTimer('Game', 'initialization', {
-        gameMode: gameState.gameMode,
-        cardCount: gameState.playerHand.length
+        gameMode: 'single',
+        cardCount: 4 // Fixed card count for single player mode
       });
     } catch (error) {
       console.error('Failed to initialize game:', error);
     }
-  }, [initializeGame, gameState.gameMode, gameState.playerHand.length]);
+  }, [initializeGame]);
+
+  useEffect(() => {
+    console.log('🔄 useEffect running, hasInitialized:', hasInitialized.current);
+    // Only initialize a new game if there's no saved game state
+    if (!hasInitialized.current) {
+      if (!hasSavedGame()) {
+        console.log('🆕 No saved game found, starting new game');
+        handleInitializeGame();
+      } else {
+        console.log('🔄 Saved game found, resuming existing game');
+      }
+      hasInitialized.current = true;
+      console.log('🔄 hasInitialized set to true');
+    } else {
+      console.log('🔄 hasInitialized is true, skipping initialization');
+    }
+  }, []); // Empty dependency array - only run once on mount
 
   /**
    * Handles card selection from player hand
@@ -91,18 +108,67 @@ const Game = () => {
    * @param {number} position - Position in timeline to place card
    */
   const handleInsertionPointClick = async (position) => {
+    console.log('Insertion point clicked', {
+      position,
+      selectedCard: gameState.selectedCard,
+      gameStatus: gameState.gameStatus,
+      currentPlayer: gameState.currentPlayer
+    });
     if (!gameState.selectedCard || gameState.gameStatus !== 'playing' || gameState.currentPlayer !== 'human') {
       return;
     }
 
-    await placeCard(position, 'human');
+    const result = await placeCard(position, 'human');
+    
+    // Handle the result and trigger animations
+    if (result && result.success) {
+      if (!result.isCorrect) {
+        console.log('🎬 Triggering wrong placement animations');
+        // Trigger wrong placement animations
+        if (timelineRef.current) {
+          timelineRef.current.animateWrongPlacement(position);
+        }
+        
+        if (playerHandRef.current && gameState.selectedCard) {
+          playerHandRef.current.animateCardRemoval(gameState.selectedCard.id);
+        }
+        
+        // Trigger new card animation after delay if card was replaced
+        if (result.cardReplaced && playerHandRef.current) {
+          setTimeout(() => {
+            playerHandRef.current.animateNewCard(result.cardReplaced.id);
+          }, 800); // Delay for new card animation
+        }
+      } else {
+        console.log('✅ Correct placement - no animations needed');
+      }
+    }
   };
 
   /**
    * Handles restart game action
    */
-  const handleRestartGame = () => {
+  const handleRestartGame = async () => {
+    console.log('🔄 handleRestartGame called');
+    console.log('🔄 hasInitialized before reset:', hasInitialized.current);
+    
+    // Clear the game state first
     restartGame();
+    
+    // Reset the initialization flag so we can start a new game
+    hasInitialized.current = false;
+    console.log('🔄 hasInitialized after reset:', hasInitialized.current);
+    
+    // Start a new game after clearing the state
+    setTimeout(async () => {
+      console.log('🆕 Starting new game after restart');
+      try {
+        await handleInitializeGame();
+        console.log('✅ New game started successfully');
+      } catch (error) {
+        console.error('❌ Failed to start new game:', error);
+      }
+    }, 100); // Small delay to ensure state is cleared
   };
 
   /**

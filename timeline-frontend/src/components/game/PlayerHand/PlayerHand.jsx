@@ -101,14 +101,46 @@ const PlayerHand = forwardRef(({
   // Debounced animation trigger to prevent rapid calls
   const debouncedAnimateCard = useCallback(
     async (cardId, animationType) => {
-      const startTime = performance.now();
+      const startTime = window.performance.now();
+      
+      console.log(`🎬 Attempting to animate card ${cardId} (${animationType})`);
+      console.log('🎬 Current cards in hand:', cards.map(card => ({ id: card.id, title: card.title })));
+      
+      // Check if the card is actually in the current state
+      const cardInState = cards.find(card => card.id === cardId);
+      if (!cardInState) {
+        console.warn(`❌ Card ${cardId} not found in current state, skipping animation`);
+        return;
+      }
       
       try {
-        const cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+        // Wait for element to be available in DOM with more robust retry logic
+        let cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
         if (!cardElement) {
-          console.warn(`Card element not found for ID: ${cardId}`);
+          console.log(`🔍 Card element not found initially, retrying...`);
+          // More robust retry with longer delays and more attempts
+          for (let i = 0; i < 20; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100)); // Longer delay
+            cardElement = document.querySelector(`[data-card-id="${cardId}"]`);
+            if (cardElement) {
+              console.log(`✅ Found card element on attempt ${i + 1}`);
+              break;
+            }
+            // Log progress every 5 attempts
+            if ((i + 1) % 5 === 0) {
+              console.log(`🔍 Still searching for card ${cardId}, attempt ${i + 1}/20`);
+            }
+          }
+        }
+        
+        if (!cardElement) {
+          console.warn(`Card element not found for ID: ${cardId} after retries`);
+          console.warn('Available card elements:', Array.from(document.querySelectorAll('[data-card-id]')).map(el => el.getAttribute('data-card-id')));
+          console.warn('Current cards in state:', cards.map(card => ({ id: card.id, title: card.title })));
           return;
         }
+
+        console.log(`✅ Found card element for ID: ${cardId}, proceeding with animation`);
 
         if (!accessibility.shouldAnimate()) {
           // Apply instant state changes for reduced motion
@@ -130,8 +162,8 @@ const PlayerHand = forwardRef(({
           
           // Use new animation system
           await animations.sequence([cardElement], [
-            { animation: 'card-shake' },
-            { animation: 'card-fade-out' }
+            { element: cardElement, animation: 'card-shake' },
+            { element: cardElement, animation: 'card-fade-out' }
           ]);
           
           // Cleanup after animation
@@ -147,8 +179,8 @@ const PlayerHand = forwardRef(({
           
           // Use new animation system
           await animations.sequence([cardElement], [
-            { animation: 'card-bounce-in' },
-            { animation: 'card-highlight' }
+            { element: cardElement, animation: 'card-bounce-in' },
+            { element: cardElement, animation: 'card-highlight' }
           ]);
           
           setNewCardId(null);

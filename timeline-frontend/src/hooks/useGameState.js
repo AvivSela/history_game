@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   calculateScore, 
   checkWinCondition, 
@@ -6,12 +6,17 @@ import {
 } from '../utils/gameLogic';
 import { 
   validatePlacementWithTolerance, 
-  generateSmartInsertionPoints,
-  validateTimeline 
+  generateSmartInsertionPoints
 } from '../utils/timelineLogic';
 import { GAME_STATUS, PLAYER_TYPES, TIMING, GAME_LOGIC, CARD_COUNTS, POOL_CARD_COUNT } from '../constants/gameConstants';
 import { gameAPI, extractData, handleAPIError } from '@utils/api.js';
 import { createAIOpponent } from '@utils/aiLogic.js';
+import { 
+  saveGameStateToStorage, 
+  loadGameStateFromStorage, 
+  clearGameStateFromStorage,
+  hasSavedGameState 
+} from '../utils/statePersistence.js';
 
 /**
  * useGameState - Comprehensive game state management hook
@@ -106,10 +111,67 @@ export const useGameState = () => {
   });
 
   const gameSessionRef = useRef(null);
+  const restartTimeoutRef = useRef(null);
+
+  // Load saved game state on mount
+  useEffect(() => {
+    const loadSavedState = () => {
+      try {
+        const savedState = loadGameStateFromStorage();
+        if (savedState && savedState.gameStatus !== 'lobby') {
+          console.log('🔄 Restoring saved game state');
+          setState(prev => ({
+            ...prev,
+            ...savedState,
+            // Reset UI-only state
+            showInsertionPoints: false,
+            feedback: null,
+            isLoading: false,
+            error: null,
+            insertionPoints: []
+          }));
+        }
+      } catch (error) {
+        console.error('❌ Error loading saved state:', error);
+      }
+    };
+
+    loadSavedState();
+  }, []);
+
+  // Save state to storage whenever relevant state changes
+  useEffect(() => {
+    // Only save if game is in progress
+    if (state.gameStatus === 'playing' || state.gameStatus === 'paused') {
+      saveGameStateToStorage(state);
+    }
+  }, [
+    state.timeline,
+    state.playerHand,
+    state.aiHand,
+    state.cardPool,
+    state.gameStatus,
+    state.currentPlayer,
+    state.gameMode,
+    state.difficulty,
+    state.score,
+    state.attempts,
+    state.startTime,
+    state.turnStartTime,
+    state.gameStats,
+    state.timelineAnalysis,
+    state.turnHistory,
+    state.achievements,
+    state.aiOpponent,
+    state.selectedCard
+  ]);
 
   // Initialize new game - Consolidated from GameControls
   const initializeGame = useCallback(async (mode = 'single', diff = 'medium') => {
     try {
+      // Clear any saved state when starting a new game
+      clearGameStateFromStorage();
+      
       setState(prev => ({ 
         ...prev, 
         isLoading: true, 
@@ -193,6 +255,21 @@ export const useGameState = () => {
         poolSize: poolEvents.length
       });
 
+      // Debug: Check for duplicate IDs
+      const allCardIds = [
+        ...session.timeline.map(card => card.id),
+        ...humanCards.map(card => card.id),
+        ...aiCards.map(card => card.id)
+      ];
+      const uniqueIds = new Set(allCardIds);
+      if (allCardIds.length !== uniqueIds.size) {
+        console.warn('⚠️ Duplicate card IDs detected in new game!', {
+          totalCards: allCardIds.length,
+          uniqueCards: uniqueIds.size,
+          duplicates: allCardIds.filter((id, index) => allCardIds.indexOf(id) !== index)
+        });
+      }
+
     } catch (error) {
       console.error('❌ Error initializing game:', error);
       const errorMessage = handleAPIError(error, 'Failed to load game');
@@ -206,180 +283,7 @@ export const useGameState = () => {
     }
   }, []);
 
-  // Select a card
-  const selectCard = useCallback((card) => {
-    if (state.gameStatus !== 'playing' || state.currentPlayer !== 'human') {
-      return;
-    }
-
-    const insertionPoints = card ? 
-      generateSmartInsertionPoints(state.timeline, card) : [];
-
-    setState(prev => ({
-      ...prev,
-      selectedCard: card,
-      showInsertionPoints: !!card,
-      insertionPoints,
-      feedback: null
-    }));
-  }, [state.gameStatus, state.currentPlayer, state.timeline]);
-
-  // Place a card on the timeline
-  const placeCard = useCallback((position, player = 'human') => {
-    const selectedCard = player === 'human' ? state.selectedCard : null;
-    if (!selectedCard || state.gameStatus !== 'playing') {
-      console.warn('No card selected or game not in playing state');
-      return;
-    }
-
-          const turnTime = (Date.now() - state.turnStartTime) / GAME_LOGIC.SECONDS_TO_MILLISECONDS;
-    const cardAttempts = (state.attempts[selectedCard.id] || 0) + 1;
-
-    // Advanced validation with tolerance
-    const validation = validatePlacementWithTolerance(
-      selectedCard, 
-      state.timeline, 
-      position, 
-      getDifficultyTolerance(state.difficulty)
-    );
-
-    console.log('🎯 Card placement validation:', validation);
-
-    // Record turn in history
-    const turnRecord = {
-      id: `turn_${Date.now()}`,
-      player,
-      card: selectedCard,
-      position,
-      validation,
-      turnTime,
-      attempts: cardAttempts,
-      timestamp: Date.now()
-    };
-
-    let newState = { ...state };
-
-    if (validation.isCorrect) {
-      // Successful placement - only exact matches accepted
-      const scoreEarned = Math.round(
-        calculateScore(true, turnTime, cardAttempts, selectedCard.difficulty)
-      );
-
-      // Add card to timeline at user's chosen position
-      const newTimeline = [...state.timeline];
-      newTimeline.splice(position, 0, {
-        ...selectedCard,
-        isRevealed: true,
-        placedAt: Date.now(),
-        placedBy: player
-      });
-
-      // Remove card from player's hand
-      const handKey = player === 'human' ? 'playerHand' : 'aiHand';
-      const newHand = state[handKey].filter(card => card.id !== selectedCard.id);
-
-      // Update scores
-      const newScore = { ...state.score };
-      newScore[player] += scoreEarned;
-
-      // Check win condition
-      const hasWon = checkWinCondition(newHand);
-      let newGameStatus = state.gameStatus;
-      
-      if (hasWon) {
-        if (state.gameMode === 'ai') {
-          // In AI mode, check if both players are out of cards
-          const otherHandKey = player === 'human' ? 'aiHand' : 'playerHand';
-          const otherHandEmpty = state[otherHandKey].length === 0;
-          
-          if (otherHandEmpty || newHand.length === 0) {
-            newGameStatus = 'won';
-          }
-        } else {
-          newGameStatus = 'won';
-        }
-      }
-
-      // Calculate next player
-      let nextPlayer = state.currentPlayer;
-      if (state.gameMode === 'ai' && newGameStatus === 'playing') {
-        nextPlayer = player === 'human' ? 'ai' : 'human';
-      }
-
-      newState = {
-        ...newState,
-        timeline: newTimeline,
-        [handKey]: newHand,
-        score: newScore,
-        selectedCard: null,
-        showInsertionPoints: false,
-        insertionPoints: [],
-        currentPlayer: nextPlayer,
-        turnStartTime: Date.now(),
-        gameStatus: newGameStatus,
-        attempts: { ...state.attempts, [selectedCard.id]: cardAttempts },
-        turnHistory: [...state.turnHistory, turnRecord],
-        gameStats: {
-          ...state.gameStats,
-          totalMoves: state.gameStats.totalMoves + 1,
-          correctMoves: state.gameStats.correctMoves + 1,
-          averageTimePerMove: calculateAverageTime(state.gameStats, turnTime)
-        },
-        feedback: {
-          type: validation.isCorrect ? 'success' : 'close',
-          message: validation.feedback,
-          points: scoreEarned,
-          isClose: validation.isClose && !validation.isCorrect
-        },
-        timelineAnalysis: validateTimeline(newTimeline)
-      };
-
-    } else {
-      // Incorrect placement
-      newState = {
-        ...newState,
-        selectedCard: null,
-        showInsertionPoints: false,
-        insertionPoints: [],
-        attempts: { ...state.attempts, [selectedCard.id]: cardAttempts },
-        turnHistory: [...state.turnHistory, turnRecord],
-        gameStats: {
-          ...state.gameStats,
-          totalMoves: state.gameStats.totalMoves + 1,
-          averageTimePerMove: calculateAverageTime(state.gameStats, turnTime)
-        },
-        feedback: {
-          type: 'error',
-          message: validation.feedback,
-          correctPosition: validation.correctPosition,
-          attempts: cardAttempts
-        }
-      };
-
-      // In AI mode, switch turns even on incorrect placement
-      if (state.gameMode === 'ai') {
-        newState.currentPlayer = player === 'human' ? 'ai' : 'human';
-        newState.turnStartTime = Date.now();
-      }
-    }
-
-    setState(newState);
-
-    // Clear feedback after delay
-    setTimeout(() => {
-      setState(prev => ({ ...prev, feedback: null }));
-    }, validation.isCorrect || validation.isClose ? 3000 : 4000);
-
-    // Trigger AI turn if it's AI's turn
-    if (newState.currentPlayer === 'ai' && newState.gameStatus === 'playing') {
-      setTimeout(() => {
-        executeAITurn();
-      }, 1500); // Give AI a thinking delay
-    }
-
-  }, [state, executeAITurn]);
-
-  // AI turn execution
+  // AI turn execution - defined before placeCard to avoid circular dependency
   const executeAITurn = useCallback(() => {
     if (state.currentPlayer !== 'ai' || state.aiHand.length === 0) {
       return;
@@ -417,30 +321,218 @@ export const useGameState = () => {
     
     // Execute AI placement after a short delay
     setTimeout(() => {
-      placeCard(finalPosition, 'ai');
+      // Instead of calling placeCard, we'll implement the AI logic directly here
+      // This avoids the circular dependency issue
+      const aiSelectedCard = selectedCard;
+      const aiPosition = finalPosition;
+      const aiPlayer = 'ai';
+      
+      // Validate the AI's placement
+      const aiValidation = validatePlacementWithTolerance(
+        aiSelectedCard, 
+        state.timeline, 
+        aiPosition
+      );
+
+      const aiTurnTime = (Date.now() - state.turnStartTime) / GAME_LOGIC.SECONDS_TO_MILLISECONDS;
+      const aiCardAttempts = (state.attempts[aiSelectedCard.id] || 0) + 1;
+
+      // Record AI turn in history
+      const aiTurnRecord = {
+        id: `turn_${Date.now()}`,
+        player: aiPlayer,
+        card: aiSelectedCard,
+        position: aiPosition,
+        validation: aiValidation,
+        turnTime: aiTurnTime,
+        attempts: aiCardAttempts,
+        timestamp: Date.now()
+      };
+
+      if (aiValidation.isCorrect) {
+        // AI successful placement
+        const aiScoreEarned = Math.round(
+          calculateScore(true, aiTurnTime, aiCardAttempts, aiSelectedCard.difficulty)
+        );
+
+        // Add card to timeline at AI's chosen position
+        const newTimeline = [...state.timeline];
+        newTimeline.splice(aiPosition, 0, {
+          ...aiSelectedCard,
+          isRevealed: true,
+          placedAt: Date.now(),
+          placedBy: aiPlayer
+        });
+
+        // Remove card from AI's hand
+        const newAiHand = state.aiHand.filter(card => card.id !== aiSelectedCard.id);
+
+        // Update scores
+        const newScore = { ...state.score };
+        newScore[aiPlayer] += aiScoreEarned;
+
+        // Check win condition
+        const hasWon = checkWinCondition(newAiHand);
+        let newGameStatus = state.gameStatus;
+        
+        if (hasWon) {
+          if (state.gameMode === 'ai') {
+            const humanHandEmpty = state.playerHand.length === 0;
+            if (humanHandEmpty || newAiHand.length === 0) {
+              newGameStatus = 'won';
+            }
+          } else {
+            newGameStatus = 'won';
+          }
+        }
+
+        // Switch back to human player
+        const nextPlayer = newGameStatus === 'playing' ? 'human' : state.currentPlayer;
+
+        setState(prev => ({
+          ...prev,
+          timeline: newTimeline,
+          aiHand: newAiHand,
+          score: newScore,
+          selectedCard: null,
+          showInsertionPoints: false,
+          insertionPoints: [],
+          currentPlayer: nextPlayer,
+          turnStartTime: Date.now(),
+          gameStatus: newGameStatus,
+          attempts: { ...prev.attempts, [aiSelectedCard.id]: aiCardAttempts },
+          turnHistory: [...prev.turnHistory, aiTurnRecord],
+          gameStats: {
+            ...prev.gameStats,
+            totalMoves: prev.gameStats.totalMoves + 1,
+            correctMoves: prev.gameStats.correctMoves + 1,
+            averageTimePerMove: calculateAverageTime(prev.gameStats, aiTurnTime)
+          },
+          feedback: {
+            type: 'success',
+            message: `AI placed ${aiSelectedCard.title} correctly!`,
+            points: aiScoreEarned,
+            isClose: false
+          },
+          timelineAnalysis: null
+        }));
+
+        // Clear AI feedback after delay
+        setTimeout(() => {
+          setState(prev => ({ ...prev, feedback: null }));
+        }, 3000);
+
+      } else {
+        // AI incorrect placement
+        setState(prev => ({
+          ...prev,
+          selectedCard: null,
+          showInsertionPoints: false,
+          insertionPoints: [],
+          attempts: { ...prev.attempts, [aiSelectedCard.id]: aiCardAttempts },
+          turnHistory: [...prev.turnHistory, aiTurnRecord],
+          gameStats: {
+            ...prev.gameStats,
+            totalMoves: prev.gameStats.totalMoves + 1,
+            averageTimePerMove: calculateAverageTime(prev.gameStats, aiTurnTime)
+          },
+          feedback: {
+            type: 'error',
+            message: `AI placed ${aiSelectedCard.title} incorrectly!`,
+            correctPosition: aiValidation.correctPosition,
+            attempts: aiCardAttempts
+          },
+          currentPlayer: 'human',
+          turnStartTime: Date.now()
+        }));
+
+        // Clear AI feedback after delay
+        setTimeout(() => {
+          setState(prev => ({ ...prev, feedback: null }));
+        }, 4000);
+      }
     }, 500);
 
-  }, [state.currentPlayer, state.aiHand, state.timeline, state.difficulty, placeCard]);
+  }, [state.currentPlayer, state.aiHand, state.timeline, state.difficulty]);
+
+  // Clear saved game state
+  const clearSavedGame = useCallback(() => {
+    clearGameStateFromStorage();
+    console.log('🗑️ Saved game state cleared');
+  }, []);
 
   // Restart game
   const restartGame = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      gameStatus: 'lobby',
-      selectedCard: null,
-      showInsertionPoints: false,
-      feedback: null,
-      error: null
-    }));
+    console.log('🔄 restartGame called');
+    
+    // Clear any pending restart timeout
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
+      restartTimeoutRef.current = null;
+    }
+    
+    // Clear saved state when restarting
+    clearGameStateFromStorage();
+    
+    setState(prev => {
+      console.log('🔄 Resetting game state to lobby');
+      return {
+        ...prev,
+        // Clear all game data
+        timeline: [],
+        playerHand: [],
+        aiHand: [],
+        cardPool: [],
+        gameStatus: 'lobby',
+        currentPlayer: 'human',
+        selectedCard: null,
+        showInsertionPoints: false,
+        feedback: null,
+        error: null,
+        score: { human: 0, ai: 0 },
+        attempts: {},
+        startTime: null,
+        turnStartTime: null,
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0
+        },
+        insertionPoints: [],
+        timelineAnalysis: null,
+        turnHistory: [],
+        achievements: [],
+        aiOpponent: null
+      };
+    });
   }, []);
 
-  // Pause/Resume game
-  const togglePause = useCallback(() => {
+  // Select a card
+  const selectCard = useCallback((card) => {
+    console.log('🎯 selectCard called:', { 
+      card: card?.title, 
+      gameStatus: state.gameStatus, 
+      currentPlayer: state.currentPlayer,
+      canSelect: state.gameStatus === 'playing' && state.currentPlayer === 'human'
+    });
+    
+    if (state.gameStatus !== 'playing' || state.currentPlayer !== 'human') {
+      console.log('❌ Cannot select card:', { gameStatus: state.gameStatus, currentPlayer: state.currentPlayer });
+      return;
+    }
+
+    const insertionPoints = card ? 
+      generateSmartInsertionPoints(state.timeline, card) : [];
+
     setState(prev => ({
       ...prev,
-      gameStatus: prev.gameStatus === 'playing' ? 'paused' : 'playing'
+      selectedCard: card,
+      showInsertionPoints: !!card,
+      insertionPoints,
+      feedback: null
     }));
-  }, []);
+  }, [state.gameStatus, state.currentPlayer, state.timeline]);
 
   // Get new card from pool - Consolidated from GameControls
   const getNewCardFromPool = useCallback(async (currentGameState) => {
@@ -476,6 +568,197 @@ export const useGameState = () => {
     }
   }, []);
 
+  // Place a card on the timeline
+  const placeCard = useCallback(async (position, player = 'human') => {
+    console.log('🎯 placeCard called:', { position, player, currentState: state });
+    
+    if (!state.selectedCard || state.gameStatus !== 'playing') {
+      console.log('❌ Cannot place card:', { selectedCard: state.selectedCard, gameStatus: state.gameStatus });
+      return { success: false, reason: 'invalid_state' };
+    }
+
+    const selectedCard = state.selectedCard;
+    console.log('🎯 Attempting to place card:', selectedCard.title, 'at position:', position);
+
+    try {
+      // Validate placement
+      const validation = validatePlacementWithTolerance(selectedCard, state.timeline, position);
+      console.log('🎯 Card placement validation:', validation);
+
+      if (validation.isCorrect) {
+        console.log('✅ Card placement is correct!');
+        
+        // Update timeline
+        const newTimeline = [...state.timeline];
+        newTimeline.splice(position, 0, selectedCard);
+        console.log('📅 New timeline length:', newTimeline.length);
+
+        // Remove card from player's hand
+        const newPlayerHand = state.playerHand.filter(card => card.id !== selectedCard.id);
+        console.log('👤 Player hand after removal:', newPlayerHand.length, 'cards');
+
+        // Calculate score
+        const scoreEarned = calculateScore(validation);
+        const newScore = { ...state.score, human: state.score.human + scoreEarned };
+
+        // Update attempts
+        const newAttempts = { ...state.attempts };
+        if (!newAttempts[selectedCard.id]) {
+          newAttempts[selectedCard.id] = 0;
+        }
+        newAttempts[selectedCard.id]++;
+
+        // Check win condition
+        const isGameWon = newPlayerHand.length === 0;
+        console.log('🏆 Win condition check:', { playerHandLength: newPlayerHand.length, isGameWon });
+
+        const newGameState = {
+          ...state,
+          timeline: newTimeline,
+          playerHand: newPlayerHand,
+          score: newScore,
+          attempts: newAttempts,
+          selectedCard: null,
+          showInsertionPoints: false,
+          gameStats: {
+            ...state.gameStats,
+            totalMoves: state.gameStats.totalMoves + 1,
+            correctMoves: state.gameStats.correctMoves + 1
+          },
+          feedback: {
+            type: 'success',
+            message: validation.feedback,
+            points: scoreEarned
+          }
+        };
+
+        if (isGameWon) {
+          console.log('🎉 Game won! Setting status to won');
+          newGameState.gameStatus = 'won';
+        }
+
+        console.log('🔄 Setting new game state:', { 
+          gameStatus: newGameState.gameStatus, 
+          timelineLength: newGameState.timeline.length,
+          playerHandLength: newGameState.playerHand.length
+        });
+
+        setState(newGameState);
+        saveGameStateToStorage(newGameState);
+
+        // If game is won, show feedback and restart after delay
+        if (isGameWon) {
+          console.log('⏰ Game won - will restart after delay');
+          // Clear any existing restart timeout
+          if (restartTimeoutRef.current) {
+            clearTimeout(restartTimeoutRef.current);
+          }
+          // Set new restart timeout
+          restartTimeoutRef.current = setTimeout(() => {
+            console.log('🔄 Restarting game after win');
+            restartGame();
+          }, 3000);
+        }
+
+        return { 
+          success: true, 
+          isCorrect: true, 
+          cardReplaced: null,
+          validation 
+        };
+      } else {
+        console.log('❌ Card placement is incorrect');
+        
+        // Calculate score for incorrect placement (usually 0 or negative)
+        const scoreEarned = calculateScore(validation);
+        const newScore = { ...state.score, human: state.score.human + scoreEarned };
+
+        // Update attempts
+        const newAttempts = { ...state.attempts };
+        if (!newAttempts[selectedCard.id]) {
+          newAttempts[selectedCard.id] = 0;
+        }
+        newAttempts[selectedCard.id]++;
+
+        // Get a new card from the pool to replace the incorrectly placed card
+        const cardReplacement = await getNewCardFromPool(state);
+        let newPlayerHand = [...state.playerHand];
+        let newCardPool = [...state.cardPool];
+
+        if (cardReplacement) {
+          // Replace the incorrectly placed card with the new card
+          newPlayerHand = newPlayerHand.map(card => 
+            card.id === selectedCard.id ? cardReplacement.newCard : card
+          );
+          newCardPool = cardReplacement.updatedPool;
+          console.log('🔄 Replaced incorrect card with:', cardReplacement.newCard.title, 'ID:', cardReplacement.newCard.id);
+          console.log('🔄 New player hand after replacement:', newPlayerHand.map(card => ({ id: card.id, title: card.title })));
+        } else {
+          console.log('⚠️ Could not get replacement card from pool');
+        }
+
+        // Update game state for incorrect placement
+        const newGameState = {
+          ...state,
+          playerHand: newPlayerHand,
+          cardPool: newCardPool,
+          score: newScore,
+          attempts: newAttempts,
+          selectedCard: null,
+          showInsertionPoints: false,
+          gameStats: {
+            ...state.gameStats,
+            totalMoves: state.gameStats.totalMoves + 1
+          },
+          feedback: {
+            type: 'error',
+            message: validation.feedback,
+            correctPosition: validation.correctPosition,
+            attempts: newAttempts[selectedCard.id]
+          }
+        };
+
+        console.log('🔄 Setting new game state for incorrect placement:', { 
+          gameStatus: newGameState.gameStatus, 
+          timelineLength: newGameState.timeline.length,
+          playerHandLength: newGameState.playerHand.length
+        });
+
+        setState(newGameState);
+        saveGameStateToStorage(newGameState);
+
+        // Trigger animations for incorrect placement
+        // Note: Animation triggers would need to be passed from Game component
+        // For now, we'll rely on the feedback system to show the error
+        console.log('🎬 Incorrect placement animations should trigger here');
+
+        // Clear feedback after delay
+        setTimeout(() => {
+          setState(prev => ({ ...prev, feedback: null }));
+        }, 3000);
+
+        return { 
+          success: true, 
+          isCorrect: false, 
+          cardReplaced: cardReplacement?.newCard || null,
+          validation,
+          newCardPool: newCardPool
+        };
+      }
+    } catch (error) {
+      console.error('❌ Error in placeCard:', error);
+      return { success: false, reason: 'error', error: error.message };
+    }
+  }, [state, validatePlacementWithTolerance, calculateScore, saveGameStateToStorage, restartGame, getNewCardFromPool]);
+
+  // Pause/Resume game
+  const togglePause = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      gameStatus: prev.gameStatus === 'playing' ? 'paused' : 'playing'
+    }));
+  }, []);
+
   return {
     // State
     state,
@@ -489,6 +772,10 @@ export const useGameState = () => {
     togglePause,
     getNewCardFromPool,
     executeAITurn,
+    clearSavedGame,
+    
+    // Persistence
+    hasSavedGame: () => hasSavedGameState(),
     
     // Computed values
     isPlayerTurn: state.currentPlayer === 'human',
