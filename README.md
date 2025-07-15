@@ -125,6 +125,44 @@ The game is fully responsive and works on:
 - Follow established patterns and conventions
 - Write tests for new functionality
 
+## 🚀 CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment. The CI/CD pipeline automatically runs on every pull request and push to main branches.
+
+### Automated Checks
+- **Tests**: Frontend and backend tests run in parallel
+- **Linting**: ESLint and Prettier formatting checks
+- **Security**: Dependency vulnerability scanning
+- **Build**: Production build verification
+- **Coverage**: Test coverage reporting
+
+### Setup
+1. **Quick Setup**: Run `./scripts/setup-ci.sh` to verify your setup
+2. **Documentation**: See [CI/CD Setup Guide](./docs/CI-CD-SETUP.md) for detailed information
+3. **Workflows**: Check `.github/workflows/` for workflow configurations
+
+### Workflows
+- **Test Suite** (`test.yml`): Runs tests, linting, and build checks
+- **Security Audit** (`security.yml`): Security vulnerability scanning
+
+### Local Testing
+```bash
+# Run all tests locally
+yarn test
+
+# Run frontend tests only
+yarn test:frontend
+
+# Run backend tests only
+yarn test:backend
+
+# Run linting
+yarn lint
+
+# Check formatting
+yarn workspace timeline-frontend format:check
+```
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
