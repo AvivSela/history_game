@@ -68,7 +68,7 @@ const Footer = () => {
 
 function App() {
   return (
-    <Router future={{ v7_startTransition: true }}>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen flex flex-col w-full max-w-none">
         <Navigation />
         
