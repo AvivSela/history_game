@@ -4,7 +4,8 @@ A historical card game where players place events in chronological order on a ti
 
 ## 🎮 Game Overview
 
-Timeline is an educational card game that tests your knowledge of historical events. Players receive cards with historical events and must place them in the correct chronological order on a timeline.
+Timeline is an educational card game that tests your knowledge of historical events. 
+Players receive cards with historical events and must place them in the correct chronological order on a timeline.
 
 ### Features
 - **Interactive Timeline**: Drag and drop cards to place events
