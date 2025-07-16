@@ -82,6 +82,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-016 | Inconsistent Error Handling | Error handling patterns vary across components - some use try-catch, others use .catch(), and some have no error handling at all. Should standardize error handling approach. | Medium | 1.5 days | $(date) | Open |
 | FE-017 | Memory Leaks in Timers | ✅ **RESOLVED** - Fixed setTimeout cleanup in Feedback component. Verified AnimationControls already had proper setInterval cleanup. Documented timer usage patterns for future maintenance. | Medium | 1 day | $(date) | **Resolved** |
 | FE-018 | Settings Page Test Coverage | Several modal/ARIA/keyboard tests were removed due to persistent test environment issues and need to be re-implemented for full coverage. | Low | 0.5 days | $(date) | In Progress |
+| FE-019 | React Router Import Issue | ✅ **RESOLVED** - Fixed white screen issue by removing unsupported UNSAFE_future import from react-router-dom. Simplified Router configuration and resolved build error that was preventing application from loading. | High | 0.5 days | $(date) | **Resolved** |
 
 ### Backend Technical Debt
 
