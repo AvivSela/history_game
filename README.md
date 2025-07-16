@@ -27,7 +27,7 @@ timeline-game-project/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js >= 18.0.0
+- Node.js >= 24.0.0
 - Yarn >= 1.22.0
 
 ### Installation
