@@ -279,31 +279,7 @@ const SettingsContent = () => {
 
 
 
-          {/* Settings Preview */}
-          <div className="settings-preview">
-            <h3>⚡ Current Settings</h3>
-            <div className="preview-grid">
-              <div className="preview-item">
-                <span className="preview-label">Difficulty:</span>
-                <span className="preview-value">
-                  {settings.difficulty || 'medium'}
-                </span>
-              </div>
-              <div className="preview-item">
-                <span className="preview-label">Cards:</span>
-                <span className="preview-value">{settings.cardCount || 5}</span>
-              </div>
-              <div className="preview-item">
-                <span className="preview-label">Categories:</span>
-                <span className="preview-value">
-                  {settings.categories && settings.categories.length > 0
-                    ? settings.categories.join(', ')
-                    : 'All categories'}
-                </span>
-              </div>
 
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="settings-actions">
@@ -320,61 +296,10 @@ const SettingsContent = () => {
               🔄 Reset to Defaults
             </button>
 
-            <a href="/game" className="btn btn-success">
-              🎮 Start Game
-            </a>
+
           </div>
 
-          {/* Help Section */}
-          <div className="settings-help">
-            <h3>❓ Need Help?</h3>
-            <div className="help-grid">
-              <div className="help-item">
-                <h4>Difficulty Levels</h4>
-                <ul>
-                  <li>
-                    <strong>Easy:</strong> Relaxed gameplay with generous time
-                    limits and hints
-                  </li>
-                  <li>
-                    <strong>Medium:</strong> Balanced challenge with moderate
-                    time pressure
-                  </li>
-                  <li>
-                    <strong>Hard:</strong> Challenging gameplay with strict time
-                    limits
-                  </li>
-                  <li>
-                    <strong>Expert:</strong> Maximum challenge with minimal
-                    assistance
-                  </li>
-                </ul>
-              </div>
-              <div className="help-item">
-                <h4>Categories</h4>
-                <ul>
-                  <li>
-                    <strong>History:</strong> Wars, politics, social events
-                  </li>
-                  <li>
-                    <strong>Science:</strong> Discoveries, inventions, research
-                  </li>
-                  <li>
-                    <strong>Technology:</strong> Computing, engineering,
-                    innovations
-                  </li>
-                  <li>
-                    <strong>Space:</strong> Space exploration, astronomy
-                  </li>
-                  <li>
-                    <strong>Aviation:</strong> Flight history, aircraft
-                    development
-                  </li>
-                </ul>
-              </div>
 
-            </div>
-          </div>
         </div>
       </div>
 
