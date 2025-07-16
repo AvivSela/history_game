@@ -33,7 +33,29 @@ jobs:
         run: yarn audit --level moderate
 
       - name: Check for outdated dependencies
-        run: yarn outdated || true
+        run: |
+          echo "🔍 Checking for outdated dependencies..."
+          yarn outdated || true
+          echo ""
+          echo "⚠️  NOTE: If outdated packages were found above, consider updating them when convenient."
+          echo "   Major updates (red) may include breaking changes."
+          echo "   Minor updates (yellow) add new features."
+          echo "   Patch updates (green) are safe to apply."
         continue-on-error: true
+
+      - name: Security Summary
+        run: |
+          echo "## 🔒 Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Vulnerability Scan**: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Dependency Check**: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📋 **Next Steps**: Review the logs above for:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔴 **High/Critical vulnerabilities** (must fix)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🟡 **Moderate vulnerabilities** (should fix)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📦 **Outdated dependencies** (consider updating)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Tip**: Check the 'Check for outdated dependencies' step above for package updates."
+        if: always()
 
  
