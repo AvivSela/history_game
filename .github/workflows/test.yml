@@ -120,4 +120,35 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📊 **Coverage**: Check individual test steps above for coverage reports" >> $GITHUB_STEP_SUMMARY
           echo "🔧 **Artifacts**: Build artifacts uploaded for potential deployment" >> $GITHUB_STEP_SUMMARY
+        if: always()
+
+  # Status reporting job to ensure PR status is properly reported
+  status-report:
+    name: Status Report
+    runs-on: ubuntu-latest
+    needs: [test, lint, build]
+    if: always()
+    
+    steps:
+      - name: Report Status
+        run: |
+          echo "## 📋 Test Suite Status Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.test.result }}" == "success" ] && [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
+            echo "✅ **Overall Status**: All checks passed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 **Ready for merge**: All required checks completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Overall Status**: Some checks failed" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 **Failed Jobs**: " >> $GITHUB_STEP_SUMMARY
+            [ "${{ needs.test.result }}" != "success" ] && echo "- Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+            [ "${{ needs.lint.result }}" != "success" ] && echo "- Lint: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
+            [ "${{ needs.build.result }}" != "success" ] && echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Job Results**:">> $GITHUB_STEP_SUMMARY
+          echo "- Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Lint: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
         if: always() 

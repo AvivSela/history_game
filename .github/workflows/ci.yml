@@ -1,11 +1,13 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
+  # Disabled to prevent conflicts with test.yml workflow
+  # push:
+  #   branches: [ main, develop ]
+  # pull_request:
+  #   branches: [ main, develop ]
+  # workflow_dispatch:
+  workflow_dispatch: # Only allow manual triggers for now
 
 env:
   NODE_VERSION: '24'
