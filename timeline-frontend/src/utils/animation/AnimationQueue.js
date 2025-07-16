@@ -145,7 +145,10 @@ class AnimationQueue {
       const duration = performance.now() - startTime;
       this.updatePerformanceMetrics(duration);
     } catch (error) {
-      // Handle animation error
+      // Log and propagate animation errors instead of silently swallowing them
+      // eslint-disable-next-line no-console
+      console.error('AnimationQueue: executeAnimation failed', error);
+      throw error; // Re-throw so upstream logic or global handlers can react
     }
   }
 
