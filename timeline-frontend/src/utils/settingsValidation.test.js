@@ -158,10 +158,6 @@ describe('Settings Validation', () => {
       const booleanSettings = [
         'animations',
         'soundEffects',
-        'reducedMotion',
-        'highContrast',
-        'largeText',
-        'screenReaderSupport',
         'autoSave',
         'performanceMode',
       ];
@@ -226,10 +222,6 @@ describe('Settings Validation', () => {
         categories: ['history'],
         animations: true,
         soundEffects: true,
-        reducedMotion: false,
-        highContrast: false,
-        largeText: false,
-        screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
         version: '1.0.0',
@@ -261,7 +253,7 @@ describe('Settings Validation', () => {
       const result = validateSettings(incompleteSettings);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Missing required settings: cardCount, categories, animations, soundEffects, reducedMotion, highContrast, largeText, screenReaderSupport, autoSave, performanceMode, version'
+        'Missing required settings: cardCount, categories, animations, soundEffects, autoSave, performanceMode, version'
       );
     });
 
@@ -272,10 +264,6 @@ describe('Settings Validation', () => {
         categories: ['history'],
         animations: true,
         soundEffects: true,
-        reducedMotion: false,
-        highContrast: false,
-        largeText: false,
-        screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
         version: '1.0.0',
@@ -296,10 +284,6 @@ describe('Settings Validation', () => {
         categories: ['history'],
         animations: false,
         soundEffects: true,
-        reducedMotion: false, // Conflict: reduced motion disabled but animations also disabled
-        highContrast: false,
-        largeText: false,
-        screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
         version: '1.0.0',
@@ -307,9 +291,6 @@ describe('Settings Validation', () => {
 
       const result = validateSettings(conflictingSettings);
       expect(result.isValid).toBe(true); // Cross-field issues are warnings, not errors
-      expect(result.warnings).toContain(
-        'Reduced motion is disabled but animations are also disabled - this may cause confusion'
-      );
     });
   });
 
@@ -336,10 +317,7 @@ describe('Settings Validation', () => {
         expect(schemas).toHaveProperty('categories');
         expect(schemas).toHaveProperty('animations');
         expect(schemas).toHaveProperty('soundEffects');
-        expect(schemas).toHaveProperty('reducedMotion');
-        expect(schemas).toHaveProperty('highContrast');
-        expect(schemas).toHaveProperty('largeText');
-        expect(schemas).toHaveProperty('screenReaderSupport');
+
         expect(schemas).toHaveProperty('autoSave');
         expect(schemas).toHaveProperty('performanceMode');
         expect(schemas).toHaveProperty('version');
@@ -405,15 +383,6 @@ describe('Settings Validation', () => {
     });
 
     describe('getSuggestionMessages', () => {
-      it('should return suggestion messages', () => {
-        const result = validateSetting('reducedMotion', false);
-        const suggestions = getSuggestionMessages(result);
-
-        expect(suggestions).toContain(
-          'Consider enabling reduced motion for better accessibility'
-        );
-      });
-
       it('should handle empty result', () => {
         const suggestions = getSuggestionMessages(null);
         expect(suggestions).toEqual([]);
@@ -485,10 +454,6 @@ describe('Settings Validation', () => {
         categories: Array.from({ length: 100 }, (_, i) => `category${i}`),
         animations: true,
         soundEffects: true,
-        reducedMotion: false,
-        highContrast: false,
-        largeText: false,
-        screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
         version: '1.0.0',

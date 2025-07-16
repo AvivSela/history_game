@@ -277,161 +277,7 @@ const SettingsContent = () => {
             </div>
           </SettingsSection>
 
-          {/* Accessibility Settings Section */}
-          <SettingsSection title="♿ Accessibility" defaultExpanded={false}>
-            <div className="settings-grid">
-              {/* Sound Effects */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>🔊 Sound Effects</h3>
-                  <p>Enable or disable game sounds</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.soundEffects !== false}
-                      onChange={e =>
-                        handleSettingChange('soundEffects', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.soundEffects !== false
-                        ? 'Sound On'
-                        : 'Sound Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
 
-              {/* Animations */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>✨ Animations</h3>
-                  <p>Enable or disable card animations</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.animations !== false}
-                      onChange={e =>
-                        handleSettingChange('animations', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.animations !== false
-                        ? 'Animations On'
-                        : 'Animations Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Reduced Motion */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>🚫 Reduced Motion</h3>
-                  <p>Reduce animations for accessibility</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.reducedMotion === true}
-                      onChange={e =>
-                        handleSettingChange('reducedMotion', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.reducedMotion
-                        ? 'Reduced Motion On'
-                        : 'Reduced Motion Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* High Contrast */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>🎨 High Contrast</h3>
-                  <p>Enable high contrast mode</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.highContrast === true}
-                      onChange={e =>
-                        handleSettingChange('highContrast', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.highContrast
-                        ? 'High Contrast On'
-                        : 'High Contrast Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Large Text */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>📝 Large Text</h3>
-                  <p>Increase text size for better readability</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.largeText === true}
-                      onChange={e =>
-                        handleSettingChange('largeText', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.largeText ? 'Large Text On' : 'Large Text Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Screen Reader Support */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>🔊 Screen Reader Support</h3>
-                  <p>Enhanced screen reader compatibility</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.screenReaderSupport === true}
-                      onChange={e =>
-                        handleSettingChange(
-                          'screenReaderSupport',
-                          e.target.checked
-                        )
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.screenReaderSupport
-                        ? 'Screen Reader Support On'
-                        : 'Screen Reader Support Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </SettingsSection>
 
           {/* Performance Settings Section */}
           <SettingsSection title="⚡ Performance" defaultExpanded={false}>
@@ -510,24 +356,7 @@ const SettingsContent = () => {
                     : 'All categories'}
                 </span>
               </div>
-              <div className="preview-item">
-                <span className="preview-label">Sound:</span>
-                <span className="preview-value">
-                  {settings.soundEffects !== false ? 'On' : 'Off'}
-                </span>
-              </div>
-              <div className="preview-item">
-                <span className="preview-label">Animations:</span>
-                <span className="preview-value">
-                  {settings.animations !== false ? 'On' : 'Off'}
-                </span>
-              </div>
-              <div className="preview-item">
-                <span className="preview-label">Reduced Motion:</span>
-                <span className="preview-value">
-                  {settings.reducedMotion ? 'On' : 'Off'}
-                </span>
-              </div>
+
             </div>
           </div>
 
@@ -598,15 +427,7 @@ const SettingsContent = () => {
                   </li>
                 </ul>
               </div>
-              <div className="help-item">
-                <h4>Accessibility Features</h4>
-                <ul>
-                  <li>Reduced motion for users with vestibular disorders</li>
-                  <li>High contrast for better visibility</li>
-                  <li>Large text for improved readability</li>
-                  <li>Screen reader support for assistive technology</li>
-                </ul>
-              </div>
+
               <div className="help-item">
                 <h4>Performance Tips</h4>
                 <ul>
