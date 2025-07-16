@@ -602,16 +602,14 @@ export const useGameState = () => {
             }, 3000);
           }
 
-          // If game is won, show feedback and restart after delay
+          // If game is won, show feedback (no automatic restart)
           if (isGameWon) {
             // Clear any existing restart timeout
             if (restartTimeoutRef.current) {
               clearTimeout(restartTimeoutRef.current);
+              restartTimeoutRef.current = null;
             }
-            // Set new restart timeout
-            restartTimeoutRef.current = setTimeout(() => {
-              restartGame();
-            }, 3000);
+            // Don't automatically restart - let user choose when to restart
           }
 
           return {
