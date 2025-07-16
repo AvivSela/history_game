@@ -279,31 +279,7 @@ const SettingsContent = () => {
 
 
 
-          {/* Settings Preview */}
-          <div className="settings-preview">
-            <h3>⚡ Current Settings</h3>
-            <div className="preview-grid">
-              <div className="preview-item">
-                <span className="preview-label">Difficulty:</span>
-                <span className="preview-value">
-                  {settings.difficulty || 'medium'}
-                </span>
-              </div>
-              <div className="preview-item">
-                <span className="preview-label">Cards:</span>
-                <span className="preview-value">{settings.cardCount || 5}</span>
-              </div>
-              <div className="preview-item">
-                <span className="preview-label">Categories:</span>
-                <span className="preview-value">
-                  {settings.categories && settings.categories.length > 0
-                    ? settings.categories.join(', ')
-                    : 'All categories'}
-                </span>
-              </div>
 
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="settings-actions">

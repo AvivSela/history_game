@@ -172,16 +172,7 @@ describe('Settings Page', () => {
       });
     });
 
-    it('should render settings preview', async () => {
-      renderSettings();
 
-      await waitFor(() => {
-        expect(screen.getByText('⚡ Current Settings')).toBeInTheDocument();
-        expect(screen.getByText('Difficulty:')).toBeInTheDocument();
-        expect(screen.getByText('Cards:')).toBeInTheDocument();
-        expect(screen.getByText('Categories:')).toBeInTheDocument();
-      });
-    });
   });
 
   describe('Loading States', () => {
