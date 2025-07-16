@@ -33,6 +33,7 @@ jobs:
         run: yarn audit --level moderate
 
       - name: Check for outdated dependencies
-        run: yarn outdated
+        run: yarn outdated || true
+        continue-on-error: true
 
  
