@@ -55,36 +55,6 @@ const VALIDATION_SCHEMAS = {
     required: true,
     message: 'Sound effects setting must be true or false',
   },
-  reducedMotion: {
-    type: 'boolean',
-    required: true,
-    message: 'Reduced motion setting must be true or false',
-  },
-  highContrast: {
-    type: 'boolean',
-    required: true,
-    message: 'High contrast setting must be true or false',
-  },
-  largeText: {
-    type: 'boolean',
-    required: true,
-    message: 'Large text setting must be true or false',
-  },
-  screenReaderSupport: {
-    type: 'boolean',
-    required: true,
-    message: 'Screen reader support must be true or false',
-  },
-  autoSave: {
-    type: 'boolean',
-    required: true,
-    message: 'Auto save setting must be true or false',
-  },
-  performanceMode: {
-    type: 'boolean',
-    required: true,
-    message: 'Performance mode setting must be true or false',
-  },
   version: {
     type: 'string',
     required: true,
@@ -365,40 +335,7 @@ const validateVersion = (value, result) => {
  * @private
  */
 const addSuggestions = (key, value, result) => {
-  switch (key) {
-    case 'reducedMotion':
-      if (value === false) {
-        result.suggestions.push(
-          'Consider enabling reduced motion for better accessibility'
-        );
-      }
-      break;
-    case 'screenReaderSupport':
-      if (value === false) {
-        result.suggestions.push(
-          'Screen reader support is recommended for accessibility'
-        );
-      }
-      break;
-    case 'performanceMode':
-      if (
-        value === false &&
-        typeof navigator !== 'undefined' &&
-        navigator.hardwareConcurrency < 4
-      ) {
-        result.suggestions.push(
-          'Performance mode is recommended for devices with limited resources'
-        );
-      }
-      break;
-    case 'autoSave':
-      if (value === false) {
-        result.suggestions.push(
-          'Auto save helps prevent data loss during gameplay'
-        );
-      }
-      break;
-  }
+  // Removed autoSave and performanceMode suggestions
 };
 
 /**
@@ -408,29 +345,7 @@ const addSuggestions = (key, value, result) => {
  * @private
  */
 const validateCrossFieldRules = (settings, result) => {
-  // Check for conflicting accessibility settings
-  if (settings.reducedMotion === false && settings.animations === false) {
-    result.warnings.push(
-      'Reduced motion is disabled but animations are also disabled - this may cause confusion'
-    );
-  }
-
-  // Check for performance conflicts
-  if (settings.performanceMode === true && settings.animations === true) {
-    result.warnings.push(
-      'Performance mode is enabled but animations are also enabled - consider disabling animations for better performance'
-    );
-  }
-
-  // Check for accessibility conflicts
-  if (
-    settings.screenReaderSupport === false &&
-    settings.highContrast === true
-  ) {
-    result.warnings.push(
-      'High contrast is enabled but screen reader support is disabled - this may limit accessibility'
-    );
-  }
+  // Removed performanceMode and animations cross-field rules
 };
 
 /**

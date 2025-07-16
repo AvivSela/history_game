@@ -35,16 +35,6 @@ class SettingsManager {
       // UI settings
       animations: true,
       soundEffects: true,
-      reducedMotion: false,
-
-      // Accessibility settings
-      highContrast: false,
-      largeText: false,
-      screenReaderSupport: true,
-
-      // Performance settings
-      autoSave: true,
-      performanceMode: false,
 
       // Version for migration
       version: '1.0.0',
