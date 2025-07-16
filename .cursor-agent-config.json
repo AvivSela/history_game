@@ -1,0 +1,41 @@
+{
+  "projectName": "Timeline Game",
+  "formatting": {
+    "required": true,
+    "commands": [
+      "yarn lint:fix",
+      "yarn format"
+    ],
+    "preCommitScript": "./scripts/format-and-commit.sh",
+    "checkCommands": [
+      "yarn lint",
+      "yarn format:check"
+    ]
+  },
+  "packageManager": "yarn",
+  "workspaces": {
+    "frontend": "timeline-frontend",
+    "backend": "timeline-backend"
+  },
+  "preCommitHooks": {
+    "enabled": true,
+    "location": "timeline-frontend/.husky/pre-commit"
+  },
+  "ciChecks": {
+    "linting": true,
+    "formatting": true,
+    "testing": true
+  },
+  "instructions": {
+    "beforeCommit": [
+      "Always run 'yarn format:all' before committing",
+      "Ensure all tests pass with 'yarn test'",
+      "Check for linting issues with 'yarn lint'"
+    ],
+    "formattingRules": [
+      "Use Prettier for code formatting",
+      "Use ESLint for code linting",
+      "Follow project's established patterns"
+    ]
+  }
+} 

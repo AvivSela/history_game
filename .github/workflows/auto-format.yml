@@ -1,0 +1,64 @@
+name: Auto-Format Code
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  auto-format:
+    name: Auto-Format Code
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.type == 'Bot' || contains(github.event.pull_request.title, '[AUTO-FORMAT]')
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run formatting fixes
+        run: |
+          cd timeline-frontend
+          yarn lint:fix
+          yarn format
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-changes.outputs.has-changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "🔧 Auto-format code [skip ci]"
+          git push
+
+      - name: Comment on PR
+        if: steps.check-changes.outputs.has-changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔧 **Auto-formatting applied!**\n\nI\'ve automatically fixed formatting issues in your code. The changes have been committed and pushed to your branch.'
+            }) 
