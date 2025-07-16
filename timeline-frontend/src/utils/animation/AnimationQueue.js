@@ -15,13 +15,13 @@ class AnimationQueue {
       totalAnimations: 0,
       averageDuration: 0,
       frameDrops: 0,
-      lastFrameTime: 0
+      lastFrameTime: 0,
     };
-    
+
     // Get device-specific settings
     this.deviceSettings = deviceOptimizer.getDeviceSettings();
     this.maxConcurrentAnimations = this.deviceSettings.maxConcurrentAnimations;
-    
+
     // Setup performance monitoring
     this.setupPerformanceMonitoring();
   }
@@ -31,22 +31,22 @@ class AnimationQueue {
     if (typeof window === 'undefined') return;
 
     let lastFrameTime = performance.now();
-    
+
     const monitorFrameRate = () => {
       const currentTime = performance.now();
       const frameTime = currentTime - lastFrameTime;
-      
+
       // Check for frame drops (frame time > 16.67ms for 60fps)
       if (frameTime > PERFORMANCE_THRESHOLDS.FRAME_BUDGET) {
         this.performanceMetrics.frameDrops++;
       }
-      
+
       lastFrameTime = currentTime;
       this.performanceMetrics.lastFrameTime = frameTime;
-      
+
       requestAnimationFrame(monitorFrameRate);
     };
-    
+
     requestAnimationFrame(monitorFrameRate);
   }
 
@@ -58,7 +58,7 @@ class AnimationQueue {
       priority,
       options,
       timestamp: Date.now(),
-      deviceSettings: this.deviceSettings
+      deviceSettings: this.deviceSettings,
     };
 
     // Insert based on priority
@@ -66,7 +66,9 @@ class AnimationQueue {
       this.queue.unshift(queueItem);
     } else if (priority === ANIMATION_PRIORITY.HIGH) {
       // Insert after critical items
-      const criticalIndex = this.queue.findIndex(item => item.priority !== ANIMATION_PRIORITY.CRITICAL);
+      const criticalIndex = this.queue.findIndex(
+        item => item.priority !== ANIMATION_PRIORITY.CRITICAL
+      );
       if (criticalIndex === -1) {
         this.queue.push(queueItem);
       } else {
@@ -87,17 +89,20 @@ class AnimationQueue {
   // Process queue with performance optimization
   async process() {
     if (this.isProcessing) return;
-    
+
     this.isProcessing = true;
 
-    while (this.queue.length > 0 && this.activeAnimations.size < this.maxConcurrentAnimations) {
+    while (
+      this.queue.length > 0 &&
+      this.activeAnimations.size < this.maxConcurrentAnimations
+    ) {
       const item = this.queue.shift();
-      
+
       if (item) {
         try {
           this.activeAnimations.add(item.id);
           this.currentAnimation = item;
-          
+
           // Check accessibility preferences
           if (!accessibilityManager.shouldAnimate()) {
             // Skip animation, apply instant state change
@@ -106,7 +111,6 @@ class AnimationQueue {
             // Execute animation with performance monitoring
             await this.executeAnimation(item);
           }
-          
         } catch (error) {
           // Fallback to instant state change
           await this.executeInstantStateChange(item);
@@ -129,20 +133,19 @@ class AnimationQueue {
   // Execute animation with performance monitoring
   async executeAnimation(queueItem) {
     const startTime = performance.now();
-    
+
     try {
       // Apply device-specific optimizations
       const optimizedOptions = this.optimizeForDevice(queueItem.options);
-      
+
       // Execute the animation
       await queueItem.animation(optimizedOptions);
-      
+
       // Update performance metrics
       const duration = performance.now() - startTime;
       this.updatePerformanceMetrics(duration);
-      
     } catch (error) {
-      throw error;
+      // Handle animation error
     }
   }
 
@@ -162,34 +165,42 @@ class AnimationQueue {
   // Optimize animation options for current device
   optimizeForDevice(options = {}) {
     const optimizedOptions = { ...options };
-    
+
     // Apply device-specific timing adjustments
     if (options.duration) {
-      optimizedOptions.duration = deviceOptimizer.getOptimizedTimings({ duration: options.duration }).duration;
+      optimizedOptions.duration = deviceOptimizer.getOptimizedTimings({
+        duration: options.duration,
+      }).duration;
     }
-    
+
     // Apply accessibility adjustments
     if (accessibilityManager.shouldAnimate()) {
-      optimizedOptions.duration = accessibilityManager.getAccessibleDuration(optimizedOptions.duration || 400);
+      optimizedOptions.duration = accessibilityManager.getAccessibleDuration(
+        optimizedOptions.duration || 400
+      );
     } else {
       optimizedOptions.duration = 0;
       optimizedOptions.useInstantTransition = true;
     }
-    
+
     // Apply device-specific quality settings
     optimizedOptions.quality = this.deviceSettings.animationQuality;
-    optimizedOptions.enableGPUAcceleration = this.deviceSettings.enableGPUAcceleration;
-    
+    optimizedOptions.enableGPUAcceleration =
+      this.deviceSettings.enableGPUAcceleration;
+
     return optimizedOptions;
   }
 
   // Update performance metrics
   updatePerformanceMetrics(duration) {
     this.performanceMetrics.totalAnimations++;
-    
+
     // Calculate running average
-    const total = this.performanceMetrics.averageDuration * (this.performanceMetrics.totalAnimations - 1);
-    this.performanceMetrics.averageDuration = (total + duration) / this.performanceMetrics.totalAnimations;
+    const total =
+      this.performanceMetrics.averageDuration *
+      (this.performanceMetrics.totalAnimations - 1);
+    this.performanceMetrics.averageDuration =
+      (total + duration) / this.performanceMetrics.totalAnimations;
   }
 
   // Remove specific animation from queue
@@ -219,22 +230,23 @@ class AnimationQueue {
       activeAnimations: this.activeAnimations.size,
       currentAnimation: this.currentAnimation,
       deviceSettings: this.deviceSettings,
-      performanceMetrics: this.performanceMetrics
+      performanceMetrics: this.performanceMetrics,
     };
   }
 
   // Get performance summary
   getPerformanceSummary() {
     const status = this.getStatus();
-    
+
     return {
       ...status,
       performance: {
-        averageQueueTime: status.performanceMetrics.averageDuration.toFixed(2) + 'ms',
+        averageQueueTime:
+          status.performanceMetrics.averageDuration.toFixed(2) + 'ms',
         activeAnimationCount: status.activeAnimations,
         frameDropRate: status.performanceMetrics.frameDrops,
-        isOptimal: status.activeAnimations <= this.maxConcurrentAnimations
-      }
+        isOptimal: status.activeAnimations <= this.maxConcurrentAnimations,
+      },
     };
   }
 
@@ -249,56 +261,86 @@ class AnimationQueue {
 export const globalAnimationQueue = new AnimationQueue();
 
 // Utility functions for common animation patterns
-export const queueAnimation = (animation, priority = ANIMATION_PRIORITY.NORMAL, options = {}) => {
+export const queueAnimation = (
+  animation,
+  priority = ANIMATION_PRIORITY.NORMAL,
+  options = {}
+) => {
   return globalAnimationQueue.add(animation, priority, options);
 };
 
-export const queueCardAnimation = (element, animationClass, duration, priority = ANIMATION_PRIORITY.NORMAL, options = {}) => {
-  return queueAnimation(async (optimizedOptions) => {
-    if (!element) return;
-    
-    const finalDuration = optimizedOptions.duration || duration;
-    
-    if (finalDuration === 0) {
-      // Instant state change
-      element.classList.add(animationClass);
-      return;
-    }
-    
-    element.classList.add('card-animating');
-    element.classList.add(animationClass);
-    
-    await new Promise(resolve => {
-      setTimeout(() => {
-        element.classList.remove(animationClass);
-        element.classList.remove('card-animating');
-        resolve();
-      }, finalDuration);
-    });
-  }, priority, {
-    ...options,
-    duration,
-    instantState: () => {
-      if (element) {
+export const queueCardAnimation = (
+  element,
+  animationClass,
+  duration,
+  priority = ANIMATION_PRIORITY.NORMAL,
+  options = {}
+) => {
+  return queueAnimation(
+    async optimizedOptions => {
+      if (!element) return;
+
+      const finalDuration = optimizedOptions.duration || duration;
+
+      if (finalDuration === 0) {
+        // Instant state change
         element.classList.add(animationClass);
+        return;
       }
+
+      element.classList.add('card-animating');
+      element.classList.add(animationClass);
+
+      await new Promise(resolve => {
+        setTimeout(() => {
+          element.classList.remove(animationClass);
+          element.classList.remove('card-animating');
+          resolve();
+        }, finalDuration);
+      });
+    },
+    priority,
+    {
+      ...options,
+      duration,
+      instantState: () => {
+        if (element) {
+          element.classList.add(animationClass);
+        }
+      },
     }
-  });
+  );
 };
 
-export const queueParallelAnimations = (animations, priority = ANIMATION_PRIORITY.NORMAL, options = {}) => {
-  return queueAnimation(async (optimizedOptions) => {
-    await Promise.all(animations.map(anim => anim(optimizedOptions)));
-  }, priority, options);
+export const queueParallelAnimations = (
+  animations,
+  priority = ANIMATION_PRIORITY.NORMAL,
+  options = {}
+) => {
+  return queueAnimation(
+    async optimizedOptions => {
+      await Promise.all(animations.map(anim => anim(optimizedOptions)));
+    },
+    priority,
+    options
+  );
 };
 
-export const queueSequentialAnimations = (animations, priority = ANIMATION_PRIORITY.NORMAL, options = {}) => {
-  return queueAnimation(async (optimizedOptions) => {
-    for (const animation of animations) {
-      await animation(optimizedOptions);
-    }
-  }, priority, options);
+export const queueSequentialAnimations = (
+  animations,
+  priority = ANIMATION_PRIORITY.NORMAL,
+  options = {}
+) => {
+  return queueAnimation(
+    async optimizedOptions => {
+      for (const animation of animations) {
+        await animation(optimizedOptions);
+      }
+    },
+    priority,
+    options
+  );
 };
 
 // Export the queue class for custom implementations
-export { AnimationQueue }; 
+export { AnimationQueue };

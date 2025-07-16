@@ -18,15 +18,18 @@ class DeviceOptimizer {
         isLowEnd: false,
         cores: 1,
         memory: 4,
-        userAgent: 'unknown'
+        userAgent: 'unknown',
       };
     }
 
     const userAgent = navigator.userAgent;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        userAgent
+      );
     const cores = navigator.hardwareConcurrency || 1;
     const memory = navigator.deviceMemory || 4;
-    
+
     // Determine device type
     let deviceType = 'desktop';
     if (isMobile) {
@@ -47,7 +50,7 @@ class DeviceOptimizer {
       isLowEnd: deviceType === 'low-end-mobile',
       cores,
       memory,
-      userAgent
+      userAgent,
     };
   }
 
@@ -57,21 +60,21 @@ class DeviceOptimizer {
       return {
         frameRate: 60,
         memoryUsage: 0,
-        isOptimal: true
+        isOptimal: true,
       };
     }
 
     // Simple performance measurement
     const startTime = performance.now();
     let frameCount = 0;
-    
+
     const measureFrame = () => {
       frameCount++;
       if (performance.now() - startTime < 1000) {
         requestAnimationFrame(measureFrame);
       }
     };
-    
+
     requestAnimationFrame(measureFrame);
 
     // Estimate memory usage (if available)
@@ -83,26 +86,26 @@ class DeviceOptimizer {
     return {
       frameRate: frameCount,
       memoryUsage,
-      isOptimal: frameCount >= 55 // Consider 55+ fps as optimal
+      isOptimal: frameCount >= 55, // Consider 55+ fps as optimal
     };
   }
 
   // Get optimized timing for current device
   getOptimizedTimings(baseTimings) {
     const multiplier = DEVICE_TIMING_MULTIPLIERS[this.deviceInfo.type] || 1.0;
-    
+
     // Apply performance-based adjustments
     let performanceMultiplier = 1.0;
     if (!this.performanceMetrics.isOptimal) {
       performanceMultiplier = 0.8; // Reduce timing by 20% for suboptimal performance
     }
-    
+
     const finalMultiplier = multiplier * performanceMultiplier;
-    
+
     return Object.fromEntries(
       Object.entries(baseTimings).map(([key, value]) => [
-        key, 
-        Math.round(value * finalMultiplier)
+        key,
+        Math.round(value * finalMultiplier),
       ])
     );
   }
@@ -113,7 +116,7 @@ class DeviceOptimizer {
       maxConcurrentAnimations: 3,
       enableGPUAcceleration: true,
       useReducedMotion: false,
-      animationQuality: 'high'
+      animationQuality: 'high',
     };
 
     // Adjust based on device type
@@ -142,7 +145,10 @@ class DeviceOptimizer {
 
     // Adjust based on performance metrics
     if (!this.performanceMetrics.isOptimal) {
-      settings.maxConcurrentAnimations = Math.max(1, settings.maxConcurrentAnimations - 1);
+      settings.maxConcurrentAnimations = Math.max(
+        1,
+        settings.maxConcurrentAnimations - 1
+      );
       settings.animationQuality = 'low';
     }
 
@@ -155,10 +161,10 @@ class DeviceOptimizer {
 
     // Check for CSS animation support
     const supportsAnimations = CSS.supports('animation', 'name 1s');
-    
+
     // Check for transform3d support (GPU acceleration)
     const supportsTransform3d = CSS.supports('transform', 'translateZ(0)');
-    
+
     // Check for will-change support
     const supportsWillChange = CSS.supports('will-change', 'transform');
 
@@ -195,7 +201,7 @@ class DeviceOptimizer {
       performance: this.performanceMetrics,
       settings: this.getDeviceSettings(),
       strategy: this.getAnimationStrategy(),
-      supportsAdvanced: this.supportsAdvancedAnimations()
+      supportsAdvanced: this.supportsAdvancedAnimations(),
     };
   }
 
@@ -210,4 +216,4 @@ const deviceOptimizer = new DeviceOptimizer();
 
 // Export singleton and class
 export default deviceOptimizer;
-export { DeviceOptimizer }; 
+export { DeviceOptimizer };

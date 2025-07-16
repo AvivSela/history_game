@@ -125,7 +125,9 @@
 }
 
 /* Focus styles for accessibility */
-.card-count-slider__input:focus + .card-count-slider__track .card-count-slider__thumb {
+.card-count-slider__input:focus
+  + .card-count-slider__track
+  .card-count-slider__thumb {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
@@ -137,19 +139,19 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .card-count-slider__value {
     align-items: flex-start;
   }
-  
+
   .card-count-slider__value-number {
     font-size: 1.25rem;
   }
-  
+
   .card-count-slider__value-description {
     font-size: 0.625rem;
   }
-  
+
   .card-count-slider__thumb {
     width: 1.25rem;
     height: 1.25rem;
@@ -162,17 +164,17 @@
     background-color: #000000;
     border: 1px solid #000000;
   }
-  
+
   .card-count-slider__fill {
     background: #000000;
   }
-  
+
   .card-count-slider__thumb {
     background: #ffffff;
     border-color: #000000;
     border-width: 2px;
   }
-  
+
   .card-count-slider__value-number {
     color: #000000;
   }
@@ -184,7 +186,7 @@
   .card-count-slider__thumb {
     transition: none;
   }
-  
+
   .card-count-slider__thumb:hover,
   .card-count-slider__thumb:active {
     transform: translate(-50%, -50%);
@@ -196,24 +198,24 @@
   .card-count-slider__label {
     color: #f3f4f6;
   }
-  
+
   .card-count-slider__track {
     background-color: #374151;
   }
-  
+
   .card-count-slider__fill {
     background: linear-gradient(90deg, #60a5fa, #93c5fd);
   }
-  
+
   .card-count-slider__thumb {
     background: #1f2937;
     border-color: #60a5fa;
   }
-  
+
   .card-count-slider__value-number {
     color: #60a5fa;
   }
-  
+
   .card-count-slider__value-description,
   .card-count-slider__range,
   .card-count-slider__description {
@@ -226,17 +228,17 @@
   .card-count-slider__input {
     display: none;
   }
-  
+
   .card-count-slider__track {
     background-color: #000000;
   }
-  
+
   .card-count-slider__fill {
     background: #000000;
   }
-  
+
   .card-count-slider__thumb {
     background: #ffffff;
     border-color: #000000;
   }
-} 
+}

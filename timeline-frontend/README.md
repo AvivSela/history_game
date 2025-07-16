@@ -40,6 +40,7 @@ yarn lint
 ## Development
 
 The project uses:
+
 - **React 18** with hooks and modern patterns
 - **Vite** for fast development and building
 - **React Router** for navigation
@@ -94,6 +95,7 @@ src/
 ## Code Quality & Architecture
 
 ### Component Organization
+
 The codebase follows a well-organized component structure with clear separation of concerns:
 
 - **Core Components** (`src/components/core/`): Core game logic and UI coordination
@@ -104,6 +106,7 @@ The codebase follows a well-organized component structure with clear separation 
 - **Types** (`src/types/`): Type definitions and documentation for future TypeScript migration
 
 ### Key Improvements
+
 - **Modular Architecture**: Components are focused and single-purpose
 - **Separation of Concerns**: UI logic separated from business logic
 - **Maintainability**: Clear component boundaries and consistent naming
@@ -111,6 +114,7 @@ The codebase follows a well-organized component structure with clear separation 
 - **Reusability**: UI components designed for reuse across the application
 
 ### Testing
+
 - **165 comprehensive tests** covering all major functionality
 - **Component isolation**: Each component can be tested independently
 - **User interaction testing**: Full user flow testing with realistic scenarios
@@ -121,6 +125,7 @@ The codebase follows a well-organized component structure with clear separation 
 ### Animation System (FE-001)
 
 The Timeline Game now uses a **unified, optimized animation system** for all UI and game animations. This system provides:
+
 - Centralized animation management via `AnimationSystem`
 - Device-specific performance optimizations
 - Full accessibility support (reduced motion, screen readers)
@@ -136,7 +141,11 @@ import { animations, accessibility, performance } from './utils/animation';
 await animations.cardShake(element);
 
 // Animate a wrong placement sequence
-await animations.wrongPlacement(cardElement, timelineElement, insertionPointElement);
+await animations.wrongPlacement(
+  cardElement,
+  timelineElement,
+  insertionPointElement
+);
 
 // Check if animations should run (accessibility)
 if (accessibility.shouldAnimate()) {
@@ -148,6 +157,7 @@ performance.logSummary();
 ```
 
 **Migration Notes:**
+
 - All legacy animation files (`animationUtils.js`, `animationQueue.js`, `contextAwareAnimations.js`, `progressiveAnimations.js`) have been removed.
 - All components now use the new API from `src/utils/animation/`.
 - See `src/utils/animation/index.js` for the full API surface.
@@ -157,14 +167,17 @@ performance.logSummary();
 ## Testing Guidelines
 
 ### Test File Organization
+
 The project follows standardized test file conventions for consistency and maintainability:
 
 #### File Naming Conventions
+
 - **Extension**: All test files use `.test.jsx` extension
 - **Naming**: `ComponentName.test.jsx` for components, `featureName.test.jsx` for features
 - **Location**: Tests are co-located with their source files
 
 #### Test File Structure
+
 ```
 src/
 ├── tests/                           # Integration and feature tests
@@ -185,12 +198,14 @@ src/
 ```
 
 #### Test Categories
+
 - **Component Tests**: Test React components in isolation
 - **Integration Tests**: Test user flows and component interactions
 - **Utility Tests**: Test pure functions and business logic
 - **Animation Tests**: Test animation sequences and visual feedback
 
 #### Best Practices
+
 - Use descriptive test names that explain the expected behavior
 - Group related tests using `describe` blocks
 - Test both success and error scenarios
@@ -198,6 +213,7 @@ src/
 - Maintain test isolation with proper setup and teardown
 
 ### Running Tests
+
 ```bash
 # Run all tests
 yarn test
@@ -225,9 +241,11 @@ yarn test src/components/game/Timeline/Timeline.test.jsx
 ## Recent Improvements
 
 ### Test File Consistency Standardization (FE-003)
+
 The project has been standardized for consistent test file organization and naming:
 
 #### Achievements
+
 - **Standardized Extensions**: All test files now use `.test.jsx` extension
 - **Eliminated Duplicates**: Removed duplicate test files (reduced from 201 to 165 tests)
 - **Consistent Naming**: Clear naming conventions across all test files
@@ -235,12 +253,14 @@ The project has been standardized for consistent test file organization and nami
 - **Enhanced Performance**: Reduced test execution time by eliminating duplicates
 
 #### Test File Structure
+
 - **Component Tests**: Co-located with components (e.g., `Timeline.test.jsx`)
 - **Integration Tests**: Organized in `src/tests/` directory
 - **Utility Tests**: Co-located with utility functions
 - **Test Index**: Central export file for better test discovery
 
 #### Benefits
+
 - **Consistency**: Standardized test file naming and structure
 - **Efficiency**: Eliminated duplicate test execution
 - **Maintainability**: Clear test organization and discovery
@@ -251,6 +271,7 @@ For more details, see the [FE-003 Test File Consistency Plan](../docs/FE-003-Tes
 ### Component Organization Refactoring (FE-002)
 
 ### Major Refactoring Achievements
+
 - **Component Organization**: Complete reorganization with consistent naming and structure
 - **Directory Structure**: Standardized PascalCase naming and logical grouping
 - **Import Patterns**: Consistent import patterns across the entire codebase
@@ -258,12 +279,14 @@ For more details, see the [FE-003 Test File Consistency Plan](../docs/FE-003-Tes
 - **Code Organization**: Clear separation between core, game, UI, and layout components
 
 ### Component Structure Improvements
+
 - **Core Components** (`src/components/core/`): GameBoard, GameHeader, GameStatus, GameControls, TurnIndicator
 - **Game Components** (`src/components/game/`): Timeline, PlayerHand, AIHand, Card
 - **UI Components** (`src/components/ui/`): LoadingScreen, ErrorScreen, AnimationControls, Feedback
 - **Layout Components** (`src/components/layout/`): Placeholder for future navigation and layout components
 
 ### Benefits Achieved
+
 - **Maintainability**: Consistent component structure and naming conventions
 - **Discoverability**: Logical grouping makes components easy to find
 - **Scalability**: Structure supports future component additions
@@ -271,18 +294,20 @@ For more details, see the [FE-003 Test File Consistency Plan](../docs/FE-003-Tes
 - **Import Consistency**: Single import pattern across the codebase
 
 ### Component Breakdown
-| Component | Lines | Responsibility |
-|-----------|-------|----------------|
-| Game.jsx | ~200 | Game state management |
-| GameBoard.jsx | ~80 | Layout coordination |
-| GameHeader.jsx | ~60 | Header UI |
-| GameStatus.jsx | ~70 | Status display |
-| GameControls.jsx | ~120 | Business logic |
-| LoadingScreen.jsx | ~20 | Loading UI |
-| ErrorScreen.jsx | ~25 | Error UI |
-| AIHand.jsx | ~30 | AI display |
+
+| Component         | Lines | Responsibility        |
+| ----------------- | ----- | --------------------- |
+| Game.jsx          | ~200  | Game state management |
+| GameBoard.jsx     | ~80   | Layout coordination   |
+| GameHeader.jsx    | ~60   | Header UI             |
+| GameStatus.jsx    | ~70   | Status display        |
+| GameControls.jsx  | ~120  | Business logic        |
+| LoadingScreen.jsx | ~20   | Loading UI            |
+| ErrorScreen.jsx   | ~25   | Error UI              |
+| AIHand.jsx        | ~30   | AI display            |
 
 ### Benefits Achieved
+
 - **Maintainability**: Components are now focused and single-purpose
 - **Reusability**: UI components can be reused across the application
 - **Testability**: Components can be tested in isolation with clear interfaces

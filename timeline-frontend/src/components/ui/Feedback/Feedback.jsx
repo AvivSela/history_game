@@ -22,10 +22,12 @@ const Feedback = ({ message, type, isVisible, onAnimationComplete }) => {
   if (!isVisible) return null;
 
   return (
-    <div className={`feedback-message ${type} ${isVisible ? 'visible' : ''} ${isAnimating ? 'animating' : ''}`}>
+    <div
+      className={`feedback-message ${type} ${isVisible ? 'visible' : ''} ${isAnimating ? 'animating' : ''}`}
+    >
       {message}
     </div>
   );
 };
 
-export default Feedback; 
+export default Feedback;

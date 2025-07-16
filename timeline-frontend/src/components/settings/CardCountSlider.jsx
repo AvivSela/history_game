@@ -3,18 +3,18 @@ import './CardCountSlider.css';
 
 /**
  * CardCountSlider - Range slider for selecting game card count
- * 
+ *
  * This component provides a user-friendly way to select the number of cards
  * in the game with a range slider, proper accessibility attributes, and
  * visual feedback showing the current value.
- * 
+ *
  * @component
  * @example
  * ```jsx
- * <CardCountSlider 
- *   value={5} 
- *   min={3} 
- *   max={10} 
+ * <CardCountSlider
+ *   value={5}
+ *   min={3}
+ *   max={10}
  *   onChange={(count) => {}}
  *   disabled={false}
  *   label="Custom Label"
@@ -24,7 +24,7 @@ import './CardCountSlider.css';
  *   valueFormatter={(value) => `${value} cards`}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} props.value - Current card count value
  * @param {number} [props.min=3] - Minimum card count
@@ -38,22 +38,22 @@ import './CardCountSlider.css';
  * @param {string} [props.valuePrefix] - Prefix to prepend to displayed value
  * @param {Function} [props.valueFormatter] - Custom function to format displayed value
  * @param {Object} props.rest - Additional props passed to the div element
- * 
+ *
  * @returns {JSX.Element} The card count slider component
  */
-const CardCountSlider = ({ 
-  value, 
-  min = 3, 
-  max = 10, 
+const CardCountSlider = ({
+  value,
+  min = 3,
+  max = 10,
   step = 1,
-  onChange, 
-  disabled = false, 
-  className = '', 
+  onChange,
+  disabled = false,
+  className = '',
   label = 'Number of Cards',
   valueSuffix = '',
   valuePrefix = '',
   valueFormatter,
-  ...rest 
+  ...rest
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -68,34 +68,40 @@ const CardCountSlider = ({
   }, [value]);
 
   // Debounced onChange handler for mouse/touch events
-  const debouncedOnChange = useCallback((newValue) => {
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      // In test mode, clear any pending timeout and call immediately
+  const debouncedOnChange = useCallback(
+    newValue => {
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+        // In test mode, clear any pending timeout and call immediately
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current);
+          debounceTimeoutRef.current = null;
+        }
+        if (!disabled && onChange) {
+          onChange(newValue);
+        }
+        return;
+      }
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
-        debounceTimeoutRef.current = null;
       }
-      if (!disabled && onChange) {
-        onChange(newValue);
-      }
-      return;
-    }
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (!disabled && onChange) {
-        onChange(newValue);
-      }
-    }, 100);
-  }, [disabled, onChange]);
+      debounceTimeoutRef.current = setTimeout(() => {
+        if (!disabled && onChange) {
+          onChange(newValue);
+        }
+      }, 100);
+    },
+    [disabled, onChange]
+  );
 
   // Immediate onChange handler for keyboard events
-  const immediateOnChange = useCallback((newValue) => {
-    if (!disabled && onChange) {
-      onChange(newValue);
-    }
-  }, [disabled, onChange]);
+  const immediateOnChange = useCallback(
+    newValue => {
+      if (!disabled && onChange) {
+        onChange(newValue);
+      }
+    },
+    [disabled, onChange]
+  );
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -106,7 +112,7 @@ const CardCountSlider = ({
     };
   }, []);
 
-  const handleChange = (event) => {
+  const handleChange = event => {
     const newValue = parseInt(event.target.value, 10);
     setLocalValue(newValue);
     debouncedOnChange(newValue);
@@ -130,7 +136,7 @@ const CardCountSlider = ({
     setIsFocused(false);
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = event => {
     if (disabled) return;
 
     let newValue = localValue;
@@ -164,7 +170,7 @@ const CardCountSlider = ({
       default:
         return;
     }
-    
+
     if (newValue !== localValue) {
       setLocalValue(newValue);
       immediateOnChange(newValue);
@@ -182,10 +188,12 @@ const CardCountSlider = ({
     disabled ? 'card-count-slider--disabled' : '',
     isDragging ? 'card-count-slider--dragging' : '',
     isFocused ? 'card-count-slider--focused' : '',
-    className
-  ].filter(Boolean).join(' ');
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
-  const getCardCountDescription = (count) => {
+  const getCardCountDescription = count => {
     if (count <= 3) return 'Quick game';
     if (count <= 5) return 'Standard game';
     if (count <= 7) return 'Extended game';
@@ -193,7 +201,7 @@ const CardCountSlider = ({
   };
 
   // Format the displayed value
-  const formatDisplayValue = (value) => {
+  const formatDisplayValue = value => {
     if (valueFormatter) {
       return valueFormatter(value);
     }
@@ -204,13 +212,9 @@ const CardCountSlider = ({
   const labelId = `card-count-label-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
-    <div 
-      className={containerClasses}
-      ref={sliderRef}
-      {...rest}
-    >
+    <div className={containerClasses} ref={sliderRef} {...rest}>
       <div className="card-count-slider__header">
-        <label 
+        <label
           htmlFor="card-count-input"
           id={labelId}
           className="card-count-slider__label"
@@ -250,16 +254,13 @@ const CardCountSlider = ({
           aria-labelledby={labelId}
           aria-describedby="card-count-description"
         />
-        
-        <div 
-          className="card-count-slider__track"
-          aria-hidden="true"
-        >
-          <div 
+
+        <div className="card-count-slider__track" aria-hidden="true">
+          <div
             className="card-count-slider__fill"
             style={{ width: `${percentage}%` }}
           />
-          <div 
+          <div
             ref={thumbRef}
             className="card-count-slider__thumb"
             style={{ left: `${percentage}%` }}
@@ -272,15 +273,15 @@ const CardCountSlider = ({
         <span className="card-count-slider__max">{max}</span>
       </div>
 
-      <div 
+      <div
         id="card-count-description"
         className="card-count-slider__description"
       >
-        Use arrow keys or drag to adjust the number of cards. 
-        More cards provide a longer, more challenging game.
+        Use arrow keys or drag to adjust the number of cards. More cards provide
+        a longer, more challenging game.
       </div>
     </div>
   );
 };
 
-export default CardCountSlider; 
+export default CardCountSlider;

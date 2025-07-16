@@ -5,16 +5,19 @@ This directory contains robust testing utilities and mocks that follow best prac
 ## 🎯 **Key Principles**
 
 ### 1. **Centralized Mocks**
+
 - All mocks are defined in `__mocks__/` directory
 - Single source of truth for mock behavior
 - Easy to update when real modules change
 
 ### 2. **Flexible Mock Structure**
+
 - Mocks adapt to changes in real modules
 - No tight coupling to specific implementation details
 - Graceful handling of missing properties
 
 ### 3. **Consistent Test Setup**
+
 - Common setup utilities in `utils/testSetup.js`
 - Standardized mock initialization
 - Easy cleanup between tests
@@ -59,10 +62,10 @@ describe('My Component', () => {
 ```javascript
 it('should handle specific API response', () => {
   // Setup custom response
-  apiMock.setResponse('getRandomEvents', { 
-    data: [{ id: 'custom', title: 'Custom Event' }] 
+  apiMock.setResponse('getRandomEvents', {
+    data: [{ id: 'custom', title: 'Custom Event' }],
   });
-  
+
   // Your test here
 });
 ```
@@ -73,7 +76,7 @@ it('should handle specific API response', () => {
 it('should handle API errors', () => {
   // Setup error response
   apiMock.setError('getRandomEvents', new Error('Network Error'));
-  
+
   // Your test here
 });
 ```
@@ -81,16 +84,19 @@ it('should handle API errors', () => {
 ### Creating Mock Data
 
 ```javascript
-import { createMockGameState, createMockEvents } from '../tests/utils/testSetup';
+import {
+  createMockGameState,
+  createMockEvents,
+} from '../tests/utils/testSetup';
 
 it('should work with mock data', () => {
   const mockState = createMockGameState({
     gameStatus: 'playing',
-    score: 100
+    score: 100,
   });
-  
+
   const mockEvents = createMockEvents(3);
-  
+
   // Your test here
 });
 ```
@@ -100,6 +106,7 @@ it('should work with mock data', () => {
 ### API Mock (`__mocks__/api.js`)
 
 The API mock provides:
+
 - **Default responses** for all API methods
 - **Flexible response customization** via `setResponse()`
 - **Error simulation** via `setError()`
@@ -107,26 +114,27 @@ The API mock provides:
 
 ```javascript
 // Available methods
-apiMock.gameAPI.getRandomEvents()
-apiMock.gameAPI.getAllEvents()
-apiMock.gameAPI.getEventsByCategory()
-apiMock.gameAPI.getEventsByDifficulty()
-apiMock.gameAPI.getCategories()
-apiMock.gameAPI.healthCheck()
+apiMock.gameAPI.getRandomEvents();
+apiMock.gameAPI.getAllEvents();
+apiMock.gameAPI.getEventsByCategory();
+apiMock.gameAPI.getEventsByDifficulty();
+apiMock.gameAPI.getCategories();
+apiMock.gameAPI.healthCheck();
 
 // Helper functions
-apiMock.extractData()
-apiMock.handleAPIError()
+apiMock.extractData();
+apiMock.handleAPIError();
 
 // Utility methods
-apiMock.reset()
-apiMock.setResponse(method, response)
-apiMock.setError(method, error)
+apiMock.reset();
+apiMock.setResponse(method, response);
+apiMock.setError(method, error);
 ```
 
 ### Game Constants Mock (`__mocks__/gameConstants.js`)
 
 Provides consistent game constants:
+
 - `GAME_STATUS`
 - `PLAYER_TYPES`
 - `CARD_COUNTS`
@@ -135,18 +143,22 @@ Provides consistent game constants:
 ## 🛠 **Test Utilities (`utils/testSetup.js`)**
 
 ### Setup Functions
+
 - `setupCommonMocks()` - Initialize all common mocks
 - `resetAllMocks()` - Clean up all mocks between tests
 
 ### Data Creation
+
 - `createMockGameState(overrides)` - Create mock game state
 - `createMockEvents(count)` - Create mock events
 
 ### API Configuration
+
 - `setupAPIResponses(responses)` - Set multiple API responses
 - `setupAPIErrors(errors)` - Set multiple API errors
 
 ### Utilities
+
 - `waitForAsync(ms)` - Wait for async operations
 - `mockConsole()` - Mock console methods
 
@@ -171,12 +183,13 @@ Provides consistent game constants:
 ## 🚨 **Common Pitfalls to Avoid**
 
 ### ❌ **Don't Do This**
+
 ```javascript
 // Fragile - breaks when API structure changes
 vi.mock('../utils/api', () => ({
   gameAPI: {
-    getRandomEvents: vi.fn().mockResolvedValue({ data: mockEvents })
-  }
+    getRandomEvents: vi.fn().mockResolvedValue({ data: mockEvents }),
+  },
 }));
 
 // Tight coupling to implementation
@@ -184,6 +197,7 @@ expect(mockedAPI.gameAPI.getRandomEvents).toHaveBeenCalledWith(5);
 ```
 
 ### ✅ **Do This Instead**
+
 ```javascript
 // Robust - uses centralized mock
 setupCommonMocks();
@@ -210,4 +224,4 @@ When adding new modules to mock:
 3. Document the mock in this README
 4. Update existing tests to use the new mock
 
-This approach ensures your tests remain robust and maintainable as your codebase evolves. 
+This approach ensures your tests remain robust and maintainable as your codebase evolves.

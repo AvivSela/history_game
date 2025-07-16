@@ -17,14 +17,20 @@ class AccessibilityManager {
         prefersHighContrast: false,
         shouldAnimate: true,
         durationMultiplier: 1.0,
-        shouldUseSubtleAnimations: false
+        shouldUseSubtleAnimations: false,
       };
     }
 
     try {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const prefersReducedData = window.matchMedia('(prefers-reduced-data: reduce)').matches;
-      const prefersHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+      const prefersReducedData = window.matchMedia(
+        '(prefers-reduced-data: reduce)'
+      ).matches;
+      const prefersHighContrast = window.matchMedia(
+        '(prefers-contrast: high)'
+      ).matches;
 
       return {
         prefersReducedMotion,
@@ -32,7 +38,7 @@ class AccessibilityManager {
         prefersHighContrast,
         shouldAnimate: !prefersReducedMotion && !prefersReducedData,
         durationMultiplier: prefersReducedMotion ? 0.5 : 1.0,
-        shouldUseSubtleAnimations: prefersReducedMotion
+        shouldUseSubtleAnimations: prefersReducedMotion,
       };
     } catch (error) {
       return {
@@ -41,7 +47,7 @@ class AccessibilityManager {
         prefersHighContrast: false,
         shouldAnimate: true,
         durationMultiplier: 1.0,
-        shouldUseSubtleAnimations: false
+        shouldUseSubtleAnimations: false,
       };
     }
   }
@@ -52,7 +58,7 @@ class AccessibilityManager {
 
     try {
       // Check for common screen reader indicators
-      const hasScreenReader = 
+      const hasScreenReader =
         navigator.userAgent.includes('NVDA') ||
         navigator.userAgent.includes('JAWS') ||
         navigator.userAgent.includes('VoiceOver') ||
@@ -99,9 +105,11 @@ class AccessibilityManager {
   onPreferencesChanged() {
     // Emit custom event for other components to listen to
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('accessibilityPreferencesChanged', {
-        detail: this.preferences
-      }));
+      window.dispatchEvent(
+        new CustomEvent('accessibilityPreferencesChanged', {
+          detail: this.preferences,
+        })
+      );
     }
   }
 
@@ -122,7 +130,7 @@ class AccessibilityManager {
         ...baseSettings,
         duration: 0,
         shouldAnimate: false,
-        useInstantTransition: true
+        useInstantTransition: true,
       };
     }
 
@@ -131,7 +139,7 @@ class AccessibilityManager {
       duration: this.getAccessibleDuration(baseSettings.duration || 400),
       shouldAnimate: true,
       useInstantTransition: false,
-      shouldUseSubtleAnimations: this.preferences.shouldUseSubtleAnimations
+      shouldUseSubtleAnimations: this.preferences.shouldUseSubtleAnimations,
     };
   }
 
@@ -145,9 +153,9 @@ class AccessibilityManager {
       announcement.setAttribute('aria-atomic', 'true');
       announcement.className = 'sr-only';
       announcement.textContent = message;
-      
+
       document.body.appendChild(announcement);
-      
+
       // Remove after announcement
       setTimeout(() => {
         if (document.body.contains(announcement)) {
@@ -169,7 +177,7 @@ class AccessibilityManager {
       'wrong-placement': `${context.cardTitle || 'Card'} was placed incorrectly`,
       'timeline-shake': 'Timeline is shaking to indicate incorrect placement',
       'insertion-point-error': 'Insertion point is showing an error',
-      'quick-feedback': 'Quick feedback animation is playing'
+      'quick-feedback': 'Quick feedback animation is playing',
     };
 
     return labels[animationType] || '';
@@ -182,9 +190,9 @@ class AccessibilityManager {
     try {
       if (shouldFocus) {
         element.focus();
-        element.scrollIntoView({ 
-          behavior: this.shouldAnimate() ? scrollBehavior : 'auto', 
-          block: 'nearest' 
+        element.scrollIntoView({
+          behavior: this.shouldAnimate() ? scrollBehavior : 'auto',
+          block: 'nearest',
         });
       }
     } catch (error) {
@@ -196,7 +204,14 @@ class AccessibilityManager {
   handleKeyboardNavigation(event, handlers = {}) {
     if (!event) return;
 
-    const { onEnter, onEscape, onArrowUp, onArrowDown, onArrowLeft, onArrowRight } = handlers;
+    const {
+      onEnter,
+      onEscape,
+      onArrowUp,
+      onArrowDown,
+      onArrowLeft,
+      onArrowRight,
+    } = handlers;
 
     switch (event.key) {
       case 'Enter':
@@ -257,7 +272,7 @@ class AccessibilityManager {
       preferences: this.preferences,
       screenReaderActive: this.screenReaderActive,
       recommendations: this.getAccessibilityRecommendations(),
-      shouldAnimate: this.shouldAnimate()
+      shouldAnimate: this.shouldAnimate(),
     };
   }
 }
@@ -267,4 +282,4 @@ const accessibilityManager = new AccessibilityManager();
 
 // Export singleton and class
 export default accessibilityManager;
-export { AccessibilityManager }; 
+export { AccessibilityManager };

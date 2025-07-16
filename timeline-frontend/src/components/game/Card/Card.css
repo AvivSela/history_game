@@ -56,17 +56,17 @@
 
 /* CSS Variables System */
 :root {
-  --primary-color: #2c3e50;    /* Dark slate blue */
-  --secondary-color: #3498db;   /* Bright blue */
-  --accent-color: #e74c3c;      /* Red */
-  --success-color: #27ae60;     /* Green */
-  --warning-color: #f39c12;     /* Orange */
-  --background-color: #ecf0f1;  /* Light gray */
-  --card-background: #ffffff;   /* White */
-  --text-color: #2c3e50;        /* Dark slate */
-  --text-light: #7f8c8d;       /* Light gray */
-  --border-color: #bdc3c7;      /* Light gray */
-  --star-color: #ffd700;        /* Gold */
+  --primary-color: #2c3e50; /* Dark slate blue */
+  --secondary-color: #3498db; /* Bright blue */
+  --accent-color: #e74c3c; /* Red */
+  --success-color: #27ae60; /* Green */
+  --warning-color: #f39c12; /* Orange */
+  --background-color: #ecf0f1; /* Light gray */
+  --card-background: #ffffff; /* White */
+  --text-color: #2c3e50; /* Dark slate */
+  --text-light: #7f8c8d; /* Light gray */
+  --border-color: #bdc3c7; /* Light gray */
+  --star-color: #ffd700; /* Gold */
   --border-radius: 12px;
   --transition: all 0.3s ease;
 }
@@ -74,7 +74,9 @@
 /* Card Container */
 .card-container {
   cursor: pointer;
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
   position: relative;
   user-select: none;
   width: 220px;
@@ -98,7 +100,7 @@
 .card-container.dragging {
   transform: rotate(8deg) scale(1.15);
   z-index: 1000;
-  filter: brightness(1.2) drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+  filter: brightness(1.2) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
 }
 
 .card-container.selected {
@@ -109,7 +111,6 @@
 .card-container.hovered {
   transform: scale(1.05) translateY(-8px);
 }
-
 
 /* Card Face */
 .card {
@@ -134,7 +135,11 @@
 
 /* Page Background */
 body {
-  background: linear-gradient(135deg, var(--background-color), var(--secondary-color));
+  background: linear-gradient(
+    135deg,
+    var(--background-color),
+    var(--secondary-color)
+  );
   min-height: 100vh;
 }
 
@@ -160,7 +165,7 @@ body {
 .difficulty-star {
   font-size: 18px;
   color: var(--star-color);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Right Side - Category Identification */
@@ -168,7 +173,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 15px;
   padding: 6px 10px;
   border: 1px solid #dee2e6;
@@ -184,15 +189,25 @@ body {
   letter-spacing: 1px;
   font-weight: bold;
   color: #333;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Category Color Coding */
-.category-military { color: var(--accent-color); }
-.category-disaster { color: var(--warning-color); }
-.category-political { color: var(--primary-color); }
-.category-cultural { color: var(--success-color); }
-.category-scientific { color: var(--secondary-color); }
+.category-military {
+  color: var(--accent-color);
+}
+.category-disaster {
+  color: var(--warning-color);
+}
+.category-political {
+  color: var(--primary-color);
+}
+.category-cultural {
+  color: var(--success-color);
+}
+.category-scientific {
+  color: var(--secondary-color);
+}
 
 /* Title Section */
 .card-title {
@@ -207,7 +222,7 @@ body {
   background: var(--card-background);
   margin: 0;
   flex-shrink: 0;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Description Section - Main Content Area */
@@ -229,7 +244,7 @@ body {
   letter-spacing: 1px;
   text-align: center;
   margin-bottom: 10px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .mechanic-text {
@@ -279,7 +294,11 @@ body {
   flex-direction: column;
   gap: 8px;
   padding: 4px 0;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.05));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.05)
+  );
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -306,7 +325,11 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(0, 0, 0, 0.1)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -346,7 +369,12 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   transition: left 0.5s ease;
 }
 
@@ -354,10 +382,14 @@ body {
   left: 100%;
 }
 
-
 @keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 /* Updated difficulty styling integrated above */
@@ -438,7 +470,11 @@ body {
 .year-highlight {
   font-size: 24px;
   font-weight: 900;
-  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(
+    45deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -447,8 +483,13 @@ body {
 }
 
 @keyframes yearGlow {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.2); }
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
 }
 
 /* Card Footer */
@@ -464,8 +505,6 @@ body {
   font-style: italic;
   opacity: 0.8;
 }
-
-
 
 /* Selection Indicator */
 .selection-indicator {
@@ -501,13 +540,26 @@ body {
 }
 
 @keyframes selectionPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.02); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
 }
 
 @keyframes selectionExpand {
-  0% { opacity: 0.8; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.1); }
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
 }
 
 /* Drag Indicator */
@@ -531,13 +583,18 @@ body {
 }
 
 @keyframes dragBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 /* Size Variations - Updated for new 220x300 standard */
 .card-container.small {
-  width: 176px;  /* 80% of 220px */
+  width: 176px; /* 80% of 220px */
   height: 240px; /* 80% of 300px */
 }
 
@@ -555,12 +612,12 @@ body {
 }
 
 .card-container.medium {
-  width: 220px;  /* Standard size */
+  width: 220px; /* Standard size */
   height: 300px;
 }
 
 .card-container.large {
-  width: 264px;  /* 120% of 220px */
+  width: 264px; /* 120% of 220px */
   height: 360px; /* 120% of 300px */
 }
 
@@ -583,24 +640,24 @@ body {
     width: 140px;
     height: 210px;
   }
-  
+
   .card-container.large {
     width: 160px;
     height: 250px;
   }
-  
+
   .card {
     padding: 12px;
   }
-  
+
   .event-title {
     font-size: 14px;
   }
-  
+
   .event-description p {
     font-size: 12px;
   }
-  
+
   .year-highlight {
     font-size: 20px;
   }
@@ -611,20 +668,20 @@ body {
     width: 120px;
     height: 190px;
   }
-  
+
   .card-container.large {
     width: 140px;
     height: 230px;
   }
-  
+
   .event-title {
     font-size: 13px;
   }
-  
+
   .year-highlight {
     font-size: 18px;
   }
-  
+
   .card {
     padding: 10px;
   }
@@ -649,7 +706,6 @@ body {
 .card-container.placing {
   animation: cardPlace 0.6s ease-out;
 }
-
 
 /* Theme variations */
 .card-container.theme-dark .card {
@@ -700,16 +756,37 @@ body {
 
 /* Card shake animation - subtle but noticeable */
 @keyframes cardShake {
-  0%, 100% { transform: translateX(0) translateZ(0); }
-  10% { transform: translateX(-4px) translateZ(0); }
-  20% { transform: translateX(4px) translateZ(0); }
-  30% { transform: translateX(-4px) translateZ(0); }
-  40% { transform: translateX(4px) translateZ(0); }
-  50% { transform: translateX(-2px) translateZ(0); }
-  60% { transform: translateX(2px) translateZ(0); }
-  70% { transform: translateX(-1px) translateZ(0); }
-  80% { transform: translateX(1px) translateZ(0); }
-  90% { transform: translateX(-0.5px) translateZ(0); }
+  0%,
+  100% {
+    transform: translateX(0) translateZ(0);
+  }
+  10% {
+    transform: translateX(-4px) translateZ(0);
+  }
+  20% {
+    transform: translateX(4px) translateZ(0);
+  }
+  30% {
+    transform: translateX(-4px) translateZ(0);
+  }
+  40% {
+    transform: translateX(4px) translateZ(0);
+  }
+  50% {
+    transform: translateX(-2px) translateZ(0);
+  }
+  60% {
+    transform: translateX(2px) translateZ(0);
+  }
+  70% {
+    transform: translateX(-1px) translateZ(0);
+  }
+  80% {
+    transform: translateX(1px) translateZ(0);
+  }
+  90% {
+    transform: translateX(-0.5px) translateZ(0);
+  }
 }
 
 .card-shake {
@@ -723,18 +800,18 @@ body {
 }
 
 @keyframes fadeOut {
-  0% { 
-    opacity: 1; 
+  0% {
+    opacity: 1;
     transform: scale(1) translateZ(0);
     filter: brightness(1);
   }
-  50% { 
-    opacity: 0.5; 
+  50% {
+    opacity: 0.5;
     transform: scale(0.95) translateZ(0);
     filter: brightness(0.8);
   }
-  100% { 
-    opacity: 0; 
+  100% {
+    opacity: 0;
     transform: scale(0.9) translateZ(0);
     filter: brightness(0.6);
   }
@@ -747,22 +824,22 @@ body {
 }
 
 @keyframes bounceIn {
-  0% { 
-    opacity: 0; 
+  0% {
+    opacity: 0;
     transform: scale(0.2) translateY(60px) translateZ(0);
   }
-  50% { 
-    opacity: 1; 
+  50% {
+    opacity: 1;
     transform: scale(1.1) translateY(-8px) translateZ(0);
   }
-  70% { 
+  70% {
     transform: scale(0.95) translateY(2px) translateZ(0);
   }
-  85% { 
+  85% {
     transform: scale(1.02) translateY(-1px) translateZ(0);
   }
-  100% { 
-    opacity: 1; 
+  100% {
+    opacity: 1;
     transform: scale(1) translateY(0) translateZ(0);
   }
 }
@@ -773,15 +850,15 @@ body {
 }
 
 @keyframes highlight {
-  0% { 
+  0% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
     transform: scale(1) translateZ(0);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.3);
     transform: scale(1.02) translateZ(0);
   }
-  100% { 
+  100% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
     transform: scale(1) translateZ(0);
   }
@@ -794,34 +871,38 @@ body {
 }
 
 @keyframes wrongPlacement {
-  0%, 100% { 
-    transform: translateX(0) scale(1) translateZ(0); 
-    opacity: 1; 
+  0%,
+  100% {
+    transform: translateX(0) scale(1) translateZ(0);
+    opacity: 1;
     filter: brightness(1);
   }
-  10%, 30%, 50% { 
-    transform: translateX(-8px) scale(0.95) translateZ(0); 
-    opacity: 0.8; 
+  10%,
+  30%,
+  50% {
+    transform: translateX(-8px) scale(0.95) translateZ(0);
+    opacity: 0.8;
     filter: brightness(1.1) hue-rotate(0deg);
   }
-  20%, 40% { 
-    transform: translateX(8px) scale(0.95) translateZ(0); 
-    opacity: 0.8; 
+  20%,
+  40% {
+    transform: translateX(8px) scale(0.95) translateZ(0);
+    opacity: 0.8;
     filter: brightness(1.1) hue-rotate(0deg);
   }
-  60% { 
-    transform: translateX(0) scale(0.9) translateZ(0); 
-    opacity: 0.6; 
+  60% {
+    transform: translateX(0) scale(0.9) translateZ(0);
+    opacity: 0.6;
     filter: brightness(0.9);
   }
-  80% { 
-    transform: translateX(0) scale(0.8) translateZ(0); 
-    opacity: 0.3; 
+  80% {
+    transform: translateX(0) scale(0.8) translateZ(0);
+    opacity: 0.3;
     filter: brightness(0.8);
   }
-  100% { 
-    transform: translateX(0) scale(0.7) translateZ(0); 
-    opacity: 0; 
+  100% {
+    transform: translateX(0) scale(0.7) translateZ(0);
+    opacity: 0;
     filter: brightness(0.7);
   }
 }
@@ -837,24 +918,24 @@ body {
     animation: none;
     transform: translateX(0);
   }
-  
+
   .card-fade-out {
     animation: none;
     opacity: 0;
     transform: scale(0.9);
   }
-  
+
   .card-bounce-in {
     animation: none;
     opacity: 1;
     transform: scale(1);
   }
-  
+
   .card-highlight {
     animation: none;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
   }
-  
+
   .card-wrong-placement {
     animation: none;
     opacity: 0;

@@ -1,6 +1,6 @@
 /**
  * Game State Management Tests
- * 
+ *
  * Tests for the useGameState hook covering all major game functionality.
  */
 
@@ -15,7 +15,11 @@ vi.mock('../utils/api', () => {
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { setupCommonMocks, resetAllMocks, cleanupTimeouts } from './utils/testSetup';
+import {
+  setupCommonMocks,
+  resetAllMocks,
+  cleanupTimeouts,
+} from './utils/testSetup';
 import {
   initializeGameForTesting,
   selectCardForTesting,
@@ -32,7 +36,7 @@ import {
   mockAPIErrors,
   getExpectedCardCounts,
   waitForGameStatus,
-  waitForAsync
+  waitForAsync,
 } from './utils/gameStateTestUtils';
 import { useGameState } from '../hooks/useGameState';
 import { GAME_STATUS, PLAYER_TYPES } from '../tests/__mocks__/gameConstants';
@@ -62,7 +66,7 @@ describe('Game State Management', () => {
       // Test behavior, not implementation details
       expect(result.current.state.gameMode).toBe('single');
       expect(result.current.state.difficulty).toBe('medium');
-      
+
       // Validate card distribution
       validateCardDistribution(result.current.state, 'single');
     });
@@ -74,7 +78,10 @@ describe('Game State Management', () => {
 
       // Verify API was called with correct parameters
       const expected = getExpectedCardCounts('single');
-      expect(result.current.state.timeline.length + result.current.state.playerHand.length).toBe(expected.total - expected.cardPool);
+      expect(
+        result.current.state.timeline.length +
+          result.current.state.playerHand.length
+      ).toBe(expected.total - expected.cardPool);
       expect(result.current.state.cardPool.length).toBe(expected.cardPool);
     });
 
@@ -89,7 +96,9 @@ describe('Game State Management', () => {
 
     it('should handle API failures during initialization', async () => {
       const { apiMock } = require('./__mocks__/api');
-      apiMock.gameAPI.getRandomEvents.mockRejectedValueOnce(new Error('Network Error'));
+      apiMock.gameAPI.getRandomEvents.mockRejectedValueOnce(
+        new Error('Network Error')
+      );
 
       const { result } = renderHook(() => useGameState());
 
@@ -101,10 +110,13 @@ describe('Game State Management', () => {
         }
       });
 
-      await waitFor(() => {
-        expect(result.current.state.gameStatus).toBe(GAME_STATUS.ERROR);
-        expect(result.current.state.error).toBeTruthy();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(result.current.state.gameStatus).toBe(GAME_STATUS.ERROR);
+          expect(result.current.state.error).toBeTruthy();
+        },
+        { timeout: 2000 }
+      );
     });
 
     it('should clear saved state when initializing new game', async () => {
@@ -144,7 +156,7 @@ describe('Game State Management', () => {
 
       // Initialize game and verify transitions
       await initializeGameForTesting(result, 'single', 'medium');
-      
+
       // Should be in playing state
       assertValidPlayingState(result.current.state);
     });
@@ -184,7 +196,7 @@ describe('Game State Management', () => {
 
       // The game should eventually reach a valid state
       expect(['playing', 'won']).toContain(result.current.state.gameStatus);
-      
+
       // If the game is still playing, it should have made some progress
       if (result.current.state.gameStatus === 'playing') {
         expect(result.current.state.playerHand.length).toBeLessThanOrEqual(4); // Should have placed at least one card
@@ -246,7 +258,11 @@ describe('Game State Management', () => {
       const { result } = renderHook(() => useGameState());
 
       // Try to select card before game is initialized (in lobby state)
-      const mockCard = { id: 'test', title: 'Test Event', dateOccurred: '1950-01-01' };
+      const mockCard = {
+        id: 'test',
+        title: 'Test Event',
+        dateOccurred: '1950-01-01',
+      };
 
       await act(async () => {
         result.current.selectCard(mockCard);
@@ -255,7 +271,7 @@ describe('Game State Management', () => {
       // The actual implementation allows selection in lobby state
       // So we'll test that the selection is cleared when game starts
       await initializeGameForTesting(result, 'single', 'medium');
-      
+
       // Selection should be cleared when game starts
       expect(result.current.state.selectedCard).toBeNull();
     });
@@ -270,23 +286,29 @@ describe('Game State Management', () => {
       const initialTimelineSize = result.current.state.timeline.length;
 
       await selectCardForTesting(result, cardToPlace);
-      
+
       const placementResult = await placeCardForTesting(result, 1);
 
       if (placementResult && placementResult.isCorrect) {
         // Card should be on timeline
         expect(result.current.state.timeline).toContain(cardToPlace);
-        expect(result.current.state.timeline.length).toBe(initialTimelineSize + 1);
+        expect(result.current.state.timeline.length).toBe(
+          initialTimelineSize + 1
+        );
 
         // Card should be removed from hand
         expect(result.current.state.playerHand).not.toContain(cardToPlace);
-        expect(result.current.state.playerHand.length).toBe(initialHandSize - 1);
+        expect(result.current.state.playerHand.length).toBe(
+          initialHandSize - 1
+        );
 
         // Selection should be cleared
         expect(result.current.state.selectedCard).toBeNull();
       } else {
         // If placement was incorrect, the card may have been replaced
-        expect(result.current.state.playerHand.length).toBeLessThanOrEqual(initialHandSize);
+        expect(result.current.state.playerHand.length).toBeLessThanOrEqual(
+          initialHandSize
+        );
         expect(result.current.state.selectedCard).toBeNull();
       }
     });
@@ -302,7 +324,7 @@ describe('Game State Management', () => {
 
       // Mock incorrect placement by placing card in wrong position
       await selectCardForTesting(result, cardToPlace);
-      
+
       await act(async () => {
         await result.current.placeCard(0); // Place before first card (likely incorrect)
       });
@@ -311,12 +333,21 @@ describe('Game State Management', () => {
       expect(result.current.state.feedback).toBeTruthy();
 
       // The hand size should be unchanged or decreased by 1 (if pool is empty or logic differs)
-      expect(result.current.state.playerHand.length === initialHandSize || result.current.state.playerHand.length === initialHandSize - 1).toBe(true);
-      expect(result.current.state.cardPool.length).toBeLessThanOrEqual(initialPoolSize);
+      expect(
+        result.current.state.playerHand.length === initialHandSize ||
+          result.current.state.playerHand.length === initialHandSize - 1
+      ).toBe(true);
+      expect(result.current.state.cardPool.length).toBeLessThanOrEqual(
+        initialPoolSize
+      );
 
       // Optionally, check that the card in the same position is not the original card (if replaced)
       if (result.current.state.playerHand.length === initialHandSize) {
-        expect(result.current.state.playerHand.some(card => card.id !== cardToPlace.id)).toBe(true);
+        expect(
+          result.current.state.playerHand.some(
+            card => card.id !== cardToPlace.id
+          )
+        ).toBe(true);
       }
     });
 
@@ -329,7 +360,7 @@ describe('Game State Management', () => {
 
       // Place card
       await selectCardForTesting(result, cardToPlace);
-      
+
       await act(async () => {
         await result.current.placeCard(1);
       });
@@ -438,4 +469,4 @@ describe('Game State Management', () => {
       validateTimelineIntegrity(result.current.state.timeline);
     });
   });
-}); 
+});

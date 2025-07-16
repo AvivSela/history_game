@@ -21,7 +21,7 @@ describe('SettingsManager', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Suppress console logs during tests
     console.log = vi.fn();
     console.warn = vi.fn();
@@ -32,17 +32,15 @@ describe('SettingsManager', () => {
     localStorageMock.setItem.mockReset();
     localStorageMock.removeItem.mockReset();
     localStorageMock.clear.mockReset();
-    
 
-    
     // Create a fresh instance for each test
     manager = new SettingsManager();
-    
+
     // Clear any lingering state from singleton interference
     manager.changeListeners = [];
     manager.settings = { ...manager.defaultSettings };
     manager.isInitialized = true;
-    
+
     // Patch the singleton to avoid cross-test interference
     settingsManager.changeListeners = [];
     settingsManager.settings = { ...settingsManager.defaultSettings };
@@ -54,7 +52,7 @@ describe('SettingsManager', () => {
     console.log = originalConsole.log;
     console.warn = originalConsole.warn;
     console.error = originalConsole.error;
-    
+
     // Clean up localStorage
     localStorageMock.clear();
   });
@@ -74,7 +72,7 @@ describe('SettingsManager', () => {
         screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
-        version: '1.0.0'
+        version: '1.0.0',
       });
     });
 
@@ -82,35 +80,40 @@ describe('SettingsManager', () => {
       const savedSettings = {
         difficulty: DIFFICULTY_LEVELS.HARD,
         cardCount: 10,
-        categories: ['history', 'science']
+        categories: ['history', 'science'],
       };
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedSettings));
-      
+
       const newManager = new SettingsManager();
-      
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('timeline-game-settings');
+
+      expect(localStorageMock.getItem).toHaveBeenCalledWith(
+        'timeline-game-settings'
+      );
       expect(newManager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
       expect(newManager.getSetting('cardCount')).toBe(10);
-      expect(newManager.getSetting('categories')).toEqual(['history', 'science']);
+      expect(newManager.getSetting('categories')).toEqual([
+        'history',
+        'science',
+      ]);
     });
 
     it('should handle localStorage errors gracefully', () => {
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error('localStorage error');
       });
-      
+
       const newManager = new SettingsManager();
-      
+
       expect(newManager.isReady()).toBe(true);
       expect(newManager.getSettings()).toEqual(manager.getDefaultSettings());
     });
 
     it('should handle invalid JSON in localStorage', () => {
       localStorageMock.getItem.mockReturnValue('invalid json');
-      
+
       const newManager = new SettingsManager();
-      
+
       expect(newManager.isReady()).toBe(true);
       expect(newManager.getSettings()).toEqual(manager.getDefaultSettings());
     });
@@ -151,8 +154,11 @@ describe('SettingsManager', () => {
 
   describe('Settings Updates', () => {
     it('should update single setting successfully', () => {
-      const result = manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+      const result = manager.updateSetting(
+        'difficulty',
+        DIFFICULTY_LEVELS.HARD
+      );
+
       expect(result).toBe(true);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
@@ -165,11 +171,11 @@ describe('SettingsManager', () => {
       const updates = {
         difficulty: DIFFICULTY_LEVELS.EASY,
         cardCount: 8,
-        animations: false
+        animations: false,
       };
-      
+
       const result = manager.updateSettings(updates);
-      
+
       expect(result).toBe(true);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.EASY);
       expect(manager.getSetting('cardCount')).toBe(8);
@@ -179,7 +185,7 @@ describe('SettingsManager', () => {
 
     it('should reject unknown setting keys', () => {
       const result = manager.updateSetting('unknownSetting', 'value');
-      
+
       expect(result).toBe(false);
       expect(manager.getSetting('unknownSetting')).toBeUndefined();
       expect(localStorageMock.setItem).not.toHaveBeenCalled();
@@ -189,9 +195,12 @@ describe('SettingsManager', () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Save error');
       });
-      
-      const result = manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+
+      const result = manager.updateSetting(
+        'difficulty',
+        DIFFICULTY_LEVELS.HARD
+      );
+
       expect(result).toBe(false);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM); // Should revert
     });
@@ -200,14 +209,14 @@ describe('SettingsManager', () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Save error');
       });
-      
+
       const updates = {
         difficulty: DIFFICULTY_LEVELS.EASY,
-        cardCount: 8
+        cardCount: 8,
       };
-      
+
       const result = manager.updateSettings(updates);
-      
+
       expect(result).toBe(false);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM); // Should revert
       expect(manager.getSetting('cardCount')).toBe(CARD_COUNTS.SINGLE); // Should revert
@@ -217,12 +226,15 @@ describe('SettingsManager', () => {
   describe('Settings Reset', () => {
     it('should reset settings to defaults', () => {
       // First update some settings with valid values
-      const update1 = manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
+      const update1 = manager.updateSetting(
+        'difficulty',
+        DIFFICULTY_LEVELS.HARD
+      );
       const update2 = manager.updateSetting('animations', false);
-      
+
       // Then reset
       const result = manager.resetToDefaults();
-      
+
       expect(result).toBe(true);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM);
       expect(manager.getSetting('animations')).toBe(true);
@@ -233,9 +245,9 @@ describe('SettingsManager', () => {
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Save error');
       });
-      
+
       const result = manager.resetToDefaults();
-      
+
       expect(result).toBe(false);
       // Settings should remain unchanged
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM);
@@ -246,29 +258,29 @@ describe('SettingsManager', () => {
     it('should register and call change listeners', () => {
       const listener = vi.fn();
       const unsubscribe = manager.onChange(listener);
-      
+
       manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+
       expect(listener).toHaveBeenCalledWith({
         key: 'difficulty',
         newValue: DIFFICULTY_LEVELS.HARD,
         oldValue: DIFFICULTY_LEVELS.MEDIUM,
         timestamp: expect.any(Number),
-        allSettings: expect.any(Object)
+        allSettings: expect.any(Object),
       });
-      
+
       unsubscribe();
     });
 
     it('should handle multiple change listeners', () => {
       const listener1 = vi.fn();
       const listener2 = vi.fn();
-      
+
       manager.onChange(listener1);
       manager.onChange(listener2);
-      
+
       manager.updateSetting('animations', false);
-      
+
       expect(listener1).toHaveBeenCalled();
       expect(listener2).toHaveBeenCalled();
     });
@@ -276,10 +288,10 @@ describe('SettingsManager', () => {
     it('should unsubscribe listeners correctly', () => {
       const listener = vi.fn();
       const unsubscribe = manager.onChange(listener);
-      
+
       unsubscribe();
       manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+
       expect(listener).not.toHaveBeenCalled();
     });
 
@@ -287,17 +299,17 @@ describe('SettingsManager', () => {
       const errorListener = vi.fn().mockImplementation(() => {
         throw new Error('Listener error');
       });
-      
+
       manager.onChange(errorListener);
       manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+
       // Should not throw, just log error
       expect(errorListener).toHaveBeenCalled();
     });
 
     it('should reject non-function listeners', () => {
       const unsubscribe = manager.onChange('not a function');
-      
+
       expect(unsubscribe).toBeInstanceOf(Function);
       manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
       // Should not throw
@@ -307,7 +319,7 @@ describe('SettingsManager', () => {
   describe('Settings Persistence', () => {
     it('should save settings to localStorage', () => {
       manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'timeline-game-settings',
         expect.stringContaining('"difficulty":"hard"')
@@ -318,13 +330,13 @@ describe('SettingsManager', () => {
       const savedSettings = {
         difficulty: DIFFICULTY_LEVELS.EASY,
         cardCount: 5,
-        categories: ['history']
+        categories: ['history'],
       };
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedSettings));
-      
+
       const newManager = new SettingsManager();
-      
+
       expect(newManager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.EASY);
       expect(newManager.getSetting('cardCount')).toBe(5);
       expect(newManager.getSetting('categories')).toEqual(['history']);
@@ -332,14 +344,14 @@ describe('SettingsManager', () => {
 
     it('should merge loaded settings with defaults', () => {
       const savedSettings = {
-        difficulty: DIFFICULTY_LEVELS.HARD
+        difficulty: DIFFICULTY_LEVELS.HARD,
         // Missing other settings
       };
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedSettings));
-      
+
       const newManager = new SettingsManager();
-      
+
       expect(newManager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
       expect(newManager.getSetting('animations')).toBe(true); // Default value
       expect(newManager.getSetting('cardCount')).toBe(CARD_COUNTS.SINGLE); // Default value
@@ -347,18 +359,20 @@ describe('SettingsManager', () => {
 
     it('should clear settings from localStorage', () => {
       const result = manager.clearSettings();
-      
+
       expect(result).toBe(true);
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('timeline-game-settings');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'timeline-game-settings'
+      );
     });
 
     it('should handle clear settings error', () => {
       localStorageMock.removeItem.mockImplementation(() => {
         throw new Error('Clear error');
       });
-      
+
       const result = manager.clearSettings();
-      
+
       expect(result).toBe(false);
     });
   });
@@ -366,18 +380,18 @@ describe('SettingsManager', () => {
   describe('Edge Cases and Error Handling', () => {
     it('should handle null localStorage value', () => {
       localStorageMock.getItem.mockReturnValue(null);
-      
+
       const newManager = new SettingsManager();
-      
+
       expect(newManager.isReady()).toBe(true);
       expect(newManager.getSettings()).toEqual(manager.getDefaultSettings());
     });
 
     it('should handle empty localStorage value', () => {
       localStorageMock.getItem.mockReturnValue('');
-      
+
       const newManager = new SettingsManager();
-      
+
       expect(newManager.isReady()).toBe(true);
       expect(newManager.getSettings()).toEqual(manager.getDefaultSettings());
     });
@@ -385,9 +399,9 @@ describe('SettingsManager', () => {
     it('should not notify listeners for unchanged values', () => {
       const listener = vi.fn();
       manager.onChange(listener);
-      
+
       manager.updateSetting('difficulty', DIFFICULTY_LEVELS.MEDIUM); // Same value
-      
+
       expect(listener).not.toHaveBeenCalled();
     });
 
@@ -395,9 +409,12 @@ describe('SettingsManager', () => {
       // Create a manager without calling initialize
       const uninitializedManager = new SettingsManager();
       uninitializedManager.isInitialized = false;
-      
-      const result = uninitializedManager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
-      
+
+      const result = uninitializedManager.updateSetting(
+        'difficulty',
+        DIFFICULTY_LEVELS.HARD
+      );
+
       expect(result).toBe(false);
     });
   });
@@ -406,8 +423,8 @@ describe('SettingsManager', () => {
     it('should export singleton instance', async () => {
       const { default: instance1 } = await import('./settingsManager.js');
       const { default: instance2 } = await import('./settingsManager.js');
-      
+
       expect(instance1).toBe(instance2);
     });
   });
-}); 
+});

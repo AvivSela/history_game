@@ -1,5 +1,12 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, UNSAFE_future } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+  UNSAFE_future,
+} from 'react-router-dom';
 import './components/layout/Navigation/Navigation.css';
 import './components/ui/Button/Button.css';
 
@@ -24,15 +31,18 @@ const PageLoader = () => (
 // Navigation component
 const Navigation = () => {
   const location = useLocation();
-  
-  const isActive = (path) => {
+
+  const isActive = path => {
     return location.pathname === path ? 'nav-link active' : 'nav-link';
   };
 
   return (
     <header className="bg-gradient-to-br from-slate-900 to-primary text-white shadow-lg">
       <nav className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto transform-none">
-        <Link to="/" className="flex flex-col gap-0.5 no-underline text-inherit">
+        <Link
+          to="/"
+          className="flex flex-col gap-0.5 no-underline text-inherit"
+        >
           <h1 className="logo-text">⏰ Timeline</h1>
           <span className="logo-subtitle">Historical Card Game</span>
         </Link>
@@ -57,7 +67,9 @@ const Footer = () => {
   return (
     <footer className="bg-primary text-white py-5 text-center mt-auto">
       <div className="flex justify-between items-center max-w-7xl mx-auto px-6">
-        <p className="m-0 text-sm opacity-90">&copy; 2025 Timeline Game. Test your historical knowledge!</p>
+        <p className="m-0 text-sm opacity-90">
+          &copy; 2025 Timeline Game. Test your historical knowledge!
+        </p>
         <div className="text-xs opacity-70">
           <span>Built with React & Node.js</span>
         </div>
@@ -71,7 +83,7 @@ function App() {
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen flex flex-col w-full max-w-none">
         <Navigation />
-        
+
         <main className="flex-1 flex flex-col w-full max-w-none">
           <Suspense fallback={<PageLoader />}>
             <Routes>
@@ -81,7 +93,7 @@ function App() {
             </Routes>
           </Suspense>
         </main>
-        
+
         <Footer />
       </div>
     </Router>

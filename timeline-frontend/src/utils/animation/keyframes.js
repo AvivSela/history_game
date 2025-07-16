@@ -97,7 +97,7 @@ export const OPTIMIZED_KEYFRAMES = {
       0% { transform: rotate(0deg) translateZ(0); }
       100% { transform: rotate(360deg) translateZ(0); }
     }
-  `
+  `,
 };
 
 // Optimized CSS classes with GPU acceleration
@@ -194,22 +194,22 @@ export const OPTIMIZED_CLASSES = {
       transform: translateZ(0);
       will-change: transform;
     }
-  `
+  `,
 };
 
 // Generate all CSS for injection
 export const generateOptimizedCSS = () => {
   let css = '';
-  
+
   // Add keyframes
   Object.values(OPTIMIZED_KEYFRAMES).forEach(keyframe => {
     css += keyframe + '\n';
   });
-  
+
   // Add classes
   Object.values(OPTIMIZED_CLASSES).forEach(className => {
     css += className + '\n';
   });
-  
+
   return css;
-}; 
+};

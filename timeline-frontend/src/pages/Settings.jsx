@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SettingsProvider, useSettings } from '../contexts/SettingsContext';
+import { SettingsProvider } from '../contexts/SettingsContext';
 import { useSettingsEnhanced } from '../hooks/useSettings';
 import SettingsSection from '../components/settings/SettingsSection';
 import DifficultySelector from '../components/settings/DifficultySelector';
@@ -10,17 +10,17 @@ import './Settings.css';
 
 /**
  * Settings Page - Main settings interface for the Timeline game
- * 
+ *
  * This component provides a comprehensive settings interface with sections for
  * game settings, accessibility options, and performance preferences. It integrates
  * with the settings context for persistence and validation.
- * 
+ *
  * @component
  * @example
  * ```jsx
  * <Settings />
  * ```
- * 
+ *
  * @returns {JSX.Element} The settings page component
  */
 const SettingsContent = () => {
@@ -33,24 +33,22 @@ const SettingsContent = () => {
     settings,
     isLoading: settingsLoading,
     error: settingsError,
-    validationErrors,
     updateSetting,
-    updateSettings,
     resetSettings,
-    hasUnsavedChanges,
-    getSettingsDiff,
     clearAllErrors,
     isReady,
     hasError,
-    hasValidationErrors,
-    getValidationError
+    getValidationError,
   } = useSettingsEnhanced({
-    onError: (error) => {
+    onError: error => {
       setSaveStatus({ type: 'error', message: `Settings error: ${error}` });
     },
-    onValidationError: (errors) => {
-      setSaveStatus({ type: 'warning', message: 'Some settings have validation errors' });
-    }
+    onValidationError: () => {
+      setSaveStatus({
+        type: 'warning',
+        message: 'Some settings have validation errors',
+      });
+    },
   });
 
   // Available categories from the backend
@@ -68,25 +66,65 @@ const SettingsContent = () => {
           const categories = data.data.map(category => ({
             id: category.toLowerCase(),
             name: category,
-            description: `${category} events and discoveries`
+            description: `${category} events and discoveries`,
           }));
           setAvailableCategories(categories);
         } else {
           setAvailableCategories([
-            { id: 'history', name: 'History', description: 'Historical events and wars' },
-            { id: 'science', name: 'Science', description: 'Scientific discoveries and inventions' },
-            { id: 'technology', name: 'Technology', description: 'Technological advancements' },
-            { id: 'space', name: 'Space', description: 'Space exploration and astronomy' },
-            { id: 'aviation', name: 'Aviation', description: 'Aviation and flight history' }
+            {
+              id: 'history',
+              name: 'History',
+              description: 'Historical events and wars',
+            },
+            {
+              id: 'science',
+              name: 'Science',
+              description: 'Scientific discoveries and inventions',
+            },
+            {
+              id: 'technology',
+              name: 'Technology',
+              description: 'Technological advancements',
+            },
+            {
+              id: 'space',
+              name: 'Space',
+              description: 'Space exploration and astronomy',
+            },
+            {
+              id: 'aviation',
+              name: 'Aviation',
+              description: 'Aviation and flight history',
+            },
           ]);
         }
-      } catch (error) {
+      } catch {
         setAvailableCategories([
-          { id: 'history', name: 'History', description: 'Historical events and wars' },
-          { id: 'science', name: 'Science', description: 'Scientific discoveries and inventions' },
-          { id: 'technology', name: 'Technology', description: 'Technological advancements' },
-          { id: 'space', name: 'Space', description: 'Space exploration and astronomy' },
-          { id: 'aviation', name: 'Aviation', description: 'Aviation and flight history' }
+          {
+            id: 'history',
+            name: 'History',
+            description: 'Historical events and wars',
+          },
+          {
+            id: 'science',
+            name: 'Science',
+            description: 'Scientific discoveries and inventions',
+          },
+          {
+            id: 'technology',
+            name: 'Technology',
+            description: 'Technological advancements',
+          },
+          {
+            id: 'space',
+            name: 'Space',
+            description: 'Space exploration and astronomy',
+          },
+          {
+            id: 'aviation',
+            name: 'Aviation',
+            description: 'Aviation and flight history',
+          },
         ]);
       } finally {
         setCategoriesLoading(false);
@@ -105,8 +143,8 @@ const SettingsContent = () => {
 
   // Handle setting changes
   const handleSettingChange = (key, value) => {
-    const success = updateSetting(key, value);
-    if (success) {
+    const result = updateSetting(key, value);
+    if (result && result.success) {
       setSaveStatus({ type: 'success', message: 'Setting updated' });
       setTimeout(() => setSaveStatus({ type: '', message: '' }), 2000);
     }
@@ -116,9 +154,12 @@ const SettingsContent = () => {
   const handleSaveSettings = () => {
     try {
       // Settings are auto-saved, but we can show a confirmation
-      setSaveStatus({ type: 'success', message: 'Settings saved successfully!' });
+      setSaveStatus({
+        type: 'success',
+        message: 'Settings saved successfully!',
+      });
       setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
-    } catch (error) {
+    } catch {
       setSaveStatus({ type: 'error', message: 'Failed to save settings' });
     }
   };
@@ -130,14 +171,10 @@ const SettingsContent = () => {
       setSaveStatus({ type: 'success', message: 'Settings reset to defaults' });
       setShowResetConfirm(false);
       setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
-    } catch (error) {
+    } catch {
       setSaveStatus({ type: 'error', message: 'Failed to reset settings' });
     }
   };
-
-
-
-
 
   // Show loading state
   if (isLoading || settingsLoading) {
@@ -176,10 +213,12 @@ const SettingsContent = () => {
         <div className="settings-header">
           <h1>⚙️ Game Settings</h1>
           <p>Customize your Timeline gaming experience</p>
-          
+
           {/* Status Messages */}
           {saveStatus.message && (
-            <div className={`settings-status settings-status--${saveStatus.type}`}>
+            <div
+              className={`settings-status settings-status--${saveStatus.type}`}
+            >
               {saveStatus.message}
             </div>
           )}
@@ -193,11 +232,13 @@ const SettingsContent = () => {
               <div className="setting-card">
                 <DifficultySelector
                   value={settings.difficulty || DIFFICULTY_LEVELS.MEDIUM}
-                  onChange={(value) => handleSettingChange('difficulty', value)}
+                  onChange={value => handleSettingChange('difficulty', value)}
                   disabled={false}
                 />
                 {getValidationError('difficulty') && (
-                  <div className="setting-error">{getValidationError('difficulty')}</div>
+                  <div className="setting-error">
+                    {getValidationError('difficulty')}
+                  </div>
                 )}
               </div>
 
@@ -207,13 +248,15 @@ const SettingsContent = () => {
                   value={settings.cardCount || 5}
                   min={3}
                   max={10}
-                  onChange={(value) => handleSettingChange('cardCount', value)}
+                  onChange={value => handleSettingChange('cardCount', value)}
                   disabled={false}
                   label="Number of Cards"
                   valueSuffix=" cards"
                 />
                 {getValidationError('cardCount') && (
-                  <div className="setting-error">{getValidationError('cardCount')}</div>
+                  <div className="setting-error">
+                    {getValidationError('cardCount')}
+                  </div>
                 )}
               </div>
 
@@ -222,11 +265,13 @@ const SettingsContent = () => {
                 <CategorySelector
                   value={settings.categories || []}
                   categories={availableCategories}
-                  onChange={(value) => handleSettingChange('categories', value)}
+                  onChange={value => handleSettingChange('categories', value)}
                   disabled={categoriesLoading}
                 />
                 {getValidationError('categories') && (
-                  <div className="setting-error">{getValidationError('categories')}</div>
+                  <div className="setting-error">
+                    {getValidationError('categories')}
+                  </div>
                 )}
               </div>
             </div>
@@ -246,11 +291,15 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.soundEffects !== false}
-                      onChange={(e) => handleSettingChange('soundEffects', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('soundEffects', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.soundEffects !== false ? 'Sound On' : 'Sound Off'}
+                      {settings.soundEffects !== false
+                        ? 'Sound On'
+                        : 'Sound Off'}
                     </span>
                   </label>
                 </div>
@@ -267,11 +316,15 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.animations !== false}
-                      onChange={(e) => handleSettingChange('animations', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('animations', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.animations !== false ? 'Animations On' : 'Animations Off'}
+                      {settings.animations !== false
+                        ? 'Animations On'
+                        : 'Animations Off'}
                     </span>
                   </label>
                 </div>
@@ -288,11 +341,15 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.reducedMotion === true}
-                      onChange={(e) => handleSettingChange('reducedMotion', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('reducedMotion', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.reducedMotion ? 'Reduced Motion On' : 'Reduced Motion Off'}
+                      {settings.reducedMotion
+                        ? 'Reduced Motion On'
+                        : 'Reduced Motion Off'}
                     </span>
                   </label>
                 </div>
@@ -309,11 +366,15 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.highContrast === true}
-                      onChange={(e) => handleSettingChange('highContrast', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('highContrast', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.highContrast ? 'High Contrast On' : 'High Contrast Off'}
+                      {settings.highContrast
+                        ? 'High Contrast On'
+                        : 'High Contrast Off'}
                     </span>
                   </label>
                 </div>
@@ -330,7 +391,9 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.largeText === true}
-                      onChange={(e) => handleSettingChange('largeText', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('largeText', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
@@ -351,11 +414,18 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.screenReaderSupport === true}
-                      onChange={(e) => handleSettingChange('screenReaderSupport', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange(
+                          'screenReaderSupport',
+                          e.target.checked
+                        )
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.screenReaderSupport ? 'Screen Reader Support On' : 'Screen Reader Support Off'}
+                      {settings.screenReaderSupport
+                        ? 'Screen Reader Support On'
+                        : 'Screen Reader Support Off'}
                     </span>
                   </label>
                 </div>
@@ -377,11 +447,15 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.autoSave !== false}
-                      onChange={(e) => handleSettingChange('autoSave', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('autoSave', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.autoSave !== false ? 'Auto Save On' : 'Auto Save Off'}
+                      {settings.autoSave !== false
+                        ? 'Auto Save On'
+                        : 'Auto Save Off'}
                     </span>
                   </label>
                 </div>
@@ -398,11 +472,15 @@ const SettingsContent = () => {
                     <input
                       type="checkbox"
                       checked={settings.performanceMode === true}
-                      onChange={(e) => handleSettingChange('performanceMode', e.target.checked)}
+                      onChange={e =>
+                        handleSettingChange('performanceMode', e.target.checked)
+                      }
                     />
                     <span className="toggle-slider"></span>
                     <span className="toggle-label">
-                      {settings.performanceMode ? 'Performance Mode On' : 'Performance Mode Off'}
+                      {settings.performanceMode
+                        ? 'Performance Mode On'
+                        : 'Performance Mode Off'}
                     </span>
                   </label>
                 </div>
@@ -416,7 +494,9 @@ const SettingsContent = () => {
             <div className="preview-grid">
               <div className="preview-item">
                 <span className="preview-label">Difficulty:</span>
-                <span className="preview-value">{settings.difficulty || 'medium'}</span>
+                <span className="preview-value">
+                  {settings.difficulty || 'medium'}
+                </span>
               </div>
               <div className="preview-item">
                 <span className="preview-label">Cards:</span>
@@ -425,35 +505,43 @@ const SettingsContent = () => {
               <div className="preview-item">
                 <span className="preview-label">Categories:</span>
                 <span className="preview-value">
-                  {settings.categories && settings.categories.length > 0 
-                    ? settings.categories.join(', ') 
+                  {settings.categories && settings.categories.length > 0
+                    ? settings.categories.join(', ')
                     : 'All categories'}
                 </span>
               </div>
               <div className="preview-item">
                 <span className="preview-label">Sound:</span>
-                <span className="preview-value">{settings.soundEffects !== false ? 'On' : 'Off'}</span>
+                <span className="preview-value">
+                  {settings.soundEffects !== false ? 'On' : 'Off'}
+                </span>
               </div>
               <div className="preview-item">
                 <span className="preview-label">Animations:</span>
-                <span className="preview-value">{settings.animations !== false ? 'On' : 'Off'}</span>
+                <span className="preview-value">
+                  {settings.animations !== false ? 'On' : 'Off'}
+                </span>
               </div>
               <div className="preview-item">
                 <span className="preview-label">Reduced Motion:</span>
-                <span className="preview-value">{settings.reducedMotion ? 'On' : 'Off'}</span>
+                <span className="preview-value">
+                  {settings.reducedMotion ? 'On' : 'Off'}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="settings-actions">
-            <button onClick={handleSaveSettings} className="btn btn-primary btn-large">
+            <button
+              onClick={handleSaveSettings}
+              className="btn btn-primary btn-large"
+            >
               💾 Save Settings
             </button>
-            <button 
-              onClick={() => setShowResetConfirm(true)} 
+            <button
+              onClick={() => setShowResetConfirm(true)}
               className="btn btn-secondary"
-              disabled={!hasUnsavedChanges()}
             >
               🔄 Reset to Defaults
             </button>
@@ -470,20 +558,44 @@ const SettingsContent = () => {
               <div className="help-item">
                 <h4>Difficulty Levels</h4>
                 <ul>
-                  <li><strong>Easy:</strong> Relaxed gameplay with generous time limits and hints</li>
-                  <li><strong>Medium:</strong> Balanced challenge with moderate time pressure</li>
-                  <li><strong>Hard:</strong> Challenging gameplay with strict time limits</li>
-                  <li><strong>Expert:</strong> Maximum challenge with minimal assistance</li>
+                  <li>
+                    <strong>Easy:</strong> Relaxed gameplay with generous time
+                    limits and hints
+                  </li>
+                  <li>
+                    <strong>Medium:</strong> Balanced challenge with moderate
+                    time pressure
+                  </li>
+                  <li>
+                    <strong>Hard:</strong> Challenging gameplay with strict time
+                    limits
+                  </li>
+                  <li>
+                    <strong>Expert:</strong> Maximum challenge with minimal
+                    assistance
+                  </li>
                 </ul>
               </div>
               <div className="help-item">
                 <h4>Categories</h4>
                 <ul>
-                  <li><strong>History:</strong> Wars, politics, social events</li>
-                  <li><strong>Science:</strong> Discoveries, inventions, research</li>
-                  <li><strong>Technology:</strong> Computing, engineering, innovations</li>
-                  <li><strong>Space:</strong> Space exploration, astronomy</li>
-                  <li><strong>Aviation:</strong> Flight history, aircraft development</li>
+                  <li>
+                    <strong>History:</strong> Wars, politics, social events
+                  </li>
+                  <li>
+                    <strong>Science:</strong> Discoveries, inventions, research
+                  </li>
+                  <li>
+                    <strong>Technology:</strong> Computing, engineering,
+                    innovations
+                  </li>
+                  <li>
+                    <strong>Space:</strong> Space exploration, astronomy
+                  </li>
+                  <li>
+                    <strong>Aviation:</strong> Flight history, aircraft
+                    development
+                  </li>
                 </ul>
               </div>
               <div className="help-item">
@@ -514,27 +626,31 @@ const SettingsContent = () => {
         <div className="modal-overlay">
           <div className="modal">
             <h3>🔄 Reset Settings</h3>
-            <p>Are you sure you want to reset all settings to their default values? This action cannot be undone.</p>
+            <p>
+              Are you sure you want to reset all settings to their default
+              values? This action cannot be undone.
+            </p>
             <div className="modal-actions">
               <button onClick={handleResetSettings} className="btn btn-danger">
                 Yes, Reset Settings
               </button>
-              <button onClick={() => setShowResetConfirm(false)} className="btn btn-secondary">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="btn btn-secondary"
+              >
                 Cancel
               </button>
             </div>
           </div>
         </div>
       )}
-
-
     </div>
   );
 };
 
 /**
  * Settings Page Wrapper - Provides settings context
- * 
+ *
  * @component
  * @returns {JSX.Element} The settings page with context provider
  */

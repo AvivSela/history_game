@@ -12,26 +12,25 @@ const api = axios.create({
 
 // Request interceptor for logging
 api.interceptors.request.use(
-  (config) => {
+  config => {
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
-    
+  error => {
     // Handle different error types
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
-      
+
       switch (status) {
         case API.STATUS_CODES.NOT_FOUND:
           throw new Error('Resource not found');
@@ -42,7 +41,9 @@ api.interceptors.response.use(
       }
     } else if (error.request) {
       // Request was made but no response received
-      throw new Error('Unable to connect to server. Please check your connection.');
+      throw new Error(
+        'Unable to connect to server. Please check your connection.'
+      );
     } else {
       // Something else happened
       throw new Error('An unexpected error occurred');
@@ -54,7 +55,7 @@ api.interceptors.response.use(
 export const gameAPI = {
   // Health check
   healthCheck: () => api.get('/health'),
-  
+
   // Events
   getAllEvents: () => api.get('/events'),
   getRandomEvents: (count = 5, categories = []) => {
@@ -66,20 +67,23 @@ export const gameAPI = {
     const url = `/events/random/${count}${queryString ? `?${queryString}` : ''}`;
     return api.get(url);
   },
-  getEventsByCategory: (category) => api.get(`/events/category/${category}`),
-  getEventsByDifficulty: (level) => api.get(`/events/difficulty/${level}`),
-  
+  getEventsByCategory: category => api.get(`/events/category/${category}`),
+  getEventsByDifficulty: level => api.get(`/events/difficulty/${level}`),
+
   // Categories
   getCategories: () => api.get('/categories'),
 };
 
 // Helper function to extract data from API response
-export const extractData = (response) => {
+export const extractData = response => {
   return response.data?.data || response.data;
 };
 
 // Helper function for error handling in components
-export const handleAPIError = (error, fallbackMessage = 'Something went wrong') => {
+export const handleAPIError = (
+  error,
+  fallbackMessage = 'Something went wrong'
+) => {
   return error.message || fallbackMessage;
 };
 

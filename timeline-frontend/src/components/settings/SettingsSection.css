@@ -100,7 +100,9 @@
 .settings-section__content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  transition:
+    max-height 0.3s ease-in-out,
+    padding 0.3s ease-in-out;
   padding: 0 1.25rem;
 }
 
@@ -120,15 +122,15 @@
   .settings-section__header {
     padding: 0.875rem 1rem;
   }
-  
+
   .settings-section__title {
     font-size: 1rem;
   }
-  
+
   .settings-section__content--expanded {
     padding: 0.875rem 1rem 1rem;
   }
-  
+
   .settings-section__content-inner {
     gap: 0.875rem;
   }
@@ -140,11 +142,11 @@
     border-color: #000000;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
-  
+
   .settings-section__header:hover {
     background-color: #e5e5e5;
   }
-  
+
   .settings-section__toggle:hover {
     background-color: #000000;
     color: #ffffff;
@@ -169,21 +171,21 @@
     border-color: #334155;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
-  
+
   .settings-section__header:hover {
     background-color: #334155;
   }
-  
+
   .settings-section__title {
     color: #f1f5f9;
   }
-  
+
   .settings-section__toggle {
     color: #94a3b8;
   }
-  
+
   .settings-section__toggle:hover {
     background-color: #475569;
     color: #cbd5e1;
   }
-} 
+}

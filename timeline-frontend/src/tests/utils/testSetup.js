@@ -1,6 +1,6 @@
 /**
  * Test Setup Utilities
- * 
+ *
  * Common mock setup, cleanup, and utility functions for tests.
  */
 
@@ -12,7 +12,7 @@ export const setupCommonMocks = () => {
     gameAPI: apiMock.gameAPI,
     extractData: apiMock.extractData,
     handleAPIError: apiMock.handleAPIError,
-    default: apiMock.default
+    default: apiMock.default,
   }));
 
   vi.mock('../constants/gameConstants', () => {
@@ -25,11 +25,11 @@ export const setupCommonMocks = () => {
     loadGameStateFromStorage: vi.fn().mockReturnValue(null),
     clearGameStateFromStorage: vi.fn().mockReturnValue(true),
     hasSavedGameState: vi.fn().mockReturnValue(false),
-    getStorageInfo: vi.fn().mockReturnValue({ available: true, type: 'localStorage' }),
-    resetStorageCache: vi.fn()
+    getStorageInfo: vi
+      .fn()
+      .mockReturnValue({ available: true, type: 'localStorage' }),
+    resetStorageCache: vi.fn(),
   }));
-
-
 };
 
 export const resetAllMocks = () => {
@@ -40,14 +40,34 @@ export const resetAllMocks = () => {
 export const createMockGameState = (overrides = {}) => {
   const defaultState = {
     timeline: [
-      { id: 'timeline-1', title: 'Event 1', dateOccurred: '1950-01-01', category: 'History' }
+      {
+        id: 'timeline-1',
+        title: 'Event 1',
+        dateOccurred: '1950-01-01',
+        category: 'History',
+      },
     ],
     playerHand: [
-      { id: 'player-1', title: 'Player Event 1', dateOccurred: '1960-01-01', category: 'History' },
-      { id: 'player-2', title: 'Player Event 2', dateOccurred: '1970-01-01', category: 'History' }
+      {
+        id: 'player-1',
+        title: 'Player Event 1',
+        dateOccurred: '1960-01-01',
+        category: 'History',
+      },
+      {
+        id: 'player-2',
+        title: 'Player Event 2',
+        dateOccurred: '1970-01-01',
+        category: 'History',
+      },
     ],
     cardPool: [
-      { id: 'pool-1', title: 'Pool Event 1', dateOccurred: '1990-01-01', category: 'History' }
+      {
+        id: 'pool-1',
+        title: 'Pool Event 1',
+        dateOccurred: '1990-01-01',
+        category: 'History',
+      },
     ],
     gameStatus: 'playing',
     gameMode: 'single',
@@ -55,7 +75,7 @@ export const createMockGameState = (overrides = {}) => {
     score: { human: 0 },
     moves: 0,
     startTime: Date.now(),
-    lastMoveTime: Date.now()
+    lastMoveTime: Date.now(),
   };
 
   return { ...defaultState, ...overrides };
@@ -69,7 +89,7 @@ export const createMockEvents = (count = 5) => {
       title: `Test Event ${i + 1}`,
       dateOccurred: `${1950 + i}-01-01`,
       category: 'History',
-      difficulty: (i % 3) + 1
+      difficulty: (i % 3) + 1,
     });
   }
   return events;
@@ -87,14 +107,15 @@ export const setupAPIErrors = (errors = {}) => {
   });
 };
 
-export const waitForAsync = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+export const waitForAsync = (ms = 0) =>
+  new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Mock console methods to avoid noise in tests
  */
 export const mockConsole = () => {
   const originalConsole = { ...console };
-  
+
   beforeAll(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -114,7 +135,7 @@ export const mockConsole = () => {
  */
 export const cleanupTimeouts = () => {
   vi.clearAllTimers();
-  
+
   return new Promise(resolve => setTimeout(resolve, 0));
 };
 
@@ -127,7 +148,7 @@ export const cleanupTimeouts = () => {
  */
 export const waitForStateUpdate = async (stateUpdateFn, timeout = 1000) => {
   const startTime = Date.now();
-  
+
   return new Promise((resolve, reject) => {
     const checkComplete = () => {
       try {
@@ -141,7 +162,7 @@ export const waitForStateUpdate = async (stateUpdateFn, timeout = 1000) => {
         }
       }
     };
-    
+
     checkComplete();
   });
 };
@@ -155,16 +176,12 @@ export const waitForStateUpdate = async (stateUpdateFn, timeout = 1000) => {
  * @returns {Promise<void>}
  */
 export const runOptimizedTest = async (result, testFn, options = {}) => {
-  const {
-    maxIterations = 100,
-    iterationDelay = 10,
-    timeout = 5000
-  } = options;
-  
+  const { maxIterations = 100, iterationDelay = 10, timeout = 5000 } = options;
+
   const startTime = Date.now();
   let iterations = 0;
-  
-  while (iterations < maxIterations && (Date.now() - startTime) < timeout) {
+
+  while (iterations < maxIterations && Date.now() - startTime < timeout) {
     try {
       await testFn(result);
       return;
@@ -176,6 +193,8 @@ export const runOptimizedTest = async (result, testFn, options = {}) => {
       await waitForAsync(iterationDelay);
     }
   }
-  
-  throw new Error(`Test failed after ${maxIterations} iterations or ${timeout}ms timeout`);
-}; 
+
+  throw new Error(
+    `Test failed after ${maxIterations} iterations or ${timeout}ms timeout`
+  );
+};

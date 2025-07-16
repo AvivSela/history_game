@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  createContext,
+  useReducer,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import settingsManager from '../utils/settingsManager';
 import { validateSettings } from '../utils/settingsValidation';
 
@@ -14,7 +20,7 @@ const SETTINGS_ACTIONS = {
   UPDATE_MULTIPLE_SETTINGS: 'UPDATE_MULTIPLE_SETTINGS',
   RESET_SETTINGS: 'RESET_SETTINGS',
   SET_VALIDATION_ERRORS: 'SET_VALIDATION_ERRORS',
-  CLEAR_VALIDATION_ERRORS: 'CLEAR_VALIDATION_ERRORS'
+  CLEAR_VALIDATION_ERRORS: 'CLEAR_VALIDATION_ERRORS',
 };
 
 // Initial state
@@ -24,7 +30,7 @@ const initialState = {
   error: null,
   validationErrors: {},
   isInitialized: false,
-  lastUpdated: null
+  lastUpdated: null,
 };
 
 // Settings reducer
@@ -33,14 +39,14 @@ function settingsReducer(state, action) {
     case SETTINGS_ACTIONS.SET_LOADING:
       return {
         ...state,
-        isLoading: action.payload
+        isLoading: action.payload,
       };
 
     case SETTINGS_ACTIONS.SET_ERROR:
       return {
         ...state,
         error: action.payload,
-        isLoading: false
+        isLoading: false,
       };
 
     case SETTINGS_ACTIONS.SET_SETTINGS:
@@ -50,7 +56,7 @@ function settingsReducer(state, action) {
         isLoading: false,
         isInitialized: true,
         lastUpdated: Date.now(),
-        error: null
+        error: null,
       };
 
     case SETTINGS_ACTIONS.UPDATE_SETTING:
@@ -58,10 +64,10 @@ function settingsReducer(state, action) {
         ...state,
         settings: {
           ...state.settings,
-          [action.payload.key]: action.payload.value
+          [action.payload.key]: action.payload.value,
         },
         lastUpdated: Date.now(),
-        error: null
+        error: null,
       };
 
     case SETTINGS_ACTIONS.UPDATE_MULTIPLE_SETTINGS:
@@ -69,10 +75,10 @@ function settingsReducer(state, action) {
         ...state,
         settings: {
           ...state.settings,
-          ...action.payload
+          ...action.payload,
         },
         lastUpdated: Date.now(),
-        error: null
+        error: null,
       };
 
     case SETTINGS_ACTIONS.RESET_SETTINGS:
@@ -81,7 +87,7 @@ function settingsReducer(state, action) {
         settings: action.payload || {},
         lastUpdated: Date.now(),
         error: null,
-        validationErrors: {}
+        validationErrors: {},
       };
 
     case SETTINGS_ACTIONS.SET_VALIDATION_ERRORS:
@@ -89,14 +95,14 @@ function settingsReducer(state, action) {
         ...state,
         validationErrors: {
           ...state.validationErrors,
-          ...action.payload
-        }
+          ...action.payload,
+        },
       };
 
     case SETTINGS_ACTIONS.CLEAR_VALIDATION_ERRORS:
       return {
         ...state,
-        validationErrors: {}
+        validationErrors: {},
       };
 
     default:
@@ -108,12 +114,15 @@ function settingsReducer(state, action) {
 function useDebounce(callback, delay) {
   const timeoutRef = React.useRef();
 
-  return useCallback((...args) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => callback(...args), delay);
-  }, [callback, delay]);
+  return useCallback(
+    (...args) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => callback(...args), delay);
+    },
+    [callback, delay]
+  );
 }
 
 // Settings Provider Component
@@ -128,31 +137,42 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
 
         // Wait for settings manager to be ready
         // PATCH: Allow skipping isReady check in test environment
-        const isTestEnv = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') ||
-                          (typeof window !== 'undefined' && window.__SKIP_SETTINGS_READY_CHECK__);
+        const isTestEnv =
+          (typeof process !== 'undefined' &&
+            process.env &&
+            process.env.NODE_ENV === 'test') ||
+          (typeof window !== 'undefined' &&
+            window.__SKIP_SETTINGS_READY_CHECK__);
         if (!isTestEnv && !settingsManager.isReady()) {
           throw new Error('Settings manager not ready');
         }
 
         // Load current settings
         const currentSettings = settingsManager.getSettings();
-        dispatch({ type: SETTINGS_ACTIONS.SET_SETTINGS, payload: currentSettings });
+        dispatch({
+          type: SETTINGS_ACTIONS.SET_SETTINGS,
+          payload: currentSettings,
+        });
 
         // Set up change listener
-        const unsubscribe = settingsManager.onChange((changeInfo) => {
-          if (changeInfo && changeInfo.key === undefined && typeof changeInfo === 'object') {
+        const unsubscribe = settingsManager.onChange(changeInfo => {
+          if (
+            changeInfo &&
+            changeInfo.key === undefined &&
+            typeof changeInfo === 'object'
+          ) {
             // Full settings update
             dispatch({
               type: SETTINGS_ACTIONS.SET_SETTINGS,
-              payload: changeInfo
+              payload: changeInfo,
             });
           } else {
             dispatch({
               type: SETTINGS_ACTIONS.UPDATE_SETTING,
               payload: {
                 key: changeInfo.key,
-                value: changeInfo.newValue
-              }
+                value: changeInfo.newValue,
+              },
             });
           }
         });
@@ -162,18 +182,20 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
       } catch (error) {
         dispatch({
           type: SETTINGS_ACTIONS.SET_ERROR,
-          payload: error.message || 'Failed to initialize settings'
+          payload: error.message || 'Failed to initialize settings',
         });
       }
     };
 
     let unsubscribe;
-    initializeSettings().then((unsub) => {
-      unsubscribe = unsub;
-    }).catch((error) => {
-      // Failed to initialize settings
-    });
-    
+    initializeSettings()
+      .then(unsub => {
+        unsubscribe = unsub;
+      })
+      .catch(() => {
+        // Failed to initialize settings
+      });
+
     return () => {
       if (unsubscribe && typeof unsubscribe === 'function') {
         unsubscribe();
@@ -182,7 +204,7 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
   }, []);
 
   // Debounced settings update
-  const debouncedUpdate = useDebounce((updates) => {
+  const debouncedUpdate = useDebounce(updates => {
     try {
       const result = settingsManager.updateSettings(updates);
       if (!result) {
@@ -191,86 +213,92 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
     } catch (error) {
       dispatch({
         type: SETTINGS_ACTIONS.SET_ERROR,
-        payload: error.message || 'Failed to update settings'
+        payload: error.message || 'Failed to update settings',
       });
     }
   }, debounceDelay);
 
   // Update single setting
-  const updateSetting = useCallback((key, value) => {
-    try {
-      // Validate the setting
-      const validation = validateSettings({ [key]: value });
-      if (validation.errors[key]) {
+  const updateSetting = useCallback(
+    (key, value) => {
+      try {
+        // Validate the setting
+        const validation = validateSettings({ [key]: value });
+        if (validation.errors[key]) {
+          dispatch({
+            type: SETTINGS_ACTIONS.SET_VALIDATION_ERRORS,
+            payload: { [key]: validation.errors[key] },
+          });
+          return false;
+        }
+
+        // Clear validation errors for this setting
         dispatch({
-          type: SETTINGS_ACTIONS.SET_VALIDATION_ERRORS,
-          payload: { [key]: validation.errors[key] }
+          type: SETTINGS_ACTIONS.CLEAR_VALIDATION_ERRORS,
+          payload: {},
+        });
+
+        // Update immediately in state for responsive UI
+        dispatch({
+          type: SETTINGS_ACTIONS.UPDATE_SETTING,
+          payload: { key, value },
+        });
+
+        // Debounce the actual save to localStorage
+        debouncedUpdate({ [key]: value });
+
+        return true;
+      } catch (error) {
+        dispatch({
+          type: SETTINGS_ACTIONS.SET_ERROR,
+          payload: error.message || 'Failed to update setting',
         });
         return false;
       }
-
-      // Clear validation errors for this setting
-      dispatch({
-        type: SETTINGS_ACTIONS.CLEAR_VALIDATION_ERRORS,
-        payload: {}
-      });
-
-      // Update immediately in state for responsive UI
-      dispatch({
-        type: SETTINGS_ACTIONS.UPDATE_SETTING,
-        payload: { key, value }
-      });
-
-      // Debounce the actual save to localStorage
-      debouncedUpdate({ [key]: value });
-
-      return true;
-    } catch (error) {
-      dispatch({
-        type: SETTINGS_ACTIONS.SET_ERROR,
-        payload: error.message || 'Failed to update setting'
-      });
-      return false;
-    }
-  }, [debouncedUpdate]);
+    },
+    [debouncedUpdate]
+  );
 
   // Update multiple settings
-  const updateSettings = useCallback((updates) => {
-    try {
-      // Validate all settings
-      const validation = validateSettings(updates);
-      if (Object.keys(validation.errors).length > 0) {
+  const updateSettings = useCallback(
+    updates => {
+      try {
+        // Validate all settings
+        const validation = validateSettings(updates);
+        if (Object.keys(validation.errors).length > 0) {
+          dispatch({
+            type: SETTINGS_ACTIONS.SET_VALIDATION_ERRORS,
+            payload: validation.errors,
+          });
+          return false;
+        }
+
+        // Clear validation errors
         dispatch({
-          type: SETTINGS_ACTIONS.SET_VALIDATION_ERRORS,
-          payload: validation.errors
+          type: SETTINGS_ACTIONS.CLEAR_VALIDATION_ERRORS,
+          payload: {},
+        });
+
+        // Update immediately in state
+        dispatch({
+          type: SETTINGS_ACTIONS.UPDATE_MULTIPLE_SETTINGS,
+          payload: updates,
+        });
+
+        // Debounce the actual save
+        debouncedUpdate(updates);
+
+        return true;
+      } catch (error) {
+        dispatch({
+          type: SETTINGS_ACTIONS.SET_ERROR,
+          payload: error.message || 'Failed to update settings',
         });
         return false;
       }
-
-      // Clear validation errors
-      dispatch({
-        type: SETTINGS_ACTIONS.CLEAR_VALIDATION_ERRORS,
-        payload: {}
-      });
-
-      // Update immediately in state
-      dispatch({
-        type: SETTINGS_ACTIONS.UPDATE_MULTIPLE_SETTINGS,
-        payload: updates
-      });
-
-      // Debounce the actual save
-      debouncedUpdate(updates);
-
-      return true;
-    } catch (error) {
-      dispatch({
-        type: SETTINGS_ACTIONS.SET_ERROR,
-        payload: error.message || 'Failed to update settings'
-      });
-      return false;
-    }
-  }, [debouncedUpdate]);
+    },
+    [debouncedUpdate]
+  );
 
   // Reset settings to defaults
   const resetSettings = useCallback(() => {
@@ -283,23 +311,26 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
       const defaultSettings = settingsManager.getSettings();
       dispatch({
         type: SETTINGS_ACTIONS.RESET_SETTINGS,
-        payload: defaultSettings
+        payload: defaultSettings,
       });
 
       return true;
     } catch (error) {
       dispatch({
         type: SETTINGS_ACTIONS.SET_ERROR,
-        payload: error.message || 'Failed to reset settings'
+        payload: error.message || 'Failed to reset settings',
       });
       return false;
     }
   }, []);
 
   // Get setting value
-  const getSetting = useCallback((key) => {
-    return state.settings[key];
-  }, [state.settings]);
+  const getSetting = useCallback(
+    key => {
+      return state.settings[key];
+    },
+    [state.settings]
+  );
 
   // Get all settings
   const getSettings = useCallback(() => {
@@ -322,40 +353,43 @@ export function SettingsProvider({ children, debounceDelay = 300 }) {
   }, []);
 
   // Context value
-  const contextValue = useMemo(() => ({
-    // State
-    settings: state.settings,
-    isLoading: state.isLoading,
-    error: state.error,
-    validationErrors: state.validationErrors,
-    isInitialized: state.isInitialized,
-    lastUpdated: state.lastUpdated,
+  const contextValue = useMemo(
+    () => ({
+      // State
+      settings: state.settings,
+      isLoading: state.isLoading,
+      error: state.error,
+      validationErrors: state.validationErrors,
+      isInitialized: state.isInitialized,
+      lastUpdated: state.lastUpdated,
 
-    // Actions
-    updateSetting,
-    updateSettings,
-    resetSettings,
-    getSetting,
-    getSettings,
-    getDefaultSettings,
-    clearError,
-    clearValidationErrors
-  }), [
-    state.settings,
-    state.isLoading,
-    state.error,
-    state.validationErrors,
-    state.isInitialized,
-    state.lastUpdated,
-    updateSetting,
-    updateSettings,
-    resetSettings,
-    getSetting,
-    getSettings,
-    getDefaultSettings,
-    clearError,
-    clearValidationErrors
-  ]);
+      // Actions
+      updateSetting,
+      updateSettings,
+      resetSettings,
+      getSetting,
+      getSettings,
+      getDefaultSettings,
+      clearError,
+      clearValidationErrors,
+    }),
+    [
+      state.settings,
+      state.isLoading,
+      state.error,
+      state.validationErrors,
+      state.isInitialized,
+      state.lastUpdated,
+      updateSetting,
+      updateSettings,
+      resetSettings,
+      getSetting,
+      getSettings,
+      getDefaultSettings,
+      clearError,
+      clearValidationErrors,
+    ]
+  );
 
   return (
     <SettingsContext.Provider value={contextValue}>
@@ -375,7 +409,7 @@ export class SettingsErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch() {
     // Settings context error
   }
 
@@ -385,9 +419,7 @@ export class SettingsErrorBoundary extends React.Component {
         <div className="settings-error-boundary">
           <h2>Settings Error</h2>
           <p>Something went wrong with the settings system.</p>
-          <button onClick={() => window.location.reload()}>
-            Reload Page
-          </button>
+          <button onClick={() => window.location.reload()}>Reload Page</button>
         </div>
       );
     }
@@ -396,37 +428,4 @@ export class SettingsErrorBoundary extends React.Component {
   }
 }
 
-// Custom hook to use settings context
-export function useSettings() {
-  const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider');
-  }
-  return context;
-}
-
-// Hook for accessing settings with error handling
-export function useSettingsSafe() {
-  try {
-    return useSettings();
-  } catch (error) {
-    return {
-      settings: {},
-      isLoading: false,
-      error: 'Settings context not available',
-      validationErrors: {},
-      isInitialized: false,
-      lastUpdated: null,
-      updateSetting: () => false,
-      updateSettings: () => false,
-      resetSettings: () => false,
-      getSetting: () => undefined,
-      getSettings: () => ({}),
-      getDefaultSettings: () => ({}),
-      clearError: () => {},
-      clearValidationErrors: () => {}
-    };
-  }
-} 
-
-export { SettingsContext }; 
+export { SettingsContext };

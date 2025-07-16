@@ -5,7 +5,7 @@ import {
   clearGameStateFromStorage,
   hasSavedGameState,
   getStorageInfo,
-  resetStorageCache
+  resetStorageCache,
 } from './statePersistence';
 
 // Mock localStorage
@@ -13,7 +13,7 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 };
 
 // Mock sessionStorage
@@ -21,30 +21,30 @@ const sessionStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 };
 
 // Mock global storage objects
 Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
-  writable: true
+  writable: true,
 });
 
 Object.defineProperty(global, 'sessionStorage', {
   value: sessionStorageMock,
-  writable: true
+  writable: true,
 });
 
 // Also mock window for browser environment
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'localStorage', {
     value: localStorageMock,
-    writable: true
+    writable: true,
   });
 
   Object.defineProperty(window, 'sessionStorage', {
     value: sessionStorageMock,
-    writable: true
+    writable: true,
   });
 }
 
@@ -56,38 +56,38 @@ const mockGameState = {
       title: 'World War II',
       dateOccurred: '1939-09-01',
       category: 'Military',
-      isRevealed: true
-    }
+      isRevealed: true,
+    },
   ],
   playerHand: [
     {
       id: 'card-2',
       title: 'Moon Landing',
       dateOccurred: '1969-07-20',
-      category: 'Space'
+      category: 'Space',
     },
     {
       id: 'card-3',
       title: 'Berlin Wall Falls',
       dateOccurred: '1989-11-09',
-      category: 'Political'
-    }
+      category: 'Political',
+    },
   ],
   aiHand: [
     {
       id: 'card-4',
       title: 'First Computer',
       dateOccurred: '1946-02-14',
-      category: 'Technology'
-    }
+      category: 'Technology',
+    },
   ],
   cardPool: [
     {
       id: 'card-5',
       title: 'Internet Created',
       dateOccurred: '1983-01-01',
-      category: 'Technology'
-    }
+      category: 'Technology',
+    },
   ],
   gameStatus: 'playing',
   currentPlayer: 'human',
@@ -101,7 +101,7 @@ const mockGameState = {
     totalMoves: 2,
     correctMoves: 1,
     hintsUsed: 0,
-    averageTimePerMove: 3.5
+    averageTimePerMove: 3.5,
   },
   timelineAnalysis: null,
   turnHistory: [
@@ -110,8 +110,8 @@ const mockGameState = {
       player: 'human',
       card: { id: 'card-1', title: 'World War II' },
       position: 0,
-      timestamp: 1640995200000
-    }
+      timestamp: 1640995200000,
+    },
   ],
   achievements: [],
   aiOpponent: null,
@@ -121,19 +121,19 @@ const mockGameState = {
   feedback: { type: 'success', message: 'Great job!' },
   isLoading: false,
   error: null,
-  insertionPoints: []
+  insertionPoints: [],
 };
 
 describe('State Persistence', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     vi.clearAllMocks();
-    
+
     // Reset localStorage mocks
     localStorageMock.getItem.mockReturnValue(null);
     localStorageMock.setItem.mockImplementation(() => {});
     localStorageMock.removeItem.mockImplementation(() => {});
-    
+
     // Reset sessionStorage mocks
     sessionStorageMock.getItem.mockReturnValue(null);
     sessionStorageMock.setItem.mockImplementation(() => {});
@@ -155,24 +155,24 @@ describe('State Persistence', () => {
       // Clear any previous calls and reset cache
       localStorageMock.setItem.mockClear();
       resetStorageCache();
-      
+
       const result = saveGameStateToStorage(mockGameState);
-      
+
       expect(result).toBe(true);
       // Account for availability check call + actual operation call
       expect(localStorageMock.setItem).toHaveBeenCalledTimes(2);
-      
+
       // The first call is the availability check, the second is the actual operation
       const [key, value] = localStorageMock.setItem.mock.calls[1];
       expect(key).toBe('timelineGameState-v1.0.0');
-      
+
       const savedState = JSON.parse(value);
       expect(savedState.version).toBe('1.0.0');
       expect(savedState.timeline).toEqual(mockGameState.timeline);
       expect(savedState.playerHand).toEqual(mockGameState.playerHand);
       expect(savedState.cardPool).toEqual(mockGameState.cardPool);
       expect(savedState.gameStatus).toBe('playing');
-      
+
       // UI-only state should not be persisted
       expect(savedState.showInsertionPoints).toBeUndefined();
       expect(savedState.feedback).toBeUndefined();
@@ -185,11 +185,11 @@ describe('State Persistence', () => {
       // Clear any previous calls and reset cache
       sessionStorageMock.setItem.mockClear();
       resetStorageCache();
-      
+
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('Storage quota exceeded');
       });
-      
+
       const result = saveGameStateToStorage(mockGameState);
       // Should fall back to sessionStorage when localStorage fails
       expect(result).toBe(true);
@@ -205,10 +205,10 @@ describe('State Persistence', () => {
           id: `large-card-${i}`,
           title: `Large Card ${i}`.repeat(100), // Make each card larger
           dateOccurred: '2000-01-01',
-          category: 'Test'.repeat(50)
-        }))
+          category: 'Test'.repeat(50),
+        })),
       };
-      
+
       const result = saveGameStateToStorage(largeState);
       expect(result).toBe(false);
     });
@@ -217,11 +217,11 @@ describe('State Persistence', () => {
       // Clear any previous calls and reset cache
       sessionStorageMock.setItem.mockClear();
       resetStorageCache();
-      
+
       localStorageMock.setItem.mockImplementation(() => {
         throw new Error('localStorage not available');
       });
-      
+
       const result = saveGameStateToStorage(mockGameState);
       expect(result).toBe(true);
       // Account for availability check call + actual operation call
@@ -235,13 +235,13 @@ describe('State Persistence', () => {
       const savedStateString = JSON.stringify({
         version: '1.0.0',
         timestamp: Date.now(),
-        ...mockGameState
+        ...mockGameState,
       });
       localStorageMock.getItem.mockReturnValue(savedStateString);
-      
+
       // Then load it
       const loadedState = loadGameStateFromStorage();
-      
+
       expect(loadedState).not.toBeNull();
       expect(loadedState.timeline).toEqual(mockGameState.timeline);
       expect(loadedState.playerHand).toEqual(mockGameState.playerHand);
@@ -256,7 +256,7 @@ describe('State Persistence', () => {
 
     it('should handle corrupted JSON data', () => {
       localStorageMock.getItem.mockReturnValue('invalid json data');
-      
+
       const loadedState = loadGameStateFromStorage();
       expect(loadedState).toBeNull();
       expect(localStorageMock.removeItem).toHaveBeenCalled(); // Should clear corrupted data
@@ -269,9 +269,9 @@ describe('State Persistence', () => {
         timeline: [],
         // Missing playerHand, gameStatus, currentPlayer
       };
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(incompleteState));
-      
+
       const loadedState = loadGameStateFromStorage();
       expect(loadedState).toBeNull();
     });
@@ -279,11 +279,11 @@ describe('State Persistence', () => {
     it('should handle version mismatches gracefully', () => {
       const oldVersionState = {
         ...mockGameState,
-        version: '0.9.0'
+        version: '0.9.0',
       };
-      
+
       localStorageMock.getItem.mockReturnValue(JSON.stringify(oldVersionState));
-      
+
       const loadedState = loadGameStateFromStorage();
       expect(loadedState).not.toBeNull(); // Should still load despite version mismatch
     });
@@ -294,12 +294,14 @@ describe('State Persistence', () => {
       // Mock that there's saved state
       localStorageMock.getItem.mockReturnValue(JSON.stringify(mockGameState));
       expect(hasSavedGameState()).toBe(true);
-      
+
       // Then clear it
       const result = clearGameStateFromStorage();
       expect(result).toBe(true);
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('timelineGameState-v1.0.0');
-      
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'timelineGameState-v1.0.0'
+      );
+
       // Mock that state is now cleared
       localStorageMock.getItem.mockReturnValue(null);
       expect(hasSavedGameState()).toBe(false);
@@ -309,11 +311,11 @@ describe('State Persistence', () => {
       // Clear any previous calls and reset cache
       sessionStorageMock.removeItem.mockClear();
       resetStorageCache();
-      
+
       localStorageMock.removeItem.mockImplementation(() => {
         throw new Error('Storage error');
       });
-      
+
       const result = clearGameStateFromStorage();
       // Should fall back to sessionStorage when localStorage fails
       expect(result).toBe(true);
@@ -337,7 +339,7 @@ describe('State Persistence', () => {
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error('Storage error');
       });
-      
+
       expect(hasSavedGameState()).toBe(false);
     });
   });
@@ -347,7 +349,7 @@ describe('State Persistence', () => {
       // Mock that there's saved state
       const savedStateString = JSON.stringify(mockGameState);
       localStorageMock.getItem.mockReturnValue(savedStateString);
-      
+
       const info = getStorageInfo();
       expect(info.available).toBe(true);
       expect(info.hasSavedState).toBe(true);
@@ -367,7 +369,7 @@ describe('State Persistence', () => {
       localStorageMock.getItem.mockImplementation(() => {
         throw new Error('Storage error');
       });
-      
+
       const info = getStorageInfo();
       expect(info.available).toBe(true);
       expect(info.error).toBe('Storage error');
@@ -380,25 +382,25 @@ describe('State Persistence', () => {
       const savedStateString = JSON.stringify({
         version: '1.0.0',
         timestamp: Date.now(),
-        ...mockGameState
+        ...mockGameState,
       });
       localStorageMock.getItem.mockReturnValue(savedStateString);
-      
+
       // Load the state
       const loadedState = loadGameStateFromStorage();
-      
+
       // Collect all card IDs
       const allCardIds = [
         ...loadedState.timeline.map(card => card.id),
         ...loadedState.playerHand.map(card => card.id),
         ...loadedState.aiHand.map(card => card.id),
-        ...loadedState.cardPool.map(card => card.id)
+        ...loadedState.cardPool.map(card => card.id),
       ];
-      
+
       // Check for duplicates
       const uniqueIds = new Set(allCardIds);
       expect(allCardIds.length).toBe(uniqueIds.size);
-      
+
       // Verify specific IDs are preserved
       expect(loadedState.timeline[0].id).toBe('card-1');
       expect(loadedState.playerHand[0].id).toBe('card-2');
@@ -412,12 +414,12 @@ describe('State Persistence', () => {
       const savedStateString = JSON.stringify({
         version: '1.0.0',
         timestamp: Date.now(),
-        ...mockGameState
+        ...mockGameState,
       });
       localStorageMock.getItem.mockReturnValue(savedStateString);
-      
+
       const loadedState = loadGameStateFromStorage();
-      
+
       // Check that card objects maintain their structure
       const timelineCard = loadedState.timeline[0];
       expect(timelineCard).toEqual({
@@ -425,15 +427,15 @@ describe('State Persistence', () => {
         title: 'World War II',
         dateOccurred: '1939-09-01',
         category: 'Military',
-        isRevealed: true
+        isRevealed: true,
       });
-      
+
       const handCard = loadedState.playerHand[0];
       expect(handCard).toEqual({
         id: 'card-2',
         title: 'Moon Landing',
         dateOccurred: '1969-07-20',
-        category: 'Space'
+        category: 'Space',
       });
     });
   });
@@ -443,25 +445,27 @@ describe('State Persistence', () => {
       // 1. Save state
       const saveResult = saveGameStateToStorage(mockGameState);
       expect(saveResult).toBe(true);
-      
+
       // Mock that state was saved
       localStorageMock.getItem.mockReturnValue(JSON.stringify(mockGameState));
       expect(hasSavedGameState()).toBe(true);
-      
+
       // 2. Load state
       const loadedState = loadGameStateFromStorage();
       expect(loadedState).not.toBeNull();
       expect(loadedState.timeline.length).toBe(mockGameState.timeline.length);
-      expect(loadedState.playerHand.length).toBe(mockGameState.playerHand.length);
-      
+      expect(loadedState.playerHand.length).toBe(
+        mockGameState.playerHand.length
+      );
+
       // 3. Clear state
       const clearResult = clearGameStateFromStorage();
       expect(clearResult).toBe(true);
-      
+
       // Mock that state was cleared
       localStorageMock.getItem.mockReturnValue(null);
       expect(hasSavedGameState()).toBe(false);
-      
+
       // 4. Verify no state remains
       const reloadedState = loadGameStateFromStorage();
       expect(reloadedState).toBeNull();
@@ -470,23 +474,23 @@ describe('State Persistence', () => {
     it('should handle multiple save operations', () => {
       // Save initial state
       saveGameStateToStorage(mockGameState);
-      
+
       // Modify and save again
       const modifiedState = {
         ...mockGameState,
         score: { human: 200, ai: 100 },
-        playerHand: mockGameState.playerHand.slice(1) // Remove one card
+        playerHand: mockGameState.playerHand.slice(1), // Remove one card
       };
-      
+
       saveGameStateToStorage(modifiedState);
-      
+
       // Mock that the modified state was saved
       localStorageMock.getItem.mockReturnValue(JSON.stringify(modifiedState));
-      
+
       // Load and verify the latest state
       const loadedState = loadGameStateFromStorage();
       expect(loadedState.score.human).toBe(200);
       expect(loadedState.playerHand.length).toBe(1);
     });
   });
-}); 
+});

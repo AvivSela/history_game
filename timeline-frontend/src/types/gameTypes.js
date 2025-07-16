@@ -59,8 +59,6 @@
  * @property {number} [attempts] - Number of attempts
  */
 
-
-
 /**
  * @typedef {Object} InsertionPoint
  * @property {number} position - Position in timeline
@@ -93,5 +91,5 @@ export const GAME_TYPES = {
   Feedback: 'Feedback',
   InsertionPoint: 'InsertionPoint',
   GameSession: 'GameSession',
-  ValidationResult: 'ValidationResult'
-}; 
+  ValidationResult: 'ValidationResult',
+};

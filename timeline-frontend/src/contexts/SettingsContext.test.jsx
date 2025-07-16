@@ -12,7 +12,7 @@ vi.mock('../utils/settingsManager', () => {
     autoSave: true,
     performanceMode: false,
     categories: [],
-    version: '1.0.0'
+    version: '1.0.0',
   };
   let changeCallback = null;
   const getDefaultSettings = () => ({ ...settingsStore });
@@ -22,11 +22,13 @@ vi.mock('../utils/settingsManager', () => {
     getSettings: vi.fn().mockImplementation(() => {
       return { ...settingsStore };
     }),
-    onChange: vi.fn().mockImplementation((cb) => {
+    onChange: vi.fn().mockImplementation(cb => {
       changeCallback = cb;
-      return () => { changeCallback = null; };
+      return () => {
+        changeCallback = null;
+      };
     }),
-    updateSettings: vi.fn().mockImplementation((updates) => {
+    updateSettings: vi.fn().mockImplementation(updates => {
       settingsStore = { ...settingsStore, ...updates };
       if (changeCallback) {
         changeCallback({ ...settingsStore, key: undefined });
@@ -40,12 +42,12 @@ vi.mock('../utils/settingsManager', () => {
       }
       return true;
     }),
-    getDefaultSettings: vi.fn().mockImplementation(getDefaultSettings)
+    getDefaultSettings: vi.fn().mockImplementation(getDefaultSettings),
   };
-  
+
   return {
     __esModule: true,
-    default: mockSettingsManager
+    default: mockSettingsManager,
   };
 });
 
@@ -53,34 +55,47 @@ vi.mock('../utils/settingsValidation', () => ({
   validateSettings: vi.fn().mockReturnValue({
     isValid: true,
     errors: {},
-    warnings: {}
-  })
+    warnings: {},
+  }),
 }));
 
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SettingsProvider, SettingsErrorBoundary, useSettings, useSettingsSafe, SettingsContext } from './SettingsContext';
+import {
+  SettingsProvider,
+  SettingsErrorBoundary,
+  SettingsContext,
+} from './SettingsContext';
+import { useSettings, useSettingsSafe } from './settingsHooks';
 import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants.js';
 
 // Test component to use the context
 function TestComponent() {
   const settings = useSettings();
-  
+
   return (
     <div>
-      <div data-testid="loading">{settings.isLoading ? 'Loading' : 'Loaded'}</div>
+      <div data-testid="loading">
+        {settings.isLoading ? 'Loading' : 'Loaded'}
+      </div>
       <div data-testid="error">{settings.error || 'No error'}</div>
-      <div data-testid="initialized">{settings.isInitialized ? 'Initialized' : 'Not initialized'}</div>
-      <div data-testid="difficulty">{settings.settings?.difficulty || 'No difficulty'}</div>
-      <div data-testid="card-count">{settings.settings?.cardCount || 'No card count'}</div>
-      <button 
+      <div data-testid="initialized">
+        {settings.isInitialized ? 'Initialized' : 'Not initialized'}
+      </div>
+      <div data-testid="difficulty">
+        {settings.settings?.difficulty || 'No difficulty'}
+      </div>
+      <div data-testid="card-count">
+        {settings.settings?.cardCount || 'No card count'}
+      </div>
+      <button
         data-testid="update-difficulty"
         onClick={() => settings.updateSetting('difficulty', 'hard')}
       >
         Update Difficulty
       </button>
-      <button 
+      <button
         data-testid="reset-settings"
         onClick={() => settings.resetSettings()}
       >
@@ -92,72 +107,79 @@ function TestComponent() {
 
 // Test wrapper that provides a mock settings manager
 function TestSettingsProvider({ children, mockSettingsManager }) {
-  const [state, dispatch] = React.useReducer((state, action) => {
-    switch (action.type) {
-      case 'SET_LOADING':
-        return { ...state, isLoading: action.payload };
-      case 'SET_ERROR':
-        return { ...state, error: action.payload, isLoading: false };
-      case 'SET_SETTINGS':
-        return {
-          ...state,
-          settings: action.payload || {},
-          isLoading: false,
-          isInitialized: true,
-          lastUpdated: Date.now(),
-          error: null
-        };
-      case 'UPDATE_SETTING':
-        return {
-          ...state,
-          settings: {
-            ...state.settings,
-            [action.payload.key]: action.payload.value
-          },
-          lastUpdated: Date.now(),
-          error: null
-        };
-      case 'RESET_SETTINGS':
-        return {
-          ...state,
-          settings: action.payload || {},
-          lastUpdated: Date.now(),
-          error: null,
-          validationErrors: {}
-        };
-      default:
-        return state;
+  const [state, dispatch] = React.useReducer(
+    (state, action) => {
+      switch (action.type) {
+        case 'SET_LOADING':
+          return { ...state, isLoading: action.payload };
+        case 'SET_ERROR':
+          return { ...state, error: action.payload, isLoading: false };
+        case 'SET_SETTINGS':
+          return {
+            ...state,
+            settings: action.payload || {},
+            isLoading: false,
+            isInitialized: true,
+            lastUpdated: Date.now(),
+            error: null,
+          };
+        case 'UPDATE_SETTING':
+          return {
+            ...state,
+            settings: {
+              ...state.settings,
+              [action.payload.key]: action.payload.value,
+            },
+            lastUpdated: Date.now(),
+            error: null,
+          };
+        case 'RESET_SETTINGS':
+          return {
+            ...state,
+            settings: action.payload || {},
+            lastUpdated: Date.now(),
+            error: null,
+            validationErrors: {},
+          };
+        default:
+          return state;
+      }
+    },
+    {
+      settings: {},
+      isLoading: true,
+      error: null,
+      validationErrors: {},
+      isInitialized: false,
+      lastUpdated: null,
     }
-  }, {
-    settings: {},
-    isLoading: true,
-    error: null,
-    validationErrors: {},
-    isInitialized: false,
-    lastUpdated: null
-  });
+  );
 
   React.useEffect(() => {
     const initializeSettings = async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        
+
         const currentSettings = mockSettingsManager.getSettings();
         dispatch({ type: 'SET_SETTINGS', payload: currentSettings });
 
-        const unsubscribe = mockSettingsManager.onChange((changeInfo) => {
-          if (changeInfo && changeInfo.key === undefined && typeof changeInfo === 'object') {
+        const unsubscribe = mockSettingsManager.onChange(changeInfo => {
+          if (
+            changeInfo &&
+            changeInfo.key === undefined &&
+            typeof changeInfo === 'object'
+          ) {
             dispatch({
               type: 'SET_SETTINGS',
-              payload: changeInfo
+              payload: changeInfo,
             });
           } else {
             dispatch({
               type: 'UPDATE_SETTING',
               payload: {
                 key: changeInfo.key,
-                value: changeInfo.newValue
-              }
+                value: changeInfo.newValue,
+              },
             });
           }
         });
@@ -166,18 +188,20 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
       } catch (error) {
         dispatch({
           type: 'SET_ERROR',
-          payload: error.message || 'Failed to initialize settings'
+          payload: error.message || 'Failed to initialize settings',
         });
       }
     };
 
     let unsubscribe;
-    initializeSettings().then((unsub) => {
-      unsubscribe = unsub;
-    }).catch((error) => {
-      // Failed to initialize test settings
-    });
-    
+    initializeSettings()
+      .then(unsub => {
+        unsubscribe = unsub;
+      })
+      .catch(error => {
+        // Failed to initialize test settings
+      });
+
     return () => {
       if (unsubscribe && typeof unsubscribe === 'function') {
         unsubscribe();
@@ -185,21 +209,24 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
     };
   }, [mockSettingsManager]);
 
-  const updateSetting = React.useCallback((key, value) => {
-    try {
-      const result = mockSettingsManager.updateSettings({ [key]: value });
-      if (!result) {
-        throw new Error('Failed to update setting');
+  const updateSetting = React.useCallback(
+    (key, value) => {
+      try {
+        const result = mockSettingsManager.updateSettings({ [key]: value });
+        if (!result) {
+          throw new Error('Failed to update setting');
+        }
+        return true;
+      } catch (error) {
+        dispatch({
+          type: 'SET_ERROR',
+          payload: error.message || 'Failed to update setting',
+        });
+        return false;
       }
-      return true;
-    } catch (error) {
-      dispatch({
-        type: 'SET_ERROR',
-        payload: error.message || 'Failed to update setting'
-      });
-      return false;
-    }
-  }, [mockSettingsManager]);
+    },
+    [mockSettingsManager]
+  );
 
   const resetSettings = React.useCallback(() => {
     try {
@@ -211,7 +238,7 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
     } catch (error) {
       dispatch({
         type: 'SET_ERROR',
-        payload: error.message || 'Failed to reset settings'
+        payload: error.message || 'Failed to reset settings',
       });
       return false;
     }
@@ -222,11 +249,12 @@ function TestSettingsProvider({ children, mockSettingsManager }) {
     updateSetting,
     updateSettings: updateSetting,
     resetSettings,
-    getSetting: (key) => state.settings[key],
+    getSetting: key => state.settings[key],
     getSettings: () => ({ ...state.settings }),
     getDefaultSettings: () => mockSettingsManager.getDefaultSettings(),
     clearError: () => dispatch({ type: 'SET_ERROR', payload: null }),
-    clearValidationErrors: () => dispatch({ type: 'SET_VALIDATION_ERRORS', payload: {} })
+    clearValidationErrors: () =>
+      dispatch({ type: 'SET_VALIDATION_ERRORS', payload: {} }),
   };
 
   return (
@@ -241,7 +269,9 @@ function TestSafeComponent() {
   const settings = useSettingsSafe();
   return (
     <div>
-      <div data-testid="safe-loading">{settings.isLoading ? 'Loading' : 'Loaded'}</div>
+      <div data-testid="safe-loading">
+        {settings.isLoading ? 'Loading' : 'Loaded'}
+      </div>
       <div data-testid="safe-error">{settings.error || 'No error'}</div>
     </div>
   );
@@ -262,7 +292,9 @@ describe('SettingsContext', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('loading')).toHaveTextContent('Loaded');
-        expect(screen.getByTestId('initialized')).toHaveTextContent('Initialized');
+        expect(screen.getByTestId('initialized')).toHaveTextContent(
+          'Initialized'
+        );
         expect(screen.getByTestId('difficulty')).toHaveTextContent('medium');
         expect(screen.getByTestId('card-count')).toHaveTextContent('5');
       });
@@ -282,18 +314,20 @@ describe('SettingsContext', () => {
         autoSave: true,
         performanceMode: false,
         categories: [],
-        version: '1.0.0'
+        version: '1.0.0',
       };
       let changeCallback = null;
       const mockSettingsManager = {
         isInitialized: true,
         isReady: vi.fn().mockReturnValue(true),
         getSettings: vi.fn().mockImplementation(() => ({ ...settingsStore })),
-        onChange: vi.fn().mockImplementation((cb) => {
+        onChange: vi.fn().mockImplementation(cb => {
           changeCallback = cb;
-          return () => { changeCallback = null; };
+          return () => {
+            changeCallback = null;
+          };
         }),
-        updateSettings: vi.fn().mockImplementation((updates) => {
+        updateSettings: vi.fn().mockImplementation(updates => {
           settingsStore = { ...settingsStore, ...updates };
           if (changeCallback) {
             changeCallback({ ...settingsStore, key: undefined });
@@ -313,7 +347,7 @@ describe('SettingsContext', () => {
             autoSave: true,
             performanceMode: false,
             categories: [],
-            version: '1.0.0'
+            version: '1.0.0',
           };
           if (changeCallback) {
             changeCallback({ ...settingsStore, key: undefined });
@@ -332,8 +366,8 @@ describe('SettingsContext', () => {
           autoSave: true,
           performanceMode: false,
           categories: [],
-          version: '1.0.0'
-        })
+          version: '1.0.0',
+        }),
       };
 
       render(
@@ -355,7 +389,9 @@ describe('SettingsContext', () => {
       });
 
       // Verify settings manager was called
-      expect(mockSettingsManager.updateSettings).toHaveBeenCalledWith({ difficulty: 'hard' });
+      expect(mockSettingsManager.updateSettings).toHaveBeenCalledWith({
+        difficulty: 'hard',
+      });
     });
 
     it('should reset settings to defaults', async () => {
@@ -372,18 +408,20 @@ describe('SettingsContext', () => {
         autoSave: true,
         performanceMode: false,
         categories: [],
-        version: '1.0.0'
+        version: '1.0.0',
       };
       let changeCallback = null;
       const mockSettingsManager = {
         isInitialized: true,
         isReady: vi.fn().mockReturnValue(true),
         getSettings: vi.fn().mockImplementation(() => ({ ...settingsStore })),
-        onChange: vi.fn().mockImplementation((cb) => {
+        onChange: vi.fn().mockImplementation(cb => {
           changeCallback = cb;
-          return () => { changeCallback = null; };
+          return () => {
+            changeCallback = null;
+          };
         }),
-        updateSettings: vi.fn().mockImplementation((updates) => {
+        updateSettings: vi.fn().mockImplementation(updates => {
           settingsStore = { ...settingsStore, ...updates };
           if (changeCallback) {
             changeCallback({ ...settingsStore, key: undefined });
@@ -403,7 +441,7 @@ describe('SettingsContext', () => {
             autoSave: true,
             performanceMode: false,
             categories: [],
-            version: '1.0.0'
+            version: '1.0.0',
           };
           if (changeCallback) {
             changeCallback({ ...settingsStore, key: undefined });
@@ -422,8 +460,8 @@ describe('SettingsContext', () => {
           autoSave: true,
           performanceMode: false,
           categories: [],
-          version: '1.0.0'
-        })
+          version: '1.0.0',
+        }),
       };
 
       render(
@@ -456,7 +494,9 @@ describe('SettingsContext', () => {
       });
 
       // Verify settings manager was called
-      expect(mockSettingsManager.updateSettings).toHaveBeenCalledWith({ difficulty: 'hard' });
+      expect(mockSettingsManager.updateSettings).toHaveBeenCalledWith({
+        difficulty: 'hard',
+      });
       expect(mockSettingsManager.resetToDefaults).toHaveBeenCalled();
     });
   });
@@ -484,7 +524,9 @@ describe('SettingsContext', () => {
       );
 
       expect(screen.getByText('Settings Error')).toBeInTheDocument();
-      expect(screen.getByText('Something went wrong with the settings system.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Something went wrong with the settings system.')
+      ).toBeInTheDocument();
       expect(screen.getByText('Reload Page')).toBeInTheDocument();
     });
   });
@@ -492,7 +534,9 @@ describe('SettingsContext', () => {
   describe('useSettings hook', () => {
     it('should throw error when used outside provider', () => {
       // Suppress console.error for this test
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       expect(() => {
         render(<TestComponent />);
@@ -510,7 +554,9 @@ describe('SettingsContext', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('loading')).toHaveTextContent('Loaded');
-        expect(screen.getByTestId('initialized')).toHaveTextContent('Initialized');
+        expect(screen.getByTestId('initialized')).toHaveTextContent(
+          'Initialized'
+        );
       });
     });
   });
@@ -520,14 +566,16 @@ describe('SettingsContext', () => {
       render(<TestSafeComponent />);
 
       expect(screen.getByTestId('safe-loading')).toHaveTextContent('Loaded');
-      expect(screen.getByTestId('safe-error')).toHaveTextContent('Settings context not available');
+      expect(screen.getByTestId('safe-error')).toHaveTextContent(
+        'Settings context not available'
+      );
     });
   });
 
   describe('Context value tests', () => {
     it('should provide correct initial state', async () => {
       let contextValue;
-      
+
       function TestContextValue() {
         contextValue = useSettings();
         return <div data-testid="test">Test</div>;
@@ -555,4 +603,4 @@ describe('SettingsContext', () => {
       });
     });
   });
-}); 
+});

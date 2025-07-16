@@ -8,35 +8,36 @@ This document outlines recommended improvements to the Timeline Game's animation
 
 ### Current vs. Recommended Durations
 
-| Animation Type | Current Duration | Recommended Duration | Improvement |
-|----------------|------------------|---------------------|-------------|
-| Card Selection Feedback | 300ms | 100ms | 67% faster |
-| Wrong Placement Sequence | 2900ms | 2000ms | 31% faster |
-| Highlight Animation | 1200ms | 400ms | 67% faster |
-| Shake Duration | 600ms | 400ms | 33% faster |
-| Fade Out | 500ms | 300ms | 40% faster |
+| Animation Type           | Current Duration | Recommended Duration | Improvement |
+| ------------------------ | ---------------- | -------------------- | ----------- |
+| Card Selection Feedback  | 300ms            | 100ms                | 67% faster  |
+| Wrong Placement Sequence | 2900ms           | 2000ms               | 31% faster  |
+| Highlight Animation      | 1200ms           | 400ms                | 67% faster  |
+| Shake Duration           | 600ms            | 400ms                | 33% faster  |
+| Fade Out                 | 500ms            | 300ms                | 40% faster  |
 
 ### Optimized Timing Constants
 
 ```javascript
 // Recommended optimized timing constants
 ANIMATION_DELAYS = {
-  SHAKE_DURATION: 400,              // Reduced from 600ms
-  FADE_OUT_DURATION: 300,           // Reduced from 500ms
-  FEEDBACK_DELAY: 200,              // Reduced from 300ms
-  NEW_CARD_DELAY: 600,              // Reduced from 800ms
-  BOUNCE_IN_DURATION: 600,          // Reduced from 800ms
-  HIGHLIGHT_DURATION: 400,          // Reduced from 1200ms
-  WRONG_PLACEMENT_DURATION: 800,    // Reduced from 1200ms
-  TIMELINE_SHAKE_DURATION: 600,     // Reduced from 800ms
+  SHAKE_DURATION: 400, // Reduced from 600ms
+  FADE_OUT_DURATION: 300, // Reduced from 500ms
+  FEEDBACK_DELAY: 200, // Reduced from 300ms
+  NEW_CARD_DELAY: 600, // Reduced from 800ms
+  BOUNCE_IN_DURATION: 600, // Reduced from 800ms
+  HIGHLIGHT_DURATION: 400, // Reduced from 1200ms
+  WRONG_PLACEMENT_DURATION: 800, // Reduced from 1200ms
+  TIMELINE_SHAKE_DURATION: 600, // Reduced from 800ms
   INSERTION_POINT_ERROR_DURATION: 400, // Reduced from 600ms
-  TOTAL_ANIMATION_DURATION: 2000    // Reduced from 2900ms
-}
+  TOTAL_ANIMATION_DURATION: 2000, // Reduced from 2900ms
+};
 ```
 
 ### Industry Standard Validation
 
 Based on [Nielsen Norman Group guidelines](https://www.nngroup.com/articles/animation-duration/):
+
 - **Simple feedback animations**: Should be ~100ms for immediate response
 - **Complex animations**: Should be 200-500ms for substantial changes
 - **Frequent animations**: Should be subtle and short to avoid annoyance
@@ -58,34 +59,38 @@ Based on [Nielsen Norman Group guidelines](https://www.nngroup.com/articles/anim
 }
 
 @keyframes wrongPlacementShake {
-  0%, 100% { 
-    transform: translateX(0) scale(1); 
-    opacity: 1; 
+  0%,
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
     filter: brightness(1);
   }
-  10%, 30%, 50% { 
-    transform: translateX(-8px) scale(0.95); 
-    opacity: 0.8; 
+  10%,
+  30%,
+  50% {
+    transform: translateX(-8px) scale(0.95);
+    opacity: 0.8;
     filter: brightness(1.1) hue-rotate(0deg);
   }
-  20%, 40% { 
-    transform: translateX(8px) scale(0.95); 
-    opacity: 0.8; 
+  20%,
+  40% {
+    transform: translateX(8px) scale(0.95);
+    opacity: 0.8;
     filter: brightness(1.1) hue-rotate(0deg);
   }
-  60% { 
-    transform: translateX(0) scale(0.9); 
-    opacity: 0.6; 
+  60% {
+    transform: translateX(0) scale(0.9);
+    opacity: 0.6;
     filter: brightness(0.9);
   }
-  80% { 
-    transform: translateX(0) scale(0.8); 
-    opacity: 0.3; 
+  80% {
+    transform: translateX(0) scale(0.8);
+    opacity: 0.3;
     filter: brightness(0.8);
   }
-  100% { 
-    transform: translateX(0) scale(0.7); 
-    opacity: 0; 
+  100% {
+    transform: translateX(0) scale(0.7);
+    opacity: 0;
     filter: brightness(0.7);
   }
 }
@@ -106,15 +111,15 @@ Based on [Nielsen Norman Group guidelines](https://www.nngroup.com/articles/anim
 }
 
 @keyframes quickHighlight {
-  0% { 
+  0% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6);
     transform: scale(1) translateZ(0);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.3);
     transform: scale(1.02) translateZ(0);
   }
-  100% { 
+  100% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
     transform: scale(1) translateZ(0);
   }
@@ -133,14 +138,14 @@ Based on [Nielsen Norman Group guidelines](https://www.nngroup.com/articles/anim
 ```javascript
 // Updated easing constants
 EASING = {
-  SHAKE: 'cubic-bezier(0.36, 0, 0.66, 1)',           // Keep as is
-  FADE_OUT: 'cubic-bezier(0.4, 0, 0.2, 1)',          // Keep as is
-  BOUNCE_IN: 'cubic-bezier(0.4, 0, 0.2, 1)',         // Changed to ease-out
-  HIGHLIGHT: 'cubic-bezier(0.4, 0, 0.2, 1)',         // Keep as is
+  SHAKE: 'cubic-bezier(0.36, 0, 0.66, 1)', // Keep as is
+  FADE_OUT: 'cubic-bezier(0.4, 0, 0.2, 1)', // Keep as is
+  BOUNCE_IN: 'cubic-bezier(0.4, 0, 0.2, 1)', // Changed to ease-out
+  HIGHLIGHT: 'cubic-bezier(0.4, 0, 0.2, 1)', // Keep as is
   WRONG_PLACEMENT: 'cubic-bezier(0.36, 0, 0.66, 1)', // Changed to shake easing
-  TIMELINE_SHAKE: 'cubic-bezier(0.36, 0, 0.66, 1)',  // Keep as is
-  INSERTION_POINT_ERROR: 'cubic-bezier(0.4, 0, 0.2, 1)' // Changed to ease-out
-}
+  TIMELINE_SHAKE: 'cubic-bezier(0.36, 0, 0.66, 1)', // Keep as is
+  INSERTION_POINT_ERROR: 'cubic-bezier(0.4, 0, 0.2, 1)', // Changed to ease-out
+};
 ```
 
 ## 4. Animation Sequence Optimization
@@ -165,16 +170,16 @@ EASING = {
 
 ```javascript
 // Updated animation sequence in Game.jsx
-const handleWrongPlacement = async (position) => {
+const handleWrongPlacement = async position => {
   // Trigger all animations simultaneously
   if (timelineRef.current) {
     timelineRef.current.animateWrongPlacement(position);
   }
-  
+
   if (playerHandRef.current && selectedCard) {
     playerHandRef.current.animateCardRemoval(selectedCard.id);
   }
-  
+
   // Reduced delay for new card animation
   setTimeout(() => {
     if (playerHandRef.current && poolResult?.newCard) {
@@ -198,14 +203,14 @@ class AnimationQueue {
     this.queue = [];
     this.isProcessing = false;
   }
-  
+
   add(animation) {
     this.queue.push(animation);
     if (!this.isProcessing) {
       this.process();
     }
   }
-  
+
   async process() {
     this.isProcessing = true;
     while (this.queue.length > 0) {
@@ -245,13 +250,17 @@ const animationQueue = new AnimationQueue();
 ```javascript
 // Enhanced reduced motion support
 export const getAnimationPreferences = () => {
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const prefersReducedData = window.matchMedia('(prefers-reduced-data: reduce)').matches;
-  
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+  const prefersReducedData = window.matchMedia(
+    '(prefers-reduced-data: reduce)'
+  ).matches;
+
   return {
     shouldAnimate: !prefersReducedMotion && !prefersReducedData,
     durationMultiplier: prefersReducedMotion ? 0.5 : 1,
-    shouldUseSubtleAnimations: prefersReducedMotion
+    shouldUseSubtleAnimations: prefersReducedMotion,
   };
 };
 ```
@@ -276,7 +285,7 @@ const skipAnimation = () => {
 
 ```javascript
 // Progressive animation loading
-const loadAnimationIfNeeded = (animationType) => {
+const loadAnimationIfNeeded = animationType => {
   if (!loadedAnimations.has(animationType)) {
     // Load animation CSS dynamically
     loadAnimationCSS(animationType);
@@ -289,13 +298,13 @@ const loadAnimationIfNeeded = (animationType) => {
 
 ```javascript
 // Adjust animation intensity based on context
-const getAnimationIntensity = (context) => {
+const getAnimationIntensity = context => {
   const baseIntensity = 1;
   const multipliers = {
-    'error': 1.2,      // More intense for errors
-    'success': 0.8,    // Subtle for success
-    'neutral': 1.0,    // Standard for neutral
-    'gameplay': 1.1    // Slightly enhanced for gameplay
+    error: 1.2, // More intense for errors
+    success: 0.8, // Subtle for success
+    neutral: 1.0, // Standard for neutral
+    gameplay: 1.1, // Slightly enhanced for gameplay
   };
   return baseIntensity * (multipliers[context] || 1.0);
 };
@@ -312,11 +321,13 @@ export const testAnimationPerformance = async (animationName, testFunction) => {
   await testFunction();
   const endTime = performance.now();
   const duration = endTime - startTime;
-  
+
   if (duration > 16.67) {
-    console.warn(`Animation ${animationName} took ${duration.toFixed(2)}ms (target: <16.67ms)`);
+    console.warn(
+      `Animation ${animationName} took ${duration.toFixed(2)}ms (target: <16.67ms)`
+    );
   }
-  
+
   return duration;
 };
 ```
@@ -330,9 +341,9 @@ export const measureAnimationEffectiveness = (animationType, userAction) => {
     completionTime: 0,
     userSatisfaction: 0,
     errorRate: 0,
-    accessibilityScore: 0
+    accessibilityScore: 0,
   };
-  
+
   // Implement measurement logic
   return metrics;
 };
@@ -341,18 +352,21 @@ export const measureAnimationEffectiveness = (animationType, userAction) => {
 ## 9. Implementation Priority
 
 ### High Priority (Immediate Impact)
+
 1. **Reduce wrong placement animation duration** (2900ms → 2000ms)
 2. **Replace bounce back with shake** for error feedback
 3. **Optimize highlight duration** (1200ms → 400ms)
 4. **Improve easing strategy** for entrance/exit animations
 
 ### Medium Priority (Performance & UX)
+
 1. **Implement animation queuing** system
 2. **Enhance reduced motion support**
 3. **Add GPU acceleration** optimizations
 4. **Create progressive animation loading**
 
 ### Low Priority (Future Enhancements)
+
 1. **Add animation skip option**
 2. **Implement context-aware intensity**
 3. **Create comprehensive testing suite**
@@ -361,18 +375,21 @@ export const measureAnimationEffectiveness = (animationType, userAction) => {
 ## 10. Success Metrics
 
 ### Performance Metrics
+
 - **Animation duration**: Target <500ms for complex animations
 - **Frame rate**: Maintain 60fps during animations
 - **Memory usage**: <5MB increase during animation sequences
 - **Load time**: <100ms for animation CSS
 
 ### User Experience Metrics
+
 - **User satisfaction**: >4.5/5 rating for animation feel
 - **Error rate**: <2% increase in user errors
 - **Accessibility compliance**: 100% reduced motion support
 - **Completion rate**: >95% for animation sequences
 
 ### Technical Metrics
+
 - **Code maintainability**: Reduced animation complexity
 - **Bundle size**: <10KB increase for animation improvements
 - **Browser compatibility**: Support for all modern browsers
@@ -381,21 +398,25 @@ export const measureAnimationEffectiveness = (animationType, userAction) => {
 ## 11. Rollout Strategy
 
 ### Phase 1: Core Optimizations (Week 1-2)
+
 - Implement duration optimizations
 - Replace bounce back with shake
 - Update easing strategies
 
 ### Phase 2: Performance Enhancements (Week 3-4)
+
 - Add animation queuing
 - Implement GPU acceleration
 - Enhance reduced motion support
 
 ### Phase 3: Advanced Features (Week 5-6)
+
 - Progressive animation loading
 - Context-aware intensity
 - Comprehensive testing
 
 ### Phase 4: Monitoring & Iteration (Week 7+)
+
 - Deploy analytics
 - Gather user feedback
 - Iterate based on metrics
@@ -405,6 +426,7 @@ export const measureAnimationEffectiveness = (animationType, userAction) => {
 These improvements will transform the Timeline Game's animation system from good to excellent, aligning with industry best practices while maintaining the game's engaging character. The focus on performance, accessibility, and user experience will result in a more polished and professional product.
 
 **Key Benefits**:
+
 - **31% faster** wrong placement feedback
 - **67% faster** card selection feedback
 - **Better accessibility** for users with motion sensitivity
@@ -412,6 +434,7 @@ These improvements will transform the Timeline Game's animation system from good
 - **Enhanced user satisfaction** through appropriate animation types
 
 **Industry Alignment**:
+
 - Follows [Nielsen Norman Group](https://www.nngroup.com/articles/animation-duration/) timing guidelines
 - Implements [UX Studio](https://www.uxstudioteam.com/ux-blog/creating-fantastic-ui-animations) best practices
 - Maintains accessibility standards
@@ -419,4 +442,4 @@ These improvements will transform the Timeline Game's animation system from good
 
 ---
 
-*This document serves as the roadmap for improving the Timeline Game's animation system. All recommendations are based on industry standards and UX best practices to ensure optimal user experience.* 
+_This document serves as the roadmap for improving the Timeline Game's animation system. All recommendations are based on industry standards and UX best practices to ensure optimal user experience._

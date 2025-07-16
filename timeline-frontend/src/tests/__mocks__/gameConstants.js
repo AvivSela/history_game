@@ -1,6 +1,6 @@
 /**
  * Centralized Game Constants Mock
- * 
+ *
  * This mock provides consistent game constants across all tests
  * and can be easily updated when constants change.
  */
@@ -12,15 +12,15 @@ export const GAME_STATUS = {
   PAUSED: 'paused',
   WON: 'won',
   LOST: 'lost',
-  ERROR: 'error'
+  ERROR: 'error',
 };
 
 export const PLAYER_TYPES = {
-  HUMAN: 'human'
+  HUMAN: 'human',
 };
 
 export const CARD_COUNTS = {
-  SINGLE: 5
+  SINGLE: 5,
 };
 
 export const POOL_CARD_COUNT = 10;
@@ -34,8 +34,8 @@ export const API = {
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
     NOT_FOUND: 404,
-    INTERNAL_SERVER_ERROR: 500
-  }
+    INTERNAL_SERVER_ERROR: 500,
+  },
 };
 
 // Export all constants as default for easy importing
@@ -44,5 +44,5 @@ export default {
   PLAYER_TYPES,
   CARD_COUNTS,
   POOL_CARD_COUNT,
-  API
-}; 
+  API,
+};

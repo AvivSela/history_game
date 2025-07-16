@@ -8,14 +8,18 @@
  * @param {number} tolerance - Tolerance level (0-1, where 1 is most forgiving)
  * @returns {Object} - Validation result with detailed feedback
  */
-export const validatePlacementWithTolerance = (card, timeline, userPosition, tolerance = 0) => {
+export const validatePlacementWithTolerance = (
+  card,
+  timeline,
+  userPosition
+) => {
   const correctPosition = findCorrectPosition(card, timeline);
   const positionDiff = Math.abs(userPosition - correctPosition);
   const isExact = positionDiff === 0;
-  
+
   // No tolerance - only exact matches are correct
   const isCorrect = isExact;
-  
+
   let feedbackType = 'miss';
   if (isExact) {
     feedbackType = 'perfect';
@@ -35,7 +39,7 @@ export const validatePlacementWithTolerance = (card, timeline, userPosition, tol
     userPosition,
     positionDiff,
     feedbackType,
-    feedback
+    feedback,
   };
 };
 
@@ -47,14 +51,14 @@ export const validatePlacementWithTolerance = (card, timeline, userPosition, tol
  */
 export const findCorrectPosition = (card, timeline) => {
   const cardDate = new Date(card.dateOccurred);
-  
+
   for (let i = 0; i < timeline.length; i++) {
     const timelineDate = new Date(timeline[i].dateOccurred);
     if (cardDate <= timelineDate) {
       return i;
     }
   }
-  
+
   // Card should go at the end
   return timeline.length;
 };
@@ -62,17 +66,16 @@ export const findCorrectPosition = (card, timeline) => {
 /**
  * Generate feedback for exact matches
  */
-export const generateExactMatchFeedback = (card) => {
+export const generateExactMatchFeedback = card => {
   const encouragements = [
     `🎯 Perfect placement! ${card.title} is exactly where it belongs!`,
     `⭐ Excellent! You nailed the exact position for ${card.title}!`,
     `🏆 Outstanding! ${card.title} is perfectly positioned!`,
     `💎 Brilliant! You've mastered the chronology of ${card.title}!`,
-    `🎉 Flawless! ${card.title} couldn't be placed better!`
+    `🎉 Flawless! ${card.title} couldn't be placed better!`,
   ];
   return encouragements[Math.floor(Math.random() * encouragements.length)];
 };
-
 
 /**
  * Generate feedback for missed placements
@@ -91,7 +94,7 @@ export const generateMissedFeedback = (card, userPosition, correctPosition) => {
     `❌ Incorrect placement! ${card.title} occurred in ${cardYear} (${decade}s).${direction}`,
     `🚫 Not quite right! ${card.title} happened in ${cardYear} (${decade}s).${direction}`,
     `⚠️ Wrong position! ${card.title} took place in ${cardYear} (${decade}s).${direction}`,
-    `💭 Think again! ${card.title} was in ${cardYear} (${decade}s).${direction}`
+    `💭 Think again! ${card.title} was in ${cardYear} (${decade}s).${direction}`,
   ];
   return feedbacks[Math.floor(Math.random() * feedbacks.length)];
 };
@@ -107,7 +110,7 @@ export const generateCloseMatchFeedback = (card, positionDiff) => {
     `Very close! ${card.title} (${cardYear}) should be placed ${direction} in the timeline.`,
     `Almost perfect! ${card.title} (${cardYear}) is just a bit ${direction}.`,
     `Great attempt! ${card.title} (${cardYear}) is nearly in the right spot, just try ${direction}.`,
-    `Good work! ${card.title} (${cardYear}) is close, but should be ${direction}.`
+    `Good work! ${card.title} (${cardYear}) is close, but should be ${direction}.`,
   ];
   return encouragements[Math.floor(Math.random() * encouragements.length)];
 };
@@ -146,8 +149,8 @@ export const calculateInsertionPointRelevance = (insertionPoint, cardDate) => {
  * @returns {Array} - Array of insertion point data
  */
 export const generateSmartInsertionPoints = (timeline, selectedCard = null) => {
-  const sortedTimeline = [...timeline].sort((a, b) => 
-    new Date(a.dateOccurred) - new Date(b.dateOccurred)
+  const sortedTimeline = [...timeline].sort(
+    (a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred)
   );
 
   const insertionPoints = [];
@@ -202,4 +205,3 @@ export const generateSmartInsertionPoints = (timeline, selectedCard = null) => {
 
   return insertionPoints;
 };
-

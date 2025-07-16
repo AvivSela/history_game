@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { resolve } from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { resolve } from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss({
       // Configure Tailwind CSS v4 plugin options
       config: './tailwind.config.js',
-    })
+    }),
   ],
   resolve: {
     alias: {
@@ -69,9 +69,9 @@ export default defineConfig({
       src: resolve(__dirname, './src'),
     },
     include: ['src/**/*.{test,spec}.{js,jsx}'],
-    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'backup']
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'backup'],
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
   },
-})
+});

@@ -84,16 +84,20 @@
 
 .feedback-toast.success {
   border-left-color: var(--success-color);
-  background: linear-gradient(135deg, 
-    rgba(39, 174, 96, 0.1) 0%, 
-    var(--card-background) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(39, 174, 96, 0.1) 0%,
+    var(--card-background) 100%
+  );
 }
 
 .feedback-toast.error {
   border-left-color: var(--accent-color);
-  background: linear-gradient(135deg, 
-    rgba(231, 76, 60, 0.1) 0%, 
-    var(--card-background) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(231, 76, 60, 0.1) 0%,
+    var(--card-background) 100%
+  );
 }
 
 @keyframes slideInRight {
@@ -143,8 +147,12 @@
 }
 
 @keyframes overlayFadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .status-content {
@@ -214,7 +222,7 @@
   background: linear-gradient(90deg, #f8fafc 60%, #e0e7ff 100%);
   padding: 32px 40px 28px 40px;
   border-radius: 18px;
-  box-shadow: 0 4px 24px 0 rgba(80, 80, 120, 0.10);
+  box-shadow: 0 4px 24px 0 rgba(80, 80, 120, 0.1);
   margin-bottom: 32px;
   border: 1.5px solid #e0e7ef;
   position: relative;
@@ -247,10 +255,10 @@
   flex-direction: row;
   gap: 18px;
   align-items: center;
-  background: rgba(255,255,255,0.7);
+  background: rgba(255, 255, 255, 0.7);
   padding: 10px 18px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px 0 rgba(120,120,180,0.07);
+  box-shadow: 0 2px 8px 0 rgba(120, 120, 180, 0.07);
 }
 
 .game-header-controls .btn {
@@ -258,8 +266,10 @@
   font-weight: 600;
   padding: 10px 22px;
   border-radius: 8px;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 4px 0 rgba(120,120,180,0.08);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+  box-shadow: 0 1px 4px 0 rgba(120, 120, 180, 0.08);
 }
 
 .game-header-controls .btn:hover {
@@ -281,13 +291,15 @@
   border-radius: 10px;
   min-width: 80px;
   border: 1px solid #e0e7ef;
-  box-shadow: 0 1px 4px 0 rgba(120,120,180,0.06);
-  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 1px 4px 0 rgba(120, 120, 180, 0.06);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .stat-item:hover {
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 4px 16px 0 rgba(120,120,180,0.13);
+  box-shadow: 0 4px 16px 0 rgba(120, 120, 180, 0.13);
 }
 
 .stat-label {
@@ -386,9 +398,11 @@
 }
 
 .selected-info {
-  background: linear-gradient(135deg, 
-    rgba(39, 174, 96, 0.1) 0%, 
-    rgba(39, 174, 96, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(39, 174, 96, 0.1) 0%,
+    rgba(39, 174, 96, 0.05) 100%
+  );
   padding: 20px;
   border-radius: var(--border-radius);
   border: 2px solid var(--success-color);
@@ -432,16 +446,16 @@
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .game-info {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .selected-info {
     max-width: none;
   }
-  
+
   .feedback-toast {
     right: 10px;
     left: 10px;
@@ -453,70 +467,70 @@
   .game-page {
     padding: 15px 0;
   }
-  
+
   .game-header {
     flex-direction: column;
     gap: 20px;
     text-align: center;
     padding: 20px;
   }
-  
+
   .game-stats {
     justify-content: center;
     flex-wrap: wrap;
     gap: 16px;
   }
-  
+
   .stat-item {
     min-width: 80px;
     padding: 12px 16px;
   }
-  
+
   .stat-value {
     font-size: 20px;
   }
-  
+
   .game-board {
     gap: 20px;
   }
-  
+
   .game-controls {
     padding: 20px;
     gap: 20px;
   }
-  
+
   .control-buttons {
     flex-direction: row;
     min-width: auto;
   }
-  
+
   .control-buttons .btn {
     flex: 1;
   }
-  
+
   .status-content {
     padding: 32px 24px;
     margin: 20px;
   }
-  
+
   .status-content h3 {
     font-size: 24px;
   }
-  
+
   .status-content p {
     font-size: 16px;
   }
-  
+
   .status-actions {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .status-actions .btn {
     width: 100%;
     max-width: 250px;
   }
-  
+
   .feedback-toast {
     top: 80px;
     right: 10px;
@@ -528,59 +542,59 @@
   .game-header {
     padding: 16px;
   }
-  
+
   .game-title-section h1 {
     font-size: 24px;
   }
-  
+
   .game-stats {
     gap: 12px;
   }
-  
+
   .stat-item {
     min-width: 70px;
     padding: 10px 12px;
   }
-  
+
   .stat-label {
     font-size: 11px;
   }
-  
+
   .stat-value {
     font-size: 18px;
   }
-  
+
   .game-controls {
     padding: 16px;
   }
-  
+
   .control-buttons {
     flex-direction: column;
   }
-  
+
   .info-panel,
   .selected-info {
     padding: 16px;
   }
-  
+
   .status-content {
     padding: 24px 16px;
     margin: 16px;
   }
-  
+
   .status-content h3 {
     font-size: 20px;
   }
-  
+
   .status-content p {
     font-size: 14px;
   }
-  
+
   .feedback-toast {
     top: 70px;
     padding: 12px 16px;
   }
-  
+
   .feedback-message {
     font-size: 13px;
   }
@@ -604,9 +618,11 @@
 
 /* Victory celebration effects */
 .game-status-overlay.success {
-  background: radial-gradient(circle, 
-    rgba(39, 174, 96, 0.3) 0%, 
-    rgba(0, 0, 0, 0.8) 70%);
+  background: radial-gradient(
+    circle,
+    rgba(39, 174, 96, 0.3) 0%,
+    rgba(0, 0, 0, 0.8) 70%
+  );
 }
 
 .game-status-overlay.success::before {
@@ -620,7 +636,8 @@
 }
 
 @keyframes celebrationFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(-50%) translateY(0);
   }
   50% {
