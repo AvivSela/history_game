@@ -129,6 +129,7 @@ export const useGameState = () => {
 
   const gameSessionRef = useRef(null);
   const restartTimeoutRef = useRef(null);
+  const feedbackTimeoutRef = useRef(null);
   const settingsManagerRef = useRef(null);
   const stateRef = useRef(state);
 
@@ -249,6 +250,20 @@ export const useGameState = () => {
     state.selectedCard,
     settings.autoSave,
   ]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+        restartTimeoutRef.current = null;
+      }
+      if (feedbackTimeoutRef.current) {
+        clearTimeout(feedbackTimeoutRef.current);
+        feedbackTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   /**
    * Get card count based on settings
@@ -385,10 +400,14 @@ export const useGameState = () => {
 
   // Restart game
   const restartGame = useCallback(() => {
-    // Clear any pending restart timeout
+    // Clear any pending timeouts
     if (restartTimeoutRef.current) {
       clearTimeout(restartTimeoutRef.current);
       restartTimeoutRef.current = null;
+    }
+    if (feedbackTimeoutRef.current) {
+      clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = null;
     }
 
     // Clear saved state when restarting
@@ -566,6 +585,23 @@ export const useGameState = () => {
           setState(newGameState);
           saveGameStateToStorage(newGameState);
 
+          // Clear any existing feedback timeout
+          if (feedbackTimeoutRef.current) {
+            clearTimeout(feedbackTimeoutRef.current);
+            feedbackTimeoutRef.current = null;
+          }
+
+          // Set feedback timeout only if game is not won
+          if (!isGameWon) {
+            feedbackTimeoutRef.current = setTimeout(() => {
+              // Check if component is still mounted before updating state
+              if (feedbackTimeoutRef.current) {
+                setState(prev => ({ ...prev, feedback: null }));
+                feedbackTimeoutRef.current = null;
+              }
+            }, 3000);
+          }
+
           // If game is won, show feedback and restart after delay
           if (isGameWon) {
             // Clear any existing restart timeout
@@ -638,9 +674,19 @@ export const useGameState = () => {
           setState(newGameState);
           saveGameStateToStorage(newGameState);
 
-          // Clear feedback after delay
-          setTimeout(() => {
-            setState(prev => ({ ...prev, feedback: null }));
+          // Clear any existing feedback timeout
+          if (feedbackTimeoutRef.current) {
+            clearTimeout(feedbackTimeoutRef.current);
+            feedbackTimeoutRef.current = null;
+          }
+
+          // Set feedback timeout
+          feedbackTimeoutRef.current = setTimeout(() => {
+            // Check if component is still mounted before updating state
+            if (feedbackTimeoutRef.current) {
+              setState(prev => ({ ...prev, feedback: null }));
+              feedbackTimeoutRef.current = null;
+            }
           }, 3000);
 
           return {

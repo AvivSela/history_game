@@ -5,7 +5,6 @@ import {
   Route,
   Link,
   useLocation,
-  UNSAFE_future,
 } from 'react-router-dom';
 import './components/layout/Navigation/Navigation.css';
 import './components/ui/Button/Button.css';
@@ -80,7 +79,7 @@ const Footer = () => {
 
 function App() {
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <Router>
       <div className="min-h-screen flex flex-col w-full max-w-none">
         <Navigation />
 
