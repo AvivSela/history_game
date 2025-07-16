@@ -279,61 +279,6 @@ const SettingsContent = () => {
 
 
 
-          {/* Performance Settings Section */}
-          <SettingsSection title="⚡ Performance" defaultExpanded={false}>
-            <div className="settings-grid">
-              {/* Auto Save */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>💾 Auto Save</h3>
-                  <p>Automatically save game progress</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.autoSave !== false}
-                      onChange={e =>
-                        handleSettingChange('autoSave', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.autoSave !== false
-                        ? 'Auto Save On'
-                        : 'Auto Save Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Performance Mode */}
-              <div className="setting-card">
-                <div className="setting-header">
-                  <h3>🚀 Performance Mode</h3>
-                  <p>Optimize for better performance on slower devices</p>
-                </div>
-                <div className="setting-control">
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.performanceMode === true}
-                      onChange={e =>
-                        handleSettingChange('performanceMode', e.target.checked)
-                      }
-                    />
-                    <span className="toggle-slider"></span>
-                    <span className="toggle-label">
-                      {settings.performanceMode
-                        ? 'Performance Mode On'
-                        : 'Performance Mode Off'}
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </SettingsSection>
-
           {/* Settings Preview */}
           <div className="settings-preview">
             <h3>⚡ Current Settings</h3>
@@ -428,15 +373,6 @@ const SettingsContent = () => {
                 </ul>
               </div>
 
-              <div className="help-item">
-                <h4>Performance Tips</h4>
-                <ul>
-                  <li>Disable animations on slower devices</li>
-                  <li>Use fewer cards for quicker games</li>
-                  <li>Choose specific categories to focus learning</li>
-                  <li>Enable performance mode for better frame rates</li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>

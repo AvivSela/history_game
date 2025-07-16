@@ -158,8 +158,6 @@ describe('Settings Validation', () => {
       const booleanSettings = [
         'animations',
         'soundEffects',
-        'autoSave',
-        'performanceMode',
       ];
 
       booleanSettings.forEach(setting => {
@@ -222,8 +220,6 @@ describe('Settings Validation', () => {
         categories: ['history'],
         animations: true,
         soundEffects: true,
-        autoSave: true,
-        performanceMode: false,
         version: '1.0.0',
       };
 
@@ -253,7 +249,7 @@ describe('Settings Validation', () => {
       const result = validateSettings(incompleteSettings);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Missing required settings: cardCount, categories, animations, soundEffects, autoSave, performanceMode, version'
+        'Missing required settings: cardCount, categories, animations, soundEffects, version'
       );
     });
 
@@ -264,8 +260,6 @@ describe('Settings Validation', () => {
         categories: ['history'],
         animations: true,
         soundEffects: true,
-        autoSave: true,
-        performanceMode: false,
         version: '1.0.0',
       };
 
@@ -284,8 +278,6 @@ describe('Settings Validation', () => {
         categories: ['history'],
         animations: false,
         soundEffects: true,
-        autoSave: true,
-        performanceMode: false,
         version: '1.0.0',
       };
 
@@ -318,8 +310,6 @@ describe('Settings Validation', () => {
         expect(schemas).toHaveProperty('animations');
         expect(schemas).toHaveProperty('soundEffects');
 
-        expect(schemas).toHaveProperty('autoSave');
-        expect(schemas).toHaveProperty('performanceMode');
         expect(schemas).toHaveProperty('version');
       });
     });
@@ -454,8 +444,6 @@ describe('Settings Validation', () => {
         categories: Array.from({ length: 100 }, (_, i) => `category${i}`),
         animations: true,
         soundEffects: true,
-        autoSave: true,
-        performanceMode: false,
         version: '1.0.0',
       };
 

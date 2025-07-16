@@ -158,7 +158,6 @@ describe('Settings Page', () => {
 
       await waitFor(() => {
         expect(screen.getByText('🎮 Game Settings')).toBeInTheDocument();
-        expect(screen.getByText('⚡ Performance')).toBeInTheDocument();
       });
     });
 
@@ -259,9 +258,6 @@ describe('Settings Page', () => {
         // Check for section headings
         expect(
           screen.getByRole('heading', { name: '🎮 Game Settings' })
-        ).toBeInTheDocument();
-        expect(
-          screen.getByRole('heading', { name: '⚡ Performance' })
         ).toBeInTheDocument();
       });
     });

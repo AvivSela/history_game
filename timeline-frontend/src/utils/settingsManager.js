@@ -36,10 +36,6 @@ class SettingsManager {
       animations: true,
       soundEffects: true,
 
-      // Performance settings
-      autoSave: true,
-      performanceMode: false,
-
       // Version for migration
       version: '1.0.0',
     };

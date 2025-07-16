@@ -66,8 +66,6 @@ describe('SettingsManager', () => {
         categories: [],
         animations: true,
         soundEffects: true,
-        autoSave: true,
-        performanceMode: false,
         version: '1.0.0',
       });
     });
@@ -123,8 +121,6 @@ describe('SettingsManager', () => {
       expect(settings).toHaveProperty('categories');
       expect(settings).toHaveProperty('animations');
       expect(settings).toHaveProperty('soundEffects');
-      expect(settings).toHaveProperty('autoSave');
-      expect(settings).toHaveProperty('performanceMode');
       expect(settings).toHaveProperty('version');
     });
 
