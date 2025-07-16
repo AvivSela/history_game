@@ -70,12 +70,12 @@ const Game = () => {
       }
       hasInitialized.current = true;
     }
-  // The initialization effect should only run once on mount.
-  // Relying on function dependencies here causes unnecessary re-renders because
-  // handleInitializeGame and hasSavedGame are recreated if their parent hooks
-  // change reference. We intentionally provide an empty dependency array to
-  // guarantee a single execution and disable the exhaustive-deps rule.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // The initialization effect should only run once on mount.
+    // Relying on function dependencies here causes unnecessary re-renders because
+    // handleInitializeGame and hasSavedGame are recreated if their parent hooks
+    // change reference. We intentionally provide an empty dependency array to
+    // guarantee a single execution and disable the exhaustive-deps rule.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
