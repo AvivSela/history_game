@@ -299,56 +299,7 @@ const SettingsContent = () => {
 
           </div>
 
-          {/* Help Section */}
-          <div className="settings-help">
-            <h3>❓ Need Help?</h3>
-            <div className="help-grid">
-              <div className="help-item">
-                <h4>Difficulty Levels</h4>
-                <ul>
-                  <li>
-                    <strong>Easy:</strong> Relaxed gameplay with generous time
-                    limits and hints
-                  </li>
-                  <li>
-                    <strong>Medium:</strong> Balanced challenge with moderate
-                    time pressure
-                  </li>
-                  <li>
-                    <strong>Hard:</strong> Challenging gameplay with strict time
-                    limits
-                  </li>
-                  <li>
-                    <strong>Expert:</strong> Maximum challenge with minimal
-                    assistance
-                  </li>
-                </ul>
-              </div>
-              <div className="help-item">
-                <h4>Categories</h4>
-                <ul>
-                  <li>
-                    <strong>History:</strong> Wars, politics, social events
-                  </li>
-                  <li>
-                    <strong>Science:</strong> Discoveries, inventions, research
-                  </li>
-                  <li>
-                    <strong>Technology:</strong> Computing, engineering,
-                    innovations
-                  </li>
-                  <li>
-                    <strong>Space:</strong> Space exploration, astronomy
-                  </li>
-                  <li>
-                    <strong>Aviation:</strong> Flight history, aircraft
-                    development
-                  </li>
-                </ul>
-              </div>
 
-            </div>
-          </div>
         </div>
       </div>
 
