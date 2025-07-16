@@ -536,6 +536,4 @@ describe('useGameState - State Persistence Integration', () => {
       expect(result.current.settings.cardCount).toBe(5);
     });
   });
-
-
 });
