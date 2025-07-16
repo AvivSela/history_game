@@ -65,10 +65,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   SettingsProvider,
   SettingsErrorBoundary,
-  useSettings,
-  useSettingsSafe,
   SettingsContext,
 } from './SettingsContext';
+import { useSettings, useSettingsSafe } from './settingsHooks';
 import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants.js';
 
 // Test component to use the context
