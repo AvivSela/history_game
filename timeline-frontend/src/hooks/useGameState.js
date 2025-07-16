@@ -256,9 +256,11 @@ export const useGameState = () => {
     return () => {
       if (restartTimeoutRef.current) {
         clearTimeout(restartTimeoutRef.current);
+        restartTimeoutRef.current = null;
       }
       if (feedbackTimeoutRef.current) {
         clearTimeout(feedbackTimeoutRef.current);
+        feedbackTimeoutRef.current = null;
       }
     };
   }, []);
@@ -586,12 +588,17 @@ export const useGameState = () => {
           // Clear any existing feedback timeout
           if (feedbackTimeoutRef.current) {
             clearTimeout(feedbackTimeoutRef.current);
+            feedbackTimeoutRef.current = null;
           }
 
           // Set feedback timeout only if game is not won
           if (!isGameWon) {
             feedbackTimeoutRef.current = setTimeout(() => {
-              setState(prev => ({ ...prev, feedback: null }));
+              // Check if component is still mounted before updating state
+              if (feedbackTimeoutRef.current) {
+                setState(prev => ({ ...prev, feedback: null }));
+                feedbackTimeoutRef.current = null;
+              }
             }, 3000);
           }
 
@@ -670,11 +677,16 @@ export const useGameState = () => {
           // Clear any existing feedback timeout
           if (feedbackTimeoutRef.current) {
             clearTimeout(feedbackTimeoutRef.current);
+            feedbackTimeoutRef.current = null;
           }
 
           // Set feedback timeout
           feedbackTimeoutRef.current = setTimeout(() => {
-            setState(prev => ({ ...prev, feedback: null }));
+            // Check if component is still mounted before updating state
+            if (feedbackTimeoutRef.current) {
+              setState(prev => ({ ...prev, feedback: null }));
+              feedbackTimeoutRef.current = null;
+            }
           }, 3000);
 
           return {
