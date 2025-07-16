@@ -171,22 +171,27 @@ export function useSettingsEnhanced(options = {}) {
     settingsContext,
   ]);
 
-  // Watch a specific setting for changes
-  const useSettingWatcher = useCallback(
-    (key, callback) => {
-      // This is a hook that should be called at the top level
-      // We'll return a function that can be called to set up the watcher
-      return () => {
-        const currentValue = settingsContext.getSetting(key);
-        const prevValue = prevSettingsRef.current[key];
+  // Watch a specific setting for changes.
+  // This is a **custom hook** that must itself call other hooks (useRef, useEffect)
+  // unconditionally to comply with the Rules of Hooks. Consumers should call
+  // this hook at the top-level of their functional component or another hook.
+  const useSettingWatcher = (key, callback) => {
+    // Store the previous value so we can compare on each change.
+    const prevValueRef = useRef(settingsContext.getSetting(key));
 
-        if (currentValue !== prevValue) {
-          callback(currentValue, prevValue, key);
-        }
-      };
-    },
-    [settingsContext.getSetting, settingsContext]
-  );
+    useEffect(() => {
+      const currentValue = settingsContext.getSetting(key);
+      const prevValue = prevValueRef.current;
+
+      if (currentValue !== prevValue) {
+        callback(currentValue, prevValue, key);
+        prevValueRef.current = currentValue;
+      }
+      // We deliberately depend on the entire settings object so that the effect
+      // re-runs whenever any setting might have changed. The comparison logic
+      // ensures the callback only fires when the specific `key` changes.
+    }, [settingsContext.settings, key, callback]);
+  };
 
   // Enhanced interface
   return {
@@ -217,8 +222,9 @@ export function useSettingsEnhanced(options = {}) {
 
 // Convenience hook for watching specific settings
 export function useSettingWatcher(key, callback) {
-  const { useSettingWatcher } = useSettingsEnhanced();
-  useSettingWatcher(key, callback);
+  const { useSettingWatcher: internalUseSettingWatcher } =
+    useSettingsEnhanced();
+  return internalUseSettingWatcher(key, callback);
 }
 
 // Hook for settings with automatic error handling
@@ -242,3 +248,4 @@ export function useSettingsWithChangeTracking(onChange) {
 
 // Default export for backward compatibility
 export default useSettingsEnhanced;
+// Test comment
