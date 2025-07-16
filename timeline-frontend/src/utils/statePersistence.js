@@ -1,6 +1,6 @@
 /**
  * State Persistence Utilities
- * 
+ *
  * Handles saving, loading, and clearing game state from localStorage
  * with proper error handling, versioning, and fallbacks.
  */
@@ -21,14 +21,14 @@ const isLocalStorageAvailable = () => {
   if (localStorageAvailable !== null) {
     return localStorageAvailable;
   }
-  
+
   try {
     // Check if localStorage exists and is accessible
     if (typeof localStorage === 'undefined') {
       localStorageAvailable = false;
       return false;
     }
-    
+
     const test = '__localStorage_test__';
     localStorage.setItem(test, test);
     localStorage.removeItem(test);
@@ -48,14 +48,14 @@ const isSessionStorageAvailable = () => {
   if (sessionStorageAvailable !== null) {
     return sessionStorageAvailable;
   }
-  
+
   try {
     // Check if sessionStorage exists and is accessible
     if (typeof sessionStorage === 'undefined') {
       sessionStorageAvailable = false;
       return false;
     }
-    
+
     const test = '__sessionStorage_test__';
     sessionStorage.setItem(test, test);
     sessionStorage.removeItem(test);
@@ -102,7 +102,7 @@ export const resetStorageCache = () => {
  * @param {Object} state - The game state to save
  * @returns {boolean} - Success status
  */
-export const saveGameStateToStorage = (state) => {
+export const saveGameStateToStorage = state => {
   try {
     const storage = getStorage();
     if (!storage) {
@@ -117,31 +117,32 @@ export const saveGameStateToStorage = (state) => {
       timeline: state.timeline,
       playerHand: state.playerHand,
       cardPool: state.cardPool,
-      
+
       // Game status
       gameStatus: state.gameStatus,
       gameMode: state.gameMode,
       difficulty: state.difficulty,
-      
+
       // Game metrics
       score: state.score,
       attempts: state.attempts,
       startTime: state.startTime,
       turnStartTime: state.turnStartTime,
       gameStats: state.gameStats,
-      
+
       // Advanced features
       timelineAnalysis: state.timelineAnalysis,
       turnHistory: state.turnHistory,
       achievements: state.achievements,
-      
-      selectedCard: state.selectedCard
+
+      selectedCard: state.selectedCard,
     };
 
     const serializedState = JSON.stringify(stateToPersist);
-    
+
     // Check storage quota
-    if (serializedState.length > 4.5 * 1024 * 1024) { // 4.5MB limit
+    if (serializedState.length > 4.5 * 1024 * 1024) {
+      // 4.5MB limit
       // Clear old data directly instead of calling clearGameStateFromStorage
       try {
         storage.removeItem(STORAGE_KEY);
@@ -175,7 +176,7 @@ export const loadGameStateFromStorage = () => {
     }
 
     const loadedState = JSON.parse(serializedState);
-    
+
     // Validate version
     if (loadedState.version !== VERSION) {
       // For now, we'll ignore version mismatches and try to load anyway
@@ -256,9 +257,9 @@ export const getStorageInfo = () => {
       available: true,
       hasSavedState: serializedState !== null,
       stateSize: serializedState ? serializedState.length : 0,
-      storageType: storage === localStorage ? 'localStorage' : 'sessionStorage'
+      storageType: storage === localStorage ? 'localStorage' : 'sessionStorage',
     };
   } catch (error) {
     return { available: true, error: error.message };
   }
-}; 
+};

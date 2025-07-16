@@ -4,18 +4,18 @@ import './Home.css';
 
 /**
  * Home - Landing page component for the Timeline Game
- * 
+ *
  * This component serves as the main entry point for the application, providing
  * an introduction to the game, instructions on how to play, and navigation to
  * start playing or access settings. It includes a hero section with call-to-action
  * buttons, game instructions, and feature highlights.
- * 
+ *
  * @component
  * @example
  * ```jsx
  * <Home />
  * ```
- * 
+ *
  * @returns {JSX.Element} The home page with game introduction and navigation
  */
 const Home = () => {
@@ -26,8 +26,9 @@ const Home = () => {
           <div className="hero-content">
             <h1 className="hero-title">Welcome to Timeline</h1>
             <p className="hero-description">
-              Test your knowledge of history by placing events in chronological order. 
-              Each card shows a historical event - place it correctly on the timeline to win!
+              Test your knowledge of history by placing events in chronological
+              order. Each card shows a historical event - place it correctly on
+              the timeline to win!
             </p>
             <div className="hero-actions">
               <Link to="/game" className="btn btn-primary btn-large">
@@ -55,24 +56,33 @@ const Home = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="features-section">
           <h2>How to Play</h2>
           <div className="features-grid">
             <div className="feature">
               <div className="feature-icon">🎴</div>
               <h3>1. Draw Cards</h3>
-              <p>Start with a hand of historical event cards showing only the event name.</p>
+              <p>
+                Start with a hand of historical event cards showing only the
+                event name.
+              </p>
             </div>
             <div className="feature">
               <div className="feature-icon">📍</div>
               <h3>2. Place in Order</h3>
-              <p>Click cards to place where you think they belong on the timeline.</p>
+              <p>
+                Click cards to place where you think they belong on the
+                timeline.
+              </p>
             </div>
             <div className="feature">
               <div className="feature-icon">✅</div>
               <h3>3. Check Your Answer</h3>
-              <p>The date is revealed - if correct, the card stays on the timeline!</p>
+              <p>
+                The date is revealed - if correct, the card stays on the
+                timeline!
+              </p>
             </div>
             <div className="feature">
               <div className="feature-icon">🏆</div>

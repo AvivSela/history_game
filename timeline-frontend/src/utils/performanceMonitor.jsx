@@ -9,9 +9,9 @@ class PerformanceMonitor {
       componentRenders: new Map(),
       userInteractions: new Map(),
       bundleMetrics: {},
-      gamePerformance: {}
+      gamePerformance: {},
     };
-    
+
     this.isEnabled = process.env.NODE_ENV === 'development';
   }
 
@@ -22,12 +22,12 @@ class PerformanceMonitor {
    */
   startTimer(componentName, operation = 'render') {
     if (!this.isEnabled) return;
-    
+
     const key = `${componentName}:${operation}`;
     this.metrics.componentRenders.set(key, {
       startTime: performance.now(),
       componentName,
-      operation
+      operation,
     });
   }
 
@@ -39,13 +39,13 @@ class PerformanceMonitor {
    */
   endTimer(componentName, operation = 'render', additionalData = {}) {
     if (!this.isEnabled) return;
-    
+
     const key = `${componentName}:${operation}`;
     const timer = this.metrics.componentRenders.get(key);
-    
+
     if (timer) {
       const duration = performance.now() - timer.startTime;
-      
+
       // Store for analysis
       if (!this.metrics.gamePerformance[componentName]) {
         this.metrics.gamePerformance[componentName] = [];
@@ -54,7 +54,7 @@ class PerformanceMonitor {
         operation,
         duration,
         timestamp: Date.now(),
-        ...additionalData
+        ...additionalData,
       });
     }
   }
@@ -74,15 +74,13 @@ class PerformanceMonitor {
     const result = callback();
     const duration = performance.now() - startTime;
 
-
-    
     if (!this.metrics.userInteractions.has(interaction)) {
       this.metrics.userInteractions.set(interaction, []);
     }
     this.metrics.userInteractions.get(interaction).push({
       duration,
       timestamp: Date.now(),
-      context
+      context,
     });
 
     return result;
@@ -95,11 +93,14 @@ class PerformanceMonitor {
     if (!this.isEnabled) return;
 
     // Track initial load time
-    const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+    const loadTime =
+      performance.timing.loadEventEnd - performance.timing.navigationStart;
     this.metrics.bundleMetrics.initialLoadTime = loadTime;
-    
+
     // Track DOM content loaded
-    const domContentLoaded = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
+    const domContentLoaded =
+      performance.timing.domContentLoadedEventEnd -
+      performance.timing.navigationStart;
     this.metrics.bundleMetrics.domContentLoaded = domContentLoaded;
   }
 
@@ -110,7 +111,7 @@ class PerformanceMonitor {
    */
   trackGameMetric(metric, value) {
     if (!this.isEnabled) return;
-    
+
     this.metrics.gamePerformance[metric] = value;
   }
 
@@ -123,20 +124,25 @@ class PerformanceMonitor {
       componentAverages: {},
       interactionAverages: {},
       bundleMetrics: this.metrics.bundleMetrics,
-      gamePerformance: this.metrics.gamePerformance
+      gamePerformance: this.metrics.gamePerformance,
     };
 
     // Calculate component render averages
-    for (const [componentName, renders] of Object.entries(this.metrics.gamePerformance)) {
+    for (const [componentName, renders] of Object.entries(
+      this.metrics.gamePerformance
+    )) {
       if (Array.isArray(renders)) {
-        const avgDuration = renders.reduce((sum, render) => sum + render.duration, 0) / renders.length;
+        const avgDuration =
+          renders.reduce((sum, render) => sum + render.duration, 0) /
+          renders.length;
         summary.componentAverages[componentName] = avgDuration.toFixed(2);
       }
     }
 
     // Calculate interaction averages
     for (const [interaction, times] of this.metrics.userInteractions) {
-      const avgDuration = times.reduce((sum, time) => sum + time.duration, 0) / times.length;
+      const avgDuration =
+        times.reduce((sum, time) => sum + time.duration, 0) / times.length;
       summary.interactionAverages[interaction] = avgDuration.toFixed(2);
     }
 
@@ -148,7 +154,7 @@ class PerformanceMonitor {
    */
   logSummary() {
     if (!this.isEnabled) return;
-    
+
     // Performance summary logging
   }
 
@@ -160,7 +166,7 @@ class PerformanceMonitor {
       componentRenders: new Map(),
       userInteractions: new Map(),
       bundleMetrics: {},
-      gamePerformance: {}
+      gamePerformance: {},
     };
   }
 }
@@ -181,14 +187,14 @@ export default performanceMonitor;
 export const withPerformanceTracking = (WrappedComponent, componentName) => {
   return function PerformanceTrackedComponent(props) {
     performanceMonitor.startTimer(componentName);
-    
+
     const result = <WrappedComponent {...props} />;
-    
+
     performanceMonitor.endTimer(componentName, 'render', {
       propsCount: Object.keys(props).length,
-      hasChildren: !!props.children
+      hasChildren: !!props.children,
     });
-    
+
     return result;
   };
-}; 
+};

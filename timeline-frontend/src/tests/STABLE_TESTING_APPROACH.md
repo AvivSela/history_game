@@ -7,21 +7,25 @@ This document outlines the comprehensive and stable testing strategy implemented
 ## 🛡️ **Core Principles**
 
 ### **1. Behavior-Driven Testing**
+
 - **Test what the system does, not how it does it**
 - Focus on outcomes and user experience
 - Avoid testing implementation details that change frequently
 
 ### **2. Centralized Mock Management**
+
 - All mocks are defined in `__mocks__/` directory
 - Single source of truth for mock behavior
 - Easy to update when real modules change
 
 ### **3. Flexible Assertions**
+
 - Use resilient matchers that don't break with refactoring
 - Validate structure over exact values
 - Test state changes rather than function calls
 
 ### **4. Comprehensive Test Utilities**
+
 - Reusable test helpers for common operations
 - Standardized setup and teardown procedures
 - Consistent validation functions
@@ -46,6 +50,7 @@ src/tests/
 ### **22 Test Cases Across 4 Categories**
 
 #### **1. Game Initialization (Single Player) - 6 tests**
+
 - ✅ Initialize single player game with correct card count
 - ✅ Load events from API for single player mode
 - ✅ Create game session with correct card distribution
@@ -54,12 +59,14 @@ src/tests/
 - ✅ Initialize with correct initial state values
 
 #### **2. Single Player Game Flow - 4 tests**
+
 - ✅ Transition through correct game states
 - ✅ Allow player to select and place cards
 - ✅ Continue game until hand is empty
 - ✅ Restart game after win condition
 
 #### **3. Card Management (Single Player) - 6 tests**
+
 - ✅ Allow selecting card from player hand
 - ✅ Allow deselecting card
 - ✅ Prevent card selection during wrong game state
@@ -68,6 +75,7 @@ src/tests/
 - ✅ Track attempts for each card
 
 #### **4. Timeline Management (Single Player) - 6 tests**
+
 - ✅ Start with one card on timeline
 - ✅ Add cards to timeline in correct positions
 - ✅ Handle placement at timeline boundaries
@@ -90,6 +98,7 @@ beforeEach(() => {
 ```
 
 **Benefits:**
+
 - Consistent behavior across all tests
 - Single place to update mock behavior
 - No test interference
@@ -107,6 +116,7 @@ expect(mockFunction).toHaveBeenCalled();
 ```
 
 **Benefits:**
+
 - Tests don't break when implementation changes
 - Focus on user-visible outcomes
 - More maintainable over time
@@ -125,6 +135,7 @@ expect(card.dateOccurred).toBe('1939-09-01');
 ```
 
 **Benefits:**
+
 - Tests work with any valid data
 - No dependency on specific mock values
 - More robust against data changes
@@ -141,6 +152,7 @@ assertValidPlayingState(result.current.state);
 ```
 
 **Benefits:**
+
 - Consistent test patterns
 - Reduced code duplication
 - Easier to maintain and update
@@ -148,18 +160,21 @@ assertValidPlayingState(result.current.state);
 ## 📊 **Test Coverage Analysis**
 
 ### **Functional Coverage: 100%**
+
 - ✅ Game initialization: All scenarios covered
 - ✅ Game flow: Complete user journey tested
 - ✅ Card management: All interaction patterns tested
 - ✅ Timeline management: All placement scenarios tested
 
 ### **Edge Case Coverage: 100%**
+
 - ✅ API failures: Network errors handled
 - ✅ Invalid states: Wrong game state actions prevented
 - ✅ Boundary conditions: Timeline boundaries tested
 - ✅ Error scenarios: Graceful error handling verified
 
 ### **Integration Coverage: 100%**
+
 - ✅ Hook integration: useGameState hook fully tested
 - ✅ State persistence: Save/load functionality tested
 - ✅ API integration: All API calls verified
@@ -168,6 +183,7 @@ assertValidPlayingState(result.current.state);
 ## 🚀 **Running the Tests**
 
 ### **Basic Commands**
+
 ```bash
 # Run all game state tests
 yarn test gameState.test.jsx
@@ -180,6 +196,7 @@ yarn test --watch gameState.test.jsx
 ```
 
 ### **Test Utilities Available**
+
 ```javascript
 // Game initialization
 await initializeGameForTesting(result, mode, difficulty);
@@ -202,18 +219,21 @@ assertValidErrorState(state);
 ## 🔄 **Maintenance Guidelines**
 
 ### **When Adding New Tests**
+
 1. **Use existing patterns**: Leverage centralized mocks and utilities
 2. **Test behavior, not implementation**: Focus on outcomes
 3. **Use flexible assertions**: Avoid brittle matchers
 4. **Follow naming conventions**: Use descriptive test names
 
 ### **When Code Changes**
+
 1. **Update mocks first**: Modify centralized mocks to match new behavior
 2. **Review test assumptions**: Ensure tests still validate correct behavior
 3. **Update constants**: Modify game constants mock if needed
 4. **Run full test suite**: Ensure no regressions
 
 ### **When Tests Break**
+
 1. **Check mock consistency**: Ensure mocks match current implementation
 2. **Review behavior changes**: Verify if the test expectation is still valid
 3. **Update test logic**: Modify test to match new behavior if appropriate
@@ -222,21 +242,25 @@ assertValidErrorState(state);
 ## 📈 **Benefits of This Approach**
 
 ### **1. Stability**
+
 - Tests don't break with minor code changes
 - Resilient to refactoring
 - Consistent behavior across test runs
 
 ### **2. Maintainability**
+
 - Single place to update mock behavior
 - Reusable test utilities
 - Clear test patterns
 
 ### **3. Coverage**
+
 - Comprehensive test coverage
 - All major functionality tested
 - Edge cases handled
 
 ### **4. Developer Experience**
+
 - Easy to write new tests
 - Clear test structure
 - Helpful error messages
@@ -244,12 +268,14 @@ assertValidErrorState(state);
 ## 🔮 **Future Enhancements**
 
 ### **Potential Additional Tests**
+
 1. **Multiplayer mode tests**: When multiplayer is implemented
 2. **AI opponent tests**: When AI logic is enhanced
 3. **Performance tests**: For large datasets
 4. **Accessibility tests**: For screen reader compatibility
 
 ### **Test Infrastructure Improvements**
+
 1. **Visual regression tests**: For UI components
 2. **E2E tests**: For complete user journeys
 3. **Performance benchmarks**: For optimization tracking
@@ -258,6 +284,7 @@ assertValidErrorState(state);
 ## 📝 **Best Practices Summary**
 
 ### **Do's**
+
 - ✅ Use centralized mocks
 - ✅ Test behavior over implementation
 - ✅ Use flexible assertions
@@ -266,6 +293,7 @@ assertValidErrorState(state);
 - ✅ Test edge cases
 
 ### **Don'ts**
+
 - ❌ Test implementation details
 - ❌ Use brittle assertions
 - ❌ Duplicate mock setup
@@ -283,4 +311,4 @@ This stable testing approach provides:
 4. **Clear Patterns**: Consistent test structure
 5. **Developer Friendly**: Easy to write and understand
 
-The approach ensures that the Timeline Game has robust, reliable tests that will continue to provide value as the codebase evolves. 
+The approach ensures that the Timeline Game has robust, reliable tests that will continue to provide value as the codebase evolves.

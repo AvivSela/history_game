@@ -11,7 +11,12 @@ import { useGameState } from './useGameState';
 import * as statePersistence from '../utils/statePersistence';
 import * as api from '../utils/api';
 import * as settingsManager from '../utils/settingsManager';
-import { setupCommonMocks, resetAllMocks, createMockGameState, createMockEvents } from '../tests/utils/testSetup';
+import {
+  setupCommonMocks,
+  resetAllMocks,
+  createMockGameState,
+  createMockEvents,
+} from '../tests/utils/testSetup';
 import { apiMock } from '../tests/__mocks__/api';
 
 // Setup common mocks
@@ -25,22 +30,22 @@ const mockedSettingsManager = vi.mocked(settingsManager);
 describe('useGameState - State Persistence Integration', () => {
   beforeEach(() => {
     resetAllMocks();
-    
+
     // Setup default API responses with proper structure
-    mockedApi.gameAPI.getRandomEvents.mockResolvedValue({ 
-      data: createMockEvents(5) 
+    mockedApi.gameAPI.getRandomEvents.mockResolvedValue({
+      data: createMockEvents(5),
     });
-    mockedApi.extractData.mockImplementation((response) => {
+    mockedApi.extractData.mockImplementation(response => {
       const result = response?.data?.data || response?.data || response;
       return result;
     });
-    
+
     // Setup default persistence responses
     mockedStatePersistence.saveGameStateToStorage.mockReturnValue(true);
     mockedStatePersistence.loadGameStateFromStorage.mockReturnValue(null);
     mockedStatePersistence.clearGameStateFromStorage.mockReturnValue(true);
     mockedStatePersistence.hasSavedGameState.mockReturnValue(false);
-    
+
     // Setup default settings manager responses
     mockedSettingsManager.SettingsManager.mockImplementation(() => ({
       getSettings: vi.fn().mockReturnValue({
@@ -54,12 +59,12 @@ describe('useGameState - State Persistence Integration', () => {
         largeText: false,
         screenReaderSupport: true,
         autoSave: true,
-        performanceMode: false
+        performanceMode: false,
       }),
       updateSetting: vi.fn().mockReturnValue(true),
       updateSettings: vi.fn().mockReturnValue(true),
       onChange: vi.fn(),
-      isInitialized: true
+      isInitialized: true,
     }));
   });
 
@@ -78,14 +83,18 @@ describe('useGameState - State Persistence Integration', () => {
         await result.current.initializeGame('single', 'medium');
       });
 
-      expect(mockedStatePersistence.clearGameStateFromStorage).toHaveBeenCalled();
+      expect(
+        mockedStatePersistence.clearGameStateFromStorage
+      ).toHaveBeenCalled();
     });
 
     it('should load saved state on mount but not during new game initialization', async () => {
       const { result } = renderHook(() => useGameState());
 
       // Allow 1 call on mount (for checking saved state)
-      expect(mockedStatePersistence.loadGameStateFromStorage).toHaveBeenCalledTimes(1);
+      expect(
+        mockedStatePersistence.loadGameStateFromStorage
+      ).toHaveBeenCalledTimes(1);
 
       // Clear the call count
       mockedStatePersistence.loadGameStateFromStorage.mockClear();
@@ -95,7 +104,9 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Should not call loadGameStateFromStorage during new game initialization
-      expect(mockedStatePersistence.loadGameStateFromStorage).not.toHaveBeenCalled();
+      expect(
+        mockedStatePersistence.loadGameStateFromStorage
+      ).not.toHaveBeenCalled();
     });
 
     it('should create unique card IDs and proper card distribution for new games', async () => {
@@ -103,13 +114,13 @@ describe('useGameState - State Persistence Integration', () => {
       const mainGameEvents = createMockEvents(5);
       const poolEvents = createMockEvents(5).map((event, index) => ({
         ...event,
-        id: `pool-${index + 1}` // Ensure unique IDs for pool cards
+        id: `pool-${index + 1}`, // Ensure unique IDs for pool cards
       }));
 
       // Mock the API to return different data for main game and pool
       mockedApi.gameAPI.getRandomEvents
         .mockResolvedValueOnce({ data: mainGameEvents }) // First call for main game
-        .mockResolvedValueOnce({ data: poolEvents });    // Second call for pool
+        .mockResolvedValueOnce({ data: poolEvents }); // Second call for pool
 
       const { result } = renderHook(() => useGameState());
 
@@ -118,17 +129,17 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       const state = result.current.state;
-      
+
       // Check card distribution: 1 on timeline, 4 in player hand, 5 in pool
       expect(state.timeline).toHaveLength(1);
       expect(state.playerHand).toHaveLength(4);
       expect(state.cardPool).toHaveLength(5);
-      
+
       // Collect all card IDs
       const allCardIds = [
         ...state.timeline.map(card => card.id),
         ...state.playerHand.map(card => card.id),
-        ...state.cardPool.map(card => card.id)
+        ...state.cardPool.map(card => card.id),
       ];
 
       // Check for duplicates (should be 10 total cards: 1 timeline + 4 player + 5 pool)
@@ -151,7 +162,7 @@ describe('useGameState - State Persistence Integration', () => {
         largeText: true,
         screenReaderSupport: true,
         autoSave: false,
-        performanceMode: true
+        performanceMode: true,
       };
 
       mockedSettingsManager.SettingsManager.mockImplementation(() => ({
@@ -159,7 +170,7 @@ describe('useGameState - State Persistence Integration', () => {
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       }));
 
       const { result } = renderHook(() => useGameState());
@@ -179,7 +190,7 @@ describe('useGameState - State Persistence Integration', () => {
         largeText: false,
         screenReaderSupport: true,
         autoSave: true,
-        performanceMode: false
+        performanceMode: false,
       };
 
       mockedSettingsManager.SettingsManager.mockImplementation(() => ({
@@ -187,7 +198,7 @@ describe('useGameState - State Persistence Integration', () => {
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       }));
 
       const { result } = renderHook(() => useGameState());
@@ -197,7 +208,10 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Verify API calls use settings
-      expect(mockedApi.gameAPI.getRandomEvents).toHaveBeenCalledWith(7, ['History', 'Science']);
+      expect(mockedApi.gameAPI.getRandomEvents).toHaveBeenCalledWith(7, [
+        'History',
+        'Science',
+      ]);
       expect(result.current.state.difficulty).toBe('hard');
     });
 
@@ -227,15 +241,17 @@ describe('useGameState - State Persistence Integration', () => {
           largeText: false,
           screenReaderSupport: true,
           autoSave: true,
-          performanceMode: false
+          performanceMode: false,
         }),
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       };
 
-      mockedSettingsManager.SettingsManager.mockImplementation(() => mockSettingsManager);
+      mockedSettingsManager.SettingsManager.mockImplementation(
+        () => mockSettingsManager
+      );
 
       const { result } = renderHook(() => useGameState());
 
@@ -245,8 +261,9 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Simulate settings change
-      const handleSettingsChange = mockSettingsManager.onChange.mock.calls[0][0];
-      
+      const handleSettingsChange =
+        mockSettingsManager.onChange.mock.calls[0][0];
+
       act(() => {
         handleSettingsChange('difficulty', 'hard', 'medium');
       });
@@ -269,7 +286,7 @@ describe('useGameState - State Persistence Integration', () => {
         largeText: false,
         screenReaderSupport: true,
         autoSave: false, // Disable auto-save
-        performanceMode: false
+        performanceMode: false,
       };
 
       mockedSettingsManager.SettingsManager.mockImplementation(() => ({
@@ -277,7 +294,7 @@ describe('useGameState - State Persistence Integration', () => {
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       }));
 
       const { result } = renderHook(() => useGameState());
@@ -287,7 +304,9 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Should not save state when auto-save is disabled
-      expect(mockedStatePersistence.saveGameStateToStorage).not.toHaveBeenCalled();
+      expect(
+        mockedStatePersistence.saveGameStateToStorage
+      ).not.toHaveBeenCalled();
     });
 
     it('should provide settings update methods', () => {
@@ -303,15 +322,17 @@ describe('useGameState - State Persistence Integration', () => {
           largeText: false,
           screenReaderSupport: true,
           autoSave: true,
-          performanceMode: false
+          performanceMode: false,
         }),
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       };
 
-      mockedSettingsManager.SettingsManager.mockImplementation(() => mockSettingsManager);
+      mockedSettingsManager.SettingsManager.mockImplementation(
+        () => mockSettingsManager
+      );
 
       const { result } = renderHook(() => useGameState());
 
@@ -319,14 +340,23 @@ describe('useGameState - State Persistence Integration', () => {
       act(() => {
         const success = result.current.updateGameSetting('difficulty', 'hard');
         expect(success).toBe(true);
-        expect(mockSettingsManager.updateSetting).toHaveBeenCalledWith('difficulty', 'hard');
+        expect(mockSettingsManager.updateSetting).toHaveBeenCalledWith(
+          'difficulty',
+          'hard'
+        );
       });
 
       // Test updateGameSettings
       act(() => {
-        const success = result.current.updateGameSettings({ difficulty: 'easy', cardCount: 7 });
+        const success = result.current.updateGameSettings({
+          difficulty: 'easy',
+          cardCount: 7,
+        });
         expect(success).toBe(true);
-        expect(mockSettingsManager.updateSettings).toHaveBeenCalledWith({ difficulty: 'easy', cardCount: 7 });
+        expect(mockSettingsManager.updateSettings).toHaveBeenCalledWith({
+          difficulty: 'easy',
+          cardCount: 7,
+        });
       });
 
       // Test getGameSettings
@@ -348,7 +378,7 @@ describe('useGameState - State Persistence Integration', () => {
         largeText: false,
         screenReaderSupport: true,
         autoSave: true,
-        performanceMode: false
+        performanceMode: false,
       };
 
       mockedSettingsManager.SettingsManager.mockImplementation(() => ({
@@ -356,7 +386,7 @@ describe('useGameState - State Persistence Integration', () => {
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       }));
 
       const { result } = renderHook(() => useGameState());
@@ -366,7 +396,10 @@ describe('useGameState - State Persistence Integration', () => {
       });
 
       // Verify API calls include category filtering
-      expect(mockedApi.gameAPI.getRandomEvents).toHaveBeenCalledWith(5, ['History', 'Science']);
+      expect(mockedApi.gameAPI.getRandomEvents).toHaveBeenCalledWith(5, [
+        'History',
+        'Science',
+      ]);
     });
 
     it('should handle empty categories as "all categories"', async () => {
@@ -381,7 +414,7 @@ describe('useGameState - State Persistence Integration', () => {
         largeText: false,
         screenReaderSupport: true,
         autoSave: true,
-        performanceMode: false
+        performanceMode: false,
       };
 
       mockedSettingsManager.SettingsManager.mockImplementation(() => ({
@@ -389,7 +422,7 @@ describe('useGameState - State Persistence Integration', () => {
         updateSetting: vi.fn().mockReturnValue(true),
         updateSettings: vi.fn().mockReturnValue(true),
         onChange: vi.fn(),
-        isInitialized: true
+        isInitialized: true,
       }));
 
       const { result } = renderHook(() => useGameState());
@@ -406,11 +439,27 @@ describe('useGameState - State Persistence Integration', () => {
   describe('State Loading on Mount', () => {
     it('should load saved state on mount if available', () => {
       const savedState = createMockGameState({
-        timeline: [{ id: 'saved-1', title: 'Saved Event', dateOccurred: '1950-01-01', category: 'History' }],
-        playerHand: [{ id: 'saved-2', title: 'Saved Hand', dateOccurred: '1960-01-01', category: 'History' }]
+        timeline: [
+          {
+            id: 'saved-1',
+            title: 'Saved Event',
+            dateOccurred: '1950-01-01',
+            category: 'History',
+          },
+        ],
+        playerHand: [
+          {
+            id: 'saved-2',
+            title: 'Saved Hand',
+            dateOccurred: '1960-01-01',
+            category: 'History',
+          },
+        ],
       });
 
-      mockedStatePersistence.loadGameStateFromStorage.mockReturnValue(savedState);
+      mockedStatePersistence.loadGameStateFromStorage.mockReturnValue(
+        savedState
+      );
       mockedStatePersistence.hasSavedGameState.mockReturnValue(true);
 
       const { result } = renderHook(() => useGameState());
@@ -487,4 +536,4 @@ describe('useGameState - State Persistence Integration', () => {
       expect(result.current.settings.cardCount).toBe(5);
     });
   });
-}); 
+});

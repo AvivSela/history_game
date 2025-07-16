@@ -3,12 +3,12 @@ import { accessibility, performance } from '@utils/animation';
 
 /**
  * AnimationControls - Component for managing animation preferences and settings
- * 
+ *
  * This component provides a collapsible interface for users to control animation
  * settings including enabling/disabling animations, adjusting intensity levels,
  * and monitoring the animation queue status. It integrates with the animation
  * system to provide real-time feedback and control over animation behavior.
- * 
+ *
  * @component
  * @example
  * ```jsx
@@ -16,60 +16,65 @@ import { accessibility, performance } from '@utils/animation';
  *   onAnimationPreferenceChange={handleAnimationPreferenceChange}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {Function} [props.onAnimationPreferenceChange] - Callback when animation preferences change
  * @param {Object} props.onAnimationPreferenceChange.preferences - Updated animation preferences
  * @param {boolean} props.onAnimationPreferenceChange.preferences.shouldAnimate - Whether animations are enabled
  * @param {string} props.onAnimationPreferenceChange.preferences.intensity - Animation intensity level
- * 
+ *
  * @returns {JSX.Element} Animation controls interface with settings panel
  */
 const AnimationControls = ({ onAnimationPreferenceChange }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [animationEnabled, setAnimationEnabled] = useState(true);
   const [animationIntensity, setAnimationIntensity] = useState('normal');
-  const [queueStatus, setQueueStatus] = useState({ queueLength: 0, activeAnimations: 0 });
+  const [queueStatus, setQueueStatus] = useState({
+    queueLength: 0,
+    activeAnimations: 0,
+  });
 
   useEffect(() => {
     // Check initial animation preferences
     const state = accessibility.getState();
     setAnimationEnabled(state.shouldAnimate);
-    setAnimationIntensity(state.preferences.shouldUseSubtleAnimations ? 'subtle' : 'normal');
+    setAnimationIntensity(
+      state.preferences.shouldUseSubtleAnimations ? 'subtle' : 'normal'
+    );
 
     // Update queue status periodically
     const interval = setInterval(() => {
       const status = performance.getStatus();
       setQueueStatus({
         queueLength: status.queue.queueLength,
-        activeAnimations: status.queue.activeAnimations
+        activeAnimations: status.queue.activeAnimations,
       });
     }, 100);
 
     return () => clearInterval(interval);
   }, []);
 
-  const handleAnimationToggle = (enabled) => {
+  const handleAnimationToggle = enabled => {
     setAnimationEnabled(enabled);
-    
+
     if (!enabled) {
       // Skip all current animations - this is handled by the animation system
     }
-    
+
     // Notify parent component
     onAnimationPreferenceChange?.({
       shouldAnimate: enabled,
-      intensity: animationIntensity
+      intensity: animationIntensity,
     });
   };
 
-  const handleIntensityChange = (intensity) => {
+  const handleIntensityChange = intensity => {
     setAnimationIntensity(intensity);
-    
+
     // Notify parent component
     onAnimationPreferenceChange?.({
       shouldAnimate: animationEnabled,
-      intensity
+      intensity,
     });
   };
 
@@ -77,8 +82,6 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
     // This functionality is now handled by the animation system
     setQueueStatus({ queueLength: 0, activeAnimations: 0 });
   };
-
-
 
   return (
     <div className="animation-controls">
@@ -113,7 +116,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
                 <input
                   type="checkbox"
                   checked={animationEnabled}
-                  onChange={(e) => handleAnimationToggle(e.target.checked)}
+                  onChange={e => handleAnimationToggle(e.target.checked)}
                 />
                 Enable Animations
               </label>
@@ -124,7 +127,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
               <label className="control-label">Animation Intensity:</label>
               <select
                 value={animationIntensity}
-                onChange={(e) => handleIntensityChange(e.target.value)}
+                onChange={e => handleIntensityChange(e.target.value)}
                 disabled={!animationEnabled}
               >
                 <option value="subtle">Subtle (50%)</option>
@@ -146,7 +149,10 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
               <button
                 className="btn btn-warning btn-small"
                 onClick={skipCurrentAnimations}
-                disabled={queueStatus.queueLength === 0 && queueStatus.activeAnimations === 0}
+                disabled={
+                  queueStatus.queueLength === 0 &&
+                  queueStatus.activeAnimations === 0
+                }
               >
                 Skip Current Animations
               </button>
@@ -155,7 +161,8 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
             {/* Accessibility info */}
             <div className="accessibility-info">
               <small>
-                System preference: {accessibility.shouldAnimate() ? 'Normal' : 'Reduced motion'}
+                System preference:{' '}
+                {accessibility.shouldAnimate() ? 'Normal' : 'Reduced motion'}
               </small>
             </div>
           </div>
@@ -252,4 +259,4 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
   );
 };
 
-export default AnimationControls; 
+export default AnimationControls;

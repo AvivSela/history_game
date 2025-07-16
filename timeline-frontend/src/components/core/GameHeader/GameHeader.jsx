@@ -2,12 +2,12 @@ import React, { memo } from 'react';
 
 /**
  * GameHeader - Header component displaying game information and controls
- * 
+ *
  * This component provides the main header interface for the timeline game, showing
  * the game title, current scores, card counts, and game control buttons. It displays
  * different information based on the game mode (AI vs local) and provides quick
  * access to restart and pause functionality.
- * 
+ *
  * @component
  * @example
  * ```jsx
@@ -17,7 +17,7 @@ import React, { memo } from 'react';
  *   onTogglePause={handleTogglePause}
  * />
  * ```
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.gameState - Current game state object
  * @param {string} props.gameState.gameMode - Game mode ('single')
@@ -28,7 +28,7 @@ import React, { memo } from 'react';
  * @param {string} props.gameState.gameStatus - Current game status
  * @param {Function} props.onRestartGame - Callback to restart the game
  * @param {Function} props.onTogglePause - Callback to toggle game pause state
- * 
+ *
  * @returns {JSX.Element} The game header with title, scores, and controls
  */
 const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
@@ -42,7 +42,7 @@ const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
           Place historical events in chronological order
         </p>
       </div>
-      
+
       <div className="flex flex-row gap-5 items-center bg-white/70">
         <button onClick={onRestartGame} className="btn btn-secondary">
           🔄 New Game
@@ -53,27 +53,33 @@ const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
           </button>
         )}
       </div>
-      
+
       <div className="flex gap-6">
         <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
           <div className="text-xs text-text-light font-medium uppercase tracking-wider">
             Score
           </div>
-          <div className="text-2xl font-bold text-primary">{gameState.score.human}</div>
+          <div className="text-2xl font-bold text-primary">
+            {gameState.score.human}
+          </div>
         </div>
-        
+
         <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
           <div className="text-xs text-text-light font-medium uppercase tracking-wider">
             Cards Left
           </div>
-          <div className="text-2xl font-bold text-primary">{gameState.playerHand.length}</div>
+          <div className="text-2xl font-bold text-primary">
+            {gameState.playerHand.length}
+          </div>
         </div>
-        
+
         <div className="text-center bg-white/80 rounded-lg p-3 min-w-[80px] hover:bg-white transition-colors">
           <div className="text-xs text-text-light font-medium uppercase tracking-wider">
             Timeline
           </div>
-          <div className="text-2xl font-bold text-primary">{gameState.timeline.length}</div>
+          <div className="text-2xl font-bold text-primary">
+            {gameState.timeline.length}
+          </div>
         </div>
       </div>
     </div>
@@ -82,4 +88,4 @@ const GameHeader = memo(({ gameState, onRestartGame, onTogglePause }) => {
 
 GameHeader.displayName = 'GameHeader';
 
-export default GameHeader; 
+export default GameHeader;

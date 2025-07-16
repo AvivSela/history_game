@@ -94,13 +94,13 @@
   border-color: var(--secondary-color);
 }
 
-.radio-option input[type="radio"] {
+.radio-option input[type='radio'] {
   width: 18px;
   height: 18px;
   accent-color: var(--secondary-color);
 }
 
-.radio-option input[type="radio"]:checked + .radio-label {
+.radio-option input[type='radio']:checked + .radio-label {
   color: var(--secondary-color);
   font-weight: 600;
 }
@@ -192,7 +192,7 @@
   cursor: pointer;
 }
 
-.toggle-switch input[type="checkbox"] {
+.toggle-switch input[type='checkbox'] {
   display: none;
 }
 
@@ -218,11 +218,11 @@
   box-shadow: var(--shadow-light);
 }
 
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider {
+.toggle-switch input[type='checkbox']:checked + .toggle-slider {
   background: var(--success-color);
 }
 
-.toggle-switch input[type="checkbox"]:checked + .toggle-slider::before {
+.toggle-switch input[type='checkbox']:checked + .toggle-slider::before {
   transform: translateX(26px);
 }
 
@@ -477,7 +477,6 @@
 
 /* Import Textarea */
 
-
 /* Button Styles */
 .btn-danger {
   background: var(--error-color);
@@ -534,8 +533,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive Modal */
@@ -545,16 +548,16 @@
     padding: 24px;
     margin: 20px;
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
-  
+
   .modal-actions .btn {
     width: 100%;
     min-width: auto;
   }
-  
+
   .import-textarea {
     min-height: 150px;
   }
@@ -564,26 +567,26 @@
   .settings-header {
     padding: 20px 15px;
   }
-  
+
   .settings-header h1 {
     font-size: 24px;
   }
-  
+
   .setting-card,
   .settings-preview,
   .settings-actions,
   .settings-help {
     padding: 16px;
   }
-  
+
   .setting-header h3 {
     font-size: 18px;
   }
-  
+
   .radio-option {
     padding: 10px 12px;
   }
-  
+
   .slider-value {
     padding: 6px 12px;
     font-size: 14px;
@@ -595,42 +598,42 @@
   .settings-page {
     padding: 20px 0;
   }
-  
+
   .settings-header {
     padding: 30px 20px;
   }
-  
+
   .settings-header h1 {
     font-size: 28px;
   }
-  
+
   .settings-header p {
     font-size: 16px;
   }
-  
+
   .settings-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .setting-card {
     padding: 20px;
   }
-  
+
   .settings-actions {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .settings-actions .btn {
     width: 100%;
     max-width: 300px;
   }
-  
+
   .preview-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .help-grid {
     grid-template-columns: 1fr;
   }

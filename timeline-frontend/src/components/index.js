@@ -1,6 +1,6 @@
 /**
  * Components Index
- * 
+ *
  * This file exports all components organized by category for clean imports
  * throughout the application.
  */

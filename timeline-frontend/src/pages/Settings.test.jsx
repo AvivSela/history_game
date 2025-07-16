@@ -16,7 +16,7 @@ const mockSettings = {
   largeText: false,
   screenReaderSupport: false,
   autoSave: true,
-  performanceMode: false
+  performanceMode: false,
 };
 
 const mockUpdateSetting = vi.fn();
@@ -48,8 +48,8 @@ vi.mock('../hooks/useSettings', () => ({
     isReady: mockIsReady,
     hasError: mockHasError,
     hasValidationErrors: mockHasValidationErrors,
-    getValidationError: mockGetValidationError
-  }))
+    getValidationError: mockGetValidationError,
+  })),
 }));
 
 // Mock the settings components
@@ -59,20 +59,20 @@ vi.mock('../components/settings/SettingsSection', () => ({
       <h3>{title}</h3>
       {children}
     </div>
-  )
+  ),
 }));
 
 vi.mock('../components/settings/DifficultySelector', () => ({
   default: ({ value, onChange }) => (
     <div data-testid="difficulty-selector">
       <label>Difficulty</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <select value={value} onChange={e => onChange(e.target.value)}>
         <option value="easy">Easy</option>
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
       </select>
     </div>
-  )
+  ),
 }));
 
 vi.mock('../components/settings/CardCountSlider', () => ({
@@ -82,13 +82,13 @@ vi.mock('../components/settings/CardCountSlider', () => ({
       <input
         type="range"
         value={value}
-        onChange={(e) => onChange(parseInt(e.target.value))}
+        onChange={e => onChange(parseInt(e.target.value))}
         min="3"
         max="10"
       />
       <span>{value}</span>
     </div>
-  )
+  ),
 }));
 
 vi.mock('../components/settings/CategorySelector', () => ({
@@ -98,17 +98,22 @@ vi.mock('../components/settings/CategorySelector', () => ({
       <select
         multiple
         value={value}
-        onChange={(e) => {
-          const selected = Array.from(e.target.selectedOptions, option => option.value);
+        onChange={e => {
+          const selected = Array.from(
+            e.target.selectedOptions,
+            option => option.value
+          );
           onChange(selected);
         }}
       >
         {categories.map(cat => (
-          <option key={cat.id} value={cat.id}>{cat.name}</option>
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
         ))}
       </select>
     </div>
-  )
+  ),
 }));
 
 // Mock fetch for API calls
@@ -118,20 +123,22 @@ describe('Settings Page', () => {
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks();
-    
+
     // Mock successful categories API response
     global.fetch.mockResolvedValue({
       ok: true,
       json: async () => ({
         success: true,
-        data: ['History', 'Science', 'Technology', 'Space', 'Aviation']
-      })
+        data: ['History', 'Science', 'Technology', 'Space', 'Aviation'],
+      }),
     });
   });
 
   const renderSettings = () => {
     return render(
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Settings />
       </BrowserRouter>
     );
@@ -140,7 +147,7 @@ describe('Settings Page', () => {
   describe('Page Rendering', () => {
     it('should render the settings page with correct title', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('⚙️ Game Settings')).toBeInTheDocument();
       });
@@ -148,7 +155,7 @@ describe('Settings Page', () => {
 
     it('should render settings sections', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('🎮 Game Settings')).toBeInTheDocument();
         expect(screen.getByText('♿ Accessibility')).toBeInTheDocument();
@@ -158,18 +165,18 @@ describe('Settings Page', () => {
 
     it('should render action buttons', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('💾 Save Settings')).toBeInTheDocument();
         expect(screen.getByText('🔄 Reset to Defaults')).toBeInTheDocument();
-        
+
         expect(screen.getByText('🎮 Start Game')).toBeInTheDocument();
       });
     });
 
     it('should render settings preview', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('⚡ Current Settings')).toBeInTheDocument();
         expect(screen.getByText('Difficulty:')).toBeInTheDocument();
@@ -182,9 +189,11 @@ describe('Settings Page', () => {
   describe('Loading States', () => {
     it('should not show loading state when ready', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
-        expect(screen.queryByText('Loading settings...')).not.toBeInTheDocument();
+        expect(
+          screen.queryByText('Loading settings...')
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -192,7 +201,7 @@ describe('Settings Page', () => {
   describe('Categories Loading', () => {
     it('should load categories from API', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith('/api/categories');
       });
@@ -200,9 +209,9 @@ describe('Settings Page', () => {
 
     it('should handle API failure gracefully', async () => {
       global.fetch.mockRejectedValue(new Error('Network error'));
-      
+
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('⚙️ Game Settings')).toBeInTheDocument();
       });
@@ -211,11 +220,11 @@ describe('Settings Page', () => {
     it('should handle API response error', async () => {
       global.fetch.mockResolvedValue({
         ok: false,
-        status: 500
+        status: 500,
       });
-      
+
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('⚙️ Game Settings')).toBeInTheDocument();
       });
@@ -225,34 +234,39 @@ describe('Settings Page', () => {
   describe('Action Buttons', () => {
     it('should handle save settings', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         const saveButton = screen.getByText('💾 Save Settings');
         fireEvent.click(saveButton);
       });
-      
+
       // Should show success message
       await waitFor(() => {
-        expect(screen.getByText('Settings saved successfully!')).toBeInTheDocument();
+        expect(
+          screen.getByText('Settings saved successfully!')
+        ).toBeInTheDocument();
       });
     });
-
-
-
   });
 
   describe('Accessibility', () => {
     it('should have proper ARIA labels and roles', async () => {
       renderSettings();
-      
+
       await waitFor(() => {
         // Check for main heading
         expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-        
+
         // Check for section headings
-        expect(screen.getByRole('heading', { name: '🎮 Game Settings' })).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: '♿ Accessibility' })).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: '⚡ Performance' })).toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: '🎮 Game Settings' })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: '♿ Accessibility' })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: '⚡ Performance' })
+        ).toBeInTheDocument();
       });
     });
   });
@@ -265,12 +279,12 @@ describe('Settings Page', () => {
         configurable: true,
         value: 375,
       });
-      
+
       renderSettings();
-      
+
       await waitFor(() => {
         expect(screen.getByText('⚙️ Game Settings')).toBeInTheDocument();
       });
     });
   });
-}); 
+});

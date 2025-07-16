@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Navigation Component Styles */
 
@@ -23,4 +23,4 @@
 
 .logo-subtitle {
   @apply text-xs text-amber-200 font-normal tracking-wider uppercase;
-} 
+}

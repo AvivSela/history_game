@@ -70,9 +70,9 @@ describe('Animation System Tests', () => {
       const element = document.createElement('div');
       element.classList.add('card-shake');
       element.classList.add('card-animating');
-      
+
       animations.cleanup(element);
-      
+
       expect(element.classList.contains('card-shake')).toBe(false);
       expect(element.classList.contains('card-animating')).toBe(false);
     });
@@ -96,4 +96,4 @@ describe('Card Animation Integration Tests', () => {
   it('should respect reduced motion preferences', () => {
     // This would test that animations are disabled when user prefers reduced motion
   });
-}); 
+});

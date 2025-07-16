@@ -5,7 +5,7 @@ import {
   clearGameStateFromStorage,
   hasSavedGameState,
   getStorageInfo,
-  resetStorageCache
+  resetStorageCache,
 } from '../utils/statePersistence.js';
 
 describe('State Persistence', () => {
@@ -17,14 +17,14 @@ describe('State Persistence', () => {
     // Store original storage objects
     originalLocalStorage = global.localStorage;
     originalSessionStorage = global.sessionStorage;
-    
+
     // Store original console methods
     originalConsole = {
       log: console.log,
       warn: console.warn,
-      error: console.error
+      error: console.error,
     };
-    
+
     // Mock console methods to suppress output during tests
     console.log = vi.fn();
     console.warn = vi.fn();
@@ -33,16 +33,16 @@ describe('State Persistence', () => {
     // Create mock storage objects
     const mockStorage = {
       store: {},
-      getItem: vi.fn((key) => mockStorage.store[key] || null),
+      getItem: vi.fn(key => mockStorage.store[key] || null),
       setItem: vi.fn((key, value) => {
         mockStorage.store[key] = value;
       }),
-      removeItem: vi.fn((key) => {
+      removeItem: vi.fn(key => {
         delete mockStorage.store[key];
       }),
       clear: vi.fn(() => {
         mockStorage.store = {};
-      })
+      }),
     };
 
     // Replace global storage objects with mocks
@@ -55,12 +55,12 @@ describe('State Persistence', () => {
     // Restore original storage objects
     global.localStorage = originalLocalStorage;
     global.sessionStorage = originalSessionStorage;
-    
+
     // Restore original console methods
     console.log = originalConsole.log;
     console.warn = originalConsole.warn;
     console.error = originalConsole.error;
-    
+
     vi.clearAllMocks();
   });
 
@@ -77,7 +77,12 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 5, correctMoves: 3, hintsUsed: 0, averageTimePerMove: 2.5 },
+        gameStats: {
+          totalMoves: 5,
+          correctMoves: 3,
+          hintsUsed: 0,
+          averageTimePerMove: 2.5,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
@@ -86,18 +91,20 @@ describe('State Persistence', () => {
         showInsertionPoints: false,
         feedback: null,
         isLoading: false,
-        error: null
+        error: null,
       };
 
       const result = saveGameStateToStorage(mockState);
-      
+
       expect(result).toBe(true);
       expect(global.localStorage.setItem).toHaveBeenCalledWith(
         'timelineGameState-v1.0.0',
         expect.stringContaining('"version":"1.0.0"')
       );
-      
-      const savedData = JSON.parse(global.localStorage.store['timelineGameState-v1.0.0']);
+
+      const savedData = JSON.parse(
+        global.localStorage.store['timelineGameState-v1.0.0']
+      );
       expect(savedData.version).toBe('1.0.0');
       expect(savedData.timeline).toEqual(mockState.timeline);
       expect(savedData.playerHand).toEqual(mockState.playerHand);
@@ -129,11 +136,16 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 0, correctMoves: 0, hintsUsed: 0, averageTimePerMove: 0 },
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        selectedCard: null
+        selectedCard: null,
       };
 
       const result = saveGameStateToStorage(mockState);
@@ -161,11 +173,16 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 0, correctMoves: 0, hintsUsed: 0, averageTimePerMove: 0 },
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        selectedCard: null
+        selectedCard: null,
       };
 
       const result = saveGameStateToStorage(mockState);
@@ -189,17 +206,23 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 5, correctMoves: 3, hintsUsed: 0, averageTimePerMove: 2.5 },
+        gameStats: {
+          totalMoves: 5,
+          correctMoves: 3,
+          hintsUsed: 0,
+          averageTimePerMove: 2.5,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        selectedCard: null
+        selectedCard: null,
       };
 
-      global.localStorage.store['timelineGameState-v1.0.0'] = JSON.stringify(mockSavedState);
+      global.localStorage.store['timelineGameState-v1.0.0'] =
+        JSON.stringify(mockSavedState);
 
       const result = loadGameStateFromStorage();
-      
+
       expect(result).toEqual(mockSavedState);
     });
 
@@ -220,10 +243,11 @@ describe('State Persistence', () => {
         version: '1.0.0',
         timestamp: Date.now(),
         // Missing required fields
-        gameStatus: 'playing'
+        gameStatus: 'playing',
       };
 
-      global.localStorage.store['timelineGameState-v1.0.0'] = JSON.stringify(incompleteState);
+      global.localStorage.store['timelineGameState-v1.0.0'] =
+        JSON.stringify(incompleteState);
 
       const result = loadGameStateFromStorage();
       expect(result).toBe(null);
@@ -244,11 +268,16 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 0, correctMoves: 0, hintsUsed: 0, averageTimePerMove: 0 },
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        selectedCard: null
+        selectedCard: null,
       };
 
       saveGameStateToStorage(mockState);
@@ -274,11 +303,16 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 0, correctMoves: 0, hintsUsed: 0, averageTimePerMove: 0 },
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        selectedCard: null
+        selectedCard: null,
       };
 
       saveGameStateToStorage(mockState);
@@ -311,20 +345,25 @@ describe('State Persistence', () => {
         attempts: {},
         startTime: Date.now(),
         turnStartTime: Date.now(),
-        gameStats: { totalMoves: 0, correctMoves: 0, hintsUsed: 0, averageTimePerMove: 0 },
+        gameStats: {
+          totalMoves: 0,
+          correctMoves: 0,
+          hintsUsed: 0,
+          averageTimePerMove: 0,
+        },
         timelineAnalysis: null,
         turnHistory: [],
         achievements: [],
-        selectedCard: null
+        selectedCard: null,
       };
 
       saveGameStateToStorage(mockState);
       const info = getStorageInfo();
-      
+
       expect(info.available).toBe(true);
       expect(info.hasSavedState).toBe(true);
       expect(info.stateSize).toBeGreaterThan(0);
       expect(info.storageType).toBe('localStorage');
     });
   });
-}); 
+});

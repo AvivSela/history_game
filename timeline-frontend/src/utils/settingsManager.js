@@ -2,21 +2,21 @@ import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants.js';
 
 /**
  * SettingsManager - Manages game settings with persistence and validation
- * 
+ *
  * This class provides a centralized way to manage all game settings including
  * difficulty levels, card counts, categories, and user preferences. It handles
  * localStorage persistence, validation, and change event notifications.
- * 
+ *
  * @example
  * ```javascript
  * const settingsManager = new SettingsManager();
- * 
+ *
  * // Get current settings
  * const settings = settingsManager.getSettings();
- * 
+ *
  * // Update a setting
  * settingsManager.updateSetting('difficulty', 'hard');
- * 
+ *
  * // Listen for changes
  * settingsManager.onChange((settings) => {
  *   console.log('Settings changed:', settings);
@@ -31,29 +31,29 @@ class SettingsManager {
       difficulty: DIFFICULTY_LEVELS.MEDIUM,
       cardCount: CARD_COUNTS.SINGLE,
       categories: [], // Empty array means all categories
-      
+
       // UI settings
       animations: true,
       soundEffects: true,
       reducedMotion: false,
-      
+
       // Accessibility settings
       highContrast: false,
       largeText: false,
       screenReaderSupport: true,
-      
+
       // Performance settings
       autoSave: true,
       performanceMode: false,
-      
+
       // Version for migration
-      version: '1.0.0'
+      version: '1.0.0',
     };
-    
+
     this.settings = { ...this.defaultSettings };
     this.changeListeners = [];
     this.isInitialized = false;
-    
+
     this.initialize();
   }
 
@@ -84,7 +84,7 @@ class SettingsManager {
         // Merge with defaults to handle missing properties
         this.settings = {
           ...this.defaultSettings,
-          ...parsedSettings
+          ...parsedSettings,
         };
       } else {
         // No saved settings found, using defaults
@@ -228,7 +228,7 @@ class SettingsManager {
     }
 
     this.changeListeners.push(listener);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.changeListeners.indexOf(listener);
@@ -253,7 +253,7 @@ class SettingsManager {
       newValue,
       oldValue,
       timestamp: Date.now(),
-      allSettings: { ...this.settings }
+      allSettings: { ...this.settings },
     };
 
     this.changeListeners.forEach(listener => {
@@ -299,4 +299,4 @@ class SettingsManager {
 const settingsManager = new SettingsManager();
 
 export { SettingsManager };
-export default settingsManager; 
+export default settingsManager;

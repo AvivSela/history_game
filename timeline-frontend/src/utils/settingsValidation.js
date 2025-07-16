@@ -2,21 +2,21 @@ import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants.js';
 
 /**
  * Settings Validation - Comprehensive validation for game settings
- * 
+ *
  * This module provides validation functions for all game settings with
  * detailed error messages and warnings. It ensures data integrity and
  * provides user-friendly feedback for invalid settings.
- * 
+ *
  * @example
  * ```javascript
  * import { validateSettings, validateSetting } from './settingsValidation';
- * 
+ *
  * // Validate all settings
  * const result = validateSettings(settings);
  * if (!result.isValid) {
  *   console.log('Validation errors:', result.errors);
  * }
- * 
+ *
  * // Validate single setting
  * const difficultyResult = validateSetting('difficulty', 'hard');
  * ```
@@ -28,7 +28,7 @@ const VALIDATION_SCHEMAS = {
     type: 'string',
     required: true,
     allowedValues: Object.values(DIFFICULTY_LEVELS),
-    message: 'Difficulty must be one of: easy, medium, hard, expert'
+    message: 'Difficulty must be one of: easy, medium, hard, expert',
   },
   cardCount: {
     type: 'number',
@@ -36,61 +36,61 @@ const VALIDATION_SCHEMAS = {
     min: 1,
     max: 20,
     allowedValues: [CARD_COUNTS.SINGLE],
-    message: 'Card count must be a number between 1 and 20'
+    message: 'Card count must be a number between 1 and 20',
   },
   categories: {
     type: 'array',
     required: true,
     itemType: 'string',
     allowEmpty: true,
-    message: 'Categories must be an array of strings'
+    message: 'Categories must be an array of strings',
   },
   animations: {
     type: 'boolean',
     required: true,
-    message: 'Animations setting must be true or false'
+    message: 'Animations setting must be true or false',
   },
   soundEffects: {
     type: 'boolean',
     required: true,
-    message: 'Sound effects setting must be true or false'
+    message: 'Sound effects setting must be true or false',
   },
   reducedMotion: {
     type: 'boolean',
     required: true,
-    message: 'Reduced motion setting must be true or false'
+    message: 'Reduced motion setting must be true or false',
   },
   highContrast: {
     type: 'boolean',
     required: true,
-    message: 'High contrast setting must be true or false'
+    message: 'High contrast setting must be true or false',
   },
   largeText: {
     type: 'boolean',
     required: true,
-    message: 'Large text setting must be true or false'
+    message: 'Large text setting must be true or false',
   },
   screenReaderSupport: {
     type: 'boolean',
     required: true,
-    message: 'Screen reader support must be true or false'
+    message: 'Screen reader support must be true or false',
   },
   autoSave: {
     type: 'boolean',
     required: true,
-    message: 'Auto save setting must be true or false'
+    message: 'Auto save setting must be true or false',
   },
   performanceMode: {
     type: 'boolean',
     required: true,
-    message: 'Performance mode setting must be true or false'
+    message: 'Performance mode setting must be true or false',
   },
   version: {
     type: 'string',
     required: true,
     pattern: /^\d+\.\d+\.\d+$/,
-    message: 'Version must be in semantic version format (e.g., 1.0.0)'
-  }
+    message: 'Version must be in semantic version format (e.g., 1.0.0)',
+  },
 };
 
 /**
@@ -104,7 +104,7 @@ export const validateSetting = (key, value) => {
     isValid: true,
     errors: [],
     warnings: [],
-    suggestions: []
+    suggestions: [],
   };
 
   const schema = VALIDATION_SCHEMAS[key];
@@ -177,13 +177,13 @@ export const validateSetting = (key, value) => {
  * @param {Object} settings - Settings object to validate
  * @returns {Object} Validation result with isValid, errors, warnings, and suggestions
  */
-export const validateSettings = (settings) => {
+export const validateSettings = settings => {
   const result = {
     isValid: true,
     errors: [],
     warnings: [],
     suggestions: [],
-    fieldResults: {}
+    fieldResults: {},
   };
 
   if (!settings || typeof settings !== 'object') {
@@ -196,12 +196,12 @@ export const validateSettings = (settings) => {
   Object.keys(VALIDATION_SCHEMAS).forEach(key => {
     const fieldResult = validateSetting(key, settings[key]);
     result.fieldResults[key] = fieldResult;
-    
+
     if (!fieldResult.isValid) {
       result.isValid = false;
       result.errors.push(...fieldResult.errors);
     }
-    
+
     result.warnings.push(...fieldResult.warnings);
     result.suggestions.push(...fieldResult.suggestions);
   });
@@ -210,10 +210,12 @@ export const validateSettings = (settings) => {
   const missingSettings = Object.keys(VALIDATION_SCHEMAS).filter(
     key => !(key in settings)
   );
-  
+
   if (missingSettings.length > 0) {
     result.isValid = false;
-    result.errors.push(`Missing required settings: ${missingSettings.join(', ')}`);
+    result.errors.push(
+      `Missing required settings: ${missingSettings.join(', ')}`
+    );
   }
 
   // Cross-field validation
@@ -231,7 +233,7 @@ export const validateSettings = (settings) => {
  */
 const validateType = (value, expectedType) => {
   let actualType = typeof value;
-  
+
   if (expectedType === 'array' && Array.isArray(value)) {
     actualType = 'array';
   }
@@ -239,7 +241,7 @@ const validateType = (value, expectedType) => {
   if (actualType !== expectedType) {
     return {
       isValid: false,
-      message: `Expected ${expectedType}, got ${actualType}`
+      message: `Expected ${expectedType}, got ${actualType}`,
     };
   }
 
@@ -254,15 +256,19 @@ const validateType = (value, expectedType) => {
  */
 const validateDifficulty = (value, result) => {
   const validDifficulties = Object.values(DIFFICULTY_LEVELS);
-  
+
   if (!validDifficulties.includes(value)) {
     result.isValid = false;
-    result.errors.push(`Invalid difficulty: ${value}. Must be one of: ${validDifficulties.join(', ')}`);
+    result.errors.push(
+      `Invalid difficulty: ${value}. Must be one of: ${validDifficulties.join(', ')}`
+    );
   }
 
   // Add warnings for extreme difficulties
   if (value === DIFFICULTY_LEVELS.EXPERT) {
-    result.warnings.push('Expert difficulty is very challenging and may not be suitable for all players');
+    result.warnings.push(
+      'Expert difficulty is very challenging and may not be suitable for all players'
+    );
   }
 };
 
@@ -298,7 +304,9 @@ const validateCardCount = (value, result) => {
 
   // Warn about performance with high card counts
   if (value > 10) {
-    result.warnings.push('High card counts may impact performance on slower devices');
+    result.warnings.push(
+      'High card counts may impact performance on slower devices'
+    );
   }
 };
 
@@ -340,10 +348,12 @@ const validateCategories = (value, result) => {
  */
 const validateVersion = (value, result) => {
   const versionPattern = /^\d+\.\d+\.\d+$/;
-  
+
   if (!versionPattern.test(value)) {
     result.isValid = false;
-    result.errors.push('Version must be in semantic version format (e.g., 1.0.0)');
+    result.errors.push(
+      'Version must be in semantic version format (e.g., 1.0.0)'
+    );
   }
 };
 
@@ -358,22 +368,34 @@ const addSuggestions = (key, value, result) => {
   switch (key) {
     case 'reducedMotion':
       if (value === false) {
-        result.suggestions.push('Consider enabling reduced motion for better accessibility');
+        result.suggestions.push(
+          'Consider enabling reduced motion for better accessibility'
+        );
       }
       break;
     case 'screenReaderSupport':
       if (value === false) {
-        result.suggestions.push('Screen reader support is recommended for accessibility');
+        result.suggestions.push(
+          'Screen reader support is recommended for accessibility'
+        );
       }
       break;
     case 'performanceMode':
-      if (value === false && typeof navigator !== 'undefined' && navigator.hardwareConcurrency < 4) {
-        result.suggestions.push('Performance mode is recommended for devices with limited resources');
+      if (
+        value === false &&
+        typeof navigator !== 'undefined' &&
+        navigator.hardwareConcurrency < 4
+      ) {
+        result.suggestions.push(
+          'Performance mode is recommended for devices with limited resources'
+        );
       }
       break;
     case 'autoSave':
       if (value === false) {
-        result.suggestions.push('Auto save helps prevent data loss during gameplay');
+        result.suggestions.push(
+          'Auto save helps prevent data loss during gameplay'
+        );
       }
       break;
   }
@@ -388,17 +410,26 @@ const addSuggestions = (key, value, result) => {
 const validateCrossFieldRules = (settings, result) => {
   // Check for conflicting accessibility settings
   if (settings.reducedMotion === false && settings.animations === false) {
-    result.warnings.push('Reduced motion is disabled but animations are also disabled - this may cause confusion');
+    result.warnings.push(
+      'Reduced motion is disabled but animations are also disabled - this may cause confusion'
+    );
   }
 
   // Check for performance conflicts
   if (settings.performanceMode === true && settings.animations === true) {
-    result.warnings.push('Performance mode is enabled but animations are also enabled - consider disabling animations for better performance');
+    result.warnings.push(
+      'Performance mode is enabled but animations are also enabled - consider disabling animations for better performance'
+    );
   }
 
   // Check for accessibility conflicts
-  if (settings.screenReaderSupport === false && settings.highContrast === true) {
-    result.warnings.push('High contrast is enabled but screen reader support is disabled - this may limit accessibility');
+  if (
+    settings.screenReaderSupport === false &&
+    settings.highContrast === true
+  ) {
+    result.warnings.push(
+      'High contrast is enabled but screen reader support is disabled - this may limit accessibility'
+    );
   }
 };
 
@@ -407,7 +438,7 @@ const validateCrossFieldRules = (settings, result) => {
  * @param {string} key - Setting key
  * @returns {Object|null} Validation schema or null if not found
  */
-export const getValidationSchema = (key) => {
+export const getValidationSchema = key => {
   return VALIDATION_SCHEMAS[key] || null;
 };
 
@@ -435,7 +466,7 @@ export const isSettingValid = (key, value) => {
  * @param {Object} validationResult - Result from validateSettings or validateSetting
  * @returns {Array} Array of user-friendly error messages
  */
-export const getErrorMessages = (validationResult) => {
+export const getErrorMessages = validationResult => {
   if (!validationResult || !validationResult.errors) {
     return [];
   }
@@ -443,10 +474,19 @@ export const getErrorMessages = (validationResult) => {
   return validationResult.errors.map(error => {
     // Make error messages more user-friendly
     return error
-      .replace(/Expected (\w+), got (\w+)/, 'This setting should be $1, but it is $2')
+      .replace(
+        /Expected (\w+), got (\w+)/,
+        'This setting should be $1, but it is $2'
+      )
       .replace(/Invalid (\w+): (.+)/, 'The $1 "$2" is not valid')
-      .replace(/Missing required settings: (.+)/, 'Please configure these settings: $1')
-      .replace(/Card count must be a whole number/, 'Card count must be a whole number')
+      .replace(
+        /Missing required settings: (.+)/,
+        'Please configure these settings: $1'
+      )
+      .replace(
+        /Card count must be a whole number/,
+        'Card count must be a whole number'
+      )
       .replace(/Categories must be an array/, 'Categories must be an array');
   });
 };
@@ -456,7 +496,7 @@ export const getErrorMessages = (validationResult) => {
  * @param {Object} validationResult - Result from validateSettings or validateSetting
  * @returns {Array} Array of user-friendly warning messages
  */
-export const getWarningMessages = (validationResult) => {
+export const getWarningMessages = validationResult => {
   if (!validationResult || !validationResult.warnings) {
     return [];
   }
@@ -469,10 +509,10 @@ export const getWarningMessages = (validationResult) => {
  * @param {Object} validationResult - Result from validateSettings or validateSetting
  * @returns {Array} Array of user-friendly suggestion messages
  */
-export const getSuggestionMessages = (validationResult) => {
+export const getSuggestionMessages = validationResult => {
   if (!validationResult || !validationResult.suggestions) {
     return [];
   }
 
   return validationResult.suggestions;
-}; 
+};

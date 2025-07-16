@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Loading Component Styles */
 
@@ -13,4 +13,4 @@
 
 .loading-small {
   @apply w-4 h-4;
-} 
+}

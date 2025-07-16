@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -20,23 +17,32 @@ export default {
         star: '#ffd700',
       },
       boxShadow: {
-        'light': '0 2px 4px rgba(0, 0, 0, 0.1)',
-        'medium': '0 4px 8px rgba(0, 0, 0, 0.15)',
-        'heavy': '0 8px 16px rgba(0, 0, 0, 0.2)',
+        light: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        medium: '0 4px 8px rgba(0, 0, 0, 0.15)',
+        heavy: '0 8px 16px rgba(0, 0, 0, 0.2)',
       },
       borderRadius: {
-        'card': '12px',
+        card: '12px',
       },
       fontFamily: {
-        'card': ['Georgia', 'serif'],
-        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+        card: ['Georgia', 'serif'],
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'sans-serif',
+        ],
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in',
         'slide-in-right': 'slideInRight 0.3s ease-out',
         'bounce-in': 'statusBounceIn 0.5s ease-out',
-        'pulse': 'pulse 2s ease-in-out infinite',
-        'spin': 'spin 1s linear infinite',
+        pulse: 'pulse 2s ease-in-out infinite',
+        spin: 'spin 1s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -66,4 +72,4 @@ export default {
     },
   },
   plugins: [],
-}; 
+};

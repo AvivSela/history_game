@@ -7,7 +7,7 @@ import {
   isSettingValid,
   getErrorMessages,
   getWarningMessages,
-  getSuggestionMessages
+  getSuggestionMessages,
 } from './settingsValidation';
 import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants';
 
@@ -25,13 +25,17 @@ describe('Settings Validation', () => {
       it('should reject invalid difficulty levels', () => {
         const result = validateSetting('difficulty', 'invalid');
         expect(result.isValid).toBe(false);
-        expect(result.errors).toContain('Invalid difficulty: invalid. Must be one of: easy, medium, hard, expert');
+        expect(result.errors).toContain(
+          'Invalid difficulty: invalid. Must be one of: easy, medium, hard, expert'
+        );
       });
 
       it('should warn for expert difficulty', () => {
         const result = validateSetting('difficulty', DIFFICULTY_LEVELS.EXPERT);
         expect(result.isValid).toBe(true);
-        expect(result.warnings).toContain('Expert difficulty is very challenging and may not be suitable for all players');
+        expect(result.warnings).toContain(
+          'Expert difficulty is very challenging and may not be suitable for all players'
+        );
       });
 
       it('should handle null difficulty', () => {
@@ -72,7 +76,9 @@ describe('Settings Validation', () => {
       it('should reject non-numeric card count', () => {
         const result = validateSetting('cardCount', 'five');
         expect(result.isValid).toBe(false);
-        expect(result.errors).toContain('cardCount: Expected number, got string');
+        expect(result.errors).toContain(
+          'cardCount: Expected number, got string'
+        );
       });
 
       it('should reject NaN card count', () => {
@@ -84,7 +90,9 @@ describe('Settings Validation', () => {
       it('should warn for high card counts', () => {
         const result = validateSetting('cardCount', 15);
         expect(result.isValid).toBe(true);
-        expect(result.warnings).toContain('High card counts may impact performance on slower devices');
+        expect(result.warnings).toContain(
+          'High card counts may impact performance on slower devices'
+        );
       });
     });
 
@@ -96,7 +104,11 @@ describe('Settings Validation', () => {
       });
 
       it('should validate valid categories array', () => {
-        const result = validateSetting('categories', ['history', 'science', 'politics']);
+        const result = validateSetting('categories', [
+          'history',
+          'science',
+          'politics',
+        ]);
         expect(result.isValid).toBe(true);
         expect(result.errors).toHaveLength(0);
       });
@@ -108,32 +120,57 @@ describe('Settings Validation', () => {
       });
 
       it('should reject categories with non-string items', () => {
-        const result = validateSetting('categories', ['history', 123, 'science']);
+        const result = validateSetting('categories', [
+          'history',
+          123,
+          'science',
+        ]);
         expect(result.isValid).toBe(false);
         expect(result.errors).toContain('Category at index 1 must be a string');
       });
 
       it('should warn for empty category strings', () => {
-        const result = validateSetting('categories', ['history', '', 'science']);
+        const result = validateSetting('categories', [
+          'history',
+          '',
+          'science',
+        ]);
         expect(result.isValid).toBe(true);
-        expect(result.warnings).toContain('Empty category at index 1 will be ignored');
+        expect(result.warnings).toContain(
+          'Empty category at index 1 will be ignored'
+        );
       });
 
       it('should warn for duplicate categories', () => {
-        const result = validateSetting('categories', ['history', 'science', 'history']);
+        const result = validateSetting('categories', [
+          'history',
+          'science',
+          'history',
+        ]);
         expect(result.isValid).toBe(true);
-        expect(result.warnings).toContain('Duplicate categories found and will be removed');
+        expect(result.warnings).toContain(
+          'Duplicate categories found and will be removed'
+        );
       });
     });
 
     describe('Boolean Settings Validation', () => {
-      const booleanSettings = ['animations', 'soundEffects', 'reducedMotion', 'highContrast', 'largeText', 'screenReaderSupport', 'autoSave', 'performanceMode'];
+      const booleanSettings = [
+        'animations',
+        'soundEffects',
+        'reducedMotion',
+        'highContrast',
+        'largeText',
+        'screenReaderSupport',
+        'autoSave',
+        'performanceMode',
+      ];
 
       booleanSettings.forEach(setting => {
         it(`should validate ${setting} with boolean values`, () => {
           const trueResult = validateSetting(setting, true);
           const falseResult = validateSetting(setting, false);
-          
+
           expect(trueResult.isValid).toBe(true);
           expect(falseResult.isValid).toBe(true);
           expect(trueResult.errors).toHaveLength(0);
@@ -143,7 +180,9 @@ describe('Settings Validation', () => {
         it(`should reject ${setting} with non-boolean values`, () => {
           const result = validateSetting(setting, 'true');
           expect(result.isValid).toBe(false);
-          expect(result.errors).toContain(`${setting} setting must be true or false`);
+          expect(result.errors).toContain(
+            `${setting} setting must be true or false`
+          );
         });
       });
     });
@@ -163,7 +202,9 @@ describe('Settings Validation', () => {
         invalidVersions.forEach(version => {
           const result = validateSetting('version', version);
           expect(result.isValid).toBe(false);
-          expect(result.errors).toContain('Version must be in semantic version format (e.g., 1.0.0)');
+          expect(result.errors).toContain(
+            'Version must be in semantic version format (e.g., 1.0.0)'
+          );
         });
       });
     });
@@ -191,7 +232,7 @@ describe('Settings Validation', () => {
         screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
-        version: '1.0.0'
+        version: '1.0.0',
       };
 
       const result = validateSettings(validSettings);
@@ -213,13 +254,15 @@ describe('Settings Validation', () => {
 
     it('should detect missing required settings', () => {
       const incompleteSettings = {
-        difficulty: DIFFICULTY_LEVELS.MEDIUM
+        difficulty: DIFFICULTY_LEVELS.MEDIUM,
         // Missing other required settings
       };
 
       const result = validateSettings(incompleteSettings);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Missing required settings: cardCount, categories, animations, soundEffects, reducedMotion, highContrast, largeText, screenReaderSupport, autoSave, performanceMode, version');
+      expect(result.errors).toContain(
+        'Missing required settings: cardCount, categories, animations, soundEffects, reducedMotion, highContrast, largeText, screenReaderSupport, autoSave, performanceMode, version'
+      );
     });
 
     it('should provide field-level results', () => {
@@ -235,7 +278,7 @@ describe('Settings Validation', () => {
         screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
-        version: '1.0.0'
+        version: '1.0.0',
       };
 
       const result = validateSettings(settings);
@@ -259,12 +302,14 @@ describe('Settings Validation', () => {
         screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
-        version: '1.0.0'
+        version: '1.0.0',
       };
 
       const result = validateSettings(conflictingSettings);
       expect(result.isValid).toBe(true); // Cross-field issues are warnings, not errors
-      expect(result.warnings).toContain('Reduced motion is disabled but animations are also disabled - this may cause confusion');
+      expect(result.warnings).toContain(
+        'Reduced motion is disabled but animations are also disabled - this may cause confusion'
+      );
     });
   });
 
@@ -303,7 +348,9 @@ describe('Settings Validation', () => {
 
     describe('isSettingValid', () => {
       it('should return true for valid settings', () => {
-        expect(isSettingValid('difficulty', DIFFICULTY_LEVELS.MEDIUM)).toBe(true);
+        expect(isSettingValid('difficulty', DIFFICULTY_LEVELS.MEDIUM)).toBe(
+          true
+        );
         expect(isSettingValid('cardCount', 5)).toBe(true);
         expect(isSettingValid('animations', true)).toBe(true);
       });
@@ -319,9 +366,11 @@ describe('Settings Validation', () => {
       it('should return user-friendly error messages', () => {
         const result = validateSetting('difficulty', 'invalid');
         const messages = getErrorMessages(result);
-        
+
         expect(messages).toHaveLength(1);
-        expect(messages[0]).toContain('The difficulty "invalid. Must be one of: easy, medium, hard, expert" is not valid');
+        expect(messages[0]).toContain(
+          'The difficulty "invalid. Must be one of: easy, medium, hard, expert" is not valid'
+        );
       });
 
       it('should handle empty result', () => {
@@ -332,8 +381,10 @@ describe('Settings Validation', () => {
       it('should transform technical error messages', () => {
         const result = validateSetting('cardCount', 'five');
         const messages = getErrorMessages(result);
-        
-        expect(messages[0]).toContain('This setting should be number, but it is string');
+
+        expect(messages[0]).toContain(
+          'This setting should be number, but it is string'
+        );
       });
     });
 
@@ -341,8 +392,10 @@ describe('Settings Validation', () => {
       it('should return warning messages', () => {
         const result = validateSetting('difficulty', DIFFICULTY_LEVELS.EXPERT);
         const warnings = getWarningMessages(result);
-        
-        expect(warnings).toContain('Expert difficulty is very challenging and may not be suitable for all players');
+
+        expect(warnings).toContain(
+          'Expert difficulty is very challenging and may not be suitable for all players'
+        );
       });
 
       it('should handle empty result', () => {
@@ -355,8 +408,10 @@ describe('Settings Validation', () => {
       it('should return suggestion messages', () => {
         const result = validateSetting('reducedMotion', false);
         const suggestions = getSuggestionMessages(result);
-        
-        expect(suggestions).toContain('Consider enabling reduced motion for better accessibility');
+
+        expect(suggestions).toContain(
+          'Consider enabling reduced motion for better accessibility'
+        );
       });
 
       it('should handle empty result', () => {
@@ -376,13 +431,17 @@ describe('Settings Validation', () => {
     it('should handle empty string values', () => {
       const result = validateSetting('difficulty', '');
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Invalid difficulty: . Must be one of: easy, medium, hard, expert');
+      expect(result.errors).toContain(
+        'Invalid difficulty: . Must be one of: easy, medium, hard, expert'
+      );
     });
 
     it('should handle whitespace-only strings', () => {
       const result = validateSetting('difficulty', '   ');
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Invalid difficulty:    . Must be one of: easy, medium, hard, expert');
+      expect(result.errors).toContain(
+        'Invalid difficulty:    . Must be one of: easy, medium, hard, expert'
+      );
     });
 
     it('should handle very large numbers', () => {
@@ -406,11 +465,14 @@ describe('Settings Validation', () => {
 
   describe('Performance Considerations', () => {
     it('should handle large category arrays efficiently', () => {
-      const largeCategories = Array.from({ length: 1000 }, (_, i) => `category${i}`);
+      const largeCategories = Array.from(
+        { length: 1000 },
+        (_, i) => `category${i}`
+      );
       const startTime = Date.now();
-      
+
       const result = validateSetting('categories', largeCategories);
-      
+
       const endTime = Date.now();
       expect(endTime - startTime).toBeLessThan(100); // Should complete in under 100ms
       expect(result.isValid).toBe(true);
@@ -429,15 +491,15 @@ describe('Settings Validation', () => {
         screenReaderSupport: true,
         autoSave: true,
         performanceMode: false,
-        version: '1.0.0'
+        version: '1.0.0',
       };
 
       const startTime = Date.now();
       const result = validateSettings(complexSettings);
       const endTime = Date.now();
-      
+
       expect(endTime - startTime).toBeLessThan(100); // Should complete in under 100ms
       expect(result.isValid).toBe(true);
     });
   });
-}); 
+});

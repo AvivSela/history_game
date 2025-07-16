@@ -29,7 +29,7 @@ export function useSettingsSafe() {
       getSettings: () => ({}),
       getDefaultSettings: () => ({}),
       clearError: () => {},
-      clearValidationErrors: () => {}
+      clearValidationErrors: () => {},
     };
   }
-} 
+}
