@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SettingsProvider, useSettings } from '../contexts/SettingsContext';
+import { SettingsProvider } from '../contexts/SettingsContext';
 import { useSettingsEnhanced } from '../hooks/useSettings';
 import SettingsSection from '../components/settings/SettingsSection';
 import DifficultySelector from '../components/settings/DifficultySelector';
@@ -33,22 +33,17 @@ const SettingsContent = () => {
     settings,
     isLoading: settingsLoading,
     error: settingsError,
-    validationErrors,
     updateSetting,
-    updateSettings,
     resetSettings,
-    hasUnsavedChanges,
-    getSettingsDiff,
     clearAllErrors,
     isReady,
     hasError,
-    hasValidationErrors,
     getValidationError
   } = useSettingsEnhanced({
     onError: (error) => {
       setSaveStatus({ type: 'error', message: `Settings error: ${error}` });
     },
-    onValidationError: (errors) => {
+    onValidationError: () => {
       setSaveStatus({ type: 'warning', message: 'Some settings have validation errors' });
     }
   });
@@ -80,7 +75,7 @@ const SettingsContent = () => {
             { id: 'aviation', name: 'Aviation', description: 'Aviation and flight history' }
           ]);
         }
-      } catch (error) {
+      } catch {
         setAvailableCategories([
           { id: 'history', name: 'History', description: 'Historical events and wars' },
           { id: 'science', name: 'Science', description: 'Scientific discoveries and inventions' },
@@ -105,8 +100,8 @@ const SettingsContent = () => {
 
   // Handle setting changes
   const handleSettingChange = (key, value) => {
-    const success = updateSetting(key, value);
-    if (success) {
+    const result = updateSetting(key, value);
+    if (result && result.success) {
       setSaveStatus({ type: 'success', message: 'Setting updated' });
       setTimeout(() => setSaveStatus({ type: '', message: '' }), 2000);
     }
@@ -118,7 +113,7 @@ const SettingsContent = () => {
       // Settings are auto-saved, but we can show a confirmation
       setSaveStatus({ type: 'success', message: 'Settings saved successfully!' });
       setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
-    } catch (error) {
+    } catch {
       setSaveStatus({ type: 'error', message: 'Failed to save settings' });
     }
   };
@@ -130,7 +125,7 @@ const SettingsContent = () => {
       setSaveStatus({ type: 'success', message: 'Settings reset to defaults' });
       setShowResetConfirm(false);
       setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
-    } catch (error) {
+    } catch {
       setSaveStatus({ type: 'error', message: 'Failed to reset settings' });
     }
   };
@@ -453,7 +448,6 @@ const SettingsContent = () => {
             <button 
               onClick={() => setShowResetConfirm(true)} 
               className="btn btn-secondary"
-              disabled={!hasUnsavedChanges()}
             >
               🔄 Reset to Defaults
             </button>

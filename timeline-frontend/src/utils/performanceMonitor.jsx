@@ -149,7 +149,7 @@ class PerformanceMonitor {
   logSummary() {
     if (!this.isEnabled) return;
     
-    const summary = this.getSummary();
+    // Performance summary logging
   }
 
   /**

@@ -76,7 +76,7 @@ const Game = () => {
       }
       hasInitialized.current = true;
     }
-  }, []); // Empty dependency array - only run once on mount
+  }, [handleInitializeGame, hasSavedGame]); // Include dependencies
 
   /**
    * Handles card selection from player hand
@@ -151,9 +151,8 @@ const Game = () => {
 
   /**
    * Handles timeline card click (for card removal or inspection)
-   * @param {Event} event - Click event
    */
-  const handleTimelineCardClick = (event) => {
+  const handleTimelineCardClick = () => {
     // Timeline card click handling logic
   };
 

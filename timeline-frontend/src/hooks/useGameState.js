@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   calculateScore, 
-  checkWinCondition, 
   createGameSession 
 } from '../utils/gameLogic';
 import { 
@@ -175,7 +174,7 @@ export const useGameState = () => {
       setSettings(initialSettings);
       
       // Listen for settings changes
-      const handleSettingsChange = (key, newValue, oldValue) => {
+      const handleSettingsChange = (key, newValue) => {
         setSettings(prev => ({ ...prev, [key]: newValue }));
         
         // Apply settings changes to active game if relevant
@@ -245,7 +244,7 @@ export const useGameState = () => {
    * @param {string} mode - Game mode
    * @returns {number} Card count for the game
    */
-  const getCardCountFromSettings = useCallback((mode = 'single') => {
+  const getCardCountFromSettings = useCallback(() => {
     // Use settings card count if available, otherwise fall back to constants
     return settings.cardCount || CARD_COUNTS.SINGLE;
   }, [settings.cardCount]);
@@ -281,7 +280,7 @@ export const useGameState = () => {
       }));
       
       // Get settings-based configuration
-      const cardCount = getCardCountFromSettings(mode);
+      const cardCount = getCardCountFromSettings();
       const difficulty = diff || getDifficultyFromSettings();
       const categories = getCategoriesFromSettings();
       
@@ -355,7 +354,7 @@ export const useGameState = () => {
       }));
       throw error;
     }
-  }, [getCardCountFromSettings, getDifficultyFromSettings, getCategoriesFromSettings]);
+  }, [getCardCountFromSettings, getDifficultyFromSettings, getCategoriesFromSettings, clearGameStateFromStorage]);
 
 
 
@@ -460,7 +459,7 @@ export const useGameState = () => {
   }, [getCategoriesFromSettings]);
 
   // Place a card on the timeline
-  const placeCard = useCallback(async (position, player = 'human') => {
+  const placeCard = useCallback(async (position) => {
     
     if (!state.selectedCard || state.gameStatus !== 'playing') {
       return { success: false, reason: 'invalid_state' };
@@ -669,18 +668,3 @@ export const useGameState = () => {
   };
 };
 
-// Helper functions
-const getDifficultyTolerance = (difficulty) => {
-  switch (difficulty) {
-    case 'easy': return 0.8;
-    case 'medium': return 0.5;
-    case 'hard': return 0.2;
-    default: return 0.5;
-  }
-};
-
-const calculateAverageTime = (gameStats, newTime) => {
-  const totalMoves = gameStats.totalMoves + 1;
-  const currentTotal = gameStats.averageTimePerMove * gameStats.totalMoves;
-  return (currentTotal + newTime) / totalMoves;
-};

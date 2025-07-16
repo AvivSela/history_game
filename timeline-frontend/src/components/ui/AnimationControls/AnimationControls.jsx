@@ -78,14 +78,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
     setQueueStatus({ queueLength: 0, activeAnimations: 0 });
   };
 
-  const getIntensityMultiplier = () => {
-    switch (animationIntensity) {
-      case 'subtle': return 0.5;
-      case 'normal': return 1;
-      case 'enhanced': return 1.5;
-      default: return 1;
-    }
-  };
+
 
   return (
     <div className="animation-controls">
@@ -169,7 +162,7 @@ const AnimationControls = ({ onAnimationPreferenceChange }) => {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .animation-controls {
           position: relative;
           display: inline-block;

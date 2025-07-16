@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useSettings, useSettingsSafe } from '../contexts/SettingsContext';
+import { useSettings, useSettingsSafe } from '../contexts/settingsHooks';
 import { validateSettings } from '../utils/settingsValidation';
 
 /**
@@ -20,7 +20,9 @@ export function useSettingsEnhanced(options = {}) {
   } = options;
 
   // Use safe or regular settings context
-  const settingsContext = safe ? useSettingsSafe() : useSettings();
+  const safeContext = useSettingsSafe();
+  const regularContext = useSettings();
+  const settingsContext = safe ? safeContext : regularContext;
   
   // Refs for tracking previous values
   const prevSettingsRef = useRef({});
@@ -41,7 +43,7 @@ export function useSettingsEnhanced(options = {}) {
         prevSettingsRef.current = { ...currentSettings };
       }
     }
-  }, [settingsContext.settings, onChange]);
+  }, [settingsContext.settings, onChange, settingsContext]);
 
   // Call error callback when errors change
   useEffect(() => {
@@ -54,7 +56,7 @@ export function useSettingsEnhanced(options = {}) {
         prevErrorRef.current = currentError;
       }
     }
-  }, [settingsContext.error, onError]);
+  }, [settingsContext.error, onError, settingsContext]);
 
   // Call validation error callback when validation errors change
   useEffect(() => {
@@ -69,11 +71,11 @@ export function useSettingsEnhanced(options = {}) {
         prevValidationErrorsRef.current = { ...currentValidationErrors };
       }
     }
-  }, [settingsContext.validationErrors, onValidationError]);
+  }, [settingsContext.validationErrors, onValidationError, settingsContext]);
 
   // Enhanced update setting with validation
   const updateSettingWithValidation = useCallback((key, value, options = {}) => {
-    const { validate = true, immediate = false } = options;
+    const { validate = true } = options;
     
     if (validate) {
       const validation = validateSettings({ [key]: value });
@@ -87,11 +89,11 @@ export function useSettingsEnhanced(options = {}) {
 
     const success = settingsContext.updateSetting(key, value);
     return { success, error: success ? null : 'Failed to update setting' };
-  }, [settingsContext.updateSetting, onValidationError]);
+  }, [settingsContext.updateSetting, onValidationError, settingsContext]);
 
   // Enhanced update multiple settings with validation
   const updateMultipleSettingsWithValidation = useCallback((updates, options = {}) => {
-    const { validate = true, immediate = false } = options;
+    const { validate = true } = options;
     
     if (validate) {
       const validation = validateSettings(updates);
@@ -105,7 +107,7 @@ export function useSettingsEnhanced(options = {}) {
 
     const success = settingsContext.updateSettings(updates);
     return { success, errors: success ? {} : { general: 'Failed to update settings' } };
-  }, [settingsContext.updateSettings, onValidationError]);
+  }, [settingsContext.updateSettings, onValidationError, settingsContext]);
 
   // Restore settings from backup
   const restoreSettings = useCallback((backupSettings) => {
@@ -120,7 +122,7 @@ export function useSettingsEnhanced(options = {}) {
     } catch (error) {
       return { success: false, errors: { general: error.message } };
     }
-  }, [settingsContext.updateSettings]);
+  }, [settingsContext.updateSettings, settingsContext]);
 
 
 
@@ -130,7 +132,7 @@ export function useSettingsEnhanced(options = {}) {
     const defaultSettings = settingsContext.getDefaultSettings();
     
     return JSON.stringify(currentSettings) !== JSON.stringify(defaultSettings);
-  }, [settingsContext.getSettings, settingsContext.getDefaultSettings]);
+  }, [settingsContext.getSettings, settingsContext.getDefaultSettings, settingsContext]);
 
   // Get settings diff (what has changed from defaults)
   const getSettingsDiff = useCallback(() => {
@@ -148,19 +150,21 @@ export function useSettingsEnhanced(options = {}) {
     });
 
     return diff;
-  }, [settingsContext.getSettings, settingsContext.getDefaultSettings]);
+  }, [settingsContext.getSettings, settingsContext.getDefaultSettings, settingsContext]);
 
   // Watch a specific setting for changes
   const useSettingWatcher = useCallback((key, callback) => {
-    useEffect(() => {
+    // This is a hook that should be called at the top level
+    // We'll return a function that can be called to set up the watcher
+    return () => {
       const currentValue = settingsContext.getSetting(key);
       const prevValue = prevSettingsRef.current[key];
       
       if (currentValue !== prevValue) {
         callback(currentValue, prevValue, key);
       }
-    }, [settingsContext.getSetting(key), callback, key]);
-  }, [settingsContext.getSetting]);
+    };
+  }, [settingsContext.getSetting, settingsContext]);
 
   // Enhanced interface
   return {
@@ -194,19 +198,19 @@ export function useSettingWatcher(key, callback) {
   useSettingWatcher(key, callback);
 }
 
-// Hook for settings with automatic error handling
-export function useSettingsWithErrorHandling() {
-  const settings = useSettingsEnhanced({
-    onError: (error) => {
-      // Settings error
-    },
-    onValidationError: (errors) => {
-      // Settings validation errors
-    }
-  });
+  // Hook for settings with automatic error handling
+  export function useSettingsWithErrorHandling() {
+    const settings = useSettingsEnhanced({
+      onError: () => {
+        // Settings error
+      },
+      onValidationError: () => {
+        // Settings validation errors
+      }
+    });
 
-  return settings;
-}
+    return settings;
+  }
 
 // Hook for settings with change tracking
 export function useSettingsWithChangeTracking(onChange) {

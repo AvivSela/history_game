@@ -8,7 +8,7 @@
  * @param {number} tolerance - Tolerance level (0-1, where 1 is most forgiving)
  * @returns {Object} - Validation result with detailed feedback
  */
-export const validatePlacementWithTolerance = (card, timeline, userPosition, tolerance = 0) => {
+export const validatePlacementWithTolerance = (card, timeline, userPosition) => {
   const correctPosition = findCorrectPosition(card, timeline);
   const positionDiff = Math.abs(userPosition - correctPosition);
   const isExact = positionDiff === 0;

@@ -5,7 +5,7 @@ import { OPTIMIZED_TIMINGS, OPTIMIZED_EASING, ANIMATION_PRIORITY } from './const
 import { generateOptimizedCSS } from './keyframes.js';
 import deviceOptimizer from './DeviceOptimizer.js';
 import accessibilityManager from './AccessibilityManager.js';
-import { globalAnimationQueue, queueCardAnimation, queueParallelAnimations, queueSequentialAnimations } from './AnimationQueue.js';
+import { globalAnimationQueue, queueParallelAnimations, queueSequentialAnimations } from './AnimationQueue.js';
 import animationPerformanceMonitor from './PerformanceMonitor.js';
 
 class AnimationSystem {
@@ -123,7 +123,7 @@ class AnimationSystem {
 
   // Execute animation with device and accessibility optimizations
   async executeAnimation(element, animation, options) {
-    const { duration, easing, className, instantState } = options;
+    const { duration, className } = options;
     
     if (!element) {
       throw new Error('Element is required for animation');

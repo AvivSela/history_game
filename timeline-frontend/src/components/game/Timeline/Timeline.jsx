@@ -260,4 +260,6 @@ const Timeline = forwardRef(({
   );
 });
 
+Timeline.displayName = 'Timeline';
+
 export default Timeline;

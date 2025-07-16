@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import Card from '../Card';
-import { animations, accessibility, performance } from '@utils/animation';
+import { animations, accessibility } from '@utils/animation';
 import { UI_DIMENSIONS, TIMING, STYLING } from '@constants/gameConstants';
 
 /**
@@ -101,8 +101,6 @@ const PlayerHand = forwardRef(({
   // Debounced animation trigger to prevent rapid calls
   const debouncedAnimateCard = useCallback(
     async (cardId, animationType) => {
-      const startTime = window.performance.now();
-      
       // Check if the card is actually in the current state
       const cardInState = cards.find(card => card.id === cardId);
       if (!cardInState) {
@@ -184,7 +182,7 @@ const PlayerHand = forwardRef(({
         animationRefs.current.delete(cardId);
       }
     },
-    [cards, onCardSelect]
+    [cards]
   );
 
   // Animation methods with proper error handling

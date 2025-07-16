@@ -336,8 +336,7 @@ class AnimationPerformanceMonitor {
   logPerformanceSummary() {
     if (!this.isEnabled) return;
     
-    const summary = this.getPerformanceSummary();
-    const recommendations = this.getOptimizationRecommendations();
+    // Performance summary logging
   }
 }
 

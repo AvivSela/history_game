@@ -142,7 +142,7 @@ class AnimationQueue {
       this.updatePerformanceMetrics(duration);
       
     } catch (error) {
-      throw error;
+      // Handle animation error
     }
   }
 

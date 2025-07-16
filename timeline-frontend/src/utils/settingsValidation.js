@@ -129,7 +129,6 @@ export const validateSetting = (key, value) => {
       // For booleans and arrays, use schema.message for test compatibility
       if (schema.type === 'boolean') {
         // Lowercase the first letter to match test expectations
-        const msg = schema.message.charAt(0).toLowerCase() + schema.message.slice(1);
         result.errors.push(`${key} setting must be true or false`);
       } else if (schema.type === 'array') {
         // For categories, test expects 'Categories must be an array'

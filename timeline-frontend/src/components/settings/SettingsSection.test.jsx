@@ -297,7 +297,9 @@ describe('SettingsSection', () => {
     });
 
     test('handles empty title', () => {
-      render(<SettingsSection title="" children={<div data-testid="test-content">Test content</div>} />);
+      render(<SettingsSection title="">
+        <div data-testid="test-content">Test content</div>
+      </SettingsSection>);
       
       const header = screen.getByRole('button', { name: '' });
       expect(header).toHaveAttribute('id', 'settings-section-');
@@ -305,7 +307,9 @@ describe('SettingsSection', () => {
 
     test('handles very long title', () => {
       const longTitle = 'A'.repeat(100);
-      render(<SettingsSection title={longTitle} children={<div data-testid="test-content">Test content</div>} />);
+      render(<SettingsSection title={longTitle}>
+        <div data-testid="test-content">Test content</div>
+      </SettingsSection>);
       
       const header = screen.getByRole('button', { name: new RegExp(longTitle.substring(0, 20)) });
       expect(header).toHaveAttribute('id');
