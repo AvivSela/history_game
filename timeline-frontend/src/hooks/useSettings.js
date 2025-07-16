@@ -247,3 +247,4 @@ export function useSettingsWithChangeTracking(onChange) {
 
 // Default export for backward compatibility
 export default useSettingsEnhanced;
+// Test comment
