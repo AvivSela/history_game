@@ -1,6 +1,7 @@
 # Timeline Game Project
 
-A historical card game where players place events in chronological order on a timeline. Built with React frontend and Node.js backend, using Yarn for package management.
+A historical card game where players place events in chronological order on a timeline. 
+Built with React frontend and Node.js backend, using Yarn for package management.
 
 ## 🎮 Game Overview
 
