@@ -222,7 +222,8 @@ export function useSettingsEnhanced(options = {}) {
 
 // Convenience hook for watching specific settings
 export function useSettingWatcher(key, callback) {
-  const { useSettingWatcher: internalUseSettingWatcher } = useSettingsEnhanced();
+  const { useSettingWatcher: internalUseSettingWatcher } =
+    useSettingsEnhanced();
   return internalUseSettingWatcher(key, callback);
 }
 
