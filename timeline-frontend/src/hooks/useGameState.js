@@ -566,6 +566,11 @@ export const useGameState = () => {
           setState(newGameState);
           saveGameStateToStorage(newGameState);
 
+          // Clear feedback after delay for correct placements
+          setTimeout(() => {
+            setState(prev => ({ ...prev, feedback: null }));
+          }, 3000);
+
           // If game is won, show feedback and restart after delay
           if (isGameWon) {
             // Clear any existing restart timeout

@@ -9,9 +9,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ## 🎯 Current Status
 
 **Last Updated**: $(date)
-**Total Debt Items**: 15
+**Total Debt Items**: 16
 **High Priority Items**: 2
-**Estimated Refactoring Time**: 22.5 days
+**Estimated Refactoring Time**: 23 days
 
 ## 📋 Debt Categories
 
@@ -75,6 +75,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-009 | Constants Management | ✅ **RESOLVED** - Consolidated all scattered constants into centralized gameConstants.js with comprehensive organization by category (UI dimensions, timing, AI config, game logic, performance, API, accessibility, styling, development). Added detailed documentation and migration guide. Eliminated magic numbers across 15+ files. | Low | 0.5 days | $(date) | **Resolved** |
 | FE-010 | PlayerHand New Card Animation Test | The test for 'should NOT auto-select the new card after addition animation' was removed due to persistent mocking issues with performance.now in the test environment. A robust test should be re-implemented to ensure this behavior is covered. | Low | 0.5 days | $(date) | Open |
 | FE-011 | Failing Test Implementation | Two tests are currently failing: 1) 'New Card Animation' test suite is empty and needs proper implementation, 2) Test looking for '[data-testid="player-card-wrapper"]' element cannot find it. These tests need to be properly implemented or removed to maintain test suite integrity. | Medium | 1 day | $(date) | Open |
+| FE-020 | Feedback Timeout Tests | Need to create robust tests for feedback timeout functionality in useGameState hook. Previous tests were removed due to flakiness with mock data and timer handling. Should implement tests that properly verify both success and error feedback messages disappear after 3 seconds using reliable mock data and proper timer management. | Low | 0.5 days | $(date) | Open |
 | FE-012 | Console Logging in Production | Multiple console.log, console.error, and console.warn statements found throughout the codebase (15+ files). These should be replaced with proper logging system or removed for production builds. | Low | 1 day | $(date) | Open |
 | FE-013 | Duplicate Component Files | ✅ **RESOLVED** - Duplicate PlayerHand components already resolved (only one exists in `src/components/game/PlayerHand/`). No duplicates found during implementation. | Medium | 0.5 days | $(date) | **Resolved** |
 | FE-014 | Backup Directory Cleanup | ✅ **RESOLVED** - Removed entire `backup/` directory, eliminating 31KB of unnecessary backup files and reducing repository size. | Low | 0.5 days | $(date) | **Resolved** |
@@ -174,7 +175,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | Category | Count | Total Effort | Priority Distribution |
 |----------|-------|--------------|----------------------|
-| Frontend | 7 | 2 days | 🔴1 🟡3 🟢3 |
+| Frontend | 8 | 2.5 days | 🔴1 🟡3 🟢4 |
 | Backend | 9 | 14.5 days | 🔴2 🟡4 🟢3 |
 | Infrastructure | 6 | 11.5 days | 🔴0 🟡3 🟢3 |
 
