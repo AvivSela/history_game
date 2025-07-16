@@ -296,9 +296,7 @@ const SettingsContent = () => {
               🔄 Reset to Defaults
             </button>
 
-            <a href="/game" className="btn btn-success">
-              🎮 Start Game
-            </a>
+
           </div>
 
           {/* Help Section */}

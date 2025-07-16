@@ -167,8 +167,6 @@ describe('Settings Page', () => {
       await waitFor(() => {
         expect(screen.getByText('💾 Save Settings')).toBeInTheDocument();
         expect(screen.getByText('🔄 Reset to Defaults')).toBeInTheDocument();
-
-        expect(screen.getByText('🎮 Start Game')).toBeInTheDocument();
       });
     });
 
