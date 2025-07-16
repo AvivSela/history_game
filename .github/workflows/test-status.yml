@@ -5,15 +5,15 @@ on:
     workflows: ["Test Suite"]
     types:
       - completed
-  # Add direct trigger for pull requests to ensure status is reported
-  pull_request:
-    branches: [ master, main, develop ]
+  # Remove direct PR trigger to prevent conflicts
+  # pull_request:
+  #   branches: [ master, main, develop ]
 
 jobs:
   test-status:
     name: Test Suite Status
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'skipped' || github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'skipped' }}
     
     steps:
       - name: Check Test Suite Status
