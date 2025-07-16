@@ -4,8 +4,9 @@ on:
   schedule:
     # Run security audit weekly on Sundays at 2 AM UTC
     - cron: '0 2 * * 0'
-  pull_request:
-    branches: [ master, main, develop ]
+  # Disabled PR trigger to prevent conflicts with test.yml workflow
+  # pull_request:
+  #   branches: [ master, main, develop ]
   workflow_dispatch:
 
 env:
@@ -42,7 +43,7 @@ jobs:
             echo "**Note**: Dependency review requires GitHub Advanced Security to be enabled." >> $GITHUB_STEP_SUMMARY
             echo "This feature is available on:" >> $GITHUB_STEP_SUMMARY
             echo "- Public repositories (free)" >> $GITHUB_STEP_SUMMARY
-            echo "- Private repositories with GitHub Advanced Security" >> $GITHUB_STEP_SUMMARY
+            echo "- Private repositories with GitHub Advanced Security " >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "The security audit will continue with other checks." >> $GITHUB_STEP_SUMMARY
           else
