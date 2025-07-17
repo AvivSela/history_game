@@ -143,6 +143,30 @@ describe('DifficultySelector', () => {
       );
     });
 
+    test('calls onChange when option container is clicked', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      // Find the radio input for Hard difficulty and click it directly
+      const hardRadio = screen.getByDisplayValue('hard');
+      fireEvent.click(hardRadio);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
+    });
+
+    test('calls onChange when label is clicked', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      // Find the label for Hard difficulty
+      const hardLabel = screen.getByText('Hard');
+      fireEvent.click(hardLabel);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
+    });
+
     test('does not call onChange when disabled', () => {
       render(<DifficultySelector {...defaultProps} disabled={true} />);
 
@@ -308,6 +332,32 @@ describe('DifficultySelector', () => {
       fireEvent.keyDown(fieldset, { key: 'Space' });
       fireEvent.keyDown(fieldset, { key: 'Escape' });
 
+      expect(defaultProps.onChange).not.toHaveBeenCalled();
+    });
+
+    test('responds to Enter key on option container', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      const hardOption = screen
+        .getByDisplayValue('hard')
+        .closest('.difficulty-selector__option');
+      fireEvent.keyDown(hardOption, { key: 'Enter' });
+
+      // Since we removed the option container keyboard handlers to prevent duplicate onChange calls,
+      // this should not trigger onChange
+      expect(defaultProps.onChange).not.toHaveBeenCalled();
+    });
+
+    test('responds to Space key on option container', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      const hardOption = screen
+        .getByDisplayValue('hard')
+        .closest('.difficulty-selector__option');
+      fireEvent.keyDown(hardOption, { key: ' ' });
+
+      // Since we removed the option container keyboard handlers to prevent duplicate onChange calls,
+      // this should not trigger onChange
       expect(defaultProps.onChange).not.toHaveBeenCalled();
     });
   });

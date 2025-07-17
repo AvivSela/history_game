@@ -33,6 +33,7 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   background: #ffffff;
+  user-select: none;
 }
 
 .difficulty-selector__option:hover {
@@ -54,8 +55,13 @@
 
 .difficulty-selector__input {
   position: absolute;
+  top: 0;
+  left: 0;
   opacity: 0;
-  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .difficulty-selector__label {
@@ -86,9 +92,11 @@
 }
 
 /* Focus styles for accessibility */
-.difficulty-selector__option:focus-within {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+.difficulty-selector__option:focus-within,
+.difficulty-selector__option:focus {
+  border-color: #3b82f6;
+  /* Remove outline to avoid double border */
+  outline: none;
 }
 
 /* Responsive Design */

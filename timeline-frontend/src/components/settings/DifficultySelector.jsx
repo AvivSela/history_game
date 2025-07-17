@@ -70,6 +70,8 @@ const DifficultySelector = ({
     }
   };
 
+  // Removed handleOptionClick to prevent duplicate onChange calls
+
   const handleKeyDown = event => {
     if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
       event.preventDefault();
