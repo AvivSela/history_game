@@ -33,6 +33,7 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   background: #ffffff;
+  user-select: none;
 }
 
 .difficulty-selector__option:hover {
@@ -55,7 +56,7 @@
 .difficulty-selector__input {
   position: absolute;
   opacity: 0;
-  pointer-events: none;
+  /* Removed pointer-events: none to allow proper click handling */
 }
 
 .difficulty-selector__label {
@@ -86,9 +87,11 @@
 }
 
 /* Focus styles for accessibility */
-.difficulty-selector__option:focus-within {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+.difficulty-selector__option:focus-within,
+.difficulty-selector__option:focus {
+  border-color: #3b82f6;
+  /* Remove outline to avoid double border */
+  outline: none;
 }
 
 /* Responsive Design */

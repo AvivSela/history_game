@@ -70,6 +70,12 @@ const DifficultySelector = ({
     }
   };
 
+  const handleOptionClick = (optionValue) => {
+    if (!disabled && onChange) {
+      onChange(optionValue);
+    }
+  };
+
   const handleKeyDown = event => {
     if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
       event.preventDefault();
@@ -117,6 +123,15 @@ const DifficultySelector = ({
             <div
               key={option.value}
               className={`difficulty-selector__option ${isSelected ? 'difficulty-selector__option--selected' : ''}`}
+              onClick={() => handleOptionClick(option.value)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOptionClick(option.value);
+                }
+              }}
             >
               <input
                 type="radio"

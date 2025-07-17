@@ -143,6 +143,30 @@ describe('DifficultySelector', () => {
       );
     });
 
+    test('calls onChange when option container is clicked', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      // Find the option container for Hard difficulty
+      const hardOption = screen.getByDisplayValue('hard').closest('.difficulty-selector__option');
+      fireEvent.click(hardOption);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
+    });
+
+    test('calls onChange when label is clicked', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      // Find the label for Hard difficulty
+      const hardLabel = screen.getByText('Hard');
+      fireEvent.click(hardLabel);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
+    });
+
     test('does not call onChange when disabled', () => {
       render(<DifficultySelector {...defaultProps} disabled={true} />);
 
@@ -309,6 +333,28 @@ describe('DifficultySelector', () => {
       fireEvent.keyDown(fieldset, { key: 'Escape' });
 
       expect(defaultProps.onChange).not.toHaveBeenCalled();
+    });
+
+    test('responds to Enter key on option container', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      const hardOption = screen.getByDisplayValue('hard').closest('.difficulty-selector__option');
+      fireEvent.keyDown(hardOption, { key: 'Enter' });
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
+    });
+
+    test('responds to Space key on option container', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      const hardOption = screen.getByDisplayValue('hard').closest('.difficulty-selector__option');
+      fireEvent.keyDown(hardOption, { key: ' ' });
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
     });
   });
 
