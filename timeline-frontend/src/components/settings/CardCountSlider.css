@@ -12,7 +12,7 @@
 }
 
 .card-count-slider--dragging .card-count-slider__thumb {
-  transform: scale(1.2);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .card-count-slider__header {
@@ -103,12 +103,10 @@
 }
 
 .card-count-slider__thumb:hover {
-  transform: translate(-50%, -50%) scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card-count-slider__thumb:active {
-  transform: translate(-50%, -50%) scale(1.2);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -192,7 +190,7 @@
 
   .card-count-slider__thumb:hover,
   .card-count-slider__thumb:active {
-    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 
