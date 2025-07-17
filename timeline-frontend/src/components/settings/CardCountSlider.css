@@ -51,9 +51,10 @@
 
 .card-count-slider__container {
   position: relative;
-  height: 2rem;
+  height: 3rem;
   display: flex;
   align-items: center;
+  margin: 0.5rem 0;
 }
 
 .card-count-slider__input {
@@ -62,7 +63,7 @@
   height: 100%;
   opacity: 0;
   cursor: pointer;
-  z-index: 2;
+  z-index: 4;
 }
 
 .card-count-slider__input:disabled {
@@ -75,7 +76,9 @@
   height: 0.5rem;
   background-color: #e5e7eb;
   border-radius: 0.25rem;
-  overflow: hidden;
+  overflow: visible;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .card-count-slider__fill {
@@ -96,7 +99,7 @@
   transform: translate(-50%, -50%);
   transition: all 0.2s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1;
+  z-index: 3;
 }
 
 .card-count-slider__thumb:hover {
