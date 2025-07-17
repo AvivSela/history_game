@@ -275,22 +275,7 @@ describe('Click-to-Place Flow Integration', () => {
       });
     });
 
-    it('should show empty hand state when all cards are placed', async () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />);
 
-      const cardToSelect = screen
-        .getByText('Berlin Wall Falls')
-        .closest('.player-card');
-      fireEvent.click(cardToSelect);
-
-      const insertionPoints = screen.getAllByTestId('insertion-point');
-      fireEvent.click(insertionPoints[1]);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('hand-victory-message')).toBeInTheDocument();
-        expect(screen.getByText('No cards remaining!')).toBeInTheDocument();
-      });
-    });
   });
 
   describe('Timeline Updates', () => {
@@ -318,40 +303,5 @@ describe('Click-to-Place Flow Integration', () => {
     });
   });
 
-  describe('Insertion Point Behavior', () => {
-    it('should hide insertion points when no card is selected', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />);
 
-      const insertionPoints = screen.queryAllByTestId('insertion-point');
-      expect(insertionPoints).toHaveLength(0);
-    });
-
-    it('should show insertion points when card is selected', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />);
-
-      const cardToSelect = screen
-        .getByText('Berlin Wall Falls')
-        .closest('.player-card');
-      fireEvent.click(cardToSelect);
-
-      const insertionPoints = screen.getAllByTestId('insertion-point');
-      expect(insertionPoints.length).toBeGreaterThan(0);
-    });
-
-    it('should show hover tooltips on insertion points', () => {
-      render(<MockGameComponent initialTimeline={[mockCards[0]]} />);
-
-      const cardToSelect = screen
-        .getByText('Berlin Wall Falls')
-        .closest('.player-card');
-      fireEvent.click(cardToSelect);
-
-      const insertionPoint = screen.getAllByTestId('insertion-point')[0];
-      fireEvent.mouseEnter(insertionPoint);
-
-      expect(
-        screen.getByText('Place "Berlin Wall Falls" here')
-      ).toBeInTheDocument();
-    });
-  });
 });

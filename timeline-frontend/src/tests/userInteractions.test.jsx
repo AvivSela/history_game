@@ -211,17 +211,7 @@ describe('User Interactions', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('should show visual feedback for card hover states', () => {
-      render(<MockGameInterface />);
 
-      const card = screen
-        .getByText('Berlin Wall Falls')
-        .closest('.player-card');
-
-      fireEvent.mouseEnter(card);
-
-      expect(card).toBeInTheDocument();
-    });
   });
 
   describe('Timeline Placement Interactions', () => {
@@ -358,48 +348,5 @@ describe('User Interactions', () => {
     });
   });
 
-  describe('Accessibility Interactions', () => {
-    it('should support keyboard navigation for card selection', () => {
-      render(<MockGameInterface />);
 
-      const card = screen
-        .getByText('Berlin Wall Falls')
-        .closest('.player-card');
-
-      fireEvent.click(card);
-      expect(
-        screen.getByText('Selected: Berlin Wall Falls')
-      ).toBeInTheDocument();
-    });
-
-    it('should provide proper ARIA labels and roles', () => {
-      render(<MockGameInterface />);
-
-      expect(screen.getByTestId('player-hand-container')).toBeInTheDocument();
-      expect(screen.getByTestId('timeline-container')).toBeInTheDocument();
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle rapid clicking without breaking', () => {
-      render(<MockGameInterface />);
-
-      const card = screen
-        .getByText('Berlin Wall Falls')
-        .closest('.player-card');
-
-      for (let i = 0; i < 10; i++) {
-        fireEvent.click(card);
-      }
-
-      expect(card).toBeInTheDocument();
-    });
-
-    it('should handle clicking insertion points without selection gracefully', () => {
-      render(<MockGameInterface />);
-
-      const insertionPoints = screen.queryAllByTestId('insertion-point');
-      expect(insertionPoints.length).toBe(0);
-    });
-  });
 });

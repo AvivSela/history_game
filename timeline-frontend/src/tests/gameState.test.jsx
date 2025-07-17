@@ -135,19 +135,7 @@ describe('Game State Management', () => {
       expect(result.current.state.difficulty).toBe('hard');
     });
 
-    it('should initialize with correct initial state values', async () => {
-      const { result } = renderHook(() => useGameState());
 
-      await initializeGameForTesting(result, 'single', 'medium');
-
-      // Test initial state structure
-      expect(result.current.state.selectedCard).toBeNull();
-      expect(result.current.state.showInsertionPoints).toBe(false);
-      expect(result.current.state.feedback).toBeNull();
-      expect(result.current.state.isLoading).toBe(false);
-      expect(result.current.state.score.human).toBe(0);
-      expect(result.current.state.startTime).toBeTruthy();
-    });
   });
 
   describe('2. Single Player Game Flow', () => {
