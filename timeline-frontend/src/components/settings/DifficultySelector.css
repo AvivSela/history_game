@@ -55,8 +55,13 @@
 
 .difficulty-selector__input {
   position: absolute;
+  top: 0;
+  left: 0;
   opacity: 0;
-  /* Removed pointer-events: none to allow proper click handling */
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .difficulty-selector__label {
