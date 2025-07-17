@@ -112,10 +112,11 @@ const Timeline = forwardRef(
     }));
 
     // Sort events chronologically
-    const sortedEvents = useMemo(() => 
-      [...events].sort(
-        (a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred)
-      ),
+    const sortedEvents = useMemo(
+      () =>
+        [...events].sort(
+          (a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred)
+        ),
       [events]
     );
 
@@ -134,17 +135,23 @@ const Timeline = forwardRef(
       }
     }, [events.length]);
 
-    const handleCardClick = useCallback((event) => {
-      if (onCardClick) {
-        onCardClick(event);
-      }
-    }, [onCardClick]);
+    const handleCardClick = useCallback(
+      event => {
+        if (onCardClick) {
+          onCardClick(event);
+        }
+      },
+      [onCardClick]
+    );
 
-    const handleInsertionPointClick = useCallback(index => {
-      if (onInsertionPointClick && selectedCard) {
-        onInsertionPointClick(index);
-      }
-    }, [onInsertionPointClick, selectedCard]);
+    const handleInsertionPointClick = useCallback(
+      index => {
+        if (onInsertionPointClick && selectedCard) {
+          onInsertionPointClick(index);
+        }
+      },
+      [onInsertionPointClick, selectedCard]
+    );
 
     const handleInsertionPointHover = useCallback((index, isEntering) => {
       if (isEntering) {
@@ -154,32 +161,42 @@ const Timeline = forwardRef(
       }
     }, []);
 
-    const renderInsertionPoint = useCallback(index => {
-      if (!highlightInsertionPoints) return null;
-      const isHovered = hoveredInsertionPoint === index;
-      const isClickable = selectedCard !== null;
-      
-      return (
-        <InsertionPoint
-          key={`insertion-${index}`}
-          index={index}
-          isHovered={isHovered}
-          isClickable={isClickable}
-          selectedCard={selectedCard}
-                     onClick={() => handleInsertionPointClick(index)}
-          onMouseEnter={() => handleInsertionPointHover(index, true)}
-          onMouseLeave={() => handleInsertionPointHover(index, false)}
-                     onKeyDown={(e) => handleKeyDown(e, index)}
-          onRef={el => {
-            if (el) {
-              insertionPointRefs.current.set(index, el);
-            } else {
-              insertionPointRefs.current.delete(index);
-            }
-          }}
-        />
-      );
-    }, [highlightInsertionPoints, hoveredInsertionPoint, selectedCard, handleInsertionPointClick, handleInsertionPointHover, handleKeyDown]);
+    const renderInsertionPoint = useCallback(
+      index => {
+        if (!highlightInsertionPoints) return null;
+        const isHovered = hoveredInsertionPoint === index;
+        const isClickable = selectedCard !== null;
+
+        return (
+          <InsertionPoint
+            key={`insertion-${index}`}
+            index={index}
+            isHovered={isHovered}
+            isClickable={isClickable}
+            selectedCard={selectedCard}
+            onClick={() => handleInsertionPointClick(index)}
+            onMouseEnter={() => handleInsertionPointHover(index, true)}
+            onMouseLeave={() => handleInsertionPointHover(index, false)}
+            onKeyDown={e => handleKeyDown(e, index)}
+            onRef={el => {
+              if (el) {
+                insertionPointRefs.current.set(index, el);
+              } else {
+                insertionPointRefs.current.delete(index);
+              }
+            }}
+          />
+        );
+      },
+      [
+        highlightInsertionPoints,
+        hoveredInsertionPoint,
+        selectedCard,
+        handleInsertionPointClick,
+        handleInsertionPointHover,
+        handleKeyDown,
+      ]
+    );
 
     const scrollTimeline = useCallback(direction => {
       if (timelineRef.current && timelineRef.current.scrollTo) {
@@ -197,8 +214,14 @@ const Timeline = forwardRef(
     }, []);
 
     // Memoized scroll handlers for ScrollControls
-    const handleScrollLeft = useCallback(() => scrollTimeline('left'), [scrollTimeline]);
-    const handleScrollRight = useCallback(() => scrollTimeline('right'), [scrollTimeline]);
+    const handleScrollLeft = useCallback(
+      () => scrollTimeline('left'),
+      [scrollTimeline]
+    );
+    const handleScrollRight = useCallback(
+      () => scrollTimeline('right'),
+      [scrollTimeline]
+    );
 
     if (sortedEvents.length === 0) {
       return (
@@ -210,26 +233,33 @@ const Timeline = forwardRef(
             <div
               className={`overflow-x-auto overflow-y-visible scroll-smooth md:py-4 sm:py-3 pt-[${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px] pb-[${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px]`}
               ref={timelineRef}
-              style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#3498db #ecf0f1',
+              }}
               data-testid="timeline-content"
             >
               <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
             </div>
-            <div 
+            <div
               className={`text-center md:py-10 sm:py-6 pt-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px] pb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px]`}
             >
-              <div 
+              <div
                 className={`bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg border border-secondary/20 p-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_INNER_PADDING}px]`}
               >
-                <div 
+                <div
                   className={`mb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_MARGIN}px]`}
-                  style={{ fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_SIZE}px` }}
+                  style={{
+                    fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_SIZE}px`,
+                  }}
                 >
                   ⏰
                 </div>
-                <h3 
+                <h3
                   className={`text-primary font-bold mb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_MARGIN}px]`}
-                  style={{ fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_SIZE}px` }}
+                  style={{
+                    fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_SIZE}px`,
+                  }}
                 >
                   Timeline is empty
                 </h3>
@@ -253,7 +283,10 @@ const Timeline = forwardRef(
           <div
             className={`overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3`}
             ref={timelineRef}
-            style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#3498db #ecf0f1',
+            }}
             data-testid="timeline-content"
           >
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>

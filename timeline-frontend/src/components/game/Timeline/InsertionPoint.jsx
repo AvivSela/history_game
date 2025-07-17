@@ -51,7 +51,9 @@ const InsertionPoint = ({
     <div
       ref={onRef}
       className={`flex items-center justify-center cursor-pointer transition-all duration-200 flex-shrink-0 relative bg-transparent ${
-        isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : 'opacity-60'
+        isHovered
+          ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg'
+          : 'opacity-60'
       } ${!isClickable ? 'opacity-30' : ''}`}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
@@ -74,18 +76,21 @@ const InsertionPoint = ({
         margin: `-${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_MARGIN}px`,
       }}
     >
-      <div 
+      <div
         className={`border-4 border-dashed border-secondary rounded-full flex items-center justify-center bg-secondary/10 transition-all duration-200 relative`}
         style={{
           width: `${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_CIRCLE_SIZE}px`,
           height: `${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_CIRCLE_SIZE}px`,
         }}
       >
-        <span className="inline-block" style={{ fontSize: `${UI_DIMENSIONS.TIMELINE_ICON_SIZE}px` }}>
+        <span
+          className="inline-block"
+          style={{ fontSize: `${UI_DIMENSIONS.TIMELINE_ICON_SIZE}px` }}
+        >
           {isHovered && selectedCard ? '📍' : '+'}
         </span>
         {isHovered && selectedCard && (
-          <div 
+          <div
             className={`absolute left-1/2 transform -translate-x-1/2 bg-white text-gray-800 rounded shadow-lg border border-gray-200 whitespace-nowrap`}
             style={{
               top: `-${UI_DIMENSIONS.TIMELINE_TOOLTIP_OFFSET}px`,
@@ -116,4 +121,4 @@ InsertionPoint.propTypes = {
   onKeyDown: PropTypes.func,
 };
 
-export default InsertionPoint; 
+export default InsertionPoint;

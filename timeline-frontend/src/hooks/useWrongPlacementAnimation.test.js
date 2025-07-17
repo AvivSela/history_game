@@ -23,7 +23,9 @@ describe('useWrongPlacementAnimation', () => {
       cleanup: cleanupMock,
     });
     timelineRef = { current: createMockElement('timeline') };
-    insertionRefs = { current: new Map([[1, createMockElement('insertion-1')]]) };
+    insertionRefs = {
+      current: new Map([[1, createMockElement('insertion-1')]]),
+    };
     vi.useFakeTimers();
   });
   afterEach(() => {
@@ -32,11 +34,17 @@ describe('useWrongPlacementAnimation', () => {
   });
 
   it('should trigger wrong placement animation and cleanup', () => {
-    const { result } = renderHook(() => useWrongPlacementAnimation({ timelineRef, insertionRefs }));
+    const { result } = renderHook(() =>
+      useWrongPlacementAnimation({ timelineRef, insertionRefs })
+    );
     act(() => {
       result.current.triggerWrongPlacement(1);
     });
-    expect(wrongPlacementMock).toHaveBeenCalledWith(null, timelineRef.current, insertionRefs.current.get(1));
+    expect(wrongPlacementMock).toHaveBeenCalledWith(
+      null,
+      timelineRef.current,
+      insertionRefs.current.get(1)
+    );
     // Fast-forward timer
     act(() => {
       vi.advanceTimersByTime(TIMING.WRONG_PLACEMENT_INDICATOR);
@@ -46,7 +54,9 @@ describe('useWrongPlacementAnimation', () => {
   });
 
   it('should cleanup all animations', () => {
-    const { result } = renderHook(() => useWrongPlacementAnimation({ timelineRef, insertionRefs }));
+    const { result } = renderHook(() =>
+      useWrongPlacementAnimation({ timelineRef, insertionRefs })
+    );
     act(() => {
       result.current.cleanupAnimations();
     });
@@ -56,11 +66,16 @@ describe('useWrongPlacementAnimation', () => {
 
   it('should do nothing if timelineRef is not set', () => {
     const emptyTimelineRef = { current: null };
-    const { result } = renderHook(() => useWrongPlacementAnimation({ timelineRef: emptyTimelineRef, insertionRefs }));
+    const { result } = renderHook(() =>
+      useWrongPlacementAnimation({
+        timelineRef: emptyTimelineRef,
+        insertionRefs,
+      })
+    );
     act(() => {
       result.current.triggerWrongPlacement(1);
       result.current.cleanupAnimations();
     });
     // No error should be thrown
   });
-}); 
+});

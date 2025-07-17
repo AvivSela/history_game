@@ -10,26 +10,32 @@ import { TIMING } from '../constants/gameConstants';
  * @param {Map} options.insertionRefs - Map of insertion point refs
  * @returns {Object} { triggerWrongPlacement, cleanupAnimations }
  */
-export default function useWrongPlacementAnimation({ timelineRef, insertionRefs }) {
+export default function useWrongPlacementAnimation({
+  timelineRef,
+  insertionRefs,
+}) {
   /**
    * Triggers the wrong placement animation at a given position
    * @param {number} position - The insertion point index
    */
-  const triggerWrongPlacement = useCallback((position) => {
-    const timelineElement = timelineRef.current;
-    const insertionPointElement = insertionRefs.current.get(position);
-    if (timelineElement) {
-      animations.wrongPlacement(null, timelineElement, insertionPointElement);
-      setTimeout(() => {
-        if (insertionPointElement) {
-          animations.cleanup(insertionPointElement);
-        }
-        if (timelineElement) {
-          animations.cleanup(timelineElement);
-        }
-      }, TIMING.WRONG_PLACEMENT_INDICATOR);
-    }
-  }, [timelineRef, insertionRefs]);
+  const triggerWrongPlacement = useCallback(
+    position => {
+      const timelineElement = timelineRef.current;
+      const insertionPointElement = insertionRefs.current.get(position);
+      if (timelineElement) {
+        animations.wrongPlacement(null, timelineElement, insertionPointElement);
+        setTimeout(() => {
+          if (insertionPointElement) {
+            animations.cleanup(insertionPointElement);
+          }
+          if (timelineElement) {
+            animations.cleanup(timelineElement);
+          }
+        }, TIMING.WRONG_PLACEMENT_INDICATOR);
+      }
+    },
+    [timelineRef, insertionRefs]
+  );
 
   /**
    * Cleans up all wrong placement animations
@@ -49,4 +55,4 @@ export default function useWrongPlacementAnimation({ timelineRef, insertionRefs 
     triggerWrongPlacement,
     cleanupAnimations,
   };
-} 
+}

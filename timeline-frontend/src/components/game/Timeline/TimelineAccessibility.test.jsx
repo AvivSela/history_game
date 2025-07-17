@@ -249,15 +249,25 @@ describe('Timeline Accessibility', () => {
       const leftButton = screen.getByLabelText('Scroll timeline to the left');
       const rightButton = screen.getByLabelText('Scroll timeline to the right');
 
-      expect(leftButton).toHaveAttribute('aria-describedby', 'scroll-left-description');
-      expect(rightButton).toHaveAttribute('aria-describedby', 'scroll-right-description');
+      expect(leftButton).toHaveAttribute(
+        'aria-describedby',
+        'scroll-left-description'
+      );
+      expect(rightButton).toHaveAttribute(
+        'aria-describedby',
+        'scroll-right-description'
+      );
     });
 
     it('should have screen reader descriptions for scroll buttons', () => {
       render(<Timeline events={mockEvents} />);
 
-      expect(screen.getByText('Navigate to previous timeline events')).toBeInTheDocument();
-      expect(screen.getByText('Navigate to next timeline events')).toBeInTheDocument();
+      expect(
+        screen.getByText('Navigate to previous timeline events')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Navigate to next timeline events')
+      ).toBeInTheDocument();
     });
   });
-}); 
+});

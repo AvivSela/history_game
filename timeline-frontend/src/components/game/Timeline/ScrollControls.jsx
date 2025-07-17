@@ -62,4 +62,4 @@ ScrollControls.propTypes = {
   onScrollRight: PropTypes.func.isRequired,
 };
 
-export default ScrollControls; 
+export default ScrollControls;

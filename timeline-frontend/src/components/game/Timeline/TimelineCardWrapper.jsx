@@ -76,4 +76,4 @@ TimelineCardWrapper.propTypes = {
   onCardClick: PropTypes.func,
 };
 
-export default TimelineCardWrapper; 
+export default TimelineCardWrapper;

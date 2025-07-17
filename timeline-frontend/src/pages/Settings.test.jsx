@@ -169,8 +169,6 @@ describe('Settings Page', () => {
         expect(screen.getByText('🔄 Reset to Defaults')).toBeInTheDocument();
       });
     });
-
-
   });
 
   describe('Loading States', () => {

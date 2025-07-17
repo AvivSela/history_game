@@ -133,19 +133,31 @@ describe('InsertionPoint', () => {
     it('should show tooltip when hovered with selected card', () => {
       render(<InsertionPoint {...defaultProps} isHovered={true} />);
 
-      expect(screen.getByText('Place "Berlin Wall Falls" here')).toBeInTheDocument();
+      expect(
+        screen.getByText('Place "Berlin Wall Falls" here')
+      ).toBeInTheDocument();
     });
 
     it('should not show tooltip when not hovered', () => {
       render(<InsertionPoint {...defaultProps} isHovered={false} />);
 
-      expect(screen.queryByText('Place "Berlin Wall Falls" here')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Place "Berlin Wall Falls" here')
+      ).not.toBeInTheDocument();
     });
 
     it('should not show tooltip when no card is selected', () => {
-      render(<InsertionPoint {...defaultProps} isHovered={true} selectedCard={null} />);
+      render(
+        <InsertionPoint
+          {...defaultProps}
+          isHovered={true}
+          selectedCard={null}
+        />
+      );
 
-      expect(screen.queryByText('Place "Berlin Wall Falls" here')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Place "Berlin Wall Falls" here')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -171,4 +183,4 @@ describe('InsertionPoint', () => {
       expect(insertionPoint).toHaveAttribute('role', 'button');
     });
   });
-}); 
+});

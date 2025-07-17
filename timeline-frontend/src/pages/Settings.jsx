@@ -277,10 +277,6 @@ const SettingsContent = () => {
             </div>
           </SettingsSection>
 
-
-
-
-
           {/* Action Buttons */}
           <div className="settings-actions">
             <button
@@ -295,11 +291,7 @@ const SettingsContent = () => {
             >
               🔄 Reset to Defaults
             </button>
-
-
           </div>
-
-
         </div>
       </div>
 

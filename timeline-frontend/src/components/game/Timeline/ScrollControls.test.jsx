@@ -14,7 +14,12 @@ describe('ScrollControls', () => {
 
       const container = screen.getByTestId('timeline-scroll');
       expect(container).toBeInTheDocument();
-      expect(container).toHaveClass('absolute', 'top-1/2', 'transform', '-translate-y-1/2');
+      expect(container).toHaveClass(
+        'absolute',
+        'top-1/2',
+        'transform',
+        '-translate-y-1/2'
+      );
     });
 
     it('should render left scroll button', () => {
@@ -47,7 +52,9 @@ describe('ScrollControls', () => {
 
     it('should call onScrollRight when right button is clicked', () => {
       const onScrollRight = vi.fn();
-      render(<ScrollControls {...defaultProps} onScrollRight={onScrollRight} />);
+      render(
+        <ScrollControls {...defaultProps} onScrollRight={onScrollRight} />
+      );
 
       const rightButton = screen.getByTitle('Scroll right');
       fireEvent.click(rightButton);
@@ -83,7 +90,12 @@ describe('ScrollControls', () => {
       render(<ScrollControls {...defaultProps} />);
 
       const container = screen.getByTestId('timeline-scroll');
-      expect(container).toHaveClass('left-2', 'right-2', 'lg:left-4', 'lg:right-4');
+      expect(container).toHaveClass(
+        'left-2',
+        'right-2',
+        'lg:left-4',
+        'lg:right-4'
+      );
     });
 
     it('should have proper button styling classes', () => {
@@ -141,4 +153,4 @@ describe('ScrollControls', () => {
       expect(rightButton).toHaveTextContent('›');
     });
   });
-}); 
+});

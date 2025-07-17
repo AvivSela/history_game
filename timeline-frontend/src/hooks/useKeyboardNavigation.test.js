@@ -17,7 +17,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should focus previous insertion point on ArrowLeft', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: 'ArrowLeft', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 1);
@@ -27,7 +29,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should focus next insertion point on ArrowRight', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: 'ArrowRight', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 1);
@@ -37,7 +41,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should wrap around to last on ArrowLeft from first', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: 'ArrowLeft', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 0);
@@ -47,7 +53,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should wrap around to first on ArrowRight from last', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: 'ArrowRight', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 2);
@@ -57,7 +65,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should call onSelect on Enter', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: 'Enter', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 1);
@@ -67,7 +77,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should call onSelect on Space', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: ' ', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 1);
@@ -77,7 +89,9 @@ describe('useKeyboardNavigation', () => {
   });
 
   it('should do nothing for unrelated keys', () => {
-    const { result } = renderHook(() => useKeyboardNavigation({ insertionRefs, onSelect }));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation({ insertionRefs, onSelect })
+    );
     const event = { key: 'Tab', preventDefault: vi.fn() };
     act(() => {
       result.current.handleKeyDown(event, 1);
@@ -88,4 +102,4 @@ describe('useKeyboardNavigation', () => {
     expect(onSelect).not.toHaveBeenCalled();
     expect(event.preventDefault).not.toHaveBeenCalled();
   });
-}); 
+});

@@ -155,10 +155,7 @@ describe('Settings Validation', () => {
     });
 
     describe('Boolean Settings Validation', () => {
-      const booleanSettings = [
-        'animations',
-        'soundEffects',
-      ];
+      const booleanSettings = ['animations', 'soundEffects'];
 
       booleanSettings.forEach(setting => {
         it(`should validate ${setting} with boolean values`, () => {

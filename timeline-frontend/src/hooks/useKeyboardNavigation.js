@@ -20,10 +20,13 @@ export default function useKeyboardNavigation({ insertionRefs, onSelect }) {
     (e, currentIndex) => {
       const keys = ['ArrowLeft', 'ArrowRight', 'Enter', ' ', 'Spacebar'];
       if (!keys.includes(e.key)) return;
-      const indices = Array.from(insertionRefs.current.keys()).sort((a, b) => a - b);
+      const indices = Array.from(insertionRefs.current.keys()).sort(
+        (a, b) => a - b
+      );
       const currentPos = indices.indexOf(currentIndex);
       if (e.key === 'ArrowLeft') {
-        const prevIndex = indices[(currentPos - 1 + indices.length) % indices.length];
+        const prevIndex =
+          indices[(currentPos - 1 + indices.length) % indices.length];
         const prevRef = insertionRefs.current.get(prevIndex);
         if (prevRef && prevRef.focus) prevRef.focus();
         e.preventDefault();
@@ -41,4 +44,4 @@ export default function useKeyboardNavigation({ insertionRefs, onSelect }) {
   );
 
   return { handleKeyDown };
-} 
+}

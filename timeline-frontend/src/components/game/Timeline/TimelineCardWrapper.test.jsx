@@ -50,7 +50,9 @@ describe('TimelineCardWrapper', () => {
   describe('Interactions', () => {
     it('should call onCardClick when card is clicked', () => {
       const onCardClick = vi.fn();
-      render(<TimelineCardWrapper event={mockEvent} onCardClick={onCardClick} />);
+      render(
+        <TimelineCardWrapper event={mockEvent} onCardClick={onCardClick} />
+      );
 
       const card = screen.getByText('World War II Begins');
       fireEvent.click(card);
@@ -109,7 +111,23 @@ describe('TimelineCardWrapper', () => {
       const yearElement = screen.getByText('1939');
       // The date container is the parent of the year element
       const dateContainer = yearElement.parentElement;
-      expect(dateContainer).toHaveClass('text-center', 'bg-card', 'px-3', 'py-2', 'rounded-lg', 'shadow-sm', 'border', 'border-border', 'min-w-[80px]', 'md:px-2', 'md:py-1', 'md:min-w-[70px]', 'sm:px-1', 'sm:py-1', 'sm:min-w-[60px]');
+      expect(dateContainer).toHaveClass(
+        'text-center',
+        'bg-card',
+        'px-3',
+        'py-2',
+        'rounded-lg',
+        'shadow-sm',
+        'border',
+        'border-border',
+        'min-w-[80px]',
+        'md:px-2',
+        'md:py-1',
+        'md:min-w-[70px]',
+        'sm:px-1',
+        'sm:py-1',
+        'sm:min-w-[60px]'
+      );
     });
   });
 
@@ -128,4 +146,4 @@ describe('TimelineCardWrapper', () => {
       expect(card).toBeInTheDocument();
     });
   });
-}); 
+});
