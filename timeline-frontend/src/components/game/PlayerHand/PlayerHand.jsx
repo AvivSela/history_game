@@ -323,9 +323,15 @@ const PlayerHand = forwardRef(
 
     return (
       <div
-        className={`player-hand-container bg-card rounded-lg p-4 shadow-md my-4 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none lg:p-5 lg:my-5 ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`}
+        className={`player-hand-container bg-card rounded-lg p-4 shadow-md my-4 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none lg:p-5 lg:my-5 ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''}`}
         data-testid="player-hand-container"
-        style={{ overflow: 'visible' }}
+        style={{ 
+          overflow: 'visible',
+          ...(isPlayerTurn && {
+            borderColor: 'rgb(34, 197, 94)',
+            boxShadow: '0 0 0 3px rgba(39, 174, 96, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          })
+        }}
       >
         {isPlayerTurn && (
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-success via-green-500 to-success animate-pulse"></div>
@@ -349,7 +355,7 @@ const PlayerHand = forwardRef(
           </div>
         </div>
         <div className="mb-4 relative lg:mb-5">
-          <div className="card-area relative flex justify-center items-center py-[60px] px-[40px] min-h-[360px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible lg:py-[80px] lg:px-[60px] lg:min-h-[395px] md:py-[60px] md:px-5 md:min-h-[355px] sm:py-[40px] sm:px-2 sm:min-h-[335px]">
+          <div className="card-area relative flex justify-center items-center py-16 px-10 min-h-[360px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible lg:py-20 lg:px-15 lg:min-h-[395px] md:py-16 md:px-5 md:min-h-[355px] sm:py-10 sm:px-2 sm:min-h-[335px]">
             {cards.map((card, index) => {
               const isSelected = selectedCard && selectedCard.id === card.id;
               return (

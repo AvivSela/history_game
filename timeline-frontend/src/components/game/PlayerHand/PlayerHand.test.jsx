@@ -302,7 +302,9 @@ describe('PlayerHand Component', () => {
       );
 
       const handContainer = container.querySelector('.player-hand-container');
-      expect(handContainer).toHaveClass('border-success', 'shadow-lg');
+      expect(handContainer).toHaveAttribute('style');
+      expect(handContainer.style.borderColor).toBe('rgb(34, 197, 94)');
+      expect(handContainer.style.boxShadow).toBe('0 0 0 3px rgba(39, 174, 96, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.1)');
     });
   });
 

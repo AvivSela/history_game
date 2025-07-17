@@ -226,39 +226,54 @@ const Timeline = forwardRef(
     if (sortedEvents.length === 0) {
       return (
         <div
-          className={`bg-card rounded-lg shadow-md border border-border relative overflow-visible w-full max-w-none px-[${UI_DIMENSIONS.TIMELINE_CONTAINER_PADDING}px] my-[${UI_DIMENSIONS.TIMELINE_CONTAINER_MARGIN}px]`}
+          className="bg-card rounded-lg shadow-md border border-border relative overflow-visible w-full max-w-none"
+          style={{
+            padding: `${UI_DIMENSIONS.TIMELINE_CONTAINER_PADDING}px`,
+            margin: `${UI_DIMENSIONS.TIMELINE_CONTAINER_MARGIN}px 0`,
+          }}
           data-testid="timeline-container"
         >
           <div className="relative">
             <div
-              className={`overflow-x-auto overflow-y-visible scroll-smooth md:py-4 sm:py-3 pt-[${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px] pb-[${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px]`}
+              className="overflow-x-auto overflow-y-visible scroll-smooth md:py-4 sm:py-3"
               ref={timelineRef}
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#3498db #ecf0f1',
+                paddingTop: `${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px`,
+                paddingBottom: `${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px`,
               }}
               data-testid="timeline-content"
             >
               <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
             </div>
             <div
-              className={`text-center md:py-10 sm:py-6 pt-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px] pb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px]`}
+              className="text-center md:py-10 sm:py-6"
+              style={{
+                paddingTop: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px`,
+                paddingBottom: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px`,
+              }}
             >
               <div
-                className={`bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg border border-secondary/20 p-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_INNER_PADDING}px]`}
+                className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg border border-secondary/20"
+                style={{
+                  padding: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_INNER_PADDING}px`,
+                }}
               >
                 <div
-                  className={`mb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_MARGIN}px]`}
+                  className="mb-4"
                   style={{
                     fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_SIZE}px`,
+                    marginBottom: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_MARGIN}px`,
                   }}
                 >
                   ⏰
                 </div>
                 <h3
-                  className={`text-primary font-bold mb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_MARGIN}px]`}
+                  className="text-primary font-bold mb-2"
                   style={{
                     fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_SIZE}px`,
+                    marginBottom: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_MARGIN}px`,
                   }}
                 >
                   Timeline is empty
@@ -303,7 +318,9 @@ const Timeline = forwardRef(
                     data-testid="timeline-card-wrapper"
                   >
                     <div className="flex flex-col items-center gap-1.5 mb-1.5 lg:gap-2 lg:mb-2 md:gap-1 md:mb-1">
-                      <div className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border min-w-[80px] md:px-2 md:py-1 md:min-w-[70px] sm:px-1 sm:py-1 sm:min-w-[60px]">
+                      <div 
+                        className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border md:px-2 md:py-1 sm:px-1 sm:py-1 min-w-[80px] md:min-w-[70px] sm:min-w-[60px]"
+                      >
                         <div className="text-base font-bold text-primary leading-none md:text-sm sm:text-xs">
                           {new Date(event.dateOccurred).getFullYear()}
                         </div>
