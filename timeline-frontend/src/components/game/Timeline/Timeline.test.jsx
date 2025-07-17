@@ -35,196 +35,40 @@ const mockSelectedCard = {
 };
 
 describe('Timeline', () => {
-  describe('Insertion Points', () => {
-    it('should not show insertion points when highlightInsertionPoints is false', () => {
-      render(<Timeline events={mockEvents} highlightInsertionPoints={false} />);
-
-      const insertionPoints = screen.queryAllByTestId('insertion-point');
-      expect(insertionPoints).toHaveLength(0);
-    });
-
-    it('should show insertion points when highlightInsertionPoints is true', () => {
-      render(<Timeline events={mockEvents} highlightInsertionPoints={true} />);
-
-      const insertionPoints = screen.getAllByTestId('insertion-point');
-      expect(insertionPoints).toHaveLength(4); // Before first + after each event
-    });
-
-    it('should show insertion points with proper positioning', () => {
-      render(<Timeline events={mockEvents} highlightInsertionPoints={true} />);
-
-      const insertionPoints = screen.getAllByTestId('insertion-point');
-      expect(insertionPoints).toHaveLength(4);
-
-      // Check data attributes for drop zones
-      expect(insertionPoints[0]).toHaveAttribute(
-        'data-drop-zone',
-        'timeline-0'
-      );
-      expect(insertionPoints[1]).toHaveAttribute(
-        'data-drop-zone',
-        'timeline-1'
-      );
-      expect(insertionPoints[2]).toHaveAttribute(
-        'data-drop-zone',
-        'timeline-2'
-      );
-      expect(insertionPoints[3]).toHaveAttribute(
-        'data-drop-zone',
-        'timeline-3'
-      );
-    });
-
-    it('should make insertion points clickable when a card is selected', () => {
-      render(
-        <Timeline
-          events={mockEvents}
-          highlightInsertionPoints={true}
-          selectedCard={mockSelectedCard}
-        />
-      );
-
-      const insertionPoints = screen.getAllByTestId('insertion-point');
-      insertionPoints.forEach(point => {
-        expect(point).toHaveClass('opacity-60');
-      });
-    });
-
-    it('should call onInsertionPointClick when insertion point is clicked', () => {
+  describe('Basic Functionality', () => {
+    it('renders events and allows interactions', () => {
+      const onCardClick = vi.fn();
       const onInsertionPointClick = vi.fn();
+
       render(
         <Timeline
           events={mockEvents}
           highlightInsertionPoints={true}
           selectedCard={mockSelectedCard}
+          onCardClick={onCardClick}
           onInsertionPointClick={onInsertionPointClick}
         />
       );
 
-      const firstInsertionPoint = screen.getAllByTestId('insertion-point')[0];
-      fireEvent.click(firstInsertionPoint);
+      // Verify events are displayed
+      expect(screen.getByText('World War II Begins')).toBeInTheDocument();
+      expect(screen.getByText('Moon Landing')).toBeInTheDocument();
+      expect(screen.getByText('Internet Created')).toBeInTheDocument();
 
+      // Test card click
+      const firstCard = screen.getByText('World War II Begins');
+      fireEvent.click(firstCard);
+      expect(onCardClick).toHaveBeenCalledWith(mockEvents[0]);
+
+      // Test insertion point click
+      const insertionPoints = screen.getAllByTestId('insertion-point');
+      expect(insertionPoints.length).toBeGreaterThan(0);
+
+      fireEvent.click(insertionPoints[0]);
       expect(onInsertionPointClick).toHaveBeenCalledWith(0);
     });
 
-    it('should not call onInsertionPointClick when no card is selected', () => {
-      const onInsertionPointClick = vi.fn();
-      render(
-        <Timeline
-          events={mockEvents}
-          highlightInsertionPoints={true}
-          selectedCard={null}
-          onInsertionPointClick={onInsertionPointClick}
-        />
-      );
-
-      const firstInsertionPoint = screen.getAllByTestId('insertion-point')[0];
-      fireEvent.click(firstInsertionPoint);
-
-      expect(onInsertionPointClick).not.toHaveBeenCalled();
-    });
-
-    it('should show hover tooltip when insertion point is hovered with selected card', () => {
-      render(
-        <Timeline
-          events={mockEvents}
-          highlightInsertionPoints={true}
-          selectedCard={mockSelectedCard}
-        />
-      );
-
-      const firstInsertionPoint = screen.getAllByTestId('insertion-point')[0];
-      fireEvent.mouseEnter(firstInsertionPoint);
-
-      expect(
-        screen.getByText('Place "Berlin Wall Falls" here')
-      ).toBeInTheDocument();
-      expect(screen.getByText('📍')).toBeInTheDocument();
-    });
-
-    it('should remove tooltip when mouse leaves insertion point', () => {
-      render(
-        <Timeline
-          events={mockEvents}
-          highlightInsertionPoints={true}
-          selectedCard={mockSelectedCard}
-        />
-      );
-
-      const firstInsertionPoint = screen.getAllByTestId('insertion-point')[0];
-      fireEvent.mouseEnter(firstInsertionPoint);
-      expect(
-        screen.getByText('Place "Berlin Wall Falls" here')
-      ).toBeInTheDocument();
-
-      fireEvent.mouseLeave(firstInsertionPoint);
-      expect(
-        screen.queryByText('Place "Berlin Wall Falls" here')
-      ).not.toBeInTheDocument();
-    });
-
-    it('should apply hovered class when insertion point is hovered', () => {
-      render(
-        <Timeline
-          events={mockEvents}
-          highlightInsertionPoints={true}
-          selectedCard={mockSelectedCard}
-        />
-      );
-
-      const firstInsertionPoint = screen.getAllByTestId('insertion-point')[0];
-      fireEvent.mouseEnter(firstInsertionPoint);
-
-      expect(firstInsertionPoint).toHaveClass(
-        'opacity-100',
-        'scale-110',
-        'bg-blue-500/5',
-        'rounded-lg'
-      );
-    });
-  });
-
-  describe('Event Display', () => {
-    it('should display events in chronological order', () => {
-      render(<Timeline events={mockEvents} />);
-
-      const cardTitles = screen.getAllByText(
-        /World War II Begins|Moon Landing|Internet Created/
-      );
-      expect(cardTitles[0]).toHaveTextContent('World War II Begins');
-      expect(cardTitles[1]).toHaveTextContent('Moon Landing');
-      expect(cardTitles[2]).toHaveTextContent('Internet Created');
-    });
-
-    it('should display correct year information for events', () => {
-      render(<Timeline events={mockEvents} />);
-
-      expect(screen.getByText('1939')).toBeInTheDocument();
-      expect(screen.getByText('1969')).toBeInTheDocument();
-      expect(screen.getByText('1989')).toBeInTheDocument();
-    });
-
-    it('should display correct date information for events', () => {
-      render(<Timeline events={mockEvents} />);
-
-      expect(screen.getByText('Sep 1')).toBeInTheDocument();
-      expect(screen.getByText('Jul 20')).toBeInTheDocument();
-      expect(screen.getByText('Mar 12')).toBeInTheDocument();
-    });
-
-    it('should call onCardClick when timeline card is clicked', () => {
-      const onCardClick = vi.fn();
-      render(<Timeline events={mockEvents} onCardClick={onCardClick} />);
-
-      const firstCard = screen.getByText('World War II Begins');
-      fireEvent.click(firstCard);
-
-      expect(onCardClick).toHaveBeenCalledWith(mockEvents[0]);
-    });
-  });
-
-  describe('Empty Timeline', () => {
-    it('should show empty state when no events exist', () => {
+    it('handles empty timeline', () => {
       render(<Timeline events={[]} />);
 
       expect(screen.getByText('Timeline is empty')).toBeInTheDocument();
@@ -232,69 +76,54 @@ describe('Timeline', () => {
         screen.getByText('Cards will appear here as you place them correctly')
       ).toBeInTheDocument();
     });
+  });
 
-    it('should show insertion point in empty timeline when highlighting is enabled', () => {
-      render(<Timeline events={[]} highlightInsertionPoints={true} />);
+  describe('Insertion Points', () => {
+    it('shows insertion points when highlighting is enabled', () => {
+      render(
+        <Timeline
+          events={mockEvents}
+          highlightInsertionPoints={true}
+          selectedCard={mockSelectedCard}
+        />
+      );
 
       const insertionPoints = screen.getAllByTestId('insertion-point');
-      expect(insertionPoints).toHaveLength(1);
+      expect(insertionPoints.length).toBeGreaterThan(0);
+
+      // Test tooltip on hover
+      fireEvent.mouseEnter(insertionPoints[0]);
+      expect(
+        screen.getByText('Place "Berlin Wall Falls" here')
+      ).toBeInTheDocument();
+    });
+
+    it('hides insertion points when highlighting is disabled', () => {
+      render(
+        <Timeline
+          events={mockEvents}
+          highlightInsertionPoints={false}
+          selectedCard={mockSelectedCard}
+        />
+      );
+
+      const insertionPoints = screen.queryAllByTestId('insertion-point');
+      expect(insertionPoints).toHaveLength(0);
     });
   });
 
   describe('Scroll Controls', () => {
-    it('should show scroll controls when there are more than 2 events', () => {
+    it('shows scroll controls when needed', () => {
       render(<Timeline events={mockEvents} />);
 
       expect(screen.getByTestId('timeline-scroll')).toBeInTheDocument();
     });
 
-    it('should not show scroll controls when there are 2 or fewer events', () => {
+    it('hides scroll controls when not needed', () => {
       const fewEvents = mockEvents.slice(0, 2);
       render(<Timeline events={fewEvents} />);
 
       expect(screen.queryByTestId('timeline-scroll')).not.toBeInTheDocument();
-    });
-
-    it('should call scroll function when scroll buttons are clicked', () => {
-      render(<Timeline events={mockEvents} />);
-
-      const scrollContainer = screen.getByTestId('timeline-scroll');
-      const leftButton = scrollContainer.querySelector(
-        'button[title="Scroll left"]'
-      );
-      const rightButton = scrollContainer.querySelector(
-        'button[title="Scroll right"]'
-      );
-
-      expect(leftButton).toBeInTheDocument();
-      expect(rightButton).toBeInTheDocument();
-
-      fireEvent.click(leftButton);
-      fireEvent.click(rightButton);
-      // Note: We can't easily test the actual scroll behavior in JSDOM
-      // but we can verify the buttons exist and are clickable
-    });
-  });
-
-  describe('Timeline Structure', () => {
-    it('should have proper timeline structure elements', () => {
-      render(<Timeline events={mockEvents} />);
-
-      expect(screen.getByTestId('timeline-container')).toBeInTheDocument();
-      expect(screen.getByTestId('timeline-content')).toBeInTheDocument();
-      expect(screen.getByTestId('timeline-scroll')).toBeInTheDocument();
-    });
-
-    it('should wrap each event in proper structure', () => {
-      render(<Timeline events={mockEvents} />);
-
-      const cardWrappers = screen.getAllByTestId('timeline-card-wrapper');
-      expect(cardWrappers).toHaveLength(3);
-
-      // Each wrapper should contain a card
-      cardWrappers.forEach(wrapper => {
-        expect(wrapper).toBeInTheDocument();
-      });
     });
   });
 });

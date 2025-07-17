@@ -79,8 +79,16 @@
     filter 0.3s ease;
   position: relative;
   user-select: none;
-  width: 220px;
-  height: 300px;
+  width: 200px;
+  height: 280px;
+}
+
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .card-container {
+    width: 220px;
+    height: 300px;
+  }
 }
 
 /* Enhanced drag states */
@@ -93,8 +101,15 @@
 }
 
 .card-container:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   filter: brightness(1.1);
+}
+
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .card-container:hover {
+    transform: translateY(-4px);
+  }
 }
 
 .card-container.dragging {
@@ -104,12 +119,26 @@
 }
 
 .card-container.selected {
-  transform: scale(1.08) translateY(-12px);
+  transform: scale(1.06) translateY(-8px);
   z-index: 500;
 }
 
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .card-container.selected {
+    transform: scale(1.08) translateY(-12px);
+  }
+}
+
 .card-container.hovered {
-  transform: scale(1.05) translateY(-8px);
+  transform: scale(1.04) translateY(-6px);
+}
+
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .card-container.hovered {
+    transform: scale(1.05) translateY(-8px);
+  }
 }
 
 /* Card Face */

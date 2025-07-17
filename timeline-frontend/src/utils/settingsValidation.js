@@ -329,22 +329,17 @@ const validateVersion = (value, result) => {
 
 /**
  * Add helpful suggestions based on setting values
- * @param {string} key - Setting key
- * @param {*} value - Setting value
- * @param {Object} result - Validation result object to update
  * @private
  */
-const addSuggestions = (key, value, result) => {
+const addSuggestions = () => {
   // Removed autoSave and performanceMode suggestions
 };
 
 /**
  * Validate cross-field rules and dependencies
- * @param {Object} settings - Settings object
- * @param {Object} result - Validation result object to update
  * @private
  */
-const validateCrossFieldRules = (settings, result) => {
+const validateCrossFieldRules = () => {
   // Removed performanceMode and animations cross-field rules
 };
 
