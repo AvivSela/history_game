@@ -74,7 +74,7 @@ const PlayerHand = forwardRef(
     const [newCardId, setNewCardId] = useState(null);
     const animationRefs = useRef(new Map());
 
-    // Calculate card positions for spread layout
+    // Calculate card positions for spread layout optimized for vertical layout
     useEffect(() => {
       const positions = cards.map((_, index) => {
         const totalCards = cards.length;
@@ -91,23 +91,25 @@ const PlayerHand = forwardRef(
           };
         } else {
           const cardWidth = UI_DIMENSIONS.CARD_WIDTH;
+          // Optimize overlap factor for vertical layout - less overlap for better visibility
           const overlapFactor = Math.max(
-            UI_DIMENSIONS.CARD_OVERLAP_FACTOR,
-            1 - totalCards * UI_DIMENSIONS.CARD_OVERLAP_REDUCTION
+            UI_DIMENSIONS.CARD_OVERLAP_FACTOR * 0.8,
+            1 - totalCards * UI_DIMENSIONS.CARD_OVERLAP_REDUCTION * 1.2
           );
           const spacing = cardWidth * overlapFactor;
           const totalWidth = (totalCards - 1) * spacing;
           const startX = -totalWidth / 2;
+          // Reduce angle for better vertical layout visibility
           const maxAngle = Math.min(
-            totalCards * UI_DIMENSIONS.HAND_ANGLE_MULTIPLIER,
-            UI_DIMENSIONS.HAND_MAX_ANGLE
+            totalCards * UI_DIMENSIONS.HAND_ANGLE_MULTIPLIER * 0.7,
+            UI_DIMENSIONS.HAND_MAX_ANGLE * 0.8
           );
           const angleStep = totalCards > 1 ? maxAngle / (totalCards - 1) : 0;
           const angle = -maxAngle / 2 + index * angleStep;
           return {
             angle,
             translateX: startX + index * spacing,
-            translateY: Math.abs(angle) * 0.8,
+            translateY: Math.abs(angle) * 0.6, // Reduced vertical offset for better vertical layout
             zIndex: index,
           };
         }
@@ -266,7 +268,7 @@ const PlayerHand = forwardRef(
       const isHovered = hoveredCard === cards[index].id;
       let transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg)`;
       if (isSelected) {
-        transform = `translateX(${position.translateX}px) translateY(-${UI_DIMENSIONS.HAND_SELECTED_OFFSET}px) rotate(0deg)`;
+        transform = `translateX(${position.translateX}px) translateY(-${UI_DIMENSIONS.HAND_SELECTED_OFFSET * 0.8}px) rotate(0deg)`;
       } else if (isHovered) {
         transform = `translateX(${position.translateX}px) translateY(${position.translateY}px) rotate(${position.angle}deg) scale(${UI_DIMENSIONS.HAND_HOVER_SCALE})`;
       }
@@ -285,10 +287,10 @@ const PlayerHand = forwardRef(
     if (cards.length === 0) {
       return (
         <div
-          className="bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none"
+          className="bg-card rounded-lg p-4 shadow-md my-4 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none lg:p-5 lg:my-5"
           data-testid="player-hand-container"
         >
-          <div className="flex justify-between items-start mb-5 pb-4 border-b-2 border-border">
+          <div className="flex justify-between items-start mb-4 pb-3 border-b-2 border-border lg:mb-5 lg:pb-4">
             <h3 className="text-primary text-xl font-bold m-0 mb-2">
               🎴 {playerName}'s Hand
             </h3>
@@ -321,14 +323,14 @@ const PlayerHand = forwardRef(
 
     return (
       <div
-        className={`player-hand-container bg-card rounded-lg p-5 shadow-md my-5 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`}
+        className={`player-hand-container bg-card rounded-lg p-4 shadow-md my-4 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none lg:p-5 lg:my-5 ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''} ${isPlayerTurn ? 'border-success shadow-[0_0_0_3px_rgba(39,174,96,0.2)] shadow-lg' : ''}`}
         data-testid="player-hand-container"
         style={{ overflow: 'visible' }}
       >
         {isPlayerTurn && (
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-success via-green-500 to-success animate-pulse"></div>
         )}
-        <div className="flex justify-between items-start mb-5 pb-4 border-b-2 border-border">
+        <div className="flex justify-between items-start mb-4 pb-3 border-b-2 border-border lg:mb-5 lg:pb-4">
           <div className="player-info">
             <h3 className="text-primary text-xl font-bold m-0 mb-2">
               🎴 {playerName}'s Hand
@@ -346,8 +348,8 @@ const PlayerHand = forwardRef(
             </div>
           </div>
         </div>
-        <div className="mb-5 relative">
-          <div className="card-area relative flex justify-center items-center py-[80px] px-[60px] min-h-[395px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible md:py-[60px] md:px-5 md:min-h-[355px] sm:py-[40px] sm:px-2 sm:min-h-[335px]">
+        <div className="mb-4 relative lg:mb-5">
+          <div className="card-area relative flex justify-center items-center py-[60px] px-[40px] min-h-[360px] w-full bg-gradient-to-br from-blue-50/5 to-purple-50/5 rounded-lg border border-blue-200/10 overflow-x-auto overflow-y-visible lg:py-[80px] lg:px-[60px] lg:min-h-[395px] md:py-[60px] md:px-5 md:min-h-[355px] sm:py-[40px] sm:px-2 sm:min-h-[335px]">
             {cards.map((card, index) => {
               const isSelected = selectedCard && selectedCard.id === card.id;
               return (

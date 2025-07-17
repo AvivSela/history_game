@@ -1,9 +1,16 @@
 .game-page {
   min-height: calc(100vh - 140px);
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 20px 24px;
+  padding: 16px 20px;
   width: 100%;
   max-width: none;
+}
+
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .game-page {
+    padding: 20px 24px;
+  }
 }
 
 /* Loading State */
@@ -220,13 +227,22 @@
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(90deg, #f8fafc 60%, #e0e7ff 100%);
-  padding: 32px 40px 28px 40px;
+  padding: 24px 32px 20px 32px;
   border-radius: 18px;
   box-shadow: 0 4px 24px 0 rgba(80, 80, 120, 0.1);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   border: 1.5px solid #e0e7ef;
   position: relative;
-  gap: 32px;
+  gap: 24px;
+}
+
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .game-header {
+    padding: 32px 40px 28px 40px;
+    margin-bottom: 32px;
+    gap: 32px;
+  }
 }
 
 .game-title-section {
@@ -336,9 +352,17 @@
 .game-board {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 32px;
-  margin-bottom: 32px;
+  gap: 24px;
+  margin-bottom: 24px;
   width: 100%;
+}
+
+/* Optimize for vertical layout */
+@media (min-width: 1024px) {
+  .game-board {
+    gap: 32px;
+    margin-bottom: 32px;
+  }
 }
 
 /* Game Controls */

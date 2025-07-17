@@ -147,7 +147,7 @@ const Timeline = forwardRef(
               insertionPointRefs.current.delete(index);
             }
           }}
-          className={`flex items-center justify-center h-80 w-20 cursor-pointer transition-all duration-200 flex-shrink-0 relative bg-transparent p-5 -m-5 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : 'opacity-60'} ${!isClickable ? 'opacity-30' : ''}`}
+          className={`flex items-center justify-center h-80 w-16 cursor-pointer transition-all duration-200 flex-shrink-0 relative bg-transparent p-4 -m-4 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : 'opacity-60'} ${!isClickable ? 'opacity-30' : ''}`}
           onClick={() => handleInsertionPointClick(index)}
           onMouseEnter={() => handleInsertionPointHover(index, true)}
           onMouseLeave={() => handleInsertionPointHover(index, false)}
@@ -239,17 +239,17 @@ const Timeline = forwardRef(
           >
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
             <div
-              className={`flex items-center justify-center gap-8 min-h-[${UI_DIMENSIONS.TIMELINE_MIN_HEIGHT}px] relative z-20 px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2`}
+              className={`flex items-center justify-center gap-6 min-h-[${UI_DIMENSIONS.TIMELINE_MIN_HEIGHT}px] relative z-20 px-6 lg:gap-8 lg:px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2`}
             >
               {/* Insertion point before first card */}
               {renderInsertionPoint(0)}
               {sortedEvents.map((event, index) => (
                 <React.Fragment key={event.id}>
                   <div
-                    className="flex flex-col items-center gap-4 flex-shrink-0 relative md:gap-3 sm:gap-2"
+                    className="flex flex-col items-center gap-3 flex-shrink-0 relative lg:gap-4 md:gap-3 sm:gap-2"
                     data-testid="timeline-card-wrapper"
                   >
-                    <div className="flex flex-col items-center gap-2 mb-2 md:gap-1 md:mb-1">
+                    <div className="flex flex-col items-center gap-1.5 mb-1.5 lg:gap-2 lg:mb-2 md:gap-1 md:mb-1">
                       <div className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border min-w-[80px] md:px-2 md:py-1 md:min-w-[70px] sm:px-1 sm:py-1 sm:min-w-[60px]">
                         <div className="text-base font-bold text-primary leading-none md:text-sm sm:text-xs">
                           {new Date(event.dateOccurred).getFullYear()}
@@ -286,18 +286,18 @@ const Timeline = forwardRef(
           {/* Scroll Controls */}
           {sortedEvents.length > 2 && (
             <div
-              className="absolute top-1/2 transform -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none"
+              className="absolute top-1/2 transform -translate-y-1/2 left-2 right-2 lg:left-4 lg:right-4 flex justify-between pointer-events-none"
               data-testid="timeline-scroll"
             >
               <button
-                className="w-12 h-12 bg-white/80 hover:bg-white text-primary text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto"
+                className="w-10 h-10 lg:w-12 lg:h-12 bg-white/80 hover:bg-white text-primary text-xl lg:text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto"
                 onClick={() => scrollTimeline('left')}
                 title="Scroll left"
               >
                 ‹
               </button>
               <button
-                className="w-12 h-12 bg-white/80 hover:bg-white text-primary text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto"
+                className="w-10 h-10 lg:w-12 lg:h-12 bg-white/80 hover:bg-white text-primary text-xl lg:text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto"
                 onClick={() => scrollTimeline('right')}
                 title="Scroll right"
               >

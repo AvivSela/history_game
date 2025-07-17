@@ -82,7 +82,7 @@ const GameBoard = memo(
 
         {/* Game Board */}
         <div
-          className="flex flex-col lg:flex-row gap-8"
+          className="flex flex-col gap-8"
           style={{ overflow: 'visible' }}
         >
           <div className="flex-1" style={{ overflow: 'visible' }}>
