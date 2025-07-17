@@ -13,6 +13,8 @@
 
 .card-count-slider--dragging .card-count-slider__thumb {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 .card-count-slider__header {
@@ -108,6 +110,8 @@
 
 .card-count-slider__thumb:active {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 .card-count-slider__range {
@@ -129,8 +133,8 @@
 .card-count-slider__input:focus
   + .card-count-slider__track
   .card-count-slider__thumb {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+  /* Remove outline to avoid double border when focused */
+  outline: none;
 }
 
 /* Responsive Design */
