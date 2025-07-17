@@ -4,10 +4,16 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useMemo,
+  useCallback,
 } from 'react';
+import PropTypes from 'prop-types';
 import Card from '../Card';
+import InsertionPoint from './InsertionPoint';
 import { animations } from '@utils/animation';
 import { UI_DIMENSIONS, TIMING } from '@constants/gameConstants';
+import useKeyboardNavigation from '@hooks/useKeyboardNavigation';
+import ScrollControls from './ScrollControls';
 import './Timeline.css';
 
 /**
@@ -67,6 +73,12 @@ const Timeline = forwardRef(
     const timelineRef = useRef(null);
     const insertionPointRefs = useRef(new Map());
 
+    // Keyboard navigation hook
+    const { handleKeyDown } = useKeyboardNavigation({
+      insertionRefs: insertionPointRefs,
+      onSelect: onInsertionPointClick,
+    });
+
     // Expose animation methods via ref
     useImperativeHandle(ref, () => ({
       animateWrongPlacement: position => {
@@ -100,8 +112,11 @@ const Timeline = forwardRef(
     }));
 
     // Sort events chronologically
-    const sortedEvents = [...events].sort(
-      (a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred)
+    const sortedEvents = useMemo(() => 
+      [...events].sort(
+        (a, b) => new Date(a.dateOccurred) - new Date(b.dateOccurred)
+      ),
+      [events]
     );
 
     // Auto-scroll to show new cards
@@ -119,60 +134,54 @@ const Timeline = forwardRef(
       }
     }, [events.length]);
 
-    const handleInsertionPointClick = index => {
+    const handleCardClick = useCallback((event) => {
+      if (onCardClick) {
+        onCardClick(event);
+      }
+    }, [onCardClick]);
+
+    const handleInsertionPointClick = useCallback(index => {
       if (onInsertionPointClick && selectedCard) {
         onInsertionPointClick(index);
       }
-    };
+    }, [onInsertionPointClick, selectedCard]);
 
-    const handleInsertionPointHover = (index, isEntering) => {
+    const handleInsertionPointHover = useCallback((index, isEntering) => {
       if (isEntering) {
         setHoveredInsertionPoint(index);
       } else {
         setHoveredInsertionPoint(null);
       }
-    };
+    }, []);
 
-    const renderInsertionPoint = index => {
+    const renderInsertionPoint = useCallback(index => {
       if (!highlightInsertionPoints) return null;
       const isHovered = hoveredInsertionPoint === index;
       const isClickable = selectedCard !== null;
+      
       return (
-        <div
+        <InsertionPoint
           key={`insertion-${index}`}
-          ref={el => {
+          index={index}
+          isHovered={isHovered}
+          isClickable={isClickable}
+          selectedCard={selectedCard}
+                     onClick={() => handleInsertionPointClick(index)}
+          onMouseEnter={() => handleInsertionPointHover(index, true)}
+          onMouseLeave={() => handleInsertionPointHover(index, false)}
+                     onKeyDown={(e) => handleKeyDown(e, index)}
+          onRef={el => {
             if (el) {
               insertionPointRefs.current.set(index, el);
             } else {
               insertionPointRefs.current.delete(index);
             }
           }}
-          className={`flex items-center justify-center h-80 w-16 cursor-pointer transition-all duration-200 flex-shrink-0 relative bg-transparent p-4 -m-4 ${isHovered ? 'opacity-100 scale-110 bg-blue-500/5 rounded-lg' : 'opacity-60'} ${!isClickable ? 'opacity-30' : ''}`}
-          onClick={() => handleInsertionPointClick(index)}
-          onMouseEnter={() => handleInsertionPointHover(index, true)}
-          onMouseLeave={() => handleInsertionPointHover(index, false)}
-          data-drop-zone={`timeline-${index}`}
-          data-testid="insertion-point"
-          style={{
-            width: `${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_WIDTH}px`,
-            minHeight: `${UI_DIMENSIONS.TIMELINE_INSERTION_POINT_HEIGHT}px`,
-          }}
-        >
-          <div className="w-12 h-12 border-4 border-dashed border-secondary rounded-full flex items-center justify-center bg-secondary/10 transition-all duration-200 relative">
-            <span className="text-lg">
-              {isHovered && selectedCard ? '📍' : '+'}
-            </span>
-            {isHovered && selectedCard && (
-              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-white text-gray-800 text-xs px-2 py-1 rounded shadow-lg border border-gray-200 whitespace-nowrap z-50">
-                Place "{selectedCard.title}" here
-              </div>
-            )}
-          </div>
-        </div>
+        />
       );
-    };
+    }, [highlightInsertionPoints, hoveredInsertionPoint, selectedCard, handleInsertionPointClick, handleInsertionPointHover, handleKeyDown]);
 
-    const scrollTimeline = direction => {
+    const scrollTimeline = useCallback(direction => {
       if (timelineRef.current && timelineRef.current.scrollTo) {
         const scrollAmount = UI_DIMENSIONS.TIMELINE_SCROLL_AMOUNT;
         const currentScroll = timelineRef.current.scrollLeft || 0;
@@ -185,30 +194,43 @@ const Timeline = forwardRef(
           behavior: 'smooth',
         });
       }
-    };
+    }, []);
+
+    // Memoized scroll handlers for ScrollControls
+    const handleScrollLeft = useCallback(() => scrollTimeline('left'), [scrollTimeline]);
+    const handleScrollRight = useCallback(() => scrollTimeline('right'), [scrollTimeline]);
 
     if (sortedEvents.length === 0) {
       return (
         <div
-          className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none"
+          className={`bg-card rounded-lg shadow-md border border-border relative overflow-visible w-full max-w-none px-[${UI_DIMENSIONS.TIMELINE_CONTAINER_PADDING}px] my-[${UI_DIMENSIONS.TIMELINE_CONTAINER_MARGIN}px]`}
           data-testid="timeline-container"
         >
           <div className="relative">
             <div
-              className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3"
+              className={`overflow-x-auto overflow-y-visible scroll-smooth md:py-4 sm:py-3 pt-[${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px] pb-[${UI_DIMENSIONS.TIMELINE_CONTENT_PADDING}px]`}
               ref={timelineRef}
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#3498db #ecf0f1',
-              }}
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}
               data-testid="timeline-content"
             >
               <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
             </div>
-            <div className="text-center py-16 md:py-10 sm:py-6">
-              <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg p-8 border border-secondary/20">
-                <div className="text-6xl mb-4">⏰</div>
-                <h3 className="text-primary text-xl font-bold mb-2">
+            <div 
+              className={`text-center md:py-10 sm:py-6 pt-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px] pb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_PADDING}px]`}
+            >
+              <div 
+                className={`bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg border border-secondary/20 p-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_INNER_PADDING}px]`}
+              >
+                <div 
+                  className={`mb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_MARGIN}px]`}
+                  style={{ fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_ICON_SIZE}px` }}
+                >
+                  ⏰
+                </div>
+                <h3 
+                  className={`text-primary font-bold mb-[${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_MARGIN}px]`}
+                  style={{ fontSize: `${UI_DIMENSIONS.TIMELINE_EMPTY_STATE_TITLE_SIZE}px` }}
+                >
                   Timeline is empty
                 </h3>
                 <p className="text-text-light">
@@ -224,22 +246,20 @@ const Timeline = forwardRef(
 
     return (
       <div
-        className="bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none"
+        className={`bg-card rounded-lg p-6 shadow-md my-5 border border-border relative overflow-visible w-full max-w-none`}
         data-testid="timeline-container"
       >
         <div className="relative">
           <div
-            className="overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3"
+            className={`overflow-x-auto overflow-y-visible py-6 scroll-smooth md:py-4 sm:py-3`}
             ref={timelineRef}
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#3498db #ecf0f1',
-            }}
+            style={{ scrollbarWidth: 'thin', scrollbarColor: '#3498db #ecf0f1' }}
             data-testid="timeline-content"
           >
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm z-0 shadow-sm"></div>
             <div
-              className={`flex items-center justify-center gap-6 min-h-[${UI_DIMENSIONS.TIMELINE_MIN_HEIGHT}px] relative z-20 px-6 lg:gap-8 lg:px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2`}
+              className={`flex items-center justify-center gap-6 relative z-20 px-6 lg:gap-8 lg:px-8 md:gap-6 md:px-4 sm:gap-4 sm:px-2`}
+              style={{ minHeight: `${UI_DIMENSIONS.TIMELINE_MIN_HEIGHT}px` }}
             >
               {/* Insertion point before first card */}
               {renderInsertionPoint(0)}
@@ -268,7 +288,7 @@ const Timeline = forwardRef(
                     <Card
                       event={event}
                       size="small"
-                      onClick={() => onCardClick && onCardClick(event)}
+                      onClick={() => handleCardClick(event)}
                       className="timeline-card"
                     />
                   </div>
@@ -285,25 +305,10 @@ const Timeline = forwardRef(
           </div>
           {/* Scroll Controls */}
           {sortedEvents.length > 2 && (
-            <div
-              className="absolute top-1/2 transform -translate-y-1/2 left-2 right-2 lg:left-4 lg:right-4 flex justify-between pointer-events-none"
-              data-testid="timeline-scroll"
-            >
-              <button
-                className="w-10 h-10 lg:w-12 lg:h-12 bg-white/80 hover:bg-white text-primary text-xl lg:text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto"
-                onClick={() => scrollTimeline('left')}
-                title="Scroll left"
-              >
-                ‹
-              </button>
-              <button
-                className="w-10 h-10 lg:w-12 lg:h-12 bg-white/80 hover:bg-white text-primary text-xl lg:text-2xl font-bold rounded-full shadow-lg border border-gray-200 flex items-center justify-center transition-all duration-200 hover:scale-110 pointer-events-auto"
-                onClick={() => scrollTimeline('right')}
-                title="Scroll right"
-              >
-                ›
-              </button>
-            </div>
+            <ScrollControls
+              onScrollLeft={handleScrollLeft}
+              onScrollRight={handleScrollRight}
+            />
           )}
         </div>
       </div>
@@ -312,5 +317,31 @@ const Timeline = forwardRef(
 );
 
 Timeline.displayName = 'Timeline';
+
+Timeline.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      title: PropTypes.string.isRequired,
+      dateOccurred: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+    })
+  ),
+  onCardClick: PropTypes.func,
+  highlightInsertionPoints: PropTypes.bool,
+  onInsertionPointClick: PropTypes.func,
+  selectedCard: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    dateOccurred: PropTypes.string.isRequired,
+    category: PropTypes.string.isRequired,
+  }),
+};
+
+Timeline.defaultProps = {
+  events: [],
+  highlightInsertionPoints: false,
+  selectedCard: null,
+};
 
 export default Timeline;
