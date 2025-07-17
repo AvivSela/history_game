@@ -42,11 +42,15 @@ describe('GameStatus Component', () => {
       );
 
       expect(screen.getByText('🎉 Congratulations!')).toBeInTheDocument();
-      expect(screen.getByText(/You've successfully placed all cards/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/You've successfully placed all cards/)
+      ).toBeInTheDocument();
       expect(screen.getByText(/Final Score: 150 points/)).toBeInTheDocument();
       expect(screen.getByText(/Total Moves: 8/)).toBeInTheDocument();
       expect(screen.getByText(/Correct Moves: 6/)).toBeInTheDocument();
-      expect(screen.getByText(/Average Time: 2.5s per move/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Average Time: 2.5s per move/)
+      ).toBeInTheDocument();
     });
 
     it('shows play again button when game is won', () => {
@@ -60,7 +64,7 @@ describe('GameStatus Component', () => {
 
       const playAgainButton = screen.getByText('🎮 Play Again');
       expect(playAgainButton).toBeInTheDocument();
-      
+
       fireEvent.click(playAgainButton);
       expect(mockOnRestartGame).toHaveBeenCalledTimes(1);
     });
@@ -76,7 +80,7 @@ describe('GameStatus Component', () => {
 
       const homeButton = screen.getByText('🏠 Home');
       expect(homeButton).toBeInTheDocument();
-      
+
       fireEvent.click(homeButton);
       expect(window.location.href).toBe('/');
     });
@@ -104,8 +108,12 @@ describe('GameStatus Component', () => {
       );
 
       expect(screen.getByText('⏸️ Game Paused')).toBeInTheDocument();
-      expect(screen.getByText(/Your game is currently paused/)).toBeInTheDocument();
-      expect(screen.getByText(/Click "Resume Game" to continue playing/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Your game is currently paused/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Click "Resume Game" to continue playing/)
+      ).toBeInTheDocument();
     });
 
     it('shows resume button when game is paused', () => {
@@ -119,7 +127,7 @@ describe('GameStatus Component', () => {
 
       const resumeButton = screen.getByText('▶️ Resume Game');
       expect(resumeButton).toBeInTheDocument();
-      
+
       fireEvent.click(resumeButton);
       expect(mockOnTogglePause).toHaveBeenCalledTimes(1);
     });
@@ -151,7 +159,9 @@ describe('GameStatus Component', () => {
         />
       );
 
-      expect(screen.getByText('Great job! That was correct!')).toBeInTheDocument();
+      expect(
+        screen.getByText('Great job! That was correct!')
+      ).toBeInTheDocument();
       expect(screen.getByText('+25 points!')).toBeInTheDocument();
     });
 
@@ -258,11 +268,13 @@ describe('GameStatus Component', () => {
         />
       );
 
-      const playAgainButton = screen.getByRole('button', { name: /play again/i });
+      const playAgainButton = screen.getByRole('button', {
+        name: /play again/i,
+      });
       const homeButton = screen.getByRole('button', { name: /home/i });
-      
+
       expect(playAgainButton).toBeInTheDocument();
       expect(homeButton).toBeInTheDocument();
     });
   });
-}); 
+});

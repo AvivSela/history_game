@@ -43,7 +43,11 @@ describe('Timeline Logic', () => {
     });
 
     it('handles small timeline', () => {
-      const result = validatePlacementWithTolerance(mockCard, [mockTimeline[0]], 1);
+      const result = validatePlacementWithTolerance(
+        mockCard,
+        [mockTimeline[0]],
+        1
+      );
       expect(result.isCorrect).toBe(true);
     });
   });
@@ -99,7 +103,10 @@ describe('Timeline Logic', () => {
         nextCard: mockTimeline[1],
       };
       const cardDate = new Date(mockCard.dateOccurred);
-      const relevance = calculateInsertionPointRelevance(insertionPoint, cardDate);
+      const relevance = calculateInsertionPointRelevance(
+        insertionPoint,
+        cardDate
+      );
       expect(relevance).toBeGreaterThan(0);
       expect(typeof relevance).toBe('number');
     });

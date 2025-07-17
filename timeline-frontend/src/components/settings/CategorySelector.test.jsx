@@ -80,7 +80,9 @@ describe('CategorySelector', () => {
     it('handles edge cases gracefully', () => {
       // Test with no selected categories
       render(<CategorySelector {...defaultProps} value={[]} />);
-      expect(screen.getByRole('button', { name: /Select categories/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Select categories/i })
+      ).toBeInTheDocument();
     });
   });
 });

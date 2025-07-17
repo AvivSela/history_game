@@ -5,8 +5,16 @@ import PlayerHand from './PlayerHand';
 
 // Mock the Card component
 vi.mock('../Card', () => ({
-  default: ({ event, isSelected, onClick, onMouseEnter, onMouseLeave, className, 'data-card-id': cardId }) => (
-    <div 
+  default: ({
+    event,
+    isSelected,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    className,
+    'data-card-id': cardId,
+  }) => (
+    <div
       className={className}
       data-card-id={cardId}
       data-testid={`card-${event.id}`}
@@ -99,7 +107,9 @@ describe('PlayerHand Component', () => {
       expect(screen.getByText("🎴 Player 1's Hand")).toBeInTheDocument();
       expect(screen.getByText('0 cards')).toBeInTheDocument();
       expect(screen.getByText('No cards remaining!')).toBeInTheDocument();
-      expect(screen.getByText(/Congratulations! You've placed all your cards/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Congratulations! You've placed all your cards/)
+      ).toBeInTheDocument();
       expect(screen.getByTestId('hand-victory-message')).toBeInTheDocument();
     });
 
@@ -271,7 +281,12 @@ describe('PlayerHand Component', () => {
       );
 
       const handContainer = container.querySelector('.player-hand-container');
-      expect(handContainer).toHaveClass('opacity-70', 'pointer-events-none', 'filter', 'grayscale');
+      expect(handContainer).toHaveClass(
+        'opacity-70',
+        'pointer-events-none',
+        'filter',
+        'grayscale'
+      );
     });
 
     it('applies active styling when player turn', () => {
@@ -305,7 +320,9 @@ describe('PlayerHand Component', () => {
       );
 
       expect(screen.getByText('Selected: World War II')).toBeInTheDocument();
-      expect(screen.getByText('Click on the timeline to place this card')).toBeInTheDocument();
+      expect(
+        screen.getByText('Click on the timeline to place this card')
+      ).toBeInTheDocument();
       expect(screen.getByText('❌ Deselect')).toBeInTheDocument();
     });
 
@@ -341,8 +358,12 @@ describe('PlayerHand Component', () => {
 
       expect(screen.getByText('How to play:')).toBeInTheDocument();
       expect(screen.getByText(/Click a card to select it/)).toBeInTheDocument();
-      expect(screen.getByText(/Click on the timeline where it belongs/)).toBeInTheDocument();
-      expect(screen.getByText(/If correct, it stays! If wrong, try again/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Click on the timeline where it belongs/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/If correct, it stays! If wrong, try again/)
+      ).toBeInTheDocument();
     });
 
     it('shows waiting message when no card is selected and not player turn', () => {
@@ -411,7 +432,7 @@ describe('PlayerHand Component', () => {
   describe('Animation Methods', () => {
     it('exposes animation methods via ref', () => {
       const ref = React.createRef();
-      
+
       render(
         <PlayerHand
           ref={ref}
@@ -431,7 +452,7 @@ describe('PlayerHand Component', () => {
 
     it('tracks animation state correctly', () => {
       const ref = React.createRef();
-      
+
       render(
         <PlayerHand
           ref={ref}
@@ -480,4 +501,4 @@ describe('PlayerHand Component', () => {
       expect(screen.getByTestId('hand-selected-card')).toBeInTheDocument();
     });
   });
-}); 
+});

@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useGameState } from './useGameState';
-import { setupCommonMocks, resetAllMocks, cleanupTimeouts } from '../tests/utils/testSetup';
+import {
+  setupCommonMocks,
+  resetAllMocks,
+  cleanupTimeouts,
+} from '../tests/utils/testSetup';
 
 // Mock the API module before any imports
 vi.mock('../utils/api', () => {
@@ -69,7 +73,9 @@ describe('useGameState Hook', () => {
 
     it('handles initialization errors', async () => {
       const { apiMock } = require('../tests/__mocks__/api');
-      apiMock.gameAPI.getRandomEvents.mockRejectedValueOnce(new Error('API Error'));
+      apiMock.gameAPI.getRandomEvents.mockRejectedValueOnce(
+        new Error('API Error')
+      );
 
       const { result } = renderHook(() => useGameState());
 
@@ -102,7 +108,7 @@ describe('useGameState Hook', () => {
       // Test card selection
       if (result.current.state.playerHand.length > 0) {
         const card = result.current.state.playerHand[0];
-        
+
         await act(async () => {
           result.current.selectCard(card);
         });

@@ -12,7 +12,12 @@ vi.mock('../contexts/SettingsContext', () => ({
 }));
 
 import { renderHook, act } from '@testing-library/react';
-import { useSettingsEnhanced, useSettingWatcher, useSettingsWithErrorHandling, useSettingsWithChangeTracking } from './useSettings';
+import {
+  useSettingsEnhanced,
+  useSettingWatcher,
+  useSettingsWithErrorHandling,
+  useSettingsWithChangeTracking,
+} from './useSettings';
 
 // Mock the settings context hooks
 const mockSettings = {
@@ -34,7 +39,7 @@ const mockUpdateSetting = vi.fn(() => true);
 const mockUpdateSettings = vi.fn(() => true);
 const mockResetSettings = vi.fn();
 const mockGetSettings = vi.fn(() => mockSettings);
-const mockGetSetting = vi.fn((key) => mockSettings[key]);
+const mockGetSetting = vi.fn(key => mockSettings[key]);
 const mockGetDefaultSettings = vi.fn(() => ({
   difficulty: 'easy',
   cardCount: 3,
@@ -109,8 +114,12 @@ describe('useSettingsEnhanced Hook', () => {
     it('provides enhanced update methods', () => {
       const { result } = renderHook(() => useSettingsEnhanced());
 
-      expect(typeof result.current.updateSettingWithValidation).toBe('function');
-      expect(typeof result.current.updateMultipleSettingsWithValidation).toBe('function');
+      expect(typeof result.current.updateSettingWithValidation).toBe(
+        'function'
+      );
+      expect(typeof result.current.updateMultipleSettingsWithValidation).toBe(
+        'function'
+      );
       expect(typeof result.current.restoreSettings).toBe('function');
     });
 
@@ -129,10 +138,16 @@ describe('useSettingsEnhanced Hook', () => {
 
   describe('updateSettingWithValidation', () => {
     it('updates setting with validation when validation passes', () => {
-      globalThis.validateSettings.mockReturnValue({ isValid: true, errors: {} });
+      globalThis.validateSettings.mockReturnValue({
+        isValid: true,
+        errors: {},
+      });
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
-        const updateResult = result.current.updateSettingWithValidation('difficulty', 'hard');
+        const updateResult = result.current.updateSettingWithValidation(
+          'difficulty',
+          'hard'
+        );
         expect(updateResult.success).toBe(true);
         expect(updateResult.error).toBe(null);
       });
@@ -140,13 +155,16 @@ describe('useSettingsEnhanced Hook', () => {
     });
 
     it('returns error when validation fails', () => {
-      globalThis.validateSettings.mockReturnValue({ 
-        isValid: false, 
-        errors: { difficulty: 'Invalid difficulty level' } 
+      globalThis.validateSettings.mockReturnValue({
+        isValid: false,
+        errors: { difficulty: 'Invalid difficulty level' },
       });
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
-        const updateResult = result.current.updateSettingWithValidation('difficulty', 'invalid');
+        const updateResult = result.current.updateSettingWithValidation(
+          'difficulty',
+          'invalid'
+        );
         expect(updateResult.success).toBe(false);
         expect(updateResult.error).toBe('Invalid difficulty level');
       });
@@ -154,12 +172,14 @@ describe('useSettingsEnhanced Hook', () => {
     });
 
     it('calls onValidationError callback when validation fails', () => {
-      globalThis.validateSettings.mockReturnValue({ 
-        isValid: false, 
-        errors: { difficulty: 'Invalid difficulty level' } 
+      globalThis.validateSettings.mockReturnValue({
+        isValid: false,
+        errors: { difficulty: 'Invalid difficulty level' },
       });
       const onValidationError = vi.fn();
-      const { result } = renderHook(() => useSettingsEnhanced({ onValidationError }));
+      const { result } = renderHook(() =>
+        useSettingsEnhanced({ onValidationError })
+      );
       act(() => {
         result.current.updateSettingWithValidation('difficulty', 'invalid');
       });
@@ -170,10 +190,17 @@ describe('useSettingsEnhanced Hook', () => {
     });
 
     it('skips validation when validate option is false', () => {
-      globalThis.validateSettings.mockReturnValue({ isValid: true, errors: {} });
+      globalThis.validateSettings.mockReturnValue({
+        isValid: true,
+        errors: {},
+      });
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
-        const updateResult = result.current.updateSettingWithValidation('difficulty', 'hard', { validate: false });
+        const updateResult = result.current.updateSettingWithValidation(
+          'difficulty',
+          'hard',
+          { validate: false }
+        );
         expect(updateResult.success).toBe(true);
       });
       expect(mockUpdateSetting).toHaveBeenCalledWith('difficulty', 'hard');
@@ -182,13 +209,17 @@ describe('useSettingsEnhanced Hook', () => {
 
   describe('updateMultipleSettingsWithValidation', () => {
     it('updates multiple settings when validation passes', () => {
-      globalThis.validateSettings.mockReturnValue({ isValid: true, errors: {} });
+      globalThis.validateSettings.mockReturnValue({
+        isValid: true,
+        errors: {},
+      });
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
-        const updateResult = result.current.updateMultipleSettingsWithValidation({
-          difficulty: 'hard',
-          cardCount: 7,
-        });
+        const updateResult =
+          result.current.updateMultipleSettingsWithValidation({
+            difficulty: 'hard',
+            cardCount: 7,
+          });
         expect(updateResult.success).toBe(true);
         expect(updateResult.errors).toEqual({});
       });
@@ -199,16 +230,20 @@ describe('useSettingsEnhanced Hook', () => {
     });
 
     it('returns errors when validation fails', () => {
-      globalThis.validateSettings.mockReturnValue({ 
-        isValid: false, 
-        errors: { difficulty: 'Invalid difficulty', cardCount: 'Invalid count' } 
+      globalThis.validateSettings.mockReturnValue({
+        isValid: false,
+        errors: {
+          difficulty: 'Invalid difficulty',
+          cardCount: 'Invalid count',
+        },
       });
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
-        const updateResult = result.current.updateMultipleSettingsWithValidation({
-          difficulty: 'invalid',
-          cardCount: -1,
-        });
+        const updateResult =
+          result.current.updateMultipleSettingsWithValidation({
+            difficulty: 'invalid',
+            cardCount: -1,
+          });
         expect(updateResult.success).toBe(false);
         expect(updateResult.errors).toEqual({
           difficulty: 'Invalid difficulty',
@@ -221,7 +256,10 @@ describe('useSettingsEnhanced Hook', () => {
 
   describe('restoreSettings', () => {
     it('restores settings from backup when validation passes', () => {
-      globalThis.validateSettings.mockReturnValue({ isValid: true, errors: {} });
+      globalThis.validateSettings.mockReturnValue({
+        isValid: true,
+        errors: {},
+      });
       const backupSettings = { difficulty: 'easy', cardCount: 3 };
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
@@ -233,22 +271,27 @@ describe('useSettingsEnhanced Hook', () => {
     });
 
     it('returns error when backup validation fails', () => {
-      globalThis.validateSettings.mockReturnValue({ 
-        isValid: false, 
-        errors: { difficulty: 'Invalid difficulty' } 
+      globalThis.validateSettings.mockReturnValue({
+        isValid: false,
+        errors: { difficulty: 'Invalid difficulty' },
       });
       const backupSettings = { difficulty: 'invalid' };
       const { result } = renderHook(() => useSettingsEnhanced());
       act(() => {
         const restoreResult = result.current.restoreSettings(backupSettings);
         expect(restoreResult.success).toBe(false);
-        expect(restoreResult.errors).toEqual({ difficulty: 'Invalid difficulty' });
+        expect(restoreResult.errors).toEqual({
+          difficulty: 'Invalid difficulty',
+        });
       });
       expect(mockUpdateSettings).not.toHaveBeenCalled();
     });
 
     it('handles exceptions during restoration', () => {
-      globalThis.validateSettings.mockReturnValue({ isValid: true, errors: {} });
+      globalThis.validateSettings.mockReturnValue({
+        isValid: true,
+        errors: {},
+      });
       mockUpdateSettings.mockImplementation(() => {
         throw new Error('Storage error');
       });
@@ -401,7 +444,9 @@ describe('useSettingsEnhanced Hook', () => {
 
       const { result } = renderHook(() => useSettingsEnhanced());
 
-      expect(result.current.getValidationError('difficulty')).toBe('Invalid difficulty');
+      expect(result.current.getValidationError('difficulty')).toBe(
+        'Invalid difficulty'
+      );
       expect(result.current.getValidationError('nonexistent')).toBeUndefined();
     });
 
@@ -420,7 +465,9 @@ describe('useSettingsEnhanced Hook', () => {
   describe('useSettingWatcher Hook', () => {
     it('watches for specific setting changes', () => {
       const callback = vi.fn();
-      const { result } = renderHook(() => useSettingWatcher('difficulty', callback));
+      const { result } = renderHook(() =>
+        useSettingWatcher('difficulty', callback)
+      );
 
       // The hook should be available but the callback won't be called in this test
       // since we're not simulating setting changes
@@ -433,17 +480,23 @@ describe('useSettingsEnhanced Hook', () => {
       const { result } = renderHook(() => useSettingsWithErrorHandling());
 
       expect(result.current.settings).toEqual(mockSettings);
-      expect(typeof result.current.updateSettingWithValidation).toBe('function');
+      expect(typeof result.current.updateSettingWithValidation).toBe(
+        'function'
+      );
     });
   });
 
   describe('useSettingsWithChangeTracking Hook', () => {
     it('provides settings with change tracking', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() => useSettingsWithChangeTracking(onChange));
+      const { result } = renderHook(() =>
+        useSettingsWithChangeTracking(onChange)
+      );
 
       expect(result.current.settings).toEqual(mockSettings);
-      expect(typeof result.current.updateSettingWithValidation).toBe('function');
+      expect(typeof result.current.updateSettingWithValidation).toBe(
+        'function'
+      );
     });
   });
 
@@ -452,7 +505,9 @@ describe('useSettingsEnhanced Hook', () => {
       const { result } = renderHook(() => useSettingsEnhanced({ safe: true }));
 
       expect(result.current.settings).toEqual(mockSettings);
-      expect(typeof result.current.updateSettingWithValidation).toBe('function');
+      expect(typeof result.current.updateSettingWithValidation).toBe(
+        'function'
+      );
     });
   });
 
@@ -516,7 +571,9 @@ describe('useSettingsEnhanced Hook', () => {
 
     it.skip('calls onValidationError callback when validation errors change', () => {
       const onValidationError = vi.fn();
-      const { result } = renderHook(() => useSettingsEnhanced({ onValidationError }));
+      const { result } = renderHook(() =>
+        useSettingsEnhanced({ onValidationError })
+      );
 
       // Simulate validation error change
       const { useSettings } = require('../contexts/settingsHooks');
@@ -542,4 +599,4 @@ describe('useSettingsEnhanced Hook', () => {
       expect(onValidationError).toHaveBeenCalled();
     });
   });
-}); 
+});

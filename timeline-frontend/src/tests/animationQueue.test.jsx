@@ -40,7 +40,9 @@ describe('AnimationQueue', () => {
     });
 
     it('handles animation errors gracefully', async () => {
-      const errorAnimation = vi.fn().mockRejectedValue(new Error('Animation failed'));
+      const errorAnimation = vi
+        .fn()
+        .mockRejectedValue(new Error('Animation failed'));
       const successAnimation = vi.fn().mockResolvedValue();
 
       queue.add(errorAnimation);
@@ -77,8 +79,16 @@ describe('AnimationQueue', () => {
 
   describe('Queue Operations', () => {
     it('clears all animations', async () => {
-      const animation1 = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 50)));
-      const animation2 = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 50)));
+      const animation1 = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(resolve, 50))
+        );
+      const animation2 = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(resolve, 50))
+        );
 
       queue.add(animation1);
       queue.add(animation2);
@@ -91,7 +101,11 @@ describe('AnimationQueue', () => {
     });
 
     it('waits for all animations to complete', async () => {
-      const animation = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 50)));
+      const animation = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(resolve, 50))
+        );
 
       queue.add(animation);
       queue.add(animation);
@@ -115,7 +129,11 @@ describe('Global Animation Queue', () => {
   });
 
   it('maintains state across operations', async () => {
-    const animation = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 50)));
+    const animation = vi
+      .fn()
+      .mockImplementation(
+        () => new Promise(resolve => setTimeout(resolve, 50))
+      );
 
     globalAnimationQueue.add(animation);
 
@@ -138,7 +156,11 @@ describe('Queue Utility Functions', () => {
 
   describe('queueAnimation', () => {
     it('adds animation to global queue', async () => {
-      const animation = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 50)));
+      const animation = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise(resolve => setTimeout(resolve, 50))
+        );
 
       queueAnimation(animation);
 

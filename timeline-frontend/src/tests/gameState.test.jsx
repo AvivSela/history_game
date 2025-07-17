@@ -166,7 +166,9 @@ describe('Game State Management', () => {
 
       // Should get feedback about incorrect placement
       expect(result.current.state.feedback).toBeTruthy();
-      expect(result.current.state.playerHand.length).toBeLessThanOrEqual(initialHandSize);
+      expect(result.current.state.playerHand.length).toBeLessThanOrEqual(
+        initialHandSize
+      );
     });
   });
 

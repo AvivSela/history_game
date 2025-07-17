@@ -31,8 +31,12 @@ describe('Home Page Component', () => {
       renderHome();
 
       expect(screen.getByText('Welcome to Timeline')).toBeInTheDocument();
-      expect(screen.getByText(/Test your knowledge of history/)).toBeInTheDocument();
-      expect(screen.getByText(/place it correctly on the timeline to win/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Test your knowledge of history/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/place it correctly on the timeline to win/)
+      ).toBeInTheDocument();
     });
 
     it('renders call-to-action buttons', () => {
@@ -71,19 +75,29 @@ describe('Home Page Component', () => {
 
       // Step 1: Draw Cards
       expect(screen.getByText('1. Draw Cards')).toBeInTheDocument();
-      expect(screen.getByText(/Start with a hand of historical event cards/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Start with a hand of historical event cards/)
+      ).toBeInTheDocument();
 
       // Step 2: Place in Order
       expect(screen.getByText('2. Place in Order')).toBeInTheDocument();
-      expect(screen.getByText(/Click cards to place where you think they belong/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Click cards to place where you think they belong/)
+      ).toBeInTheDocument();
 
       // Step 3: Check Your Answer
       expect(screen.getByText('3. Check Your Answer')).toBeInTheDocument();
-      expect(screen.getByText(/The date is revealed - if correct, the card stays/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/The date is revealed - if correct, the card stays/)
+      ).toBeInTheDocument();
 
       // Step 4: Win the Game
       expect(screen.getByText('4. Win the Game')).toBeInTheDocument();
-      expect(screen.getByText(/Place all your cards correctly to complete the timeline/)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Place all your cards correctly to complete the timeline/
+        )
+      ).toBeInTheDocument();
     });
 
     it('displays feature icons', () => {
@@ -128,7 +142,9 @@ describe('Home Page Component', () => {
     it('start playing link navigates to game page', () => {
       renderHome();
 
-      const startPlayingLink = screen.getByText('🎮 Start Playing').closest('a');
+      const startPlayingLink = screen
+        .getByText('🎮 Start Playing')
+        .closest('a');
       expect(startPlayingLink).toHaveAttribute('href', '/game');
     });
 
@@ -142,7 +158,9 @@ describe('Home Page Component', () => {
     it('links have proper styling classes', () => {
       renderHome();
 
-      const startPlayingLink = screen.getByText('🎮 Start Playing').closest('a');
+      const startPlayingLink = screen
+        .getByText('🎮 Start Playing')
+        .closest('a');
       const settingsLink = screen.getByText('⚙️ Settings').closest('a');
 
       expect(startPlayingLink).toHaveClass('btn', 'btn-primary', 'btn-large');
@@ -240,7 +258,9 @@ describe('Home Page Component', () => {
     it('has proper button styling for navigation', () => {
       renderHome();
 
-      const startPlayingButton = screen.getByText('🎮 Start Playing').closest('a');
+      const startPlayingButton = screen
+        .getByText('🎮 Start Playing')
+        .closest('a');
       const settingsButton = screen.getByText('⚙️ Settings').closest('a');
 
       expect(startPlayingButton).toHaveClass('btn');
@@ -252,15 +272,21 @@ describe('Home Page Component', () => {
     it('displays accurate game description', () => {
       renderHome();
 
-      const description = screen.getByText(/Test your knowledge of history by placing events in chronological order/);
+      const description = screen.getByText(
+        /Test your knowledge of history by placing events in chronological order/
+      );
       expect(description).toBeInTheDocument();
     });
 
     it('shows correct game mechanics', () => {
       renderHome();
 
-      expect(screen.getByText(/Each card shows a historical event/)).toBeInTheDocument();
-      expect(screen.getByText(/place it correctly on the timeline to win/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Each card shows a historical event/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/place it correctly on the timeline to win/)
+      ).toBeInTheDocument();
     });
 
     it('displays accurate feature counts', () => {
@@ -272,4 +298,4 @@ describe('Home Page Component', () => {
       expect(screen.getByText('∞')).toBeInTheDocument(); // Replayability
     });
   });
-}); 
+});

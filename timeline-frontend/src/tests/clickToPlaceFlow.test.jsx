@@ -2,7 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import Game from '../pages/Game';
-import { setupCommonMocks, resetAllMocks, cleanupTimeouts } from './utils/testSetup';
+import {
+  setupCommonMocks,
+  resetAllMocks,
+  cleanupTimeouts,
+} from './utils/testSetup';
 
 // Setup common mocks for all tests
 setupCommonMocks();
@@ -22,7 +26,9 @@ describe('Click-to-Place Flow', () => {
 
       // Should show loading state
       expect(screen.getByText(/Loading Timeline Game/)).toBeInTheDocument();
-      expect(screen.getByText(/Fetching historical events/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Fetching historical events/)
+      ).toBeInTheDocument();
     });
   });
 });

@@ -83,11 +83,17 @@ describe('SettingsManager', () => {
 
       expect(newManager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
       expect(newManager.getSetting('cardCount')).toBe(10);
-      expect(newManager.getSetting('categories')).toEqual(['history', 'science']);
+      expect(newManager.getSetting('categories')).toEqual([
+        'history',
+        'science',
+      ]);
     });
 
     it('updates settings successfully', () => {
-      const result = manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
+      const result = manager.updateSetting(
+        'difficulty',
+        DIFFICULTY_LEVELS.HARD
+      );
 
       expect(result).toBe(true);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
@@ -144,7 +150,10 @@ describe('SettingsManager', () => {
         throw new Error('Save error');
       });
 
-      const result = manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
+      const result = manager.updateSetting(
+        'difficulty',
+        DIFFICULTY_LEVELS.HARD
+      );
 
       expect(result).toBe(false);
       expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM); // Should revert

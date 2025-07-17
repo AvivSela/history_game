@@ -31,7 +31,9 @@ describe('DifficultySelector', () => {
       // Test selection change
       const hardRadio = screen.getByDisplayValue('hard');
       fireEvent.click(hardRadio);
-      expect(defaultProps.onChange).toHaveBeenCalledWith(DIFFICULTY_LEVELS.HARD);
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
     });
 
     test('handles disabled state', () => {
@@ -57,21 +59,32 @@ describe('DifficultySelector', () => {
 
       // Test arrow key navigation
       fireEvent.keyDown(fieldset, { key: 'ArrowRight' });
-      expect(defaultProps.onChange).toHaveBeenCalledWith(DIFFICULTY_LEVELS.HARD);
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.HARD
+      );
 
       vi.clearAllMocks();
       fireEvent.keyDown(fieldset, { key: 'ArrowLeft' });
-      expect(defaultProps.onChange).toHaveBeenCalledWith(DIFFICULTY_LEVELS.EASY);
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.EASY
+      );
     });
 
     test('wraps around at boundaries', () => {
-      render(<DifficultySelector {...defaultProps} value={DIFFICULTY_LEVELS.EXPERT} />);
+      render(
+        <DifficultySelector
+          {...defaultProps}
+          value={DIFFICULTY_LEVELS.EXPERT}
+        />
+      );
 
       const fieldset = screen.getByRole('group');
 
       // Wrap from last to first
       fireEvent.keyDown(fieldset, { key: 'ArrowRight' });
-      expect(defaultProps.onChange).toHaveBeenCalledWith(DIFFICULTY_LEVELS.EASY);
+      expect(defaultProps.onChange).toHaveBeenCalledWith(
+        DIFFICULTY_LEVELS.EASY
+      );
     });
   });
 

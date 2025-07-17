@@ -64,8 +64,6 @@ describe('State Persistence', () => {
     vi.clearAllMocks();
   });
 
-
-
   describe('loadGameStateFromStorage', () => {
     it('should load valid game state from storage', () => {
       const mockSavedState = {

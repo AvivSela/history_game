@@ -39,7 +39,7 @@ describe('Timeline', () => {
     it('renders events and allows interactions', () => {
       const onCardClick = vi.fn();
       const onInsertionPointClick = vi.fn();
-      
+
       render(
         <Timeline
           events={mockEvents}
@@ -63,7 +63,7 @@ describe('Timeline', () => {
       // Test insertion point click
       const insertionPoints = screen.getAllByTestId('insertion-point');
       expect(insertionPoints.length).toBeGreaterThan(0);
-      
+
       fireEvent.click(insertionPoints[0]);
       expect(onInsertionPointClick).toHaveBeenCalledWith(0);
     });

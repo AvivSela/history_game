@@ -14,7 +14,9 @@ describe('TimelineCardWrapper', () => {
   describe('Basic Functionality', () => {
     it('renders event information and handles interactions', () => {
       const onCardClick = vi.fn();
-      render(<TimelineCardWrapper event={mockEvent} onCardClick={onCardClick} />);
+      render(
+        <TimelineCardWrapper event={mockEvent} onCardClick={onCardClick} />
+      );
 
       // Verify event information is displayed
       expect(screen.getByText('World War II Begins')).toBeInTheDocument();

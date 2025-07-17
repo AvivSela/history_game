@@ -134,7 +134,7 @@ describe('Game Logic', () => {
     it('shuffles array', () => {
       const original = [1, 2, 3, 4, 5];
       const shuffled = shuffleArray([...original]);
-      
+
       expect(shuffled).toHaveLength(original.length);
       expect(shuffled).toEqual(expect.arrayContaining(original));
     });
