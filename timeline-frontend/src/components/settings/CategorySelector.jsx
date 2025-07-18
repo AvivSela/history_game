@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import useLayoutMode from './useLayoutMode';
 import './CategorySelector.css';
 
 /**
@@ -6,6 +7,7 @@ import './CategorySelector.css';
  *
  * This component provides a user-friendly way to select multiple game categories
  * with search functionality, favorites system, and proper accessibility.
+ * It automatically adapts its layout based on screen size.
  *
  * @component
  * @example
@@ -17,16 +19,6 @@ import './CategorySelector.css';
  *   disabled={false}
  * />
  * ```
- *
- * @param {Object} props - Component props
- * @param {Array<string>} props.value - Currently selected categories
- * @param {Array<Object>} props.categories - Available categories array
- * @param {Function} props.onChange - Change handler function
- * @param {boolean} [props.disabled=false] - Whether the selector is disabled
- * @param {string} [props.className] - Additional CSS classes
- * @param {Object} props.rest - Additional props passed to the div element
- *
- * @returns {JSX.Element} The category selector component
  */
 const CategorySelector = ({
   value = [],
@@ -49,6 +41,7 @@ const CategorySelector = ({
 
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
+  const layout = useLayoutMode();
 
   // Save favorites to localStorage when they change
   useEffect(() => {
@@ -134,8 +127,10 @@ const CategorySelector = ({
 
   const handleSearchKeyDown = event => {
     if (event.key === 'Escape') {
-      setShowDropdown(false);
       setSearchTerm('');
+      if (layout === 'list') {
+        setShowDropdown(false);
+      }
     }
   };
 
@@ -154,6 +149,7 @@ const CategorySelector = ({
 
   const containerClasses = [
     'category-selector',
+    `category-selector--${layout}`,
     disabled ? 'category-selector--disabled' : '',
     showDropdown ? 'category-selector--open' : '',
     className,
@@ -168,152 +164,200 @@ const CategorySelector = ({
     return `${selectedCount} categories selected`;
   };
 
-  return (
-    <div className={containerClasses} ref={containerRef} {...rest}>
-      <div className="category-selector__header">
-        <label className="category-selector__label">Game Categories</label>
-        <div className="category-selector__summary">
-          {selectedCount > 0 && (
-            <span className="category-selector__count">
-              {selectedCount}/{totalCount}
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className="category-selector__trigger">
+  const renderSearchBar = () => (
+    <div className="category-selector__search">
+      <input
+        ref={searchInputRef}
+        type="text"
+        className="category-selector__search-input"
+        placeholder="Search categories..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+        onKeyDown={handleSearchKeyDown}
+        disabled={disabled}
+        aria-label="Search categories"
+      />
+      {searchTerm && (
         <button
           type="button"
-          className="category-selector__button"
-          onClick={toggleDropdown}
-          disabled={disabled}
-          aria-haspopup="listbox"
-          aria-expanded={showDropdown}
-          aria-describedby="category-selector-description"
+          className="category-selector__search-clear"
+          onClick={() => setSearchTerm('')}
+          aria-label="Clear search"
         >
-          <span className="category-selector__button-text">
-            {getSelectedText()}
-          </span>
-          <svg
-            className="category-selector__button-icon"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path d="M7 10l5 5 5-5z" />
-          </svg>
+          ×
         </button>
-      </div>
+      )}
+    </div>
+  );
 
-      {showDropdown && (
-        <div className="category-selector__dropdown">
-          <div className="category-selector__search">
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search categories..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyDown}
-              className="category-selector__search-input"
-              aria-label="Search categories"
-            />
-          </div>
+  const renderControls = () => (
+    <div className="category-selector__controls">
+      <button
+        type="button"
+        className="category-selector__control-button"
+        onClick={handleSelectAll}
+        disabled={disabled}
+      >
+        Select All
+      </button>
+      <button
+        type="button"
+        className="category-selector__control-button"
+        onClick={handleClearAll}
+        disabled={disabled}
+      >
+        Clear All
+      </button>
+      {favoriteCount > 0 && (
+        <button
+          type="button"
+          className="category-selector__control-button"
+          onClick={handleSelectFavorites}
+          disabled={disabled}
+        >
+          Select Favorites
+        </button>
+      )}
+    </div>
+  );
 
-          <div className="category-selector__actions">
-            <button
-              type="button"
-              onClick={handleSelectAll}
-              className="category-selector__action"
-              disabled={disabled}
-            >
-              Select All
-            </button>
-            <button
-              type="button"
-              onClick={handleClearAll}
-              className="category-selector__action"
-              disabled={disabled}
-            >
-              Clear All
-            </button>
-            {favoriteCount > 0 && (
-              <button
-                type="button"
-                onClick={handleSelectFavorites}
-                className="category-selector__action"
-                disabled={disabled}
-              >
-                Favorites ({favoriteCount})
-              </button>
-            )}
-          </div>
-
-          <div className="category-selector__list" role="listbox">
-            {filteredCategories.length === 0 ? (
-              <div className="category-selector__empty">
-                No categories found matching "{searchTerm}"
-              </div>
-            ) : (
-              filteredCategories.map(category => {
-                const isSelected = value.includes(category.id);
-                const isFavorite = favorites.includes(category.id);
-
-                return (
-                  <div
-                    key={category.id}
-                    className={`category-selector__item ${isSelected ? 'category-selector__item--selected' : ''}`}
-                    role="option"
-                    aria-selected={isSelected}
-                  >
-                    <label className="category-selector__item-label">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handleToggleCategory(category.id)}
-                        disabled={disabled}
-                        className="category-selector__item-checkbox"
-                      />
-                      <span className="category-selector__item-text">
-                        {category.name}
-                      </span>
-                    </label>
-
+  const renderLayout = () => {
+    switch (layout) {
+      case 'grid':
+        return (
+          <>
+            {renderSearchBar()}
+            {renderControls()}
+            <div className="category-selector__grid">
+              {filteredCategories.map(category => (
+                <div
+                  key={category.id}
+                  className={`category-selector__grid-item ${
+                    value.includes(category.id)
+                      ? 'category-selector__grid-item--selected'
+                      : ''
+                  }`}
+                  onClick={() => handleToggleCategory(category.id)}
+                >
+                  <div className="category-selector__grid-item-header">
+                    <span className="category-selector__grid-item-name">
+                      {category.name}
+                    </span>
                     <button
                       type="button"
-                      onClick={() => handleToggleFavorite(category.id)}
-                      className={`category-selector__favorite ${isFavorite ? 'category-selector__favorite--active' : ''}`}
-                      aria-label={
-                        isFavorite
-                          ? 'Remove from favorites'
-                          : 'Add to favorites'
-                      }
-                      disabled={disabled}
+                      className={`category-selector__favorite ${
+                        favorites.includes(category.id)
+                          ? 'category-selector__favorite--active'
+                          : ''
+                      }`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleToggleFavorite(category.id);
+                      }}
+                      aria-label={`${favorites.includes(category.id) ? 'Remove from' : 'Add to'} favorites`}
                     >
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                      </svg>
+                      ★
                     </button>
-
-                    {category.description && (
-                      <div className="category-selector__item-description">
-                        {category.description}
-                      </div>
-                    )}
                   </div>
-                );
-              })
+                  <p className="category-selector__grid-item-description">
+                    {category.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </>
+        );
+
+      case 'compact':
+        return (
+          <>
+            {renderSearchBar()}
+            {renderControls()}
+            <div className="category-selector__compact">
+              {filteredCategories.map(category => (
+                <button
+                  key={category.id}
+                  className={`category-selector__compact-item ${
+                    value.includes(category.id)
+                      ? 'category-selector__compact-item--selected'
+                      : ''
+                  }`}
+                  onClick={() => handleToggleCategory(category.id)}
+                  disabled={disabled}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </>
+        );
+
+      case 'list':
+      default:
+        return (
+          <div className="category-selector__dropdown">
+            <button
+              type="button"
+              className="category-selector__dropdown-button"
+              onClick={toggleDropdown}
+              disabled={disabled}
+              aria-expanded={showDropdown}
+              aria-haspopup="true"
+            >
+              <span>{getSelectedText()}</span>
+              <span className="category-selector__button-icon">▼</span>
+            </button>
+            {showDropdown && (
+              <div className="category-selector__dropdown-content">
+                {renderSearchBar()}
+                {renderControls()}
+                <div className="category-selector__list">
+                  {filteredCategories.map(category => (
+                    <div
+                      key={category.id}
+                      className={`category-selector__item ${
+                        value.includes(category.id)
+                          ? 'category-selector__item--selected'
+                          : ''
+                      }`}
+                    >
+                      <label className="category-selector__item-label">
+                        <input
+                          type="checkbox"
+                          className="category-selector__item-checkbox"
+                          checked={value.includes(category.id)}
+                          onChange={() => handleToggleCategory(category.id)}
+                          disabled={disabled}
+                        />
+                        <span className="category-selector__item-text">
+                          {category.name}
+                        </span>
+                      </label>
+                      <button
+                        type="button"
+                        className={`category-selector__favorite ${
+                          favorites.includes(category.id)
+                            ? 'category-selector__favorite--active'
+                            : ''
+                        }`}
+                        onClick={() => handleToggleFavorite(category.id)}
+                        aria-label={`${favorites.includes(category.id) ? 'Remove from' : 'Add to'} favorites`}
+                      >
+                        ★
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
-        </div>
-      )}
+        );
+    }
+  };
 
-      <div
-        id="category-selector-description"
-        className="category-selector__description"
-      >
-        Choose which categories of historical events to include in your game.
-        Leave empty to include all categories.
-      </div>
+  return (
+    <div ref={containerRef} className={containerClasses} {...rest}>
+      {renderLayout()}
     </div>
   );
 };
