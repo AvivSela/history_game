@@ -18,16 +18,38 @@ vi.mock('../utils/api', () => {
   };
 });
 
+// Mock SettingsManager
+const defaultSettings = {
+  difficulty: 'medium',
+  cardCount: 5,
+  categories: [],
+  animations: true,
+};
+
+vi.mock('../utils/settingsManager.js', () => ({
+  SettingsManager: vi.fn().mockImplementation(() => ({
+    getSettings: vi.fn().mockReturnValue(defaultSettings),
+    updateSetting: vi.fn().mockReturnValue(true),
+    updateSettings: vi.fn().mockReturnValue(true),
+    onChange: vi.fn(),
+    isInitialized: true,
+  })),
+}));
+
 // Setup common mocks for all tests
 setupCommonMocks();
 
 describe('useGameState Hook', () => {
+  let mockSettingsManager;
+
   beforeEach(() => {
     resetAllMocks();
+    mockSettingsManager = new (require('../utils/settingsManager.js').SettingsManager)();
   });
 
   afterEach(async () => {
     await cleanupTimeouts();
+    vi.clearAllMocks();
   });
 
   describe('State Management', () => {
@@ -132,14 +154,94 @@ describe('useGameState Hook', () => {
     it('updates when settings change', async () => {
       const { result } = renderHook(() => useGameState());
 
-      // Test settings update
+      // Wait for settings manager to initialize
       await act(async () => {
-        result.current.updateGameSetting('animations', false);
+        await new Promise(resolve => setTimeout(resolve, 0));
       });
 
-      // The settings might not update immediately due to async behavior
-      // Let's just check that the function exists and can be called
+      // Test settings update
+      await act(async () => {
+        const success = result.current.updateGameSetting('animations', false);
+        expect(success).toBe(true);
+      });
+
       expect(typeof result.current.updateGameSetting).toBe('function');
+      expect(mockSettingsManager.updateSetting).toHaveBeenCalledWith('animations', false);
+    });
+
+    it('returns correct values from getGameSettings', async () => {
+      const { result } = renderHook(() => useGameState());
+
+      // Wait for settings manager to initialize
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
+
+      const settings = result.current.getGameSettings();
+      expect(settings).toBeDefined();
+      expect(settings.difficulty).toBe('medium');
+      expect(settings.cardCount).toBe(5);
+      expect(settings.categories).toEqual([]);
+      expect(settings.animations).toBe(true);
+      expect(mockSettingsManager.getSettings).toHaveBeenCalled();
+    });
+
+    it('falls back to default settings when settings manager is unavailable', async () => {
+      // Mock console.warn to avoid test output noise
+      const originalWarn = console.warn;
+      const mockWarn = vi.fn();
+      console.warn = mockWarn;
+
+      // Force settings manager to throw on instantiation
+      const SettingsManager = require('../utils/settingsManager.js').SettingsManager;
+      SettingsManager.mockImplementationOnce(() => {
+        throw new Error('Settings manager unavailable');
+      });
+
+      const { result } = renderHook(() => useGameState());
+      const settings = result.current.getGameSettings();
+
+      expect(settings).toBeDefined();
+      expect(settings.difficulty).toBe('medium');
+      expect(settings.cardCount).toBeDefined();
+      expect(settings.categories).toBeDefined();
+      expect(mockWarn).toHaveBeenCalled();
+
+      // Restore console.warn
+      console.warn = originalWarn;
+    });
+
+    it('handles errors gracefully when getting settings', async () => {
+      // Mock console.warn to avoid test output noise
+      const originalWarn = console.warn;
+      const mockWarn = vi.fn();
+      console.warn = mockWarn;
+
+      // Make getSettings throw
+      mockSettingsManager.getSettings.mockImplementationOnce(() => {
+        throw new Error('Failed to get settings');
+      });
+
+      const { result } = renderHook(() => useGameState());
+
+      // Wait for settings manager to initialize
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
+
+      const settings = result.current.getGameSettings();
+
+      expect(settings).toBeDefined();
+      expect(settings.difficulty).toBe('medium');
+      expect(settings.cardCount).toBeDefined();
+      expect(settings.categories).toBeDefined();
+      expect(mockWarn).toHaveBeenCalledWith(
+        'Error retrieving game settings:',
+        expect.any(Error)
+      );
+
+      // Restore console.warn
+      console.warn = originalWarn;
     });
   });
 });

@@ -49,7 +49,8 @@ import {
  *   selectCard,
  *   placeCard,
  *   restartGame,
- *   pauseGame
+ *   togglePause,
+ *   getGameSettings
  * } = useGameState();
  *
  * // Initialize a new game with settings
@@ -68,11 +69,12 @@ import {
  * @returns {Function} returns.selectCard - Select a card from hand
  * @returns {Function} returns.placeCard - Place card on timeline
  * @returns {Function} returns.restartGame - Restart current game
- * @returns {Function} returns.pauseGame - Pause/unpause game
+ * @returns {Function} returns.togglePause - Pause/unpause game
  * @returns {Function} returns.getGameStats - Get current game statistics
  * @returns {Function} returns.getNewCardFromPool - Get replacement card from pool
  * @returns {Object} returns.settings - Current game settings
  * @returns {Function} returns.updateGameSettings - Update game settings
+ * @returns {Function} returns.getGameSettings - Get current game settings object
  */
 export const useGameState = () => {
   const [state, setState] = useState({
@@ -759,11 +761,21 @@ export const useGameState = () => {
         return false;
       }
     },
+    /**
+     * Get current game settings
+     * @returns {Object} Current game settings object with difficulty, cardCount, categories, and other preferences
+     * @throws {Error} If there's an error retrieving settings (will fallback to default settings)
+     */
     getGameSettings: () => {
-      if (settingsManagerRef.current) {
-        return settingsManagerRef.current.getSettings();
-      } else {
-        return settings;
+      try {
+        if (settingsManagerRef.current) {
+          return settingsManagerRef.current.getSettings();
+        } else {
+          return settings;
+        }
+      } catch (error) {
+        console.warn('Error retrieving game settings:', error);
+        return settings; // Fallback to default settings
       }
     },
   };
