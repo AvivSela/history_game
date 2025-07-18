@@ -318,9 +318,7 @@ const Timeline = forwardRef(
                     data-testid="timeline-card-wrapper"
                   >
                     <div className="flex flex-col items-center gap-1.5 mb-1.5 lg:gap-2 lg:mb-2 md:gap-1 md:mb-1">
-                      <div 
-                        className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border md:px-2 md:py-1 sm:px-1 sm:py-1 min-w-[80px] md:min-w-[70px] sm:min-w-[60px]"
-                      >
+                      <div className="text-center bg-card px-3 py-2 rounded-lg shadow-sm border border-border md:px-2 md:py-1 sm:px-1 sm:py-1 min-w-[80px] md:min-w-[70px] sm:min-w-[60px]">
                         <div className="text-base font-bold text-primary leading-none md:text-sm sm:text-xs">
                           {new Date(event.dateOccurred).getFullYear()}
                         </div>

@@ -456,3 +456,115 @@ export const simulateCompleteGame = async result => {
     { timeout: 3000 }
   );
 };
+
+/**
+ * Initialize a game and verify it's ready to play
+ * @param {Object} result - Hook result from renderHook
+ * @param {string} mode - Game mode ('single')
+ * @param {string} difficulty - Game difficulty ('easy', 'medium', 'hard')
+ * @returns {Promise<void>}
+ */
+export const startNewGameSuccessfully = async (
+  result,
+  mode = 'single',
+  difficulty = 'medium'
+) => {
+  await initializeGameForTesting(result, mode, difficulty);
+  expect(result.current.state.gameStatus).toBe('playing');
+  expect(result.current.state.playerHand.length).toBeGreaterThan(0);
+  expect(result.current.state.timeline.length).toBeGreaterThan(0);
+};
+
+/**
+ * Simulate network error during game initialization
+ * @param {Object} result - Hook result from renderHook
+ * @returns {Promise<void>}
+ */
+export const simulateNetworkError = async result => {
+  const { apiMock } = require('../__mocks__/api');
+  apiMock.gameAPI.getRandomEvents.mockRejectedValueOnce(
+    new Error('Network Error')
+  );
+
+  await act(async () => {
+    try {
+      await result.current.initializeGame('single', 'medium');
+    } catch (error) {
+      // Expected error
+    }
+  });
+};
+
+/**
+ * Verify game is in error state with helpful message
+ * @param {Object} result - Hook result from renderHook
+ */
+export const expectGracefulErrorHandling = result => {
+  expect(result.current.state.error).toBeTruthy();
+  expect(result.current.state.gameStatus).toBeOneOf(['lobby', 'error']);
+  expect(result.current.initializeGame).toBeTypeOf('function');
+};
+
+/**
+ * Verify game is in a playable state
+ * @param {Object} result - Hook result from renderHook
+ */
+export const expectPlayableGameState = result => {
+  expect(result.current.state.gameStatus).toBe('playing');
+  expect(result.current.state.playerHand.length).toBeGreaterThan(0);
+  expect(result.current.state.timeline.length).toBeGreaterThan(0);
+  expect(result.current.state.error).toBeFalsy();
+};
+
+/**
+ * Verify game is in a clean initial state
+ * @param {Object} result - Hook result from renderHook
+ */
+export const expectCleanInitialState = result => {
+  expect(result.current.state.gameStatus).toBe('lobby');
+  expect(result.current.state.gameMode).toBe('single');
+  expect(result.current.state.difficulty).toBe('medium');
+  expect(result.current.state.timeline).toEqual([]);
+  expect(result.current.state.playerHand).toEqual([]);
+  expect(result.current.state.selectedCard).toBeNull();
+  expect(result.current.state.error).toBeNull();
+};
+
+/**
+ * Simulate a player examining and selecting different cards
+ * @param {Object} result - Hook result from renderHook
+ * @returns {Promise<{firstCard: Object, secondCard: Object}>}
+ */
+export const simulateCardExamination = async result => {
+  const firstCard = result.current.state.playerHand[0];
+  const secondCard = result.current.state.playerHand[1];
+
+  await act(async () => {
+    result.current.selectCard(firstCard);
+  });
+
+  expect(result.current.state.selectedCard).toBe(firstCard);
+  expect(result.current.state.showInsertionPoints).toBe(true);
+
+  await act(async () => {
+    result.current.selectCard(secondCard);
+  });
+
+  expect(result.current.state.selectedCard).toBe(secondCard);
+  expect(result.current.state.showInsertionPoints).toBe(true);
+
+  return { firstCard, secondCard };
+};
+
+/**
+ * Verify game settings are properly applied
+ * @param {Object} result - Hook result from renderHook
+ * @param {Object} expectedSettings - Expected settings values
+ */
+export const expectSettingsApplied = (result, expectedSettings) => {
+  const settings = result.current.getGameSettings();
+  expect(settings).toBeDefined();
+  Object.entries(expectedSettings).forEach(([key, value]) => {
+    expect(settings[key]).toBe(value);
+  });
+};
