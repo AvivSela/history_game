@@ -226,7 +226,7 @@ const SettingsContent = () => {
 
         <div className="settings-content">
           {/* Game Settings Section */}
-          <SettingsSection title="🎮 Game Settings" defaultExpanded={true}>
+          <SettingsSection title="🎮 Game Settings">
             <div className="settings-grid">
               {/* Difficulty Selector */}
               <div className="setting-card">
