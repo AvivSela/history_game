@@ -115,14 +115,14 @@ The game is fully responsive and works on:
 4. Make your changes
 5. Run tests: `yarn test`
 6. Ensure linting passes: `yarn lint`
-7. Review technical debt: Check [TECHNICAL_DEBT.md](./TECHNICAL_DEBT.md)
+7. Review technical debt: Check [Technical Debt](./docs/technical/debt/technical-debt.md)
 8. Commit your changes: `git commit -m 'Add amazing feature'`
 9. Push to the branch: `git push origin feature/amazing-feature`
 10. Open a Pull Request
 
 ### Code Quality
-- Review [Technical Debt Guide](./docs/technical-debt-guide.md) for best practices
-- Review [TECHNICAL_DEBT.md](./TECHNICAL_DEBT.md) to track and manage technical debt
+- Review [Technical Debt Guide](./docs/technical/debt/technical-debt-guide.md) for best practices
+- Review [Technical Debt](./docs/technical/debt/technical-debt.md) to track and manage technical debt
 - Follow established patterns and conventions
 - Write tests for new functionality
 
@@ -139,7 +139,7 @@ This project uses GitHub Actions for continuous integration and deployment. The 
 
 ### Setup
 1. **Quick Setup**: Run `./scripts/setup-ci.sh` to verify your setup
-2. **Documentation**: See [CI/CD Setup Guide](./docs/CI-CD-SETUP.md) for detailed information
+2. **Documentation**: See [CI/CD Setup Guide](./docs/ci-cd/setup.md) for detailed information
 3. **Workflows**: Check `.github/workflows/` for workflow configurations
 
 ### Workflows

@@ -162,7 +162,7 @@ performance.logSummary();
 - All components now use the new API from `src/utils/animation/`.
 - See `src/utils/animation/index.js` for the full API surface.
 
-**For more details, see the [FE-001 Animation Performance Optimization Plan](../docs/FE-001-Animation-Performance-Plan.md) and code comments in `AnimationSystem.js`.**
+**For more details, see the [FE-001 Animation Performance Optimization Plan](../technical/plans/animation-performance.md) and code comments in `AnimationSystem.js`.**
 
 ## Testing Guidelines
 
