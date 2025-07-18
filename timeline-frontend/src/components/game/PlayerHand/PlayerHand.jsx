@@ -325,12 +325,13 @@ const PlayerHand = forwardRef(
       <div
         className={`player-hand-container bg-card rounded-lg p-4 shadow-md my-4 border-2 border-border transition-all duration-300 relative overflow-visible w-full max-w-none lg:p-5 lg:my-5 ${!isPlayerTurn ? 'opacity-70 pointer-events-none filter grayscale' : ''}`}
         data-testid="player-hand-container"
-        style={{ 
+        style={{
           overflow: 'visible',
           ...(isPlayerTurn && {
             borderColor: 'rgb(34, 197, 94)',
-            boxShadow: '0 0 0 3px rgba(39, 174, 96, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          })
+            boxShadow:
+              '0 0 0 3px rgba(39, 174, 96, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          }),
         }}
       >
         {isPlayerTurn && (

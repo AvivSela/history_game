@@ -2,21 +2,39 @@
 
 This directory contains robust testing utilities and mocks that follow best practices to prevent test failures when code changes.
 
+## 🔄 Recent Updates
+
+### Migration to Behavioral Tests
+
+The project is moving towards a behavior-driven testing approach. Key changes:
+
+- ✅ `useGameState.test.js` has been replaced by `useGameStateBehavior.test.jsx`
+- Tests now focus on user experience and business logic
+- Tests follow Given-When-Then structure
+- Tests read like user stories
+
+See `useGameStateBehavior.test.jsx` for examples of the new testing pattern.
+
 ## 🎯 **Key Principles**
 
-### 1. **Centralized Mocks**
+### 1. **Behavior-Driven Testing**
+- Test what the system does, not how it does it
+- Focus on user experience and outcomes
+- Use descriptive test names that read like requirements
+
+### 2. **Centralized Mocks**
 
 - All mocks are defined in `__mocks__/` directory
 - Single source of truth for mock behavior
 - Easy to update when real modules change
 
-### 2. **Flexible Mock Structure**
+### 3. **Flexible Mock Structure**
 
 - Mocks adapt to changes in real modules
 - No tight coupling to specific implementation details
 - Graceful handling of missing properties
 
-### 3. **Consistent Test Setup**
+### 4. **Consistent Test Setup**
 
 - Common setup utilities in `utils/testSetup.js`
 - Standardized mock initialization

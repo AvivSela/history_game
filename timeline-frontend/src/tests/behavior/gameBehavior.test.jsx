@@ -51,7 +51,7 @@ describe('As a player', () => {
 
       // When: I select a card from my hand
       const cardToSelect = await selectCardForTesting(result);
-      
+
       // Then: The card becomes selected and I can see it's ready to place
       expect(result.current.state.selectedCard).toBe(cardToSelect);
       expect(result.current.state.showInsertionPoints).toBe(true);
@@ -86,7 +86,7 @@ describe('As a player', () => {
 
       // Then: I have successfully completed the game
       expect(['playing', 'won']).toContain(result.current.state.gameStatus);
-      
+
       // And: All my cards have been placed correctly
       if (result.current.state.gameStatus === 'won') {
         expect(result.current.state.playerHand).toHaveLength(0);
@@ -95,7 +95,7 @@ describe('As a player', () => {
     }, 10000);
   });
 
-  describe('I want to know when I\'ve made a mistake so I can learn and improve', () => {
+  describe("I want to know when I've made a mistake so I can learn and improve", () => {
     it('When I place a card incorrectly, I receive clear feedback and can try again', async () => {
       // Given: I have started a game and selected a card to place
       const { result } = renderHook(() => useGameState());
@@ -112,11 +112,11 @@ describe('As a player', () => {
 
       // Then: I receive clear feedback about my mistake
       expect(result.current.state.feedback).toBeTruthy();
-      
+
       // And: I can continue playing (either with the same card or a new one)
       expect(result.current.state.playerHand.length).toBeGreaterThan(0);
       expect(result.current.state.selectedCard).toBeNull();
-      
+
       // And: The game is still in a playable state
       expect(result.current.state.gameStatus).toBe('playing');
     });
@@ -130,7 +130,7 @@ describe('As a player', () => {
 
       // When: I select a card from my hand
       const cardToSelect = await selectCardForTesting(result);
-      
+
       // Then: The card becomes selected and I can see insertion points
       expect(result.current.state.selectedCard).toBe(cardToSelect);
       expect(result.current.state.showInsertionPoints).toBe(true);
@@ -143,7 +143,7 @@ describe('As a player', () => {
       // Then: The card is deselected and insertion points are hidden
       expect(result.current.state.selectedCard).toBeNull();
       expect(result.current.state.showInsertionPoints).toBe(false);
-      
+
       // And: The card is still available in my hand
       expect(result.current.state.playerHand).toContain(cardToSelect);
     });
@@ -211,7 +211,7 @@ describe('As a player', () => {
 
       const firstCard = result.current.state.playerHand[0];
       const secondCard = result.current.state.playerHand[1];
-      
+
       await act(async () => {
         result.current.selectCard(firstCard);
       });
@@ -230,7 +230,7 @@ describe('As a player', () => {
   });
 
   describe('I want to know how to play the game', () => {
-    it('I see helpful instructions when it\'s my turn and I haven\'t selected a card', async () => {
+    it("I see helpful instructions when it's my turn and I haven't selected a card", async () => {
       // Given: I have started a game and it's my turn
       const { result } = renderHook(() => useGameState());
       await initializeGameForTesting(result, 'single', 'medium');
@@ -258,12 +258,12 @@ describe('As a player', () => {
       });
 
       const placementResult = await placeCardForTesting(result, 1);
-      
+
       if (placementResult && placementResult.isCorrect) {
         // Then: The card appears on the timeline
         expect(result.current.state.timeline).toContain(cardToPlace);
         expect(result.current.state.timeline.length).toBeGreaterThan(0);
-        
+
         // And: I can see the timeline has content
         expect(result.current.state.timeline[0]).toBeDefined();
       }
@@ -290,7 +290,7 @@ describe('As a player', () => {
     });
   });
 
-  describe('I want a clean timeline view when I\'m not placing cards', () => {
+  describe("I want a clean timeline view when I'm not placing cards", () => {
     it('Insertion points only appear when I have a card selected', async () => {
       // Given: I have started a game but haven't selected any cards
       const { result } = renderHook(() => useGameState());
@@ -356,11 +356,15 @@ describe('As a player', () => {
 
       if (placementResult && placementResult.isCorrect) {
         // Then: The card is removed from my hand with visual feedback
-        expect(result.current.state.playerHand.length).toBe(initialHandSize - 1);
+        expect(result.current.state.playerHand.length).toBe(
+          initialHandSize - 1
+        );
         expect(result.current.state.playerHand).not.toContain(cardToPlace);
-        
+
         // And: I get a new card to replace it
-        expect(result.current.state.playerHand.length).toBe(initialHandSize - 1);
+        expect(result.current.state.playerHand.length).toBe(
+          initialHandSize - 1
+        );
       }
     });
   });
@@ -380,7 +384,7 @@ describe('As a player', () => {
 
       // Then: My game state should be automatically saved
       expect(result.current.hasSavedGame()).toBe(true);
-      
+
       // And: I should be able to restore my progress
       // Note: This would typically be tested by simulating a page reload
       // For now, we verify that the save functionality is available
@@ -400,7 +404,7 @@ describe('As a player', () => {
       // Then: My settings should be properly configured
       expect(currentSettings).toBeDefined();
       expect(currentSettings.difficulty).toBeDefined();
-      
+
       // And: The game should respect my difficulty setting
       expect(result.current.state.difficulty).toBe(currentSettings.difficulty);
     });
@@ -512,4 +516,4 @@ describe('As a player', () => {
       expect(result.current.state.gameStatus).toBe('playing');
     });
   });
-}); 
+});
