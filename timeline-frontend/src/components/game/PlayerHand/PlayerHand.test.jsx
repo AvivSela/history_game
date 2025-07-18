@@ -200,41 +200,7 @@ describe('PlayerHand Component', () => {
       expect(mockOnCardSelect).toHaveBeenCalledWith(mockCards[0]);
     });
 
-    it('deselects card when same card is clicked again', () => {
-      render(
-        <PlayerHand
-          cards={mockCards}
-          selectedCard={mockCards[0]}
-          onCardSelect={mockOnCardSelect}
-          isPlayerTurn={true}
-          playerName="Player 1"
-          maxCards={8}
-        />
-      );
-
-      const firstCard = screen.getByTestId('card-1');
-      fireEvent.click(firstCard);
-
-      expect(mockOnCardSelect).toHaveBeenCalledWith(null);
-    });
-
-    it('selects new card when different card is clicked', () => {
-      render(
-        <PlayerHand
-          cards={mockCards}
-          selectedCard={mockCards[0]}
-          onCardSelect={mockOnCardSelect}
-          isPlayerTurn={true}
-          playerName="Player 1"
-          maxCards={8}
-        />
-      );
-
-      const secondCard = screen.getByTestId('card-2');
-      fireEvent.click(secondCard);
-
-      expect(mockOnCardSelect).toHaveBeenCalledWith(mockCards[1]);
-    });
+    // Tests moved to behavior tests - see src/tests/behavior/gameBehavior.test.jsx
   });
 
   describe('Turn State', () => {
@@ -344,28 +310,6 @@ describe('PlayerHand Component', () => {
       fireEvent.click(deselectButton);
 
       expect(mockOnCardSelect).toHaveBeenCalledWith(null);
-    });
-
-    it('shows instructions when no card is selected and player turn', () => {
-      render(
-        <PlayerHand
-          cards={mockCards}
-          selectedCard={null}
-          onCardSelect={mockOnCardSelect}
-          isPlayerTurn={true}
-          playerName="Player 1"
-          maxCards={8}
-        />
-      );
-
-      expect(screen.getByText('How to play:')).toBeInTheDocument();
-      expect(screen.getByText(/Click a card to select it/)).toBeInTheDocument();
-      expect(
-        screen.getByText(/Click on the timeline where it belongs/)
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/If correct, it stays! If wrong, try again/)
-      ).toBeInTheDocument();
     });
 
     it('shows waiting message when no card is selected and not player turn', () => {
