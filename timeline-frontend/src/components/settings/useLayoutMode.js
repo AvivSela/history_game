@@ -5,7 +5,14 @@ import { useState, useEffect } from 'react';
  * @returns {'grid' | 'list' | 'compact'} The current layout mode
  */
 export const useLayoutMode = () => {
-  const [layout, setLayout] = useState('list');
+  const [layout, setLayout] = useState(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 768) return 'compact';
+      if (window.innerWidth < 1024) return 'list';
+      return 'grid';
+    }
+    return 'list'; // SSR fallback
+  });
 
   useEffect(() => {
     const updateLayout = () => {
