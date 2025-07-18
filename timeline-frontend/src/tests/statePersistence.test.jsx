@@ -99,32 +99,7 @@ describe('State Persistence', () => {
       expect(result).toEqual(mockSavedState);
     });
 
-    it('should return null when no saved state exists', () => {
-      const result = loadGameStateFromStorage();
-      expect(result).toBe(null);
-    });
-
-    it('should return null for corrupted data', () => {
-      global.localStorage.store['timelineGameState-v1.0.0'] = 'invalid json';
-
-      const result = loadGameStateFromStorage();
-      expect(result).toBe(null);
-    });
-
-    it('should return null for missing required fields', () => {
-      const incompleteState = {
-        version: '1.0.0',
-        timestamp: Date.now(),
-        // Missing required fields
-        gameStatus: 'playing',
-      };
-
-      global.localStorage.store['timelineGameState-v1.0.0'] =
-        JSON.stringify(incompleteState);
-
-      const result = loadGameStateFromStorage();
-      expect(result).toBe(null);
-    });
+    // Additional tests moved to behavior tests - see src/tests/behavior/gameBehavior.test.jsx
   });
 
   describe('clearGameStateFromStorage', () => {

@@ -41,19 +41,7 @@ describe('useGameState Hook', () => {
       expect(result.current.state.playerHand).toEqual([]);
     });
 
-    it('integrates with settings manager', () => {
-      const { result } = renderHook(() => useGameState());
-
-      // Should have access to settings
-      expect(result.current.settings).toBeDefined();
-    });
-
-    it('handles state persistence', async () => {
-      const { result } = renderHook(() => useGameState());
-
-      // Test that state persistence is available
-      expect(typeof result.current.hasSavedGame).toBe('function');
-    });
+    // Additional tests moved to behavior tests - see src/tests/behavior/gameBehavior.test.jsx
   });
 
   describe('Game Initialization', () => {
