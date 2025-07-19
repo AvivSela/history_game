@@ -65,11 +65,9 @@ jobs:
       - name: Setup test database
         run: |
           cd timeline-backend
-          echo "Setting up test database schema..."
-          PGPASSWORD=password psql -h localhost -p 5433 -U postgres -d timeline_game_test -f migrations/001_initial_schema.sql
-          echo "Populating test database with sample data..."
-          PGPASSWORD=password psql -h localhost -p 5433 -U postgres -d timeline_game_test -f migrations/002_sample_data.sql
-          echo "Test database setup complete!"
+          echo "Running database migrations..."
+          node scripts/migrate.js migrate
+          echo "Database setup complete!"
 
       - name: Run backend tests
         run: yarn test:backend
