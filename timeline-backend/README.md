@@ -36,19 +36,31 @@ CREATE DATABASE timeline_game_test;  -- for testing
 
 ### 3. Environment Configuration
 
+Create a `.env` file in the `timeline-backend` directory. You can copy the example below or create your own:
+
+**Option 1: Copy the example configuration**
+```bash
+# Copy the example configuration
+cp .env.example .env
+# Then edit .env with your actual database credentials
+```
+
+**Note**: If `.env.example` doesn't exist, you can create it manually using the configuration below.
+
+**Option 2: Create .env manually**
 Create a `.env` file in the `timeline-backend` directory:
 
 ```env
 # Database Configuration
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5433
 DB_NAME=timeline_game
 DB_USER=postgres
 DB_PASSWORD=your_password
 
 # Test Database
 TEST_DB_HOST=localhost
-TEST_DB_PORT=5432
+TEST_DB_PORT=5433
 TEST_DB_NAME=timeline_game_test
 TEST_DB_USER=postgres
 TEST_DB_PASSWORD=your_password
@@ -166,7 +178,7 @@ timeline-backend/
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DB_HOST` | Database host | `localhost` |
-| `DB_PORT` | Database port | `5432` |
+| `DB_PORT` | Database port | `5433` |
 | `DB_NAME` | Database name | `timeline_game` |
 | `DB_USER` | Database user | `postgres` |
 | `DB_PASSWORD` | Database password | `password` |
@@ -219,6 +231,75 @@ The backend uses structured logging with different levels:
 2. Add tests for new features
 3. Update documentation as needed
 4. Run migrations when changing database schema
+
+## 🔧 Troubleshooting
+
+### Common Setup Issues
+
+**Database Connection Failed**
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Start PostgreSQL if not running
+sudo systemctl start postgresql
+
+# Check if the database exists
+psql -h localhost -p 5433 -U postgres -l | grep timeline_game
+```
+
+**Port Already in Use**
+```bash
+# Check what's using port 5000
+lsof -i :5000
+
+# Kill the process if needed
+kill -9 <PID>
+```
+
+**Migration Issues**
+```bash
+# Check database status
+yarn db:status
+
+# Reset database if needed
+yarn db:reset
+
+# Run migrations manually
+yarn db:migrate
+```
+
+**Test Database Issues**
+```bash
+# Run tests with database setup
+NODE_ENV=test yarn db:migrate
+yarn test
+```
+
+### Environment Variable Reference
+
+Create a `.env` file with these variables:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5433
+DB_NAME=timeline_game
+DB_USER=postgres
+DB_PASSWORD=your_password
+
+# Test Database
+TEST_DB_HOST=localhost
+TEST_DB_PORT=5433
+TEST_DB_NAME=timeline_game_test
+TEST_DB_USER=postgres
+TEST_DB_PASSWORD=your_password
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+LOG_LEVEL=info
+```
 
 ## 📄 License
 
