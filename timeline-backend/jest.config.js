@@ -56,5 +56,14 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/coverage/'
-  ]
+  ],
+  
+  // Force exit after tests complete
+  forceExit: true,
+  
+  // Detect open handles
+  detectOpenHandles: true,
+  
+  // Worker idle memory limit
+  workerIdleMemoryLimit: '512MB'
 }; 
