@@ -102,28 +102,58 @@ async function showStatus() {
     logger.info(`🔗 Connection: ${isConnected ? '✅ Connected' : '❌ Disconnected'}`);
     
     if (isConnected) {
-      // Check if tables exist
+          // Check if tables exist
+    const tables = ['cards', 'game_sessions', 'game_moves'];
+    
+    for (const table of tables) {
       const tableResult = await query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
-          WHERE table_name = 'cards'
+          WHERE table_name = $1
         ) as table_exists
-      `);
+      `, [table]);
       
       const tableExists = tableResult.rows[0].table_exists;
-      logger.info(`📋 Cards table: ${tableExists ? '✅ Exists' : '❌ Missing'}`);
+      logger.info(`📋 ${table.charAt(0).toUpperCase() + table.slice(1)} table: ${tableExists ? '✅ Exists' : '❌ Missing'}`);
+    }
+    
+    // Get cards table details if it exists
+    const cardsTableResult = await query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_name = 'cards'
+      ) as table_exists
+    `);
+    
+    if (cardsTableResult.rows[0].table_exists) {
+      // Get card count
+      const countResult = await query('SELECT COUNT(*) as count FROM cards');
+      const count = countResult.rows[0].count;
+      logger.info(`🎴 Total cards: ${count}`);
       
-      if (tableExists) {
-        // Get card count
-        const countResult = await query('SELECT COUNT(*) as count FROM cards');
-        const count = countResult.rows[0].count;
-        logger.info(`🎴 Total cards: ${count}`);
-        
-        // Get categories
-        const categoriesResult = await query('SELECT DISTINCT category FROM cards ORDER BY category');
-        const categories = categoriesResult.rows.map(row => row.category);
-        logger.info(`📁 Categories: ${categories.join(', ')}`);
-      }
+      // Get categories
+      const categoriesResult = await query('SELECT DISTINCT category FROM cards ORDER BY category');
+      const categories = categoriesResult.rows.map(row => row.category);
+      logger.info(`📁 Categories: ${categories.join(', ')}`);
+    }
+    
+    // Get game sessions stats if table exists
+    const sessionsTableResult = await query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_name = 'game_sessions'
+      ) as table_exists
+    `);
+    
+    if (sessionsTableResult.rows[0].table_exists) {
+      const sessionsCountResult = await query('SELECT COUNT(*) as count FROM game_sessions');
+      const sessionsCount = sessionsCountResult.rows[0].count;
+      logger.info(`🎮 Total game sessions: ${sessionsCount}`);
+      
+      const movesCountResult = await query('SELECT COUNT(*) as count FROM game_moves');
+      const movesCount = movesCountResult.rows[0].count;
+      logger.info(`🎯 Total game moves: ${movesCount}`);
+    }
     }
     
   } catch (error) {

@@ -113,4 +113,31 @@ global.checkDatabaseConnection = async () => {
     console.error('Database connection error:', error.message);
     throw error;
   }
+};
+
+// Database schema validation for tests that need it
+global.validateDatabaseSchema = async () => {
+  try {
+    const { query } = require('../config/database');
+    const requiredTables = ['cards', 'game_sessions', 'game_moves'];
+    
+    for (const table of requiredTables) {
+      const result = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_name = $1
+        ) as table_exists
+      `, [table]);
+      
+      if (!result.rows[0].table_exists) {
+        throw new Error(`Required table '${table}' does not exist. Run migrations first with: node scripts/migrate.js migrate`);
+      }
+    }
+    
+    console.log('✅ Database schema validation passed');
+    return true;
+  } catch (error) {
+    console.error('❌ Database schema validation failed:', error.message);
+    throw error;
+  }
 }; 

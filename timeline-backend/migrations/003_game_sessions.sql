@@ -49,6 +49,7 @@ CREATE INDEX IF NOT EXISTS idx_game_moves_move_number ON game_moves(session_id, 
 CREATE INDEX IF NOT EXISTS idx_game_moves_created_at ON game_moves(created_at);
 
 -- Create trigger to automatically update the updated_at timestamp for game_sessions
+DROP TRIGGER IF EXISTS update_game_sessions_updated_at ON game_sessions;
 CREATE TRIGGER update_game_sessions_updated_at 
     BEFORE UPDATE ON game_sessions 
     FOR EACH ROW 
@@ -66,6 +67,7 @@ END;
 $$ language 'plpgsql';
 
 -- Create trigger to calculate duration when session ends
+DROP TRIGGER IF EXISTS calculate_game_session_duration ON game_sessions;
 CREATE TRIGGER calculate_game_session_duration
     BEFORE UPDATE ON game_sessions
     FOR EACH ROW

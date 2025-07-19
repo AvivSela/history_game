@@ -65,9 +65,13 @@ jobs:
       - name: Setup test database
         run: |
           cd timeline-backend
-          echo "Running database migrations..."
+          echo "🔍 Checking database connection..."
+          node scripts/migrate.js status
+          echo "🔄 Running database migrations..."
           node scripts/migrate.js migrate
-          echo "Database setup complete!"
+          echo "✅ Verifying database setup..."
+          node scripts/migrate.js status
+          echo "🎉 Database setup complete!"
 
       - name: Run backend tests
         run: yarn test:backend
