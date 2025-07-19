@@ -77,7 +77,7 @@ describe('API Endpoints', () => {
       const event = response.body.data[0];
       expect(event).toHaveProperty('id');
       expect(event).toHaveProperty('title');
-      expect(event).toHaveProperty('date_occurred');
+      expect(event).toHaveProperty('dateOccurred');
       expect(event).toHaveProperty('category');
       expect(event).toHaveProperty('difficulty');
       expect(event).toHaveProperty('description');

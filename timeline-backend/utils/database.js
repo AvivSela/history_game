@@ -1,5 +1,6 @@
 const { query, testConnection } = require('../config/database');
 const logger = require('./logger');
+const { transformCardData } = require('./dataTransform');
 
 /**
  * Database utilities for Timeline Game
@@ -54,7 +55,7 @@ async function getAllCards(options = {}) {
     }
 
     const result = await query(sql, params);
-    return result.rows;
+    return transformCardData(result.rows);
   } catch (error) {
     logger.error('❌ Error getting all cards:', error.message);
     throw error;
@@ -98,7 +99,7 @@ async function getRandomCards(count, options = {}) {
     params.push(count);
 
     const result = await query(sql, params);
-    return result.rows;
+    return transformCardData(result.rows);
   } catch (error) {
     logger.error('❌ Error getting random cards:', error.message);
     throw error;
@@ -115,7 +116,7 @@ async function getCardById(id) {
   try {
     const sql = 'SELECT * FROM cards WHERE id = $1';
     const result = await query(sql, [id]);
-    return result.rows[0] || null;
+    return result.rows[0] ? transformCardData(result.rows[0]) : null;
   } catch (error) {
     logger.error('❌ Error getting card by ID:', error.message);
     throw error;
@@ -148,7 +149,7 @@ async function getCardsByCategory(category) {
   try {
     const sql = 'SELECT * FROM cards WHERE category = $1 ORDER BY date_occurred ASC';
     const result = await query(sql, [category]);
-    return result.rows;
+    return transformCardData(result.rows);
   } catch (error) {
     logger.error('❌ Error getting cards by category:', error.message);
     throw error;

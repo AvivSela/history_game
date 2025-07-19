@@ -49,7 +49,7 @@ describe('Database Integration', () => {
         const card = cards[0];
         expect(card).toHaveProperty('id');
         expect(card).toHaveProperty('title');
-        expect(card).toHaveProperty('date_occurred');
+        expect(card).toHaveProperty('dateOccurred');
         expect(card).toHaveProperty('category');
         expect(card).toHaveProperty('difficulty');
         expect(card).toHaveProperty('description');
@@ -132,7 +132,7 @@ describe('Database Integration', () => {
       cards.forEach(card => {
         // Check required fields
         expect(card.title).toBeTruthy();
-        expect(card.date_occurred).toBeTruthy();
+        expect(card.dateOccurred).toBeTruthy();
         expect(card.category).toBeTruthy();
         expect(card.difficulty).toBeGreaterThanOrEqual(1);
         expect(card.difficulty).toBeLessThanOrEqual(5);
