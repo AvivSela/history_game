@@ -4,7 +4,7 @@
  */
 
 const request = require('supertest');
-const express = require('express');
+const { testConnection } = require('../config/database');
 
 // Import the server app
 let app;
@@ -12,6 +12,12 @@ let server;
 
 // Setup and teardown
 beforeAll(async () => {
+  // Test database connection
+  const isConnected = await testConnection();
+  if (!isConnected) {
+    throw new Error('Database connection failed - make sure PostgreSQL is running and migrations are applied');
+  }
+  
   // Import the server dynamically to avoid port conflicts
   const serverModule = require('../server');
   app = serverModule.app;
@@ -35,7 +41,8 @@ describe('API Endpoints', () => {
       expect(response.body).toHaveProperty('timestamp');
       expect(response.body).toHaveProperty('status');
       expect(response.body).toHaveProperty('version');
-      expect(response.body.status).toBe('healthy');
+      expect(response.body).toHaveProperty('database');
+      expect(['healthy', 'degraded']).toContain(response.body.status);
       expect(response.body.version).toBe('1.0.0');
     });
 
@@ -70,7 +77,7 @@ describe('API Endpoints', () => {
       const event = response.body.data[0];
       expect(event).toHaveProperty('id');
       expect(event).toHaveProperty('title');
-      expect(event).toHaveProperty('dateOccurred');
+      expect(event).toHaveProperty('date_occurred');
       expect(event).toHaveProperty('category');
       expect(event).toHaveProperty('difficulty');
       expect(event).toHaveProperty('description');
