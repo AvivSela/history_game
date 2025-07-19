@@ -46,7 +46,8 @@ async function runMigrations() {
     // List of migrations in order
     const migrations = [
       '../migrations/001_initial_schema.sql',
-      '../migrations/002_sample_data.sql'
+      '../migrations/002_sample_data.sql',
+      '../migrations/003_game_sessions.sql'
     ];
     
     // Execute each migration
