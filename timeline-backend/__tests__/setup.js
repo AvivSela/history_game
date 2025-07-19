@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'test';
 process.env.PORT = 5001; // Use different port for testing
 
 // Global test timeout
-jest.setTimeout(10000);
+jest.setTimeout(process.env.JEST_TIMEOUT ? parseInt(process.env.JEST_TIMEOUT) : 10000);
 
 // Global test utilities
 global.testUtils = {
@@ -87,4 +87,19 @@ global.expectSuccessProperty = (response) => {
 
 global.expectDataProperty = (response) => {
   expect(response.body).toHaveProperty('data');
+};
+
+// Database connection check for tests that need it
+global.checkDatabaseConnection = async () => {
+  try {
+    const { testConnection } = require('../config/database');
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      throw new Error('Database connection failed - make sure PostgreSQL is running and configured correctly');
+    }
+    return true;
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+    throw error;
+  }
 }; 

@@ -3,6 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { errorHandler, notFoundHandler, asyncHandler } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
+const { testConnection } = require('./config/database');
+const dbUtils = require('./utils/database');
 
 dotenv.config();
 
@@ -127,25 +129,38 @@ const sampleEvents = [
   }
 ];
 
-// Basic health check route
-app.get('/api/health', (req, res) => {
+// Enhanced health check route with database status
+app.get('/api/health', asyncHandler(async (req, res) => {
+  const dbStatus = await testConnection();
+  
   res.json({ 
     success: true,
     message: 'Timeline API is running!',
     timestamp: new Date().toISOString(),
-    status: 'healthy',
+    status: dbStatus ? 'healthy' : 'degraded',
+    database: dbStatus ? 'connected' : 'disconnected',
     version: '1.0.0'
   });
-});
+}));
 
 // Get all events
 app.get('/api/events', asyncHandler(async (req, res) => {
   logger.info('📊 Fetching all events...');
-  res.json({
-    success: true,
-    count: sampleEvents.length,
-    data: sampleEvents
-  });
+  
+  try {
+    const events = await dbUtils.getAllCards();
+    res.json({
+      success: true,
+      count: events.length,
+      data: events
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching events:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch events'
+    });
+  }
 }));
 
 // Get random events for a game (using simpler parameter handling)
@@ -163,23 +178,32 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
     });
   }
   
-  if (count > sampleEvents.length) {
-    return res.status(400).json({
+  try {
+    // Get total count to validate request
+    const totalCount = await dbUtils.getCardCount();
+    
+    if (count > totalCount) {
+      return res.status(400).json({
+        success: false,
+        error: `Requested ${count} events but only ${totalCount} available`
+      });
+    }
+    
+    const selectedEvents = await dbUtils.getRandomCards(count);
+    
+    res.json({
+      success: true,
+      count: selectedEvents.length,
+      requested: count,
+      data: selectedEvents
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching random events:', error.message);
+    res.status(500).json({
       success: false,
-      error: `Requested ${count} events but only ${sampleEvents.length} available`
+      error: 'Failed to fetch random events'
     });
   }
-  
-  // Create a copy and shuffle
-  const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
-  const selectedEvents = shuffled.slice(0, count);
-  
-  res.json({
-    success: true,
-    count: selectedEvents.length,
-    requested: count,
-    data: selectedEvents
-  });
 }));
 
 // Alternative route without parameters (fallback)
@@ -187,26 +211,42 @@ app.get('/api/events/random', asyncHandler(async (req, res) => {
   const count = parseInt(req.query.count, 10) || 5;
   logger.info(`🎲 Fetching ${count} random events (query param)...`);
   
-  const shuffled = [...sampleEvents].sort(() => 0.5 - Math.random());
-  const selectedEvents = shuffled.slice(0, count);
-  
-  res.json({
-    success: true,
-    count: selectedEvents.length,
-    data: selectedEvents
-  });
+  try {
+    const selectedEvents = await dbUtils.getRandomCards(count);
+    
+    res.json({
+      success: true,
+      count: selectedEvents.length,
+      data: selectedEvents
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching random events:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch random events'
+    });
+  }
 }));
 
 // Get available categories
 app.get('/api/categories', asyncHandler(async (req, res) => {
   logger.info('📁 Fetching categories...');
-  const categories = [...new Set(sampleEvents.map(event => event.category))];
   
-  res.json({
-    success: true,
-    count: categories.length,
-    data: categories
-  });
+  try {
+    const categories = await dbUtils.getCategories();
+    
+    res.json({
+      success: true,
+      count: categories.length,
+      data: categories
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching categories:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch categories'
+    });
+  }
 }));
 
 // Get events by category (using query parameters instead of path parameters)
@@ -220,16 +260,23 @@ app.get('/api/events/category', asyncHandler(async (req, res) => {
   }
   
   logger.info(`📂 Fetching events for category: ${category}`);
-  const filtered = sampleEvents.filter(event => 
-    event.category.toLowerCase() === category.toLowerCase()
-  );
   
-  res.json({
-    success: true,
-    count: filtered.length,
-    category: category,
-    data: filtered
-  });
+  try {
+    const filtered = await dbUtils.getCardsByCategory(category);
+    
+    res.json({
+      success: true,
+      count: filtered.length,
+      category: category,
+      data: filtered
+    });
+  } catch (error) {
+    logger.error('❌ Error fetching events by category:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch events by category'
+    });
+  }
 }));
 
 // Error handling middleware
@@ -238,7 +285,7 @@ app.use(errorHandler);
 // Handle 404s
 app.use('*', notFoundHandler);
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   logger.info('🚀 Timeline API Server Successfully Started!');
   logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   logger.info(`📍 Server: http://localhost:${PORT}`);
@@ -247,6 +294,16 @@ const server = app.listen(PORT, () => {
   logger.info(`🎲 Random: http://localhost:${PORT}/api/events/random/5`);
   logger.info(`📁 Categories: http://localhost:${PORT}/api/categories`);
   logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  // Initialize database
+  try {
+    await dbUtils.initializeDatabase();
+    logger.info('✅ Database initialized successfully!');
+  } catch (error) {
+    logger.error('❌ Database initialization failed:', error.message);
+    logger.info('⚠️  Server will continue without database functionality');
+  }
+  
   logger.info('✅ Ready for frontend connections!');
 });
 
