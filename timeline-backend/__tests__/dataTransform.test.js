@@ -81,6 +81,28 @@ describe('Data Transformation Utilities', () => {
       expect(transformObjectKeys('string')).toBe('string');
       expect(transformObjectKeys(123)).toBe(123);
     });
+
+    it('should handle Date objects correctly', () => {
+      const testDate = new Date('2024-01-01T00:00:00Z');
+      expect(transformObjectKeys(testDate)).toBe(testDate);
+      
+      const input = {
+        id: 1,
+        date_occurred: testDate,
+        created_at: new Date('2024-01-01T00:00:00Z')
+      };
+      
+      const expected = {
+        id: 1,
+        dateOccurred: testDate,
+        createdAt: new Date('2024-01-01T00:00:00Z')
+      };
+      
+      const result = transformObjectKeys(input);
+      expect(result.dateOccurred).toBe(testDate);
+      expect(result.dateOccurred instanceof Date).toBe(true);
+      expect(result.createdAt instanceof Date).toBe(true);
+    });
   });
 
   describe('transformCardData', () => {

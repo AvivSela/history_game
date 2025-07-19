@@ -137,8 +137,10 @@ describe('Database Integration', () => {
         expect(card.difficulty).toBeGreaterThanOrEqual(1);
         expect(card.difficulty).toBeLessThanOrEqual(5);
         
-        // Check date format
-        expect(new Date(card.date_occurred)).not.toBeInstanceOf(Error);
+        // Check date format - verify it's a valid date
+        const date = new Date(card.dateOccurred);
+        expect(isNaN(date.getTime())).toBe(false);
+        expect(date instanceof Date).toBe(true);
       });
     });
 

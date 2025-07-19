@@ -110,6 +110,49 @@ Updated test expectations from `date_occurred` to `dateOccurred` to match the ne
 4. **Testable**: Comprehensive test coverage for transformation logic
 5. **Extensible**: Transformation utility can be reused for other data types
 
+## Additional Bug Fix: Date Object Handling
+
+### Problem
+During testing, it was discovered that the data transformation utility was not handling Date objects correctly. The database returns Date objects for date fields, but the transformation function was treating them as regular objects and trying to transform their keys, resulting in empty objects `{}`.
+
+### Solution
+Updated the `transformObjectKeys` function to properly handle Date objects:
+
+```javascript
+function transformObjectKeys(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  // Handle Date objects - return them as-is
+  if (obj instanceof Date) {
+    return obj;
+  }
+
+  // ... rest of the function
+}
+```
+
+### Test Fix
+Also fixed the date validation test in `database.test.js`:
+
+**Before (flawed):**
+```javascript
+expect(new Date(card.date_occurred)).not.toBeInstanceOf(Error);
+```
+
+**After (correct):**
+```javascript
+const date = new Date(card.dateOccurred);
+expect(isNaN(date.getTime())).toBe(false);
+expect(date instanceof Date).toBe(true);
+```
+
+The original test was flawed because:
+1. It checked `card.date_occurred` (snake_case) instead of `card.dateOccurred` (camelCase)
+2. `new Date()` never returns an Error object; it returns an "Invalid Date" object for invalid inputs
+3. The correct way to validate dates is to check if `getTime()` returns a valid number
+
 ## Future Considerations
 
 - The transformation utility can be extended to handle other data types

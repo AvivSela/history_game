@@ -22,6 +22,11 @@ function transformObjectKeys(obj) {
     return obj;
   }
 
+  // Handle Date objects - return them as-is
+  if (obj instanceof Date) {
+    return obj;
+  }
+
   if (Array.isArray(obj)) {
     return obj.map(transformObjectKeys);
   }
