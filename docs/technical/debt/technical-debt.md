@@ -95,7 +95,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | ID | Title | Description | Impact | Effort | Created | Status |
 |----|-------|-------------|---------|---------|---------|---------|
-| BE-001 | Database Integration | Hardcoded data in server.js needs proper database | High | 5 days | $(date) | Open |
+| BE-001 | Database Integration | Hardcoded data in server.js needs proper database. **Production migration plan created** - comprehensive roadmap for converting stub service to production-ready backend with database integration, security, monitoring, and deployment infrastructure. | High | 5 days | $(date) | **Planned** |
 | BE-002 | Error Handling | Basic error handling needs improvement | Medium | 2 days | $(date) | Open |
 
 #### 🟡 Medium Priority
@@ -130,7 +130,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | INF-003 | Monitoring | No application monitoring or logging | Low | 2 days | $(date) | Open |
 | INF-004 | Backup Strategy | No data backup or recovery plan | Low | 1 day | $(date) | Open |
-| INF-005 | Missing Environment Files | No .env.example files for either frontend or backend to guide developers on required environment variables. | Low | 0.5 days | $(date) | Open |
+| INF-005 | Missing Environment Files | No .env.example files for either frontend or backend to guide developers on required environment variables. **Quick start guide created** with environment configuration templates and setup instructions. | Low | 0.5 days | $(date) | **Planned** |
 | INF-006 | No Health Check Monitoring | Backend has a health check endpoint but no monitoring or alerting system to track server status. | Medium | 1 day | $(date) | Open |
 
 ## 🎯 Refactoring Priorities
