@@ -116,10 +116,20 @@ async function getClient() {
  */
 async function closePool() {
   try {
+    // Wait for all queries to complete
+    await pool.query('SELECT 1');
+    
+    // Close the pool
     await pool.end();
     logger.info('🔒 Database pool closed');
   } catch (error) {
     logger.error('❌ Error closing database pool:', error.message);
+    // Force close if graceful close fails
+    try {
+      pool.end();
+    } catch (forceError) {
+      logger.error('❌ Force close also failed:', forceError.message);
+    }
   }
 }
 

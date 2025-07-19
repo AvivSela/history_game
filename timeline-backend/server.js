@@ -6,6 +6,9 @@ const logger = require('./utils/logger');
 const { testConnection } = require('./config/database');
 const dbUtils = require('./utils/database');
 
+// Import routes
+const gameSessionRoutes = require('./routes/gameSessions');
+
 dotenv.config();
 
 const app = express();
@@ -279,33 +282,43 @@ app.get('/api/events/category', asyncHandler(async (req, res) => {
   }
 }));
 
+// Game Session Routes
+app.use('/api/game-sessions', gameSessionRoutes);
+
 // Error handling middleware
 app.use(errorHandler);
 
 // Handle 404s
 app.use('*', notFoundHandler);
 
-const server = app.listen(PORT, async () => {
-  logger.info('🚀 Timeline API Server Successfully Started!');
-  logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  logger.info(`📍 Server: http://localhost:${PORT}`);
-  logger.info(`💓 Health: http://localhost:${PORT}/api/health`);
-  logger.info(`📊 Events: http://localhost:${PORT}/api/events`);
-  logger.info(`🎲 Random: http://localhost:${PORT}/api/events/random/5`);
-  logger.info(`📁 Categories: http://localhost:${PORT}/api/categories`);
-  logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+// Only start server if this file is run directly
+if (require.main === module) {
+  const server = app.listen(PORT, async () => {
+    logger.info('🚀 Timeline API Server Successfully Started!');
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    logger.info(`📍 Server: http://localhost:${PORT}`);
+    logger.info(`💓 Health: http://localhost:${PORT}/api/health`);
+    logger.info(`📊 Events: http://localhost:${PORT}/api/events`);
+    logger.info(`🎲 Random: http://localhost:${PORT}/api/events/random/5`);
+    logger.info(`📁 Categories: http://localhost:${PORT}/api/categories`);
+    logger.info(`🎮 Game Sessions: http://localhost:${PORT}/api/game-sessions`);
+    logger.info(`🏆 Leaderboard: http://localhost:${PORT}/api/game-sessions/leaderboard`);
+    logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // Initialize database
+    try {
+      await dbUtils.initializeDatabase();
+      logger.info('✅ Database initialized successfully!');
+    } catch (error) {
+      logger.error('❌ Database initialization failed:', error.message);
+      logger.info('⚠️  Server will continue without database functionality');
+    }
+    
+    logger.info('✅ Ready for frontend connections!');
+  });
   
-  // Initialize database
-  try {
-    await dbUtils.initializeDatabase();
-    logger.info('✅ Database initialized successfully!');
-  } catch (error) {
-    logger.error('❌ Database initialization failed:', error.message);
-    logger.info('⚠️  Server will continue without database functionality');
-  }
-  
-  logger.info('✅ Ready for frontend connections!');
-});
-
-// Export for testing
-module.exports = { app, server };
+  module.exports = { app, server };
+} else {
+  // Export for testing
+  module.exports = { app };
+}

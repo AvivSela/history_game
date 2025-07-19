@@ -34,6 +34,7 @@ END;
 $$ language 'plpgsql';
 
 -- Create trigger to automatically update updated_at
+DROP TRIGGER IF EXISTS update_cards_updated_at ON cards;
 CREATE TRIGGER update_cards_updated_at 
     BEFORE UPDATE ON cards 
     FOR EACH ROW 
