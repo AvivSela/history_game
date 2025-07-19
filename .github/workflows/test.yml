@@ -27,6 +27,20 @@ jobs:
   test-backend:
     name: Backend Tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: timeline_game_test
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5433:5432
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,5 +54,29 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Wait for database
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          while ! pg_isready -h localhost -p 5433 -U postgres; do
+            sleep 1
+          done
+          echo "PostgreSQL is ready!"
+
+      - name: Setup test database
+        run: |
+          cd timeline-backend
+          echo "Setting up test database schema..."
+          PGPASSWORD=password psql -h localhost -p 5433 -U postgres -d timeline_game_test -f migrations/001_initial_schema.sql
+          echo "Populating test database with sample data..."
+          PGPASSWORD=password psql -h localhost -p 5433 -U postgres -d timeline_game_test -f migrations/002_sample_data.sql
+          echo "Test database setup complete!"
+
       - name: Run backend tests
-        run: yarn test:backend 
+        run: yarn test:backend
+        env:
+          NODE_ENV: test
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5433
+          TEST_DB_NAME: timeline_game_test
+          TEST_DB_USER: postgres
+          TEST_DB_PASSWORD: password 

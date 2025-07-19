@@ -9,9 +9,20 @@ const dbUtils = require('../utils/database');
 describe('Database Integration', () => {
   beforeAll(async () => {
     // Test connection before running tests
-    const isConnected = await testConnection();
-    if (!isConnected) {
-      throw new Error('Database connection failed - make sure PostgreSQL is running');
+    try {
+      const isConnected = await testConnection();
+      if (!isConnected) {
+        throw new Error('Database connection failed - make sure PostgreSQL is running');
+      }
+    } catch (error) {
+      console.error('Database connection error:', error.message);
+      console.error('Make sure the test database is properly configured with:');
+      console.error('- TEST_DB_HOST: localhost');
+      console.error('- TEST_DB_PORT: 5433');
+      console.error('- TEST_DB_NAME: timeline_game_test');
+      console.error('- TEST_DB_USER: postgres');
+      console.error('- TEST_DB_PASSWORD: password');
+      throw error;
     }
   });
 
