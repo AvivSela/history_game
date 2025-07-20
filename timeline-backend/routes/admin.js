@@ -10,6 +10,18 @@ const { query } = require('../config/database');
 const logger = require('../utils/logger');
 
 /**
+ * GET /api/admin/test
+ * Test route to verify admin routes are working
+ */
+router.get('/test', async (req, res) => {
+  res.json({
+    success: true,
+    message: 'Admin routes are working',
+    timestamp: new Date().toISOString()
+  });
+});
+
+/**
  * GET /api/admin/dashboard
  * Get admin dashboard overview data
  */
@@ -665,6 +677,507 @@ router.get('/export/players', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to export players data'
+    });
+  }
+});
+
+/**
+ * Card Management Endpoints
+ */
+
+/**
+ * POST /api/admin/cards
+ * Create a new card
+ */
+router.post('/cards', async (req, res) => {
+  try {
+    const { title, description, dateOccurred, category, difficulty } = req.body;
+    
+    logger.info('🔧 Creating new card:', { title, category, difficulty });
+    
+    // Validate required fields
+    if (!title || !dateOccurred || !category || difficulty === undefined || difficulty === null) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: title, dateOccurred, category, difficulty'
+      });
+    }
+    
+    // Validate difficulty range
+    if (difficulty < 1 || difficulty > 5) {
+      return res.status(400).json({
+        success: false,
+        error: 'Difficulty must be between 1 and 5'
+      });
+    }
+    
+    // Validate date format
+    const date = new Date(dateOccurred);
+    if (isNaN(date.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid date format. Use YYYY-MM-DD'
+      });
+    }
+    
+    // Check if card already exists
+    const existingCard = await query(
+      'SELECT id FROM cards WHERE title = $1 AND date_occurred = $2',
+      [title, dateOccurred]
+    );
+    
+    if (existingCard.rows.length > 0) {
+      return res.status(409).json({
+        success: false,
+        error: 'Card with this title and date already exists'
+      });
+    }
+    
+    // Insert new card
+    const result = await query(`
+      INSERT INTO cards (title, description, date_occurred, category, difficulty)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `, [title, description || null, dateOccurred, category, difficulty]);
+    
+    const newCard = result.rows[0];
+    
+    logger.info(`✅ Card created successfully: ${newCard.id}`);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Card created successfully',
+      data: {
+        id: newCard.id,
+        title: newCard.title,
+        description: newCard.description,
+        dateOccurred: newCard.date_occurred,
+        category: newCard.category,
+        difficulty: newCard.difficulty,
+        createdAt: newCard.created_at
+      }
+    });
+    
+  } catch (error) {
+    logger.error('❌ Error creating card:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create card'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/cards/:id
+ * Update an existing card
+ */
+router.put('/cards/:id', async (req, res) => {
+  try {
+    const cardId = parseInt(req.params.id);
+    const { title, description, dateOccurred, category, difficulty } = req.body;
+    
+    logger.info(`🔧 Updating card ${cardId}:`, { title, category, difficulty });
+    
+    // Validate card ID
+    if (isNaN(cardId) || cardId <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid card ID'
+      });
+    }
+    
+    // Check if card exists
+    const existingCard = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+    if (existingCard.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Card not found'
+      });
+    }
+    
+    // Build update query dynamically
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+    
+    if (title !== undefined) {
+      updates.push(`title = $${paramCount++}`);
+      values.push(title);
+    }
+    if (description !== undefined) {
+      updates.push(`description = $${paramCount++}`);
+      values.push(description);
+    }
+    if (dateOccurred !== undefined) {
+      // Validate date format
+      const date = new Date(dateOccurred);
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid date format. Use YYYY-MM-DD'
+        });
+      }
+      updates.push(`date_occurred = $${paramCount++}`);
+      values.push(dateOccurred);
+    }
+    if (category !== undefined) {
+      updates.push(`category = $${paramCount++}`);
+      values.push(category);
+    }
+    if (difficulty !== undefined) {
+      if (difficulty < 1 || difficulty > 5) {
+        return res.status(400).json({
+          success: false,
+          error: 'Difficulty must be between 1 and 5'
+        });
+      }
+      updates.push(`difficulty = $${paramCount++}`);
+      values.push(difficulty);
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No fields to update'
+      });
+    }
+    
+    values.push(cardId);
+    const sql = `
+      UPDATE cards 
+      SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${paramCount}
+      RETURNING *
+    `;
+    
+    const result = await query(sql, values);
+    const updatedCard = result.rows[0];
+    
+    logger.info(`✅ Card ${cardId} updated successfully`);
+    
+    res.json({
+      success: true,
+      message: 'Card updated successfully',
+      data: {
+        id: updatedCard.id,
+        title: updatedCard.title,
+        description: updatedCard.description,
+        dateOccurred: updatedCard.date_occurred,
+        category: updatedCard.category,
+        difficulty: updatedCard.difficulty,
+        updatedAt: updatedCard.updated_at
+      }
+    });
+    
+  } catch (error) {
+    logger.error('❌ Error updating card:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update card'
+    });
+  }
+});
+
+/**
+ * DELETE /api/admin/cards/:id
+ * Delete a card (soft delete)
+ */
+router.delete('/cards/:id', async (req, res) => {
+  try {
+    const cardId = parseInt(req.params.id);
+    
+    logger.info(`🔧 Deleting card ${cardId}`);
+    
+    // Validate card ID
+    if (isNaN(cardId) || cardId <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid card ID'
+      });
+    }
+    
+    // Check if card exists
+    const existingCard = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+    if (existingCard.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Card not found'
+      });
+    }
+    
+    // Soft delete by setting is_active to false (if column exists)
+    // For now, we'll do a hard delete since is_active column might not exist
+    await query('DELETE FROM cards WHERE id = $1', [cardId]);
+    
+    logger.info(`✅ Card ${cardId} deleted successfully`);
+    
+    res.json({
+      success: true,
+      message: 'Card deleted successfully'
+    });
+    
+  } catch (error) {
+    logger.error('❌ Error deleting card:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete card'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/cards
+ * Get all cards with filtering and pagination
+ */
+router.get('/cards', async (req, res) => {
+  try {
+    const { 
+      category, 
+      difficulty, 
+      limit = 50, 
+      offset = 0, 
+      search,
+      sortBy = 'date_occurred',
+      sortOrder = 'ASC'
+    } = req.query;
+    
+    logger.info('🔧 Fetching cards with filters:', { category, difficulty, limit, offset });
+    
+    let sql = 'SELECT * FROM cards';
+    const params = [];
+    const conditions = [];
+    
+    // Add filters
+    if (category) {
+      conditions.push(`category = $${params.length + 1}`);
+      params.push(category);
+    }
+    
+    if (difficulty) {
+      conditions.push(`difficulty = $${params.length + 1}`);
+      params.push(parseInt(difficulty));
+    }
+    
+    if (search) {
+      conditions.push(`(title ILIKE $${params.length + 1} OR description ILIKE $${params.length + 1})`);
+      params.push(`%${search}%`);
+    }
+    
+    // Add WHERE clause
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    // Add sorting
+    const validSortFields = ['id', 'title', 'date_occurred', 'category', 'difficulty', 'created_at'];
+    const validSortOrders = ['ASC', 'DESC'];
+    
+    if (validSortFields.includes(sortBy)) {
+      sql += ` ORDER BY ${sortBy} ${validSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC'}`;
+    } else {
+      sql += ' ORDER BY date_occurred ASC';
+    }
+    
+    // Add pagination
+    sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    params.push(parseInt(limit), parseInt(offset));
+    
+    const result = await query(sql, params);
+    
+    // Get total count for pagination
+    let countSql = 'SELECT COUNT(*) FROM cards';
+    if (conditions.length > 0) {
+      countSql += ' WHERE ' + conditions.join(' AND ');
+    }
+    const countResult = await query(countSql, params.slice(0, -2)); // Remove limit and offset
+    const totalCount = parseInt(countResult.rows[0].count);
+    
+    res.json({
+      success: true,
+      data: {
+        cards: result.rows.map(row => ({
+          id: row.id,
+          title: row.title,
+          description: row.description,
+          dateOccurred: row.date_occurred,
+          category: row.category,
+          difficulty: row.difficulty,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at
+        })),
+        pagination: {
+          total: totalCount,
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          hasMore: (parseInt(offset) + parseInt(limit)) < totalCount
+        }
+      }
+    });
+    
+  } catch (error) {
+    logger.error('❌ Error fetching cards:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch cards'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/cards/:id
+ * Get a specific card by ID
+ */
+router.get('/cards/:id', async (req, res) => {
+  console.log('🔍 Cards/:id route hit with params:', req.params);
+  try {
+    const cardId = parseInt(req.params.id);
+    
+    logger.info(`🔧 Fetching card ${cardId}`);
+    
+    // Validate card ID
+    if (isNaN(cardId) || cardId <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid card ID'
+      });
+    }
+    
+    const result = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Card not found'
+      });
+    }
+    
+    const card = result.rows[0];
+    
+    res.json({
+      success: true,
+      data: {
+        id: card.id,
+        title: card.title,
+        description: card.description,
+        dateOccurred: card.date_occurred,
+        category: card.category,
+        difficulty: card.difficulty,
+        createdAt: card.created_at,
+        updatedAt: card.updated_at
+      }
+    });
+    
+  } catch (error) {
+    logger.error('❌ Error fetching card:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch card'
+    });
+  }
+});
+
+/**
+ * POST /api/admin/cards/bulk
+ * Create multiple cards at once
+ */
+router.post('/cards/bulk', async (req, res) => {
+  try {
+    const { cards } = req.body;
+    
+    logger.info(`🔧 Creating ${cards?.length || 0} cards in bulk`);
+    
+    if (!Array.isArray(cards) || cards.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cards array is required and must not be empty'
+      });
+    }
+    
+    if (cards.length > 100) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot create more than 100 cards at once'
+      });
+    }
+    
+    const results = [];
+    const errors = [];
+    
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
+      const { title, description, dateOccurred, category, difficulty } = card;
+      
+      try {
+        // Validate required fields
+        if (!title || !dateOccurred || !category || !difficulty) {
+          errors.push({
+            index: i,
+            error: 'Missing required fields: title, dateOccurred, category, difficulty'
+          });
+          continue;
+        }
+        
+        // Validate difficulty range
+        if (difficulty < 1 || difficulty > 5) {
+          errors.push({
+            index: i,
+            error: 'Difficulty must be between 1 and 5'
+          });
+          continue;
+        }
+        
+        // Check for duplicates
+        const existingCard = await query(
+          'SELECT id FROM cards WHERE title = $1 AND date_occurred = $2',
+          [title, dateOccurred]
+        );
+        
+        if (existingCard.rows.length > 0) {
+          errors.push({
+            index: i,
+            error: 'Card with this title and date already exists'
+          });
+          continue;
+        }
+        
+        // Insert card
+        const result = await query(`
+          INSERT INTO cards (title, description, date_occurred, category, difficulty)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING *
+        `, [title, description || null, dateOccurred, category, difficulty]);
+        
+        const newCard = result.rows[0];
+        results.push({
+          index: i,
+          id: newCard.id,
+          title: newCard.title
+        });
+        
+      } catch (error) {
+        errors.push({
+          index: i,
+          error: error.message
+        });
+      }
+    }
+    
+    logger.info(`✅ Bulk card creation completed: ${results.length} created, ${errors.length} failed`);
+    
+    res.status(201).json({
+      success: true,
+      message: `Bulk card creation completed: ${results.length} created, ${errors.length} failed`,
+      data: {
+        created: results,
+        errors: errors
+      }
+    });
+    
+  } catch (error) {
+    logger.error('❌ Error in bulk card creation:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create cards in bulk'
     });
   }
 });

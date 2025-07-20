@@ -103,6 +103,74 @@ yarn db:reset
 yarn db:status
 ```
 
+## 🃏 Card Management
+
+### Adding Cards
+
+You can add cards to the game in several ways:
+
+#### 1. Database Migration (Recommended for bulk)
+```bash
+# Run the migration to add 50+ historical events
+yarn db:migrate
+```
+
+#### 2. Command Line Script
+```bash
+# Add a single card interactively
+node scripts/add-cards.js --single
+
+# Add multiple cards interactively
+node scripts/add-cards.js --bulk
+
+# Import from JSON file
+node scripts/add-cards.js --file sample-cards.json
+
+# Preview what would be added (dry run)
+node scripts/add-cards.js --file sample-cards.json --dry-run
+```
+
+#### 3. API Endpoints
+```bash
+# Create a single card
+curl -X POST http://localhost:3001/api/admin/cards \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "New Event",
+    "description": "Event description",
+    "dateOccurred": "1900-01-01",
+    "category": "History",
+    "difficulty": 2
+  }'
+
+# Create multiple cards
+curl -X POST http://localhost:3001/api/admin/cards/bulk \
+  -H "Content-Type: application/json" \
+  -d @cards.json
+```
+
+#### 4. Test API Endpoints
+```bash
+# Run comprehensive API tests
+node scripts/test-cards-api.js
+```
+
+### Card Data Structure
+```json
+{
+  "title": "Event Title",           // Required, max 255 characters
+  "description": "Event description", // Optional
+  "dateOccurred": "1900-01-01",    // Required, YYYY-MM-DD format
+  "category": "History",           // Required, from predefined list
+  "difficulty": 2                  // Required, integer 1-5
+}
+```
+
+### Available Categories
+- `History`, `Technology`, `Science`, `Space`, `Aviation`
+- `Cultural`, `Military`, `Political`, `Disaster`
+```
+
 ### Database Schema
 
 The backend uses a single `cards` table with the following structure:
@@ -130,6 +198,18 @@ CREATE TABLE cards (
 - `GET /api/events/random/:count` - Get random cards for a game
 - `GET /api/events/random?count=5` - Get random cards (query parameter)
 - `GET /api/events/category?name=History` - Get cards by category
+
+### Card Management (Admin)
+- `POST /api/admin/cards` - Create a new card
+- `GET /api/admin/cards` - Get all cards (with filtering/pagination)
+- `GET /api/admin/cards/:id` - Get a specific card
+- `PUT /api/admin/cards/:id` - Update a card
+- `DELETE /api/admin/cards/:id` - Delete a card
+- `POST /api/admin/cards/bulk` - Create multiple cards
+
+For detailed API documentation, see:
+- [Cards CRUD API Documentation](docs/API_CARDS_CRUD.md)
+- [Quick Reference](docs/API_CARDS_QUICK_REFERENCE.md)
 
 ### Categories
 - `GET /api/categories` - Get all available categories
