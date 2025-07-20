@@ -115,6 +115,8 @@ async function runMigrations() {
       '../migrations/001_initial_schema.sql',
       '../migrations/002_sample_data.sql',
       '../migrations/003_game_sessions.sql',
+      '../migrations/004_add_more_events.sql',
+      '../migrations/005_additional_historical_events.sql',
       '../migrations/006_player_statistics.sql',
       '../migrations/007_statistics_triggers.sql'
     ];
@@ -274,7 +276,11 @@ async function validateMigrations() {
       '../migrations/000_migration_tracking.sql',
       '../migrations/001_initial_schema.sql',
       '../migrations/002_sample_data.sql',
-      '../migrations/003_game_sessions.sql'
+      '../migrations/003_game_sessions.sql',
+      '../migrations/004_add_more_events.sql',
+      '../migrations/005_additional_historical_events.sql',
+      '../migrations/006_player_statistics.sql',
+      '../migrations/007_statistics_triggers.sql'
     ];
     
     for (const migration of migrations) {

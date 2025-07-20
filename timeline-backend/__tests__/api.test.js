@@ -136,12 +136,20 @@ describe('API Endpoints', () => {
     });
 
     it('should handle count larger than available events', async () => {
+      // First, get the actual number of available events
+      const countResponse = await request(app)
+        .get('/api/events')
+        .expect(200);
+      
+      const totalEvents = countResponse.body.data.length;
+      const requestCount = totalEvents + 10; // Request more than available
+      
       const response = await request(app)
-        .get('/api/events/random/100')
+        .get(`/api/events/random/${requestCount}`)
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain('Requested 100 events but only');
+      expect(response.body.error).toContain(`Requested ${requestCount} events but only`);
     });
 
     it('should return different events on multiple requests', async () => {
