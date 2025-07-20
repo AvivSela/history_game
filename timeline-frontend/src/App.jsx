@@ -13,6 +13,7 @@ import './components/ui/Button/Button.css';
 const Home = lazy(() => import('./pages/Home'));
 const Game = lazy(() => import('./pages/Game'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Admin = lazy(() => import('./pages/Admin'));
 
 // Loading component for lazy-loaded routes
 const PageLoader = () => (
@@ -55,6 +56,9 @@ const Navigation = () => {
           <Link to="/settings" className={isActive('/settings')}>
             Settings
           </Link>
+          <Link to="/admin" className={isActive('/admin')}>
+            Admin
+          </Link>
         </div>
       </nav>
     </header>
@@ -89,6 +93,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/game" element={<Game />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/admin" element={<Admin />} />
             </Routes>
           </Suspense>
         </main>

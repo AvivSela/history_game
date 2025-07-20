@@ -282,7 +282,7 @@ async function runTests() {
       console.log('✅ Server is running');
     } else {
       console.log('❌ Server is not responding');
-      console.log('   Make sure the server is running on http://localhost:3001');
+      console.log('   Make sure the server is running on http://localhost:5000');
       process.exit(1);
     }
     
