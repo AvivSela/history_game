@@ -115,7 +115,8 @@ async function runMigrations() {
       '../migrations/001_initial_schema.sql',
       '../migrations/002_sample_data.sql',
       '../migrations/003_game_sessions.sql',
-      '../migrations/006_player_statistics.sql'
+      '../migrations/006_player_statistics.sql',
+      '../migrations/007_statistics_triggers.sql'
     ];
     
     // Execute each migration

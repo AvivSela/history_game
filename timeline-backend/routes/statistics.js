@@ -7,6 +7,7 @@
 const express = require('express');
 const router = express.Router();
 const statistics = require('../utils/statistics');
+const leaderboards = require('../utils/leaderboards');
 const logger = require('../utils/logger');
 
 /**
@@ -409,6 +410,249 @@ router.get('/players', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch player comparison'
+    });
+  }
+});
+
+// ============================================================================
+// LEADERBOARD ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /api/statistics/leaderboards/global
+ * Get global leaderboard
+ */
+router.get('/leaderboards/global', async (req, res) => {
+  try {
+    const { limit = 100, sortBy = 'score', order = 'desc' } = req.query;
+    
+    // Validate parameters
+    const limitNum = parseInt(limit);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 1000) {
+      return res.status(400).json({
+        success: false,
+        error: 'Limit must be between 1 and 1000'
+      });
+    }
+
+    logger.info(`🏆 Fetching global leaderboard: limit=${limitNum}, sortBy=${sortBy}, order=${order}`);
+    
+    const leaderboard = await leaderboards.getGlobalLeaderboard(limitNum, sortBy, order);
+
+    res.json({
+      success: true,
+      data: {
+        type: 'global',
+        sort_by: sortBy,
+        order: order,
+        limit: limitNum,
+        total_players: leaderboard.length,
+        leaderboard: leaderboard
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error fetching global leaderboard:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch global leaderboard'
+    });
+  }
+});
+
+/**
+ * GET /api/statistics/leaderboards/category/:category
+ * Get category-specific leaderboard
+ */
+router.get('/leaderboards/category/:category', async (req, res) => {
+  try {
+    const { category } = req.params;
+    const { limit = 50, sortBy = 'score', order = 'desc' } = req.query;
+    
+    if (!category || category.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Category is required'
+      });
+    }
+
+    // Validate parameters
+    const limitNum = parseInt(limit);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Limit must be between 1 and 500'
+      });
+    }
+
+    logger.info(`🏆 Fetching category leaderboard: category=${category}, limit=${limitNum}, sortBy=${sortBy}, order=${order}`);
+    
+    const leaderboard = await leaderboards.getCategoryLeaderboard(category, limitNum, sortBy, order);
+
+    res.json({
+      success: true,
+      data: {
+        type: 'category',
+        category: category,
+        sort_by: sortBy,
+        order: order,
+        limit: limitNum,
+        total_players: leaderboard.length,
+        leaderboard: leaderboard
+      }
+    });
+
+  } catch (error) {
+    logger.error(`Error fetching category leaderboard for ${req.params.category}:`, error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch category leaderboard'
+    });
+  }
+});
+
+/**
+ * GET /api/statistics/leaderboards/daily
+ * Get daily leaderboard (last 24 hours)
+ */
+router.get('/leaderboards/daily', async (req, res) => {
+  try {
+    const { limit = 50, sortBy = 'score', order = 'desc' } = req.query;
+    
+    // Validate parameters
+    const limitNum = parseInt(limit);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Limit must be between 1 and 500'
+      });
+    }
+
+    logger.info(`🏆 Fetching daily leaderboard: limit=${limitNum}, sortBy=${sortBy}, order=${order}`);
+    
+    const leaderboard = await leaderboards.getDailyLeaderboard(limitNum, sortBy, order);
+
+    res.json({
+      success: true,
+      data: {
+        type: 'daily',
+        date: new Date().toISOString().split('T')[0],
+        sort_by: sortBy,
+        order: order,
+        limit: limitNum,
+        total_players: leaderboard.length,
+        leaderboard: leaderboard
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error fetching daily leaderboard:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch daily leaderboard'
+    });
+  }
+});
+
+/**
+ * GET /api/statistics/leaderboards/weekly
+ * Get weekly leaderboard (current week)
+ */
+router.get('/leaderboards/weekly', async (req, res) => {
+  try {
+    const { limit = 50, sortBy = 'score', order = 'desc' } = req.query;
+    
+    // Validate parameters
+    const limitNum = parseInt(limit);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Limit must be between 1 and 500'
+      });
+    }
+
+    logger.info(`🏆 Fetching weekly leaderboard: limit=${limitNum}, sortBy=${sortBy}, order=${order}`);
+    
+    const leaderboard = await leaderboards.getWeeklyLeaderboard(limitNum, sortBy, order);
+
+    res.json({
+      success: true,
+      data: {
+        type: 'weekly',
+        week_start_date: new Date().toISOString().split('T')[0],
+        sort_by: sortBy,
+        order: order,
+        limit: limitNum,
+        total_players: leaderboard.length,
+        leaderboard: leaderboard
+      }
+    });
+
+  } catch (error) {
+    logger.error('Error fetching weekly leaderboard:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch weekly leaderboard'
+    });
+  }
+});
+
+/**
+ * GET /api/statistics/leaderboards/player/:playerName
+ * Get player's ranking across all leaderboards
+ */
+router.get('/leaderboards/player/:playerName', async (req, res) => {
+  try {
+    const { playerName } = req.params;
+    
+    if (!playerName || playerName.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Player name is required'
+      });
+    }
+
+    logger.info(`🏆 Fetching player rankings for: ${playerName}`);
+    
+    const rankings = await leaderboards.getPlayerRankings(playerName);
+
+    res.json({
+      success: true,
+      data: {
+        player_name: playerName,
+        rankings: rankings
+      }
+    });
+
+  } catch (error) {
+    logger.error(`Error fetching player rankings for ${req.params.playerName}:`, error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch player rankings'
+    });
+  }
+});
+
+/**
+ * GET /api/statistics/leaderboards/summary
+ * Get leaderboard summary statistics
+ */
+router.get('/leaderboards/summary', async (req, res) => {
+  try {
+    logger.info('🏆 Fetching leaderboard summary');
+    
+    const summary = await leaderboards.getLeaderboardSummary();
+
+    res.json({
+      success: true,
+      data: summary
+    });
+
+  } catch (error) {
+    logger.error('Error fetching leaderboard summary:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch leaderboard summary'
     });
   }
 });

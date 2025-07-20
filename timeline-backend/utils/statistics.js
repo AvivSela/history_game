@@ -109,7 +109,14 @@ async function calculateCategoryStatistics(playerName, category = null) {
 
     const result = await query(sql, params);
     
-    return result.rows.map(row => {
+    let rows = result.rows;
+    
+    // Filter by specific category if requested
+    if (category) {
+      rows = rows.filter(row => row.category === category);
+    }
+    
+    return rows.map(row => {
       const accuracy = row.total_moves > 0 
         ? (row.correct_moves / row.total_moves) * 100 
         : 0;
@@ -126,7 +133,7 @@ async function calculateCategoryStatistics(playerName, category = null) {
         total_moves: parseInt(row.total_moves),
         correct_moves: parseInt(row.correct_moves),
         incorrect_moves: parseInt(row.incorrect_moves),
-        average_score: parseFloat(row.average_score.toFixed(2)),
+        average_score: parseFloat((Number(row.average_score) || 0).toFixed(2)),
         accuracy: parseFloat(accuracy.toFixed(2)),
         best_score: parseInt(row.best_score),
         average_game_duration_seconds: parseInt(row.average_duration),
@@ -193,7 +200,7 @@ async function calculateDifficultyStatistics(playerName, difficultyLevel = null)
         total_moves: parseInt(row.total_moves),
         correct_moves: parseInt(row.correct_moves),
         incorrect_moves: parseInt(row.incorrect_moves),
-        average_score: parseFloat(row.average_score.toFixed(2)),
+        average_score: parseFloat((Number(row.average_score) || 0).toFixed(2)),
         accuracy: parseFloat(accuracy.toFixed(2)),
         best_score: parseInt(row.best_score),
         average_game_duration_seconds: parseInt(row.average_duration),
@@ -228,10 +235,10 @@ async function calculateDailyStatistics(playerName, days = 30) {
         COALESCE(SUM(duration_seconds), 0) as total_play_time
       FROM game_sessions 
       WHERE player_name = $1 
-        AND end_time >= CURRENT_DATE - INTERVAL '${days} days'
+        AND end_time >= CURRENT_DATE - INTERVAL '1 day' * $2
       GROUP BY DATE(end_time)
       ORDER BY date DESC
-    `, [playerName]);
+    `, [playerName, days]);
     
     return result.rows.map(row => {
       const accuracy = row.total_moves > 0 
@@ -250,7 +257,7 @@ async function calculateDailyStatistics(playerName, days = 30) {
         total_moves: parseInt(row.total_moves),
         correct_moves: parseInt(row.correct_moves),
         incorrect_moves: parseInt(row.incorrect_moves),
-        average_score: parseFloat(row.average_score.toFixed(2)),
+        average_score: parseFloat((Number(row.average_score) || 0).toFixed(2)),
         accuracy: parseFloat(accuracy.toFixed(2)),
         total_play_time_seconds: parseInt(row.total_play_time),
         win_rate: parseFloat(winRate.toFixed(2))
@@ -284,10 +291,10 @@ async function calculateWeeklyStatistics(playerName, weeks = 12) {
         COALESCE(SUM(duration_seconds), 0) as total_play_time
       FROM game_sessions 
       WHERE player_name = $1 
-        AND end_time >= CURRENT_DATE - INTERVAL '${weeks * 7} days'
+        AND end_time >= CURRENT_DATE - INTERVAL '1 day' * $2
       GROUP BY EXTRACT(YEAR FROM end_time), EXTRACT(WEEK FROM end_time)
       ORDER BY year DESC, week DESC
-    `, [playerName]);
+    `, [playerName, weeks * 7]);
     
     return result.rows.map(row => {
       const accuracy = row.total_moves > 0 
@@ -307,7 +314,7 @@ async function calculateWeeklyStatistics(playerName, weeks = 12) {
         total_moves: parseInt(row.total_moves),
         correct_moves: parseInt(row.correct_moves),
         incorrect_moves: parseInt(row.incorrect_moves),
-        average_score: parseFloat(row.average_score.toFixed(2)),
+        average_score: parseFloat((Number(row.average_score) || 0).toFixed(2)),
         accuracy: parseFloat(accuracy.toFixed(2)),
         total_play_time_seconds: parseInt(row.total_play_time),
         win_rate: parseFloat(winRate.toFixed(2))
