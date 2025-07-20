@@ -85,6 +85,19 @@ SET title = 'Christopher Columbus reaches Americas'
 WHERE title = 'Columbus reaches America' 
 AND date_occurred = '1492-10-12';
 
+-- Remove the duplicate Christopher Columbus entry (keep the one with more detailed description)
+DELETE FROM cards 
+WHERE id IN (
+    SELECT id FROM (
+        SELECT id, 
+               ROW_NUMBER() OVER (PARTITION BY title, date_occurred ORDER BY LENGTH(description) DESC, id) as rn
+        FROM cards 
+        WHERE title = 'Christopher Columbus reaches Americas' 
+        AND date_occurred = '1492-10-12'
+    ) ranked 
+    WHERE rn > 1
+);
+
 -- Verify the cleanup
 SELECT 
     COUNT(*) as total_cards,
