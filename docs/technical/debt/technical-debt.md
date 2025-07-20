@@ -97,6 +97,10 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-031 | Large Function Complexity in Statistics | Functions in statistics.js utilities are doing too much (database queries, data transformation, business logic, error handling). Apply Single Responsibility Principle by splitting into focused functions for data fetching, calculations, and formatting. | Medium | 1.5 days | $(date) | Open |
 | FE-032 | Magic Numbers in API Limits | Hard-coded values scattered throughout statistics routes (max 10 players, max 1000 leaderboard limit, etc.). Extract to constants file with proper documentation and validation. | Low | 0.5 days | $(date) | Open |
 | FE-033 | Inconsistent Error Response Format | Error messages and response structures vary across statistics API endpoints. Standardize error response format with consistent structure, error codes, and user-friendly messages. | Medium | 1 day | $(date) | Open |
+| FE-034 | Unused Accessibility Utility | `src/utils/accessibility.js` is not imported anywhere after introduction of `animation/AccessibilityManager.js`. Remove the file or merge its logic into the current accessibility manager to reduce bundle size and developer confusion. | Low | 0.25 days | $(date) | Open |
+| FE-035 | Unused Mobile Optimization Utility | `src/utils/mobileOptimization.js` is no longer referenced; similar capabilities now reside in `animation/DeviceOptimizer.js`. Consolidate or delete to reduce redundancy. | Low | 0.25 days | $(date) | Open |
+| FE-036 | Unused AnimationControls Component | `src/components/ui/AnimationControls/AnimationControls.jsx` is exported but never rendered in the application. Delete or integrate into settings UI to prevent dead code accumulation. | Low | 0.25 days | $(date) | Open |
+| FE-037 | Unused Feedback Component | `src/components/ui/Feedback/Feedback.jsx` and its CSS are not used; visual feedback is handled by GameStatus overlays. Remove or repurpose to streamline the codebase. | Low | 0.25 days | $(date) | Open |
 
 ### Backend Technical Debt
 
