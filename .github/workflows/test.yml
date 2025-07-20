@@ -65,7 +65,9 @@ jobs:
       - name: Setup test database
         run: |
           cd timeline-backend
-          echo "🔍 Checking database connection..."
+          echo "🧪 Testing database connection first..."
+          node scripts/test-db-connection.js
+          echo "🔍 Checking database status..."
           node scripts/migrate.js status
           echo "🔄 Running database migrations..."
           node scripts/migrate.js migrate
@@ -74,6 +76,13 @@ jobs:
           echo "🔍 Validating migration integrity..."
           node scripts/migrate.js validate
           echo "🎉 Database setup complete!"
+        env:
+          NODE_ENV: test
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5433
+          TEST_DB_NAME: timeline_game_test
+          TEST_DB_USER: postgres
+          TEST_DB_PASSWORD: password
 
       - name: Run backend tests
         run: yarn test:backend

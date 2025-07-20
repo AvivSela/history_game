@@ -13,7 +13,8 @@
     "db:migrate": "node scripts/migrate.js migrate",
     "db:reset": "node scripts/migrate.js reset",
     "db:status": "node scripts/migrate.js status",
-    "db:validate": "node scripts/migrate.js validate"
+    "db:validate": "node scripts/migrate.js validate",
+    "db:test-connection": "node scripts/test-db-connection.js"
   },
   "keywords": [
     "timeline",

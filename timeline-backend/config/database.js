@@ -51,6 +51,16 @@ const config = {
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env];
 
+// Log environment and configuration for debugging
+logger.info(`🔧 Database Environment: ${env}`);
+logger.info(`🔧 Database Config:`, {
+  host: dbConfig.host,
+  port: dbConfig.port,
+  database: dbConfig.database,
+  user: dbConfig.user,
+  max: dbConfig.max
+});
+
 // Validate required environment variables for production
 if (env === 'production') {
   const requiredVars = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
