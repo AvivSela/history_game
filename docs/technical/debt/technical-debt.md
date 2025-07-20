@@ -9,9 +9,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ## 🎯 Current Status
 
 **Last Updated**: $(date)
-**Total Debt Items**: 16
-**High Priority Items**: 2
-**Estimated Refactoring Time**: 23 days
+**Total Debt Items**: 25
+**High Priority Items**: 4
+**Estimated Refactoring Time**: 35 days
 
 ## 📋 Debt Categories
 
@@ -92,6 +92,11 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-024 | useGameState Unit Tests to Behavioral Tests Conversion | ✅ **RESOLVED** - Successfully converted all useGameState tests to behavioral tests. Created useGameStateBehavior.test.jsx with comprehensive user story coverage, improved test maintainability, and better documentation of user flows. Added new test utilities and custom matchers. Removed deprecated unit tests after verifying complete coverage. | Medium | 2 days | $(date) | **Resolved** |
 | FE-026 | PropTypes / Type Checking | React components do not enforce PropTypes or use TypeScript, leading to potential runtime errors and harder maintenance. Introduce PropTypes or migrate to TypeScript for strong typing. | Low | 1 day | $(date) | Open |
 | FE-027 | CSS Class Naming Consistency | CSS classes use inconsistent naming conventions causing style collisions and reduced maintainability. Adopt BEM or CSS Modules and refactor existing styles. | Low | 1 day | $(date) | Open |
+| FE-029 | ErrorScreen Callback Error Handling | ✅ **RESOLVED** - Added comprehensive error handling to ErrorScreen component callbacks with try-catch blocks, preventing callback errors from bubbling up and causing test failures. Implemented proper JSDoc documentation and maintained component functionality while improving robustness. | Medium | 0.5 days | $(date) | **Resolved** |
+| FE-030 | Statistics Routes Code Duplication | The statistics.js routes file contains 660+ lines with repetitive validation and error handling patterns. Extract common middleware for input validation, error handling, and response formatting to reduce code duplication and improve maintainability. | Medium | 2 days | $(date) | Open |
+| FE-031 | Large Function Complexity in Statistics | Functions in statistics.js utilities are doing too much (database queries, data transformation, business logic, error handling). Apply Single Responsibility Principle by splitting into focused functions for data fetching, calculations, and formatting. | Medium | 1.5 days | $(date) | Open |
+| FE-032 | Magic Numbers in API Limits | Hard-coded values scattered throughout statistics routes (max 10 players, max 1000 leaderboard limit, etc.). Extract to constants file with proper documentation and validation. | Low | 0.5 days | $(date) | Open |
+| FE-033 | Inconsistent Error Response Format | Error messages and response structures vary across statistics API endpoints. Standardize error response format with consistent structure, error codes, and user-friendly messages. | Medium | 1 day | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -121,6 +126,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | BE-008 | Missing Input Validation | API endpoints lack proper input validation for parameters like count, category names, and request bodies. Should implement validation middleware. | Medium | 1.5 days | $(date) | Open |
 | BE-009 | Inconsistent API Response Format | Some endpoints return different response structures. Should standardize API response format across all endpoints. | Low | 1 day | $(date) | Open |
 | BE-012 | Error Handling Tests | Unit tests do not cover errorHandler middleware, reducing confidence in error responses. Add comprehensive tests for error handling and edge cases. | Low | 1 day | $(date) | Open |
+| BE-013 | Statistics API Service Layer | Statistics routes directly contain business logic, making them hard to test and maintain. Implement service layer pattern to separate business logic from route handlers, improving testability and code organization. | Medium | 2 days | $(date) | Open |
+| BE-014 | Database Query Organization | SQL queries in statistics.js are embedded in functions, making them hard to maintain and optimize. Create query builders or separate query files for better organization and reusability. | Low | 1 day | $(date) | Open |
+| BE-015 | API Response Performance | Large response objects in statistics endpoints could benefit from pagination, compression, and caching. Implement response optimization for better performance and user experience. | Medium | 1.5 days | $(date) | Open |
 
 ### Infrastructure Technical Debt
 
@@ -142,6 +150,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | INF-006 | No Health Check Monitoring | Backend has a health check endpoint but no monitoring or alerting system to track server status. | Medium | 1 day | $(date) | Open |
 | INF-008 | Load Testing | No load or stress testing in place, risking undiscovered performance bottlenecks under high traffic. Integrate load testing tools and CI automation. | Low | 1 day | $(date) | Open |
 | INF-009 | Dependency Update Automation | Automated dependency update tools (Dependabot/Renovate) are not configured, increasing the risk of outdated or vulnerable packages. Enable automatic update workflows. | Low | 0.5 days | $(date) | Open |
+| INF-010 | Statistics API Documentation | Missing OpenAPI/Swagger documentation for the new statistics endpoints. Generate comprehensive API documentation with examples, response schemas, and error codes for better developer experience. | Medium | 1 day | $(date) | Open |
+| INF-011 | Statistics Database Indexing | While basic indexes exist, the statistics tables could benefit from additional composite indexes for complex queries. Analyze query patterns and add appropriate indexes for better performance. | Low | 1 day | $(date) | Open |
 
 ## 🎯 Refactoring Priorities
 
@@ -154,10 +164,13 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 1. **FE-005**: API Error Handling
 2. **FE-006**: Mobile Optimization
 3. **FE-016**: Inconsistent Error Handling
-4. **BE-003**: API Documentation
-5. **BE-004**: Logging Strategy
-6. **BE-007**: Hardcoded Sample Data
-7. **BE-008**: Missing Input Validation
+4. **FE-030**: Statistics Routes Code Duplication
+5. **FE-031**: Large Function Complexity in Statistics
+6. **BE-003**: API Documentation
+7. **BE-004**: Logging Strategy
+8. **BE-007**: Hardcoded Sample Data
+9. **BE-008**: Missing Input Validation
+10. **BE-013**: Statistics API Service Layer
 
 ### Sprint 3 (High Impact, High Effort)
 1. **FE-004**: State Management
@@ -167,8 +180,11 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 ### Sprint 4 (Low Impact, Low Effort)
 1. **FE-012**: Console Logging in Production
-2. **BE-009**: Inconsistent API Response Format
-3. **INF-005**: Missing Environment Files
+2. **FE-032**: Magic Numbers in API Limits
+3. **FE-033**: Inconsistent Error Response Format
+4. **BE-009**: Inconsistent API Response Format
+5. **BE-014**: Database Query Organization
+6. **INF-005**: Missing Environment Files
 
 ### Sprint 5 (Infrastructure)
 1. **INF-001**: Docker Setup
@@ -176,6 +192,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 3. **INF-003**: Monitoring
 4. **INF-004**: Backup Strategy
 5. **INF-006**: No Health Check Monitoring
+6. **INF-010**: Statistics API Documentation
+7. **INF-011**: Statistics Database Indexing
 
 ## 📈 Debt Metrics
 
@@ -183,15 +201,15 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | Month | New Debt | Resolved Debt | Net Change | Total Debt |
 |-------|----------|---------------|------------|------------|
-| $(date +%B %Y) | 9 | 8 | +1 | 15 |
+| $(date +%B %Y) | 18 | 9 | +9 | 25 |
 
 ### Debt by Category
 
 | Category | Count | Total Effort | Priority Distribution |
 |----------|-------|--------------|----------------------|
-| Frontend | 8 | 2.5 days | 🔴1 🟡3 🟢4 |
-| Backend | 9 | 14.5 days | 🔴2 🟡4 🟢3 |
-| Infrastructure | 6 | 11.5 days | 🔴0 🟡3 🟢3 |
+| Frontend | 13 | 5.5 days | 🔴1 🟡5 🟢7 |
+| Backend | 12 | 18.5 days | 🔴2 🟡6 🟢4 |
+| Infrastructure | 8 | 14.5 days | 🔴0 🟡4 🟢4 |
 
 ### Recent Achievements
 - ✅ **FE-001 Animation Performance**: Completed with 30-40% performance improvement
@@ -206,6 +224,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 - ✅ **FE-017 Memory Leaks in Timers**: Fixed setTimeout cleanup in Feedback component, verified existing cleanup patterns
 - ✅ **FE-004 State Management**: Consolidated duplicate state management between Game.jsx and useGameState hook to create a single source of truth. Enhanced useGameState with missing properties (cardPool, aiOpponent), consolidated initialization logic, and maintained backward compatibility
 - ✅ **FE-022 Layout Fix Implementation**: Successfully implemented vertical layout fix for Timeline and PlayerHand components. Removed horizontal layout on large screens, optimized component spacing and positioning for vertical flow, improved responsive behavior, and maintained all functionality. All 462 tests pass.
+- ✅ **FE-029 ErrorScreen Callback Error Handling**: Added comprehensive error handling to ErrorScreen component callbacks with try-catch blocks, preventing callback errors from bubbling up and causing test failures. Implemented proper JSDoc documentation and maintained component functionality while improving robustness.
 - ✅ **Unified Animation System**: Replaced 4 legacy files with 8 optimized modules
 - ✅ **Accessibility Support**: Full reduced motion and screen reader support
 - ✅ **Device Optimization**: Mobile-specific performance enhancements
@@ -214,6 +233,26 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 - ✅ **CSS Colocation**: Moved card, timeline, button, navigation, loading, and feedback styles to dedicated component files
 - ✅ **Constants Centralization**: Eliminated magic numbers across 15+ files with organized constant categories
 - ✅ **Path Alias Implementation**: Clean import structure with comprehensive IDE support
+
+## 🎯 Phase 3 Statistics & Analytics Debt Items
+
+The following technical debt items were identified during the Phase 3 Statistics & Analytics feature implementation review:
+
+### High Priority Items
+- **FE-030**: Statistics Routes Code Duplication (Medium impact, 2 days effort)
+- **FE-031**: Large Function Complexity in Statistics (Medium impact, 1.5 days effort)
+- **BE-013**: Statistics API Service Layer (Medium impact, 2 days effort)
+- **BE-015**: API Response Performance (Medium impact, 1.5 days effort)
+
+### Medium Priority Items
+- **FE-032**: Magic Numbers in API Limits (Low impact, 0.5 days effort)
+- **FE-033**: Inconsistent Error Response Format (Medium impact, 1 day effort)
+- **BE-014**: Database Query Organization (Low impact, 1 day effort)
+- **INF-010**: Statistics API Documentation (Medium impact, 1 day effort)
+- **INF-011**: Statistics Database Indexing (Low impact, 1 day effort)
+
+### Resolved Items
+- ✅ **FE-029**: ErrorScreen Callback Error Handling - Successfully implemented comprehensive error handling with try-catch blocks and proper JSDoc documentation.
 
 ## 🧹 Top 20 High-Benefit Cleanup Opportunities ($(date))
 
