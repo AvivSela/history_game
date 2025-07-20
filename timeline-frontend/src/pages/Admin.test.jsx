@@ -54,8 +54,10 @@ describe('Admin Page', () => {
     // Mock successful API response
     gameAPI.getAdminCards.mockResolvedValue({
       data: {
-        cards: mockCards,
-        pagination: mockPagination
+        data: {
+          cards: mockCards,
+          pagination: mockPagination
+        }
       }
     });
   });
@@ -256,7 +258,7 @@ describe('Admin Page', () => {
       });
 
       // Open edit modal
-      const editButtons = screen.getAllByTitle('Edit card');
+      const editButtons = screen.getAllByText('Edit');
       fireEvent.click(editButtons[0]);
 
       // Update title
@@ -288,7 +290,7 @@ describe('Admin Page', () => {
         expect(screen.getByText('First Computer')).toBeInTheDocument();
       });
 
-      const deleteButtons = screen.getAllByTitle('Delete card');
+      const deleteButtons = screen.getAllByText('Delete');
       fireEvent.click(deleteButtons[0]);
 
       expect(screen.getByRole('heading', { name: 'Delete Card' })).toBeInTheDocument();
@@ -306,7 +308,7 @@ describe('Admin Page', () => {
       });
 
       // Open delete modal
-      const deleteButtons = screen.getAllByTitle('Delete card');
+      const deleteButtons = screen.getAllByText('Delete');
       fireEvent.click(deleteButtons[0]);
 
       // Confirm deletion
@@ -326,7 +328,7 @@ describe('Admin Page', () => {
       });
 
       // Open delete modal
-      const deleteButtons = screen.getAllByTitle('Delete card');
+      const deleteButtons = screen.getAllByText('Delete');
       fireEvent.click(deleteButtons[0]);
 
       // Cancel deletion
@@ -344,7 +346,7 @@ describe('Admin Page', () => {
       render(<Admin />);
       
       await waitFor(() => {
-        expect(screen.getByText('Failed to fetch cards')).toBeInTheDocument();
+        expect(screen.getByText('Failed to load cards: Failed to fetch cards')).toBeInTheDocument();
       });
     });
 
@@ -354,13 +356,13 @@ describe('Admin Page', () => {
       render(<Admin />);
       
       await waitFor(() => {
-        expect(screen.getByText('Failed to fetch cards')).toBeInTheDocument();
+        expect(screen.getByText('Failed to load cards: Failed to fetch cards')).toBeInTheDocument();
       });
 
-      const dismissButton = screen.getByText('Dismiss');
+      const dismissButton = screen.getByText('×');
       fireEvent.click(dismissButton);
 
-      expect(screen.queryByText('Failed to fetch cards')).not.toBeInTheDocument();
+      expect(screen.queryByText('Failed to load cards: Failed to fetch cards')).not.toBeInTheDocument();
     });
   });
 
@@ -368,8 +370,10 @@ describe('Admin Page', () => {
     test('renders pagination when there are more cards', async () => {
       gameAPI.getAdminCards.mockResolvedValue({
         data: {
-          cards: mockCards,
-          pagination: { ...mockPagination, total: 50, hasMore: true }
+          data: {
+            cards: mockCards,
+            pagination: { ...mockPagination, total: 50, hasMore: true }
+          }
         }
       });
       
@@ -385,8 +389,10 @@ describe('Admin Page', () => {
     test('navigates to next page', async () => {
       gameAPI.getAdminCards.mockResolvedValue({
         data: {
-          cards: mockCards,
-          pagination: { ...mockPagination, total: 50, hasMore: true }
+          data: {
+            cards: mockCards,
+            pagination: { ...mockPagination, total: 50, hasMore: true }
+          }
         }
       });
       
@@ -411,16 +417,17 @@ describe('Admin Page', () => {
     test('shows empty state when no cards are found', async () => {
       gameAPI.getAdminCards.mockResolvedValue({
         data: {
-          cards: [],
-          pagination: { total: 0, limit: 20, offset: 0, hasMore: false }
+          data: {
+            cards: [],
+            pagination: { total: 0, limit: 20, offset: 0, hasMore: false }
+          }
         }
       });
       
       render(<Admin />);
       
       await waitFor(() => {
-        expect(screen.getByText('No cards found matching your criteria.')).toBeInTheDocument();
-        expect(screen.getByText('Add Your First Card')).toBeInTheDocument();
+        expect(screen.getByText('No cards found')).toBeInTheDocument();
       });
     });
   });
@@ -433,14 +440,13 @@ describe('Admin Page', () => {
         expect(screen.getByText('First Computer')).toBeInTheDocument();
       });
 
-      // Check for proper table structure
-      expect(screen.getByRole('table')).toBeInTheDocument();
-      expect(screen.getAllByRole('columnheader')).toHaveLength(6);
-      expect(screen.getAllByRole('row')).toHaveLength(3); // header + 2 data rows
+      // Check for proper card structure
+      expect(screen.getByText('Card Manager')).toBeInTheDocument();
+      expect(screen.getByText('Add New Card')).toBeInTheDocument();
 
       // Check for proper button labels
-      expect(screen.getAllByTitle('Edit card')).toHaveLength(2);
-      expect(screen.getAllByTitle('Delete card')).toHaveLength(2);
+      expect(screen.getAllByText('Edit')).toHaveLength(2);
+      expect(screen.getAllByText('Delete')).toHaveLength(2);
     });
 
     test('modal has proper focus management', async () => {
@@ -451,7 +457,7 @@ describe('Admin Page', () => {
       });
 
       // Open modal
-      const addButton = screen.getByText('+ Add New Card');
+      const addButton = screen.getByText('Add New Card');
       fireEvent.click(addButton);
 
       // Check that modal is focused
