@@ -210,15 +210,45 @@ export const API = {
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
+  MAX_RETRY_DELAY: 5000,
+
+  // Enhanced endpoints
+  ENDPOINTS: {
+    HEALTH: '/health',
+    EVENTS: '/events',
+    GAME_SESSIONS: '/game-sessions',
+    STATISTICS: '/statistics',
+    ANALYTICS: '/analytics',
+    ADMIN: '/admin',
+    CATEGORIES: '/categories',
+  },
 
   // Status codes
   STATUS_CODES: {
     OK: 200,
     CREATED: 201,
+    ACCEPTED: 202,
+    NO_CONTENT: 204,
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
     NOT_FOUND: 404,
+    CONFLICT: 409,
+    UNPROCESSABLE_ENTITY: 422,
+    TOO_MANY_REQUESTS: 429,
     INTERNAL_SERVER_ERROR: 500,
+    SERVICE_UNAVAILABLE: 503,
+  },
+
+  // Enhanced error messages
+  ERROR_MESSAGES: {
+    NETWORK_ERROR: 'Unable to connect to server. Please check your connection.',
+    TIMEOUT_ERROR: 'Request timed out. Please try again.',
+    SERVER_ERROR: 'Server error. Please try again later.',
+    VALIDATION_ERROR: 'Invalid data provided. Please check your input.',
+    NOT_FOUND_ERROR: 'Resource not found.',
+    UNAUTHORIZED_ERROR: 'Access denied. Please log in.',
+    RATE_LIMIT_ERROR: 'Too many requests. Please wait and try again.',
   },
 };
 
