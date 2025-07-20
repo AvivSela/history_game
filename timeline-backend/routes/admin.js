@@ -1028,7 +1028,7 @@ router.get('/cards', async (req, res) => {
  * Get a specific card by ID
  */
 router.get('/cards/:id', async (req, res) => {
-  console.log('🔍 Cards/:id route hit with params:', req.params);
+  logger.debug('🔍 Cards/:id route hit', { params: req.params });
   try {
     const cardId = parseInt(req.params.id);
     
