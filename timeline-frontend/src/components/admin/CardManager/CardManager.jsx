@@ -67,10 +67,10 @@ const CardManager = () => {
       const response = await gameAPI.getAdminCards(params.toString());
       const data = response.data;
 
-      setCards(data.cards);
+      setCards(data.data.cards);
       setPagination(prev => ({
         ...prev,
-        total: data.pagination.total
+        total: data.data.pagination.total
       }));
     } catch (err) {
       setError('Failed to load cards: ' + err.message);
@@ -215,7 +215,11 @@ const CardManager = () => {
 
   // Load cards on component mount and when dependencies change
   useEffect(() => {
-    loadCards();
+    console.log('CardManager: Loading cards...');
+    loadCards().catch(err => {
+      console.error('CardManager: Error loading cards:', err);
+      setError('Failed to load cards: ' + err.message);
+    });
   }, [loadCards]);
 
   return (

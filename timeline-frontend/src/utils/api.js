@@ -121,11 +121,11 @@ export const gameAPI = {
   },
 
   // Admin Card Management
-  getAdminCards: (params = '') => api.get(`/api/admin/cards${params ? `?${params}` : ''}`),
-  createAdminCard: (cardData) => api.post('/api/admin/cards', cardData),
-  updateAdminCard: (cardId, cardData) => api.put(`/api/admin/cards/${cardId}`, cardData),
-  deleteAdminCard: (cardId) => api.delete(`/api/admin/cards/${cardId}`),
-  bulkCreateAdminCards: (cardsData) => api.post('/api/admin/cards/bulk', cardsData),
+  getAdminCards: (params = '') => api.get(`/admin/cards${params ? `?${params}` : ''}`),
+  createAdminCard: (cardData) => api.post('/admin/cards', cardData),
+  updateAdminCard: (cardId, cardData) => api.put(`/admin/cards/${cardId}`, cardData),
+  deleteAdminCard: (cardId) => api.delete(`/admin/cards/${cardId}`),
+  bulkCreateAdminCards: (cardsData) => api.post('/admin/cards/bulk', cardsData),
   getPlayerDifficultyStatistics: (playerName, level = null) => {
     const url = level 
       ? `${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/difficulty?level=${encodeURIComponent(level)}`
