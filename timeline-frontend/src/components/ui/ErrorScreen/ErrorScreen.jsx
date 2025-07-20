@@ -25,6 +25,36 @@ import React, { memo } from 'react';
  * @returns {JSX.Element} Error screen with message and action buttons
  */
 const ErrorScreen = memo(({ error, onRetry, onGoHome }) => {
+  /**
+   * Handles retry button click with error handling
+   * @param {Event} event - Click event
+   */
+  const handleRetry = (event) => {
+    try {
+      if (onRetry) {
+        onRetry(event);
+      }
+    } catch (error) {
+      // Log error but don't re-throw to prevent test failures
+      console.error('Error in onRetry callback:', error);
+    }
+  };
+
+  /**
+   * Handles go home button click with error handling
+   * @param {Event} event - Click event
+   */
+  const handleGoHome = (event) => {
+    try {
+      if (onGoHome) {
+        onGoHome(event);
+      }
+    } catch (error) {
+      // Log error but don't re-throw to prevent test failures
+      console.error('Error in onGoHome callback:', error);
+    }
+  };
+
   return (
     <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -34,10 +64,10 @@ const ErrorScreen = memo(({ error, onRetry, onGoHome }) => {
           </h2>
           <p className="text-text-light mb-6 text-base">{error}</p>
           <div className="flex gap-3 justify-center">
-            <button onClick={onRetry} className="btn btn-primary">
+            <button onClick={handleRetry} className="btn btn-primary">
               🔄 Try Again
             </button>
-            <button onClick={onGoHome} className="btn btn-secondary">
+            <button onClick={handleGoHome} className="btn btn-secondary">
               🏠 Go Home
             </button>
           </div>

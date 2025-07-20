@@ -261,6 +261,7 @@ async function getDatabaseStats() {
 }
 
 module.exports = {
+  query,
   getAllCards,
   getRandomCards,
   getCardById,
