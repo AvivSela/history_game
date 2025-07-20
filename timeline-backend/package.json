@@ -12,7 +12,8 @@
     "test:ci": "jest --ci --coverage --watchAll=false",
     "db:migrate": "node scripts/migrate.js migrate",
     "db:reset": "node scripts/migrate.js reset",
-    "db:status": "node scripts/migrate.js status"
+    "db:status": "node scripts/migrate.js status",
+    "db:validate": "node scripts/migrate.js validate"
   },
   "keywords": [
     "timeline",
