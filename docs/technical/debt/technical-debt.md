@@ -56,6 +56,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | FE-001 | Animation Performance | ✅ **RESOLVED** - Implemented unified animation system with 30-40% performance improvement, device optimization, and accessibility support | High | 3 days | $(date) | **Resolved** |
 | FE-002 | Component Organization | ✅ **RESOLVED** - Complete reorganization with consistent naming, logical grouping, and standardized import patterns | Medium | 2 days | $(date) | **Resolved** |
+| FE-028 | Keyboard Accessibility for Drag & Drop | Timeline drag-and-drop functionality lacks keyboard controls and proper ARIA attributes, making the game inaccessible for users relying on keyboards or assistive technologies. Implement full keyboard interaction and update accessibility guidelines. | High | 2 days | $(date) | Open |
 
 #### 🟡 Medium Priority
 
@@ -65,6 +66,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-004 | State Management | ✅ **RESOLVED** - Consolidated duplicate state management between Game.jsx and useGameState hook to create a single source of truth. Enhanced useGameState with missing properties (cardPool, aiOpponent), consolidated initialization logic, and maintained backward compatibility. Reduced complexity and improved maintainability. | Medium | 2 days | $(date) | **Resolved** |
 | FE-005 | API Error Handling | Inconsistent error handling across API calls | Medium | 1 day | $(date) | Open |
 | FE-006 | Mobile Optimization | Mobile-specific optimizations could be improved | Medium | 1 day | $(date) | Open |
+| FE-025 | Internationalization Framework | Hard-coded English text across components prevents localization and restricts user base. Integrate an internationalization (i18n) solution with translation management. | Medium | 2 days | $(date) | Open |
 
 #### 🟢 Low Priority
 
@@ -88,6 +90,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-022 | Layout Fix Implementation | ✅ **RESOLVED** - Successfully implemented vertical layout fix for Timeline and PlayerHand components. Removed horizontal layout on large screens, optimized component spacing and positioning for vertical flow, improved responsive behavior, and maintained all functionality. All 462 tests pass. | Medium | 3 hours | $(date) | **Resolved** |
 | FE-023 | useGameState SettingsManager Testing Issues | Two critical testing bugs in useGameState.test.js: 1) Test incorrectly expects console.warn when SettingsManager constructor fails (warning never occurs in actual code flow), 2) Mock instance mismatch where tests create different mock instances than what the hook uses, causing assertions to fail. Comprehensive fix plan created (USEgamestate_SETTINGS_TESTING_FIX_PLAN.md) with solutions for both immediate fixes and improved testing infrastructure. | High | 1 day | $(date) | Identified |
 | FE-024 | useGameState Unit Tests to Behavioral Tests Conversion | ✅ **RESOLVED** - Successfully converted all useGameState tests to behavioral tests. Created useGameStateBehavior.test.jsx with comprehensive user story coverage, improved test maintainability, and better documentation of user flows. Added new test utilities and custom matchers. Removed deprecated unit tests after verifying complete coverage. | Medium | 2 days | $(date) | **Resolved** |
+| FE-026 | PropTypes / Type Checking | React components do not enforce PropTypes or use TypeScript, leading to potential runtime errors and harder maintenance. Introduce PropTypes or migrate to TypeScript for strong typing. | Low | 1 day | $(date) | Open |
+| FE-027 | CSS Class Naming Consistency | CSS classes use inconsistent naming conventions causing style collisions and reduced maintainability. Adopt BEM or CSS Modules and refactor existing styles. | Low | 1 day | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -97,6 +101,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | BE-001 | Database Integration | Hardcoded data in server.js needs proper database. **Production migration plan created** - comprehensive roadmap for converting stub service to production-ready backend with database integration, security, monitoring, and deployment infrastructure. | High | 5 days | $(date) | **Planned** |
 | BE-002 | Error Handling | Basic error handling needs improvement | Medium | 2 days | $(date) | Open |
+| BE-010 | Authentication & Authorization | API endpoints are publicly accessible without authentication or authorization, posing security risks. Implement JWT-based auth and role-based access control. | High | 3 days | $(date) | Open |
 
 #### 🟡 Medium Priority
 
@@ -104,6 +109,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | BE-003 | API Documentation | Missing OpenAPI/Swagger documentation | Medium | 1 day | $(date) | Open |
 | BE-004 | Logging Strategy | Logger implementation could be enhanced | Low | 1 day | $(date) | Open |
+| BE-011 | Rate Limiting | No rate limiting middleware is in place, leaving the API vulnerable to abuse and denial-of-service attacks. Add rate limiting via middleware like express-rate-limit. | Medium | 1 day | $(date) | Open |
 
 #### 🟢 Low Priority
 
@@ -114,6 +120,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | BE-007 | Hardcoded Sample Data | Server.js contains 12 hardcoded sample events that should be moved to a separate data file or database. This makes the server file large and hard to maintain. | Medium | 1 day | $(date) | Open |
 | BE-008 | Missing Input Validation | API endpoints lack proper input validation for parameters like count, category names, and request bodies. Should implement validation middleware. | Medium | 1.5 days | $(date) | Open |
 | BE-009 | Inconsistent API Response Format | Some endpoints return different response structures. Should standardize API response format across all endpoints. | Low | 1 day | $(date) | Open |
+| BE-012 | Error Handling Tests | Unit tests do not cover errorHandler middleware, reducing confidence in error responses. Add comprehensive tests for error handling and edge cases. | Low | 1 day | $(date) | Open |
 
 ### Infrastructure Technical Debt
 
@@ -123,6 +130,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 |----|-------|-------------|---------|---------|---------|---------|
 | INF-001 | Docker Setup | Missing containerization for deployment | Medium | 2 days | $(date) | Open |
 | INF-002 | CI/CD Pipeline | No automated testing and deployment | Medium | 3 days | $(date) | Open |
+| INF-007 | Production Build Scripts | Missing dedicated scripts and configurations for building and serving optimized production bundles for both frontend and backend. Create unified build scripts and documentation. | Medium | 1 day | $(date) | Open |
 
 #### 🟢 Low Priority
 
@@ -132,6 +140,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | INF-004 | Backup Strategy | No data backup or recovery plan | Low | 1 day | $(date) | Open |
 | INF-005 | Missing Environment Files | No .env.example files for either frontend or backend to guide developers on required environment variables. **Quick start guide created** with environment configuration templates and setup instructions. | Low | 0.5 days | $(date) | **Planned** |
 | INF-006 | No Health Check Monitoring | Backend has a health check endpoint but no monitoring or alerting system to track server status. | Medium | 1 day | $(date) | Open |
+| INF-008 | Load Testing | No load or stress testing in place, risking undiscovered performance bottlenecks under high traffic. Integrate load testing tools and CI automation. | Low | 1 day | $(date) | Open |
+| INF-009 | Dependency Update Automation | Automated dependency update tools (Dependabot/Renovate) are not configured, increasing the risk of outdated or vulnerable packages. Enable automatic update workflows. | Low | 0.5 days | $(date) | Open |
 
 ## 🎯 Refactoring Priorities
 
@@ -204,6 +214,35 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 - ✅ **CSS Colocation**: Moved card, timeline, button, navigation, loading, and feedback styles to dedicated component files
 - ✅ **Constants Centralization**: Eliminated magic numbers across 15+ files with organized constant categories
 - ✅ **Path Alias Implementation**: Clean import structure with comprehensive IDE support
+
+## 🧹 Top 20 High-Benefit Cleanup Opportunities ($(date))
+
+Below is a curated list of the twenty cleanup/refactor tasks that are expected to deliver the greatest impact for the least effort. Most map to existing technical-debt IDs; a few are new suggestions and can be added to the tracker during the next update cycle.
+
+| # | Related ID | Area / File(s) | What to Clean Up | Expected Benefit |
+|---|------------|---------------|-----------------|-----------------|
+| 1 | FE-005 | `timeline-frontend/src/utils/api.js` + call-sites | Standardize API error handling and propagate user-friendly messages | Fewer silent failures, better UX |
+| 2 | FE-006 | Frontend layout, CSS & media queries | Complete mobile-first pass to optimise touch targets, spacing & font sizes | Higher mobile engagement |
+| 3 | FE-010 | `PlayerHand` tests | Re-implement "new card animation" test removed during previous cleanup | Protects critical animation behaviour |
+| 4 | FE-011 | Various tests | Fix empty "New Card Animation" suite & missing `[data-testId]` selectors | Restores full test coverage |
+| 5 | FE-012 | Multiple frontend files | Replace `console.*` with logger or remove in production builds | Cleaner console, smaller bundles |
+| 6 | FE-016 | Components & hooks | Adopt unified try/catch or error-boundary pattern across UI | Consistent error UX, easier maintenance |
+| 7 | FE-018 | `Settings` page tests | Re-implement removed accessibility & keyboard-nav tests | Guarantees a11y compliance |
+| 8 | FE-020 | `useGameState` tests | Add robust timeout tests for feedback messages | Prevents regressions in feedback UX |
+| 9 | BE-002 | `timeline-backend/middleware/errorHandler.js` | Create central Express error middleware; align HTTP status codes | Predictable API behaviour |
+|10 | BE-003 | Entire backend | Generate OpenAPI spec & host Swagger UI route | Faster onboarding, client-side codegen |
+|11 | BE-004 | `timeline-backend/utils/logger.js` | Upgrade logger to support log levels & transports (file/stdout) | Better observability |
+|12 | BE-005 | Backend routes & models | Increase unit/integration test coverage to >80% | Reduced production bugs |
+|13 | BE-007 | `timeline-backend/server.js` | Extract hard-coded sample data to SQL seeds or fixtures | Smaller server file, realistic prod parity |
+|14 | BE-008 | Routes (`count`, `category`, body params) | Add validation middleware (e.g. `Joi`, `express-validator`) | Blocks invalid requests early |
+|15 | BE-009 | All backend responses | Adopt single response envelope `{ success, data, error }` | Consistency across clients |
+|16 | INF-001 | Root + docker-compose | Containerise frontend & backend; include Postgres service | "Works on my machine" parity |
+|17 | INF-002 | `.github/workflows/` | Add CI pipeline for linting, tests & build; CD to staging | Faster feedback, safer releases |
+|18 | INF-003 & INF-006 | Backend & ops | Wire health-check endpoint to uptime/monitoring service | Early outage detection |
+|19 | INF-005 | Repo root | Provide `.env.example` with required vars and docs | Easier setup for new devs |
+|20 | NEW (INF-007) | Entire repo | Run `yarn audit`, upgrade vulnerable/outdated deps; enable Dependabot | Improved security & stability |
+
+> **Next steps**: Triage these items into upcoming sprints, create corresponding debt IDs where missing, and update metrics once added.
 
 ## 🛠️ Refactoring Guidelines
 
