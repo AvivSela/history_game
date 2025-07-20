@@ -34,6 +34,9 @@ module.exports = {
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.js'],
   
+  // Global teardown
+  globalTeardown: '<rootDir>/__tests__/globalTeardown.js',
+  
   // Test timeout
   testTimeout: 10000,
   
@@ -56,5 +59,14 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/coverage/'
-  ]
+  ],
+  
+  // Force exit after tests complete
+  forceExit: true,
+  
+  // Detect open handles
+  detectOpenHandles: true,
+  
+  // Worker idle memory limit
+  workerIdleMemoryLimit: '512MB'
 }; 

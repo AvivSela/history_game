@@ -3,12 +3,59 @@
 /**
  * Database Migration Script
  * @description Sets up the database schema and sample data for Timeline Game
+ * @version 2.0.0 - Added migration versioning and validation
  */
 
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 const { query, testConnection } = require('../config/database');
 const logger = require('../utils/logger');
+
+/**
+ * Calculate SHA256 checksum of a file
+ * @param {string} filePath - Path to the file
+ * @returns {Promise<string>} SHA256 checksum
+ */
+async function calculateChecksum(filePath) {
+  const content = await fs.readFile(filePath, 'utf8');
+  return crypto.createHash('sha256').update(content).digest('hex');
+}
+
+/**
+ * Check if migration has already been applied
+ * @param {string} migrationName - Name of the migration file
+ * @returns {Promise<boolean>} True if migration exists
+ */
+async function isMigrationApplied(migrationName) {
+  try {
+    const result = await query(
+      'SELECT COUNT(*) as count FROM migrations WHERE name = $1',
+      [migrationName]
+    );
+    return result.rows[0].count > 0;
+  } catch (error) {
+    // If migrations table doesn't exist, migration hasn't been applied
+    if (error.message.includes('relation "migrations" does not exist')) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Record migration execution
+ * @param {string} migrationName - Name of the migration file
+ * @param {string} checksum - SHA256 checksum of the migration
+ * @param {number} executionTime - Execution time in milliseconds
+ * @returns {Promise<void>}
+ */
+async function recordMigration(migrationName, checksum, executionTime) {
+  await query(
+    'INSERT INTO migrations (name, checksum, execution_time_ms) VALUES ($1, $2, $3)',
+    [migrationName, checksum, executionTime]
+  );
+}
 
 /**
  * Read and execute SQL migration file
@@ -16,15 +63,34 @@ const logger = require('../utils/logger');
  * @returns {Promise<void>}
  */
 async function executeMigration(filePath) {
+  const migrationName = path.basename(filePath);
+  const startTime = Date.now();
+  
   try {
-    logger.info(`📝 Executing migration: ${path.basename(filePath)}`);
+    logger.info(`📝 Executing migration: ${migrationName}`);
     
+    // Check if migration already applied
+    const isApplied = await isMigrationApplied(migrationName);
+    if (isApplied) {
+      logger.info(`⏭️  Migration already applied: ${migrationName}`);
+      return;
+    }
+    
+    // Calculate checksum
+    const checksum = await calculateChecksum(filePath);
+    
+    // Read and execute SQL
     const sql = await fs.readFile(filePath, 'utf8');
     await query(sql);
     
-    logger.info(`✅ Migration completed: ${path.basename(filePath)}`);
+    // Record migration
+    const executionTime = Date.now() - startTime;
+    await recordMigration(migrationName, checksum, executionTime);
+    
+    logger.info(`✅ Migration completed: ${migrationName} (${executionTime}ms)`);
   } catch (error) {
-    logger.error(`❌ Migration failed: ${path.basename(filePath)}`, error.message);
+    const executionTime = Date.now() - startTime;
+    logger.error(`❌ Migration failed: ${migrationName} (${executionTime}ms)`, error.message);
     throw error;
   }
 }
@@ -43,10 +109,12 @@ async function runMigrations() {
       throw new Error('Database connection failed');
     }
     
-    // List of migrations in order
+    // List of migrations in order (including tracking table)
     const migrations = [
+      '../migrations/000_migration_tracking.sql',
       '../migrations/001_initial_schema.sql',
-      '../migrations/002_sample_data.sql'
+      '../migrations/002_sample_data.sql',
+      '../migrations/003_game_sessions.sql'
     ];
     
     // Execute each migration
@@ -75,8 +143,11 @@ async function resetDatabase() {
   try {
     logger.info('🔄 Resetting database...');
     
-    // Drop existing tables
+    // Drop existing tables (including migrations table)
+    await query('DROP TABLE IF EXISTS migrations CASCADE');
     await query('DROP TABLE IF EXISTS cards CASCADE');
+    await query('DROP TABLE IF EXISTS game_sessions CASCADE');
+    await query('DROP TABLE IF EXISTS game_moves CASCADE');
     logger.info('🗑️  Dropped existing tables');
     
     // Run migrations
@@ -101,18 +172,54 @@ async function showStatus() {
     logger.info(`🔗 Connection: ${isConnected ? '✅ Connected' : '❌ Disconnected'}`);
     
     if (isConnected) {
+      // Check if migrations table exists
+      const migrationsTableResult = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_name = 'migrations'
+        ) as table_exists
+      `);
+      
+      if (migrationsTableResult.rows[0].table_exists) {
+        // Show applied migrations
+        const appliedMigrations = await query(`
+          SELECT name, executed_at, execution_time_ms 
+          FROM migrations 
+          ORDER BY executed_at
+        `);
+        
+        logger.info(`📋 Applied migrations (${appliedMigrations.rows.length}):`);
+        for (const migration of appliedMigrations.rows) {
+          logger.info(`  ✅ ${migration.name} - ${migration.executed_at} (${migration.execution_time_ms}ms)`);
+        }
+      } else {
+        logger.info('📋 No migration tracking table found');
+      }
+      
       // Check if tables exist
-      const tableResult = await query(`
+      const tables = ['cards', 'game_sessions', 'game_moves'];
+      
+      for (const table of tables) {
+        const tableResult = await query(`
+          SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_name = $1
+          ) as table_exists
+        `, [table]);
+        
+        const tableExists = tableResult.rows[0].table_exists;
+        logger.info(`📋 ${table.charAt(0).toUpperCase() + table.slice(1)} table: ${tableExists ? '✅ Exists' : '❌ Missing'}`);
+      }
+      
+      // Get cards table details if it exists
+      const cardsTableResult = await query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
           WHERE table_name = 'cards'
         ) as table_exists
       `);
       
-      const tableExists = tableResult.rows[0].table_exists;
-      logger.info(`📋 Cards table: ${tableExists ? '✅ Exists' : '❌ Missing'}`);
-      
-      if (tableExists) {
+      if (cardsTableResult.rows[0].table_exists) {
         // Get card count
         const countResult = await query('SELECT COUNT(*) as count FROM cards');
         const count = countResult.rows[0].count;
@@ -123,10 +230,80 @@ async function showStatus() {
         const categories = categoriesResult.rows.map(row => row.category);
         logger.info(`📁 Categories: ${categories.join(', ')}`);
       }
+      
+      // Get game sessions stats if table exists
+      const sessionsTableResult = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_name = 'game_sessions'
+        ) as table_exists
+      `);
+      
+      if (sessionsTableResult.rows[0].table_exists) {
+        const sessionsCountResult = await query('SELECT COUNT(*) as count FROM game_sessions');
+        const sessionsCount = sessionsCountResult.rows[0].count;
+        logger.info(`🎮 Total game sessions: ${sessionsCount}`);
+        
+        const movesCountResult = await query('SELECT COUNT(*) as count FROM game_moves');
+        const movesCount = movesCountResult.rows[0].count;
+        logger.info(`🎯 Total game moves: ${movesCount}`);
+      }
     }
     
   } catch (error) {
     logger.error('❌ Error checking status:', error.message);
+  }
+}
+
+/**
+ * Validate migration integrity
+ * @returns {Promise<void>}
+ */
+async function validateMigrations() {
+  try {
+    logger.info('🔍 Validating migration integrity...');
+    
+    const migrations = [
+      '../migrations/000_migration_tracking.sql',
+      '../migrations/001_initial_schema.sql',
+      '../migrations/002_sample_data.sql',
+      '../migrations/003_game_sessions.sql'
+    ];
+    
+    for (const migration of migrations) {
+      const filePath = path.join(__dirname, migration);
+      const migrationName = path.basename(filePath);
+      
+      // Check if file exists
+      try {
+        await fs.access(filePath);
+      } catch (error) {
+        logger.error(`❌ Migration file missing: ${migrationName}`);
+        continue;
+      }
+      
+      // Check if applied
+      const isApplied = await isMigrationApplied(migrationName);
+      if (isApplied) {
+        // Validate checksum
+        const currentChecksum = await calculateChecksum(filePath);
+        const storedChecksum = await query(
+          'SELECT checksum FROM migrations WHERE name = $1',
+          [migrationName]
+        );
+        
+        if (storedChecksum.rows[0].checksum !== currentChecksum) {
+          logger.error(`❌ Checksum mismatch for: ${migrationName}`);
+        } else {
+          logger.info(`✅ ${migrationName} - Valid`);
+        }
+      } else {
+        logger.info(`⏳ ${migrationName} - Not applied`);
+      }
+    }
+    
+  } catch (error) {
+    logger.error('❌ Migration validation failed:', error.message);
   }
 }
 
@@ -144,8 +321,11 @@ async function main() {
     case 'status':
       await showStatus();
       break;
+    case 'validate':
+      await validateMigrations();
+      break;
     default:
-      logger.info('📖 Database Migration Script');
+      logger.info('📖 Database Migration Script v2.0.0');
       logger.info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       logger.info('Usage: node scripts/migrate.js <command>');
       logger.info('');
@@ -153,11 +333,13 @@ async function main() {
       logger.info('  migrate  - Run all pending migrations');
       logger.info('  reset    - Reset database (drop and recreate)');
       logger.info('  status   - Show database status');
+      logger.info('  validate - Validate migration integrity');
       logger.info('');
       logger.info('Examples:');
       logger.info('  node scripts/migrate.js migrate');
       logger.info('  node scripts/migrate.js reset');
       logger.info('  node scripts/migrate.js status');
+      logger.info('  node scripts/migrate.js validate');
       break;
   }
 }
@@ -173,5 +355,6 @@ if (require.main === module) {
 module.exports = {
   runMigrations,
   resetDatabase,
-  showStatus
+  showStatus,
+  validateMigrations
 }; 
