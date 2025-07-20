@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import GameStats from './GameStats';
@@ -98,7 +98,9 @@ describe('GameStats', () => {
         expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole('button', { name: /retry/i }));
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /retry/i }));
+      });
 
       // Verify that the API was called twice (initial + retry)
       expect(gameAPI.getPlayerStatistics).toHaveBeenCalledTimes(2);
@@ -198,7 +200,9 @@ describe('GameStats', () => {
         expect(screen.getByText('TestPlayer')).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
+      });
 
       expect(gameAPI.getPlayerStatistics).toHaveBeenCalledTimes(2);
     });

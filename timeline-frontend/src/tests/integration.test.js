@@ -14,7 +14,7 @@ describe('Frontend-Backend Integration Tests', () => {
         console.log('✅ Backend server is running');
       }
     } catch (error) {
-      console.log('⚠️ Backend server is not running - skipping integration tests');
+      console.log('⚠️ Backend server is not running - integration tests will be skipped');
       serverRunning = false;
     }
   });
@@ -23,13 +23,11 @@ describe('Frontend-Backend Integration Tests', () => {
     // Cleanup if needed
   });
 
-  describe('Health Check Integration', () => {
-    test('should connect to backend health endpoint', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
+  // Skip all tests if backend is not running
+  const runIfServerRunning = serverRunning ? test : test.skip;
 
+  describe('Health Check Integration', () => {
+    runIfServerRunning('should connect to backend health endpoint', async () => {
       try {
         const response = await gameAPI.healthCheck();
         expect(response.data.success).toBe(true);
@@ -43,12 +41,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Events API Integration', () => {
-    test('should fetch all events from backend', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch all events from backend', async () => {
       try {
         const response = await gameAPI.getAllEvents();
         expect(response.data.success).toBe(true);
@@ -67,12 +60,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should fetch random events from backend', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch random events from backend', async () => {
       try {
         const response = await gameAPI.getRandomEvents(5);
         expect(response.data.success).toBe(true);
@@ -85,12 +73,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should fetch events by category', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch events by category', async () => {
       try {
         const response = await gameAPI.getEventsByCategory('History');
         expect(response.data.success).toBe(true);
@@ -109,12 +92,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Categories API Integration', () => {
-    test('should fetch categories from backend', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch categories from backend', async () => {
       try {
         const response = await gameAPI.getCategories();
         expect(response.data.success).toBe(true);
@@ -132,12 +110,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Game Sessions API Integration', () => {
-    test('should create game session', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should create game session', async () => {
       try {
         const settings = {
           player_name: 'TestPlayer',
@@ -156,12 +129,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should record move in game session', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should record move in game session', async () => {
       try {
         // First create a game session
         const settings = {
@@ -189,12 +157,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should complete game session', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should complete game session', async () => {
       try {
         // First create a game session
         const settings = {
@@ -223,12 +186,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Statistics API Integration', () => {
-    test('should fetch player statistics', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch player statistics', async () => {
       try {
         const response = await gameAPI.getPlayerStatistics('TestPlayer');
         expect(response.data.success).toBe(true);
@@ -241,12 +199,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should fetch global leaderboard', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch global leaderboard', async () => {
       try {
         const response = await gameAPI.getGlobalLeaderboard('score', 'desc', 10);
         expect(response.data.success).toBe(true);
@@ -261,12 +214,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Analytics API Integration', () => {
-    test('should fetch analytics overview', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should fetch analytics overview', async () => {
       try {
         const response = await gameAPI.getAnalyticsOverview();
         expect(response.data.success).toBe(true);
@@ -280,12 +228,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Error Handling Integration', () => {
-    test('should handle non-existent player gracefully', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should handle non-existent player gracefully', async () => {
       try {
         const response = await gameAPI.getPlayerStatistics('NonExistentPlayer');
         expect(response.data.success).toBe(true);
@@ -297,12 +240,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should handle invalid requests gracefully', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should handle invalid requests gracefully', async () => {
       try {
         await gameAPI.getRandomEvents(-1);
         throw new Error('Expected 400 error but got success');
@@ -313,12 +251,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Data Format Validation', () => {
-    test('should validate event data format', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should validate event data format', async () => {
       try {
         const response = await gameAPI.getAllEvents();
         const events = response.data.data;
@@ -337,12 +270,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should validate category data format', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should validate category data format', async () => {
       try {
         const response = await gameAPI.getCategories();
         const categories = response.data.data;
@@ -358,12 +286,7 @@ describe('Frontend-Backend Integration Tests', () => {
   });
 
   describe('Performance Validation', () => {
-    test('should respond within acceptable time limits', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should respond within acceptable time limits', async () => {
       const startTime = Date.now();
       
       try {
@@ -377,12 +300,7 @@ describe('Frontend-Backend Integration Tests', () => {
       }
     });
 
-    test('should handle concurrent requests', async () => {
-      if (!serverRunning) {
-        test.skip();
-        return;
-      }
-
+    runIfServerRunning('should handle concurrent requests', async () => {
       try {
         const promises = [
           gameAPI.getAllEvents(),
