@@ -34,6 +34,9 @@ module.exports = {
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.js'],
   
+  // Global teardown
+  globalTeardown: '<rootDir>/__tests__/globalTeardown.js',
+  
   // Test timeout
   testTimeout: 10000,
   

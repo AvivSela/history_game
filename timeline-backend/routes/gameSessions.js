@@ -25,6 +25,14 @@ router.post('/', asyncHandler(async (req, res) => {
     });
   }
   
+  // Validate player name type and format
+  if (typeof player_name !== 'string') {
+    return res.status(400).json({
+      success: false,
+      error: 'Player name must be a string'
+    });
+  }
+  
   // Validate player name (check empty string after checking if it exists)
   if (player_name.trim().length === 0 || player_name.length > 100) {
     return res.status(400).json({

@@ -79,16 +79,8 @@ afterAll(() => {
   console.error = originalError;
 });
 
-// Global teardown to close database connections
-afterAll(async () => {
-  try {
-    const { closePool } = require('../config/database');
-    await closePool();
-    console.log('✅ Database pool closed successfully');
-  } catch (error) {
-    console.error('❌ Error closing database pool:', error.message);
-  }
-}, 10000); // 10 second timeout for cleanup
+// Note: Database pool cleanup is now handled by globalTeardown.js
+// to prevent premature closure during parallel test execution
 
 // Global test matchers - simplified approach
 global.expectSuccessProperty = (response) => {
