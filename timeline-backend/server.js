@@ -8,6 +8,7 @@ const dbUtils = require('./utils/database');
 
 // Import routes
 const gameSessionRoutes = require('./routes/gameSessions');
+const statisticsRoutes = require('./routes/statistics');
 
 dotenv.config();
 
@@ -284,6 +285,7 @@ app.get('/api/events/category', asyncHandler(async (req, res) => {
 
 // Game Session Routes
 app.use('/api/game-sessions', gameSessionRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

@@ -114,7 +114,8 @@ async function runMigrations() {
       '../migrations/000_migration_tracking.sql',
       '../migrations/001_initial_schema.sql',
       '../migrations/002_sample_data.sql',
-      '../migrations/003_game_sessions.sql'
+      '../migrations/003_game_sessions.sql',
+      '../migrations/006_player_statistics.sql'
     ];
     
     // Execute each migration
@@ -148,6 +149,11 @@ async function resetDatabase() {
     await query('DROP TABLE IF EXISTS cards CASCADE');
     await query('DROP TABLE IF EXISTS game_sessions CASCADE');
     await query('DROP TABLE IF EXISTS game_moves CASCADE');
+    await query('DROP TABLE IF EXISTS player_statistics CASCADE');
+    await query('DROP TABLE IF EXISTS category_statistics CASCADE');
+    await query('DROP TABLE IF EXISTS difficulty_statistics CASCADE');
+    await query('DROP TABLE IF EXISTS daily_statistics CASCADE');
+    await query('DROP TABLE IF EXISTS weekly_statistics CASCADE');
     logger.info('🗑️  Dropped existing tables');
     
     // Run migrations
