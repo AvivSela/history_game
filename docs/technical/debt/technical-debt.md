@@ -215,6 +215,35 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 - ✅ **Constants Centralization**: Eliminated magic numbers across 15+ files with organized constant categories
 - ✅ **Path Alias Implementation**: Clean import structure with comprehensive IDE support
 
+## 🧹 Top 20 High-Benefit Cleanup Opportunities ($(date))
+
+Below is a curated list of the twenty cleanup/refactor tasks that are expected to deliver the greatest impact for the least effort. Most map to existing technical-debt IDs; a few are new suggestions and can be added to the tracker during the next update cycle.
+
+| # | Related ID | Area / File(s) | What to Clean Up | Expected Benefit |
+|---|------------|---------------|-----------------|-----------------|
+| 1 | FE-005 | `timeline-frontend/src/utils/api.js` + call-sites | Standardize API error handling and propagate user-friendly messages | Fewer silent failures, better UX |
+| 2 | FE-006 | Frontend layout, CSS & media queries | Complete mobile-first pass to optimise touch targets, spacing & font sizes | Higher mobile engagement |
+| 3 | FE-010 | `PlayerHand` tests | Re-implement "new card animation" test removed during previous cleanup | Protects critical animation behaviour |
+| 4 | FE-011 | Various tests | Fix empty "New Card Animation" suite & missing `[data-testId]` selectors | Restores full test coverage |
+| 5 | FE-012 | Multiple frontend files | Replace `console.*` with logger or remove in production builds | Cleaner console, smaller bundles |
+| 6 | FE-016 | Components & hooks | Adopt unified try/catch or error-boundary pattern across UI | Consistent error UX, easier maintenance |
+| 7 | FE-018 | `Settings` page tests | Re-implement removed accessibility & keyboard-nav tests | Guarantees a11y compliance |
+| 8 | FE-020 | `useGameState` tests | Add robust timeout tests for feedback messages | Prevents regressions in feedback UX |
+| 9 | BE-002 | `timeline-backend/middleware/errorHandler.js` | Create central Express error middleware; align HTTP status codes | Predictable API behaviour |
+|10 | BE-003 | Entire backend | Generate OpenAPI spec & host Swagger UI route | Faster onboarding, client-side codegen |
+|11 | BE-004 | `timeline-backend/utils/logger.js` | Upgrade logger to support log levels & transports (file/stdout) | Better observability |
+|12 | BE-005 | Backend routes & models | Increase unit/integration test coverage to >80% | Reduced production bugs |
+|13 | BE-007 | `timeline-backend/server.js` | Extract hard-coded sample data to SQL seeds or fixtures | Smaller server file, realistic prod parity |
+|14 | BE-008 | Routes (`count`, `category`, body params) | Add validation middleware (e.g. `Joi`, `express-validator`) | Blocks invalid requests early |
+|15 | BE-009 | All backend responses | Adopt single response envelope `{ success, data, error }` | Consistency across clients |
+|16 | INF-001 | Root + docker-compose | Containerise frontend & backend; include Postgres service | "Works on my machine" parity |
+|17 | INF-002 | `.github/workflows/` | Add CI pipeline for linting, tests & build; CD to staging | Faster feedback, safer releases |
+|18 | INF-003 & INF-006 | Backend & ops | Wire health-check endpoint to uptime/monitoring service | Early outage detection |
+|19 | INF-005 | Repo root | Provide `.env.example` with required vars and docs | Easier setup for new devs |
+|20 | NEW (INF-007) | Entire repo | Run `yarn audit`, upgrade vulnerable/outdated deps; enable Dependabot | Improved security & stability |
+
+> **Next steps**: Triage these items into upcoming sprints, create corresponding debt IDs where missing, and update metrics once added.
+
 ## 🛠️ Refactoring Guidelines
 
 ### Before Starting Refactoring
