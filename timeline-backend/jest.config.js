@@ -25,7 +25,7 @@ module.exports = {
     // Exclude configuration, migration and entry index files
     '!**/config/**',
     '!**/migrations/**',
-    '!**/*index.js'
+    '!**/index.js'
   ],
   
   // Coverage thresholds
