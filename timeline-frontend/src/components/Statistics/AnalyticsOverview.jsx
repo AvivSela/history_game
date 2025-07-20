@@ -206,7 +206,7 @@ const AnalyticsOverview = ({ analyticsData, onRefresh }) => {
               </div>
               <div className="analytics-overview__card">
                 <h4>Completion Rate</h4>
-                <p className="analytics-overview__value">{formatPercentage(analyticsData.overall?.completion_rate / 100)}</p>
+                <p className="analytics-overview__value">{formatPercentage(analyticsData.overall?.completion_rate)}</p>
               </div>
               <div className="analytics-overview__card">
                 <h4>Unique Players</h4>
@@ -231,7 +231,7 @@ const AnalyticsOverview = ({ analyticsData, onRefresh }) => {
                       <h5>Level {difficulty.difficulty_level}</h5>
                       <div className="analytics-overview__difficulty-stats">
                         <span>Games: {formatNumber(difficulty.games_played)}</span>
-                        <span>Win Rate: {formatPercentage(difficulty.win_rate / 100)}</span>
+                        <span>Win Rate: {formatPercentage(difficulty.win_rate)}</span>
                         <span>Avg Score: {difficulty.average_score?.toFixed(1) || 0}</span>
                       </div>
                     </div>
@@ -249,7 +249,7 @@ const AnalyticsOverview = ({ analyticsData, onRefresh }) => {
                       <h5>{category.category}</h5>
                       <div className="analytics-overview__category-stats">
                         <span>Games: {formatNumber(category.games_played)}</span>
-                        <span>Win Rate: {formatPercentage(category.win_rate / 100)}</span>
+                        <span>Win Rate: {formatPercentage(category.win_rate)}</span>
                         <span>Avg Score: {category.average_score?.toFixed(1) || 0}</span>
                       </div>
                     </div>
@@ -290,7 +290,7 @@ const AnalyticsOverview = ({ analyticsData, onRefresh }) => {
                     </div>
                     <div className="analytics-overview__difficulty-stat">
                       <span>Completion Rate:</span>
-                      <span>{formatPercentage(difficultyAnalytics.completion_rate / 100)}</span>
+                      <span>{formatPercentage(difficultyAnalytics.completion_rate)}</span>
                     </div>
                     <div className="analytics-overview__difficulty-stat">
                       <span>Average Score:</span>
@@ -312,7 +312,7 @@ const AnalyticsOverview = ({ analyticsData, onRefresh }) => {
                           <h5>{category.category}</h5>
                           <div className="analytics-overview__difficulty-category-stats">
                             <span>Games: {formatNumber(category.games_played)}</span>
-                            <span>Win Rate: {formatPercentage(category.win_rate / 100)}</span>
+                            <span>Win Rate: {formatPercentage(category.win_rate)}</span>
                             <span>Avg Score: {category.average_score?.toFixed(1) || 0}</span>
                           </div>
                         </div>
@@ -357,7 +357,7 @@ const AnalyticsOverview = ({ analyticsData, onRefresh }) => {
                     </div>
                     <div className="analytics-overview__category-stat">
                       <span>Completion Rate:</span>
-                      <span>{formatPercentage(categoryAnalytics.completion_rate / 100)}</span>
+                      <span>{formatPercentage(categoryAnalytics.completion_rate)}</span>
                     </div>
                     <div className="analytics-overview__category-stat">
                       <span>Average Score:</span>
