@@ -12,7 +12,7 @@ INSERT INTO cards (title, date_occurred, category, difficulty, description) VALU
 ('Discovery of DNA structure', '1953-04-25', 'Science', 3, 'Watson and Crick publish their discovery of DNA''s double helix structure'),
 ('Fall of Roman Empire', '0476-09-04', 'History', 3, 'The last Western Roman Emperor is deposed'),
 ('Printing Press invented', '1440-01-01', 'Technology', 2, 'Johannes Gutenberg invents the printing press with movable type'),
-('Steam Engine invented', '1712-01-01', 'Technology', 2, 'Thomas Newcomen builds the first practical steam engine'),;
+('Steam Engine invented', '1712-01-01', 'Technology', 2, 'Thomas Newcomen builds the first practical steam engine');
 
 -- Verify the data was inserted correctly
 SELECT 

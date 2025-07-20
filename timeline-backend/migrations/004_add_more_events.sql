@@ -14,7 +14,6 @@ INSERT INTO cards (title, date_occurred, category, difficulty, description) VALU
 ('Black Death begins', '1347-01-01', 'History', 2, 'The Black Death plague begins spreading in Europe'),
 
 -- Renaissance & Exploration
-
 ('Leonardo da Vinci paints Mona Lisa', '1503-01-01', 'Cultural', 3, 'Leonardo da Vinci begins painting the Mona Lisa'),
 ('Shakespeare writes Hamlet', '1600-01-01', 'Cultural', 2, 'William Shakespeare writes his famous play Hamlet'),
 
