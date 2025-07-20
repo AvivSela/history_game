@@ -19,3 +19,6 @@ export * from './layout/index.js';
 
 // Settings components
 export * from './settings/index.js';
+
+// Statistics components
+export * from './Statistics/index.js';
