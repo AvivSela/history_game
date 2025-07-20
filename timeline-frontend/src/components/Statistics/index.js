@@ -7,4 +7,5 @@
 export { default as StatisticsDashboard } from './StatisticsDashboard';
 export { default as PlayerStats } from './PlayerStats';
 export { default as LeaderboardDisplay } from './LeaderboardDisplay';
-export { default as AnalyticsOverview } from './AnalyticsOverview'; 
+export { default as AnalyticsOverview } from './AnalyticsOverview';
+export { default as GameStats } from './GameStats'; 

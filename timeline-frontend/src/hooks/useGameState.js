@@ -297,7 +297,7 @@ export const useGameState = () => {
     return settings.categories || [];
   }, [settings.categories]);
 
-  // Initialize new game - Consolidated from GameControls with settings integration
+  // Initialize new game - Enhanced with backend game session API
   const initializeGame = useCallback(
     async (mode = 'single', diff = null) => {
       try {
@@ -316,6 +316,29 @@ export const useGameState = () => {
         const difficulty = diff || getDifficultyFromSettings();
         const categories = getCategoriesFromSettings();
 
+        // Convert difficulty string to numeric level for backend
+        const difficultyLevel = difficulty === 'easy' ? 1 : 
+                               difficulty === 'medium' ? 2 : 
+                               difficulty === 'hard' ? 3 : 
+                               difficulty === 'expert' ? 4 : 2;
+
+        // Create game session on backend
+        const sessionSettings = {
+          player_name: 'Player', // TODO: Get from user settings
+          difficulty_level: difficultyLevel,
+          card_count: cardCount,
+          categories: categories
+        };
+
+        const sessionResponse = await gameAPI.createGameSession(sessionSettings);
+        const sessionData = extractData(sessionResponse);
+        
+        // Store session ID for future API calls
+        gameSessionRef.current = {
+          id: sessionData.session_id,
+          settings: sessionSettings
+        };
+
         // Fetch events from API with category filtering
         const response = await gameAPI.getRandomEvents(cardCount, categories);
         const events = extractData(response);
@@ -327,28 +350,26 @@ export const useGameState = () => {
         );
         const poolEvents = extractData(poolResponse);
 
-        // Create game session with settings-based configuration
-        const session = createGameSession(events, {
+        // Create local game session with events
+        const localSession = createGameSession(events, {
           cardCount: cardCount - 1,
           difficulty: difficulty,
           gameMode: mode,
         });
 
-        gameSessionRef.current = session;
-
         // All cards go to human player
-        const humanCards = session.playerHand;
+        const humanCards = localSession.playerHand;
 
         setState(prev => ({
           ...prev,
-          timeline: session.timeline,
+          timeline: localSession.timeline,
           playerHand: humanCards,
           cardPool: poolEvents, // Added: Card pool
           gameStatus: 'playing',
           gameMode: mode,
           difficulty: difficulty,
           score: { human: 0 },
-          startTime: session.startTime,
+          startTime: localSession.startTime,
           turnStartTime: Date.now(),
           attempts: {},
           gameStats: {
@@ -369,7 +390,7 @@ export const useGameState = () => {
 
         // Check for duplicate IDs
         const allCardIds = [
-          ...session.timeline.map(card => card.id),
+          ...localSession.timeline.map(card => card.id),
           ...humanCards.map(card => card.id),
         ];
         const uniqueIds = new Set(allCardIds);
@@ -516,7 +537,7 @@ export const useGameState = () => {
     [getCategoriesFromSettings]
   );
 
-  // Place a card on the timeline
+  // Place a card on the timeline - Enhanced with backend move recording
   const placeCard = useCallback(
     async position => {
       if (!state.selectedCard || state.gameStatus !== 'playing') {
@@ -532,6 +553,24 @@ export const useGameState = () => {
           state.timeline,
           position
         );
+
+        // Record move in backend if session exists
+        if (gameSessionRef.current?.id) {
+          try {
+            const moveData = {
+              card_id: selectedCard.id,
+              position_before: 0, // Card starts in hand
+              position_after: position,
+              is_correct: validation.isCorrect,
+              time_taken_seconds: Math.floor((Date.now() - state.turnStartTime) / 1000)
+            };
+
+            await gameAPI.recordMove(gameSessionRef.current.id, moveData);
+          } catch (error) {
+            // Log error but don't fail the game
+            console.warn('Failed to record move in backend:', error);
+          }
+        }
 
         if (validation.isCorrect) {
           // Update timeline
@@ -559,6 +598,23 @@ export const useGameState = () => {
 
           // Check win condition
           const isGameWon = newPlayerHand.length === 0;
+
+          // Complete game session in backend if won
+          if (isGameWon && gameSessionRef.current?.id) {
+            try {
+              const gameResult = {
+                final_score: newScore.human,
+                total_moves: state.gameStats.totalMoves + 1,
+                completed: true,
+                duration_ms: Date.now() - state.startTime
+              };
+
+              await gameAPI.completeGame(gameSessionRef.current.id, gameResult);
+            } catch (error) {
+              // Log error but don't fail the game
+              console.warn('Failed to complete game session in backend:', error);
+            }
+          }
 
           const newGameState = {
             ...state,
