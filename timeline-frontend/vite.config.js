@@ -72,6 +72,23 @@ export default defineConfig({
     },
     include: ['src/**/*.{test,spec}.{js,jsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'backup'],
+    // Configure coverage collection
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      all: true,
+      include: ['src/**/*.{js,jsx}'],
+      exclude: [
+        'src/**/*.{test,spec}.{js,jsx}',
+        'src/tests/**',
+        'src/**/index.js',
+        'src/constants/**',
+        '**/node_modules/**',
+        '**/vite.config.js',
+        '**/tailwind.config.js',
+      ],
+      clean: true,
+    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],

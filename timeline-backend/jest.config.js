@@ -18,7 +18,14 @@ module.exports = {
     'middleware/**/*.js',
     'utils/**/*.js',
     '!**/node_modules/**',
-    '!**/coverage/**'
+    '!**/coverage/**',
+    // Exclude test files and folders
+    '!**/__tests__/**',
+    '!**/?(*.)+(spec|test).js',
+    // Exclude configuration, migration and entry index files
+    '!**/config/**',
+    '!**/migrations/**',
+    '!**/index.js'
   ],
   
   // Coverage thresholds
