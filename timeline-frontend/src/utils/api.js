@@ -72,6 +72,42 @@ export const gameAPI = {
 
   // Categories
   getCategories: () => api.get('/categories'),
+
+  // Statistics
+  getPlayerStatistics: (playerName) => api.get(`/statistics/player/${playerName}`),
+  getPlayerCategoryStatistics: (playerName, category = null) => {
+    const url = category 
+      ? `/statistics/player/${playerName}/categories?category=${category}`
+      : `/statistics/player/${playerName}/categories`;
+    return api.get(url);
+  },
+  getPlayerDifficultyStatistics: (playerName, level = null) => {
+    const url = level 
+      ? `/statistics/player/${playerName}/difficulty?level=${level}`
+      : `/statistics/player/${playerName}/difficulty`;
+    return api.get(url);
+  },
+  getPlayerProgress: (playerName) => api.get(`/statistics/player/${playerName}/progress`),
+  getPlayerDailyStats: (playerName, days = 30) => api.get(`/statistics/player/${playerName}/daily?days=${days}`),
+  getPlayerWeeklyStats: (playerName, weeks = 12) => api.get(`/statistics/player/${playerName}/weekly?weeks=${weeks}`),
+  getPlayerSummary: (playerName) => api.get(`/statistics/player/${playerName}/summary`),
+  getPlayerComparison: (players) => api.get(`/statistics/players?players=${players.join(',')}`),
+
+  // Leaderboards
+  getGlobalLeaderboard: (sortBy = 'score', sortOrder = 'desc', limit = 100) => 
+    api.get(`/statistics/leaderboards/global?sort_by=${sortBy}&sort_order=${sortOrder}&limit=${limit}`),
+  getCategoryLeaderboard: (category, sortBy = 'score', sortOrder = 'desc', limit = 100) => 
+    api.get(`/statistics/leaderboards/category/${category}?sort_by=${sortBy}&sort_order=${sortOrder}&limit=${limit}`),
+  getDailyLeaderboard: (limit = 100) => api.get(`/statistics/leaderboards/daily?limit=${limit}`),
+  getWeeklyLeaderboard: (limit = 100) => api.get(`/statistics/leaderboards/weekly?limit=${limit}`),
+  getPlayerRankings: (playerName) => api.get(`/statistics/leaderboards/player/${playerName}`),
+  getLeaderboardSummary: () => api.get('/statistics/leaderboards/summary'),
+
+  // Analytics
+  getAnalyticsOverview: () => api.get('/analytics/overview'),
+  getAnalyticsTrends: (timePeriod = '30d') => api.get(`/analytics/trends?time_period=${timePeriod}`),
+  getDifficultyAnalytics: (level) => api.get(`/analytics/difficulty/${level}`),
+  getCategoryAnalytics: (category) => api.get(`/analytics/category/${category}`),
 };
 
 // Helper function to extract data from API response
