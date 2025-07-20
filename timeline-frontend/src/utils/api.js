@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API } from '../constants/gameConstants';
 
-// Create axios instance with base configuration
+// Enhanced axios instance with retry logic
 const api = axios.create({
   baseURL: API.BASE_URL,
   timeout: API.TIMEOUT,
@@ -9,6 +9,21 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Retry configuration
+const retryConfig = {
+  retries: API.RETRY_ATTEMPTS,
+  retryDelay: API.RETRY_DELAY,
+  maxRetryDelay: API.MAX_RETRY_DELAY,
+  retryCondition: (error) => {
+    // Retry on network errors or 5xx server errors
+    return (
+      !error.response ||
+      (error.response.status >= 500 && error.response.status < 600) ||
+      error.code === 'ECONNABORTED'
+    );
+  },
+};
 
 // Request interceptor for logging
 api.interceptors.request.use(
@@ -20,30 +35,45 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor for enhanced error handling
 api.interceptors.response.use(
   response => {
     return response;
   },
   error => {
-    // Handle different error types
+    // Handle different error types with enhanced error messages
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
 
       switch (status) {
+        case API.STATUS_CODES.BAD_REQUEST:
+          throw new Error(data?.error || API.ERROR_MESSAGES.VALIDATION_ERROR);
+        case API.STATUS_CODES.UNAUTHORIZED:
+          throw new Error(API.ERROR_MESSAGES.UNAUTHORIZED_ERROR);
+        case API.STATUS_CODES.FORBIDDEN:
+          throw new Error('Access forbidden. Please check your permissions.');
         case API.STATUS_CODES.NOT_FOUND:
-          throw new Error('Resource not found');
+          throw new Error(API.ERROR_MESSAGES.NOT_FOUND_ERROR);
+        case API.STATUS_CODES.CONFLICT:
+          throw new Error(data?.error || 'Resource conflict. Please try again.');
+        case API.STATUS_CODES.UNPROCESSABLE_ENTITY:
+          throw new Error(data?.error || API.ERROR_MESSAGES.VALIDATION_ERROR);
+        case API.STATUS_CODES.TOO_MANY_REQUESTS:
+          throw new Error(API.ERROR_MESSAGES.RATE_LIMIT_ERROR);
         case API.STATUS_CODES.INTERNAL_SERVER_ERROR:
-          throw new Error('Server error. Please try again later.');
+          throw new Error(API.ERROR_MESSAGES.SERVER_ERROR);
+        case API.STATUS_CODES.SERVICE_UNAVAILABLE:
+          throw new Error('Service temporarily unavailable. Please try again later.');
         default:
           throw new Error(data?.error || 'An unexpected error occurred');
       }
     } else if (error.request) {
       // Request was made but no response received
-      throw new Error(
-        'Unable to connect to server. Please check your connection.'
-      );
+      throw new Error(API.ERROR_MESSAGES.NETWORK_ERROR);
+    } else if (error.code === 'ECONNABORTED') {
+      // Request timeout
+      throw new Error(API.ERROR_MESSAGES.TIMEOUT_ERROR);
     } else {
       // Something else happened
       throw new Error('An unexpected error occurred');
@@ -54,60 +84,68 @@ api.interceptors.response.use(
 // API methods
 export const gameAPI = {
   // Health check
-  healthCheck: () => api.get('/health'),
+  healthCheck: () => api.get(API.ENDPOINTS.HEALTH),
 
   // Events
-  getAllEvents: () => api.get('/events'),
+  getAllEvents: () => api.get(API.ENDPOINTS.EVENTS),
   getRandomEvents: (count = 5, categories = []) => {
     const params = new URLSearchParams();
     if (categories && categories.length > 0) {
       params.append('categories', categories.join(','));
     }
     const queryString = params.toString();
-    const url = `/events/random/${count}${queryString ? `?${queryString}` : ''}`;
+    const url = `${API.ENDPOINTS.EVENTS}/random/${count}${queryString ? `?${queryString}` : ''}`;
     return api.get(url);
   },
-  getEventsByCategory: category => api.get(`/events/category/${category}`),
-  getEventsByDifficulty: level => api.get(`/events/difficulty/${level}`),
+  getEventsByCategory: category => api.get(`${API.ENDPOINTS.EVENTS}/category?name=${encodeURIComponent(category)}`),
+  getEventsByDifficulty: level => api.get(`${API.ENDPOINTS.EVENTS}/difficulty/${level}`),
 
   // Categories
-  getCategories: () => api.get('/categories'),
+  getCategories: () => api.get(API.ENDPOINTS.CATEGORIES),
+
+  // Game Sessions
+  createGameSession: (settings) => api.post(API.ENDPOINTS.GAME_SESSIONS, settings),
+  getGameSession: (sessionId) => api.get(`${API.ENDPOINTS.GAME_SESSIONS}/${sessionId}`),
+  recordMove: (sessionId, move) => api.post(`${API.ENDPOINTS.GAME_SESSIONS}/${sessionId}/moves`, move),
+  completeGame: (sessionId, result) => api.put(`${API.ENDPOINTS.GAME_SESSIONS}/${sessionId}/complete`, result),
+  getGameSessionHistory: (playerName, limit = 10) => 
+    api.get(`${API.ENDPOINTS.GAME_SESSIONS}/history?player=${encodeURIComponent(playerName)}&limit=${limit}`),
 
   // Statistics
-  getPlayerStatistics: (playerName) => api.get(`/statistics/player/${playerName}`),
+  getPlayerStatistics: (playerName) => api.get(`${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}`),
   getPlayerCategoryStatistics: (playerName, category = null) => {
     const url = category 
-      ? `/statistics/player/${playerName}/categories?category=${category}`
-      : `/statistics/player/${playerName}/categories`;
+      ? `${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/categories?category=${encodeURIComponent(category)}`
+      : `${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/categories`;
     return api.get(url);
   },
   getPlayerDifficultyStatistics: (playerName, level = null) => {
     const url = level 
-      ? `/statistics/player/${playerName}/difficulty?level=${level}`
-      : `/statistics/player/${playerName}/difficulty`;
+      ? `${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/difficulty?level=${encodeURIComponent(level)}`
+      : `${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/difficulty`;
     return api.get(url);
   },
-  getPlayerProgress: (playerName) => api.get(`/statistics/player/${playerName}/progress`),
-  getPlayerDailyStats: (playerName, days = 30) => api.get(`/statistics/player/${playerName}/daily?days=${days}`),
-  getPlayerWeeklyStats: (playerName, weeks = 12) => api.get(`/statistics/player/${playerName}/weekly?weeks=${weeks}`),
-  getPlayerSummary: (playerName) => api.get(`/statistics/player/${playerName}/summary`),
-  getPlayerComparison: (players) => api.get(`/statistics/players?players=${players.join(',')}`),
+  getPlayerProgress: (playerName) => api.get(`${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/progress`),
+  getPlayerDailyStats: (playerName, days = 30) => api.get(`${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/daily?days=${days}`),
+  getPlayerWeeklyStats: (playerName, weeks = 12) => api.get(`${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/weekly?weeks=${weeks}`),
+  getPlayerSummary: (playerName) => api.get(`${API.ENDPOINTS.STATISTICS}/player/${encodeURIComponent(playerName)}/summary`),
+  getPlayerComparison: (players) => api.get(`${API.ENDPOINTS.STATISTICS}/players?players=${players.map(p => encodeURIComponent(p)).join(',')}`),
 
   // Leaderboards
   getGlobalLeaderboard: (sortBy = 'score', sortOrder = 'desc', limit = 100) => 
-    api.get(`/statistics/leaderboards/global?sort_by=${sortBy}&sort_order=${sortOrder}&limit=${limit}`),
+    api.get(`${API.ENDPOINTS.STATISTICS}/leaderboards/global?sort_by=${sortBy}&sort_order=${sortOrder}&limit=${limit}`),
   getCategoryLeaderboard: (category, sortBy = 'score', sortOrder = 'desc', limit = 100) => 
-    api.get(`/statistics/leaderboards/category/${category}?sort_by=${sortBy}&sort_order=${sortOrder}&limit=${limit}`),
-  getDailyLeaderboard: (limit = 100) => api.get(`/statistics/leaderboards/daily?limit=${limit}`),
-  getWeeklyLeaderboard: (limit = 100) => api.get(`/statistics/leaderboards/weekly?limit=${limit}`),
-  getPlayerRankings: (playerName) => api.get(`/statistics/leaderboards/player/${playerName}`),
-  getLeaderboardSummary: () => api.get('/statistics/leaderboards/summary'),
+    api.get(`${API.ENDPOINTS.STATISTICS}/leaderboards/category/${encodeURIComponent(category)}?sort_by=${sortBy}&sort_order=${sortOrder}&limit=${limit}`),
+  getDailyLeaderboard: (limit = 100) => api.get(`${API.ENDPOINTS.STATISTICS}/leaderboards/daily?limit=${limit}`),
+  getWeeklyLeaderboard: (limit = 100) => api.get(`${API.ENDPOINTS.STATISTICS}/leaderboards/weekly?limit=${limit}`),
+  getPlayerRankings: (playerName) => api.get(`${API.ENDPOINTS.STATISTICS}/leaderboards/player/${encodeURIComponent(playerName)}`),
+  getLeaderboardSummary: () => api.get(`${API.ENDPOINTS.STATISTICS}/leaderboards/summary`),
 
   // Analytics
-  getAnalyticsOverview: () => api.get('/analytics/overview'),
-  getAnalyticsTrends: (timePeriod = '30d') => api.get(`/analytics/trends?time_period=${timePeriod}`),
-  getDifficultyAnalytics: (level) => api.get(`/analytics/difficulty/${level}`),
-  getCategoryAnalytics: (category) => api.get(`/analytics/category/${category}`),
+  getAnalyticsOverview: () => api.get(`${API.ENDPOINTS.ANALYTICS}/overview`),
+  getAnalyticsTrends: (timePeriod = '30d') => api.get(`${API.ENDPOINTS.ANALYTICS}/trends?time_period=${timePeriod}`),
+  getDifficultyAnalytics: (level) => api.get(`${API.ENDPOINTS.ANALYTICS}/difficulty/${encodeURIComponent(level)}`),
+  getCategoryAnalytics: (category) => api.get(`${API.ENDPOINTS.ANALYTICS}/category/${encodeURIComponent(category)}`),
 };
 
 // Helper function to extract data from API response
