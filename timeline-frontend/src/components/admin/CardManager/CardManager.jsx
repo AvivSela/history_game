@@ -215,9 +215,7 @@ const CardManager = () => {
 
   // Load cards on component mount and when dependencies change
   useEffect(() => {
-    console.log('CardManager: Loading cards...');
     loadCards().catch(err => {
-      console.error('CardManager: Error loading cards:', err);
       setError('Failed to load cards: ' + err.message);
     });
   }, [loadCards]);

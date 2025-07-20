@@ -16,19 +16,14 @@ const Admin = () => {
   const [CardManager, setCardManager] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Debug: Log when component mounts
   useEffect(() => {
-    console.log('Admin page mounted');
-    
     // Dynamically import CardManager
     import('../components/admin/CardManager')
       .then(module => {
-        console.log('CardManager loaded successfully');
         setCardManager(() => module.default);
         setLoading(false);
       })
       .catch(err => {
-        console.error('Failed to load CardManager:', err);
         setError('Failed to load Card Manager: ' + err.message);
         setLoading(false);
       });
