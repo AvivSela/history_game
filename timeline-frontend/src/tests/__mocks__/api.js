@@ -143,6 +143,83 @@ const createAPIMock = () => {
       getCategories: vi.fn().mockResolvedValue({
         data: defaultResponses.categories,
       }),
+      // Enhanced backend API methods
+      createGameSession: vi.fn().mockImplementation((sessionSettings) => {
+        const sessionId = `test-session-${Date.now()}`;
+        return Promise.resolve({
+          data: {
+            id: sessionId,
+            player_name: sessionSettings.player_name || 'TestPlayer',
+            difficulty_level: sessionSettings.difficulty_level || 2,
+            card_count: sessionSettings.card_count || 5,
+            created_at: new Date().toISOString(),
+            status: 'active'
+          }
+        });
+      }),
+      recordMove: vi.fn().mockResolvedValue({
+        data: {
+          id: `move-${Date.now()}`,
+          session_id: 'test-session-123',
+          card_id: 'test-card',
+          position_before: 0,
+          position_after: 1,
+          is_correct: true,
+          time_taken_seconds: 5,
+          created_at: new Date().toISOString()
+        }
+      }),
+      completeGame: vi.fn().mockResolvedValue({
+        data: {
+          id: 'test-session-123',
+          completed: true,
+          final_score: 100,
+          total_moves: 5,
+          duration_ms: 30000,
+          updated_at: new Date().toISOString()
+        }
+      }),
+      getPlayerStatistics: vi.fn().mockResolvedValue({
+        data: {
+          player_name: 'TestPlayer',
+          total_games_played: 10,
+          total_games_won: 7,
+          win_rate: 0.7,
+          total_score: 5000,
+          best_score: 800,
+          average_score_per_game: 500,
+          total_moves: 50,
+          average_accuracy: 0.85,
+          average_game_duration_seconds: 180,
+          total_correct_moves: 42,
+          total_incorrect_moves: 8,
+          total_play_time_seconds: 1800
+        }
+      }),
+      getLeaderboard: vi.fn().mockResolvedValue({
+        data: [
+          {
+            player_name: 'Player1',
+            total_score: 10000,
+            games_played: 20,
+            win_rate: 0.8
+          },
+          {
+            player_name: 'Player2',
+            total_score: 8000,
+            games_played: 15,
+            win_rate: 0.7
+          }
+        ]
+      }),
+      getGameAnalytics: vi.fn().mockResolvedValue({
+        data: {
+          total_games_played: 100,
+          average_game_duration: 180,
+          most_popular_categories: ['History', 'Technology'],
+          difficulty_distribution: { easy: 30, medium: 50, hard: 20 }
+        }
+      })
     },
 
     // Helper functions
