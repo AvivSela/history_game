@@ -196,6 +196,234 @@ const createAPIMock = () => {
           total_play_time_seconds: 1800
         }
       }),
+      getPlayerCategoryStatistics: vi.fn().mockResolvedValue({
+        data: [
+          {
+            category: 'Military',
+            games_played: 3,
+            win_rate: 0.67,
+            average_score: 450,
+            total_score: 1350
+          },
+          {
+            category: 'Technology',
+            games_played: 4,
+            win_rate: 0.75,
+            average_score: 520,
+            total_score: 2080
+          }
+        ]
+      }),
+      getPlayerDifficultyStatistics: vi.fn().mockResolvedValue({
+        data: [
+          {
+            difficulty_level: 1,
+            games_played: 5,
+            win_rate: 0.8,
+            average_score: 600,
+            total_score: 3000
+          },
+          {
+            difficulty_level: 2,
+            games_played: 3,
+            win_rate: 0.67,
+            average_score: 400,
+            total_score: 1200
+          }
+        ]
+      }),
+      getPlayerProgress: vi.fn().mockResolvedValue({
+        data: {
+          player_name: 'TestPlayer',
+          current_streak: 3,
+          longest_streak: 7,
+          total_play_time_hours: 2.5,
+          favorite_category: 'Technology',
+          improvement_rate: 0.15
+        }
+      }),
+      getPlayerDailyStats: vi.fn().mockResolvedValue({
+        data: [
+          {
+            date: '2024-01-01',
+            games_played: 2,
+            games_won: 1,
+            total_score: 800,
+            average_accuracy: 0.75
+          }
+        ]
+      }),
+      getPlayerWeeklyStats: vi.fn().mockResolvedValue({
+        data: [
+          {
+            week: '2024-W01',
+            games_played: 10,
+            games_won: 7,
+            total_score: 4000,
+            average_accuracy: 0.82
+          }
+        ]
+      }),
+      getPlayerSummary: vi.fn().mockResolvedValue({
+        data: {
+          player_name: 'TestPlayer',
+          total_games_played: 10,
+          total_games_won: 7,
+          win_rate: 0.7,
+          total_score: 5000,
+          best_score: 800,
+          average_score_per_game: 500,
+          total_moves: 50,
+          average_accuracy: 0.85,
+          average_game_duration_seconds: 180,
+          total_correct_moves: 42,
+          total_incorrect_moves: 8,
+          total_play_time_seconds: 1800,
+          current_streak: 3,
+          longest_streak: 7,
+          favorite_category: 'Technology',
+          improvement_rate: 0.15
+        }
+      }),
+      getPlayerComparison: vi.fn().mockResolvedValue({
+        data: [
+          {
+            player_name: 'Player1',
+            total_games_played: 20,
+            win_rate: 0.8,
+            total_score: 10000
+          },
+          {
+            player_name: 'Player2',
+            total_games_played: 15,
+            win_rate: 0.7,
+            total_score: 8000
+          }
+        ]
+      }),
+      getGameSession: vi.fn().mockResolvedValue({
+        data: {
+          id: 'test-session-123',
+          player_name: 'TestPlayer',
+          difficulty_level: 2,
+          card_count: 5,
+          status: 'active',
+          created_at: new Date().toISOString()
+        }
+      }),
+      getGameSessionHistory: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'session-1',
+            player_name: 'TestPlayer',
+            difficulty_level: 2,
+            card_count: 5,
+            status: 'completed',
+            final_score: 800,
+            created_at: new Date().toISOString()
+          }
+        ]
+      }),
+      getGlobalLeaderboard: vi.fn().mockResolvedValue({
+        data: [
+          {
+            player_name: 'Player1',
+            total_score: 10000,
+            games_played: 20,
+            win_rate: 0.8
+          },
+          {
+            player_name: 'Player2',
+            total_score: 8000,
+            games_played: 15,
+            win_rate: 0.7
+          }
+        ]
+      }),
+      getCategoryLeaderboard: vi.fn().mockResolvedValue({
+        data: [
+          {
+            player_name: 'Player1',
+            total_score: 5000,
+            games_played: 10,
+            win_rate: 0.8
+          }
+        ]
+      }),
+      getDailyLeaderboard: vi.fn().mockResolvedValue({
+        data: [
+          {
+            player_name: 'Player1',
+            daily_score: 800,
+            games_played: 3
+          }
+        ]
+      }),
+      getWeeklyLeaderboard: vi.fn().mockResolvedValue({
+        data: [
+          {
+            player_name: 'Player1',
+            weekly_score: 2400,
+            games_played: 8
+          }
+        ]
+      }),
+      getPlayerRankings: vi.fn().mockResolvedValue({
+        data: {
+          player_name: 'TestPlayer',
+          global_rank: 5,
+          category_ranks: {
+            'Technology': 3,
+            'Military': 7
+          },
+          daily_rank: 2,
+          weekly_rank: 4
+        }
+      }),
+      getLeaderboardSummary: vi.fn().mockResolvedValue({
+        data: {
+          total_players: 100,
+          total_games_played: 500,
+          average_score: 450,
+          top_score: 1200
+        }
+      }),
+      getAnalyticsOverview: vi.fn().mockResolvedValue({
+        data: {
+          total_games_played: 100,
+          average_game_duration: 180,
+          most_popular_categories: ['History', 'Technology'],
+          difficulty_distribution: { easy: 30, medium: 50, hard: 20 }
+        }
+      }),
+      getAnalyticsTrends: vi.fn().mockResolvedValue({
+        data: {
+          time_period: '30d',
+          trends: {
+            games_played: [10, 15, 12, 18],
+            average_score: [400, 450, 420, 480],
+            player_engagement: [0.7, 0.8, 0.75, 0.85]
+          }
+        }
+      }),
+      getDifficultyAnalytics: vi.fn().mockResolvedValue({
+        data: {
+          difficulty_level: 2,
+          games_played: 50,
+          average_score: 450,
+          win_rate: 0.65,
+          average_duration: 200
+        }
+      }),
+      getCategoryAnalytics: vi.fn().mockResolvedValue({
+        data: {
+          category: 'Technology',
+          games_played: 30,
+          average_score: 480,
+          win_rate: 0.7,
+          player_count: 25
+        }
+      }),
       getLeaderboard: vi.fn().mockResolvedValue({
         data: [
           {

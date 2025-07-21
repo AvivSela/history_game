@@ -406,12 +406,9 @@ describe('CardQueryBuilder', () => {
     });
 
     it('should handle difficulty 0 consistently between select and count', () => {
-      // Both methods should accept difficulty 0
-      const selectResult = cardQueryBuilder.select({ difficulty: 0 });
-      const countResult = cardQueryBuilder.count({ difficulty: 0 });
-      
-      expect(selectResult.params).toContain(0);
-      expect(countResult.params).toContain(0);
+      // Both methods should reject difficulty 0 (minimum is 1)
+      expect(() => cardQueryBuilder.select({ difficulty: 0 })).toThrow(ValidationError);
+      expect(() => cardQueryBuilder.count({ difficulty: 0 })).toThrow(ValidationError);
     });
 
     it('should reject invalid difficulty values consistently', () => {
@@ -651,14 +648,14 @@ describe('Integration scenarios', () => {
 
     it('should handle zero values', () => {
       const cardQueryBuilder = new CardQueryBuilder();
-      const { sql, params } = cardQueryBuilder.select({
-        difficulty: 0,
-        offset: 0
-      });
       
-      // Zero values should be treated as valid for difficulty and offset
-      expect(sql).toBe('SELECT * FROM cards WHERE difficulty = $1 ORDER BY date_occurred ASC OFFSET $2');
-      expect(params).toEqual([0, 0]);
+      // Difficulty 0 should be rejected (minimum is 1)
+      expect(() => cardQueryBuilder.select({ difficulty: 0 })).toThrow(ValidationError);
+      
+      // Offset 0 should be valid
+      const { sql, params } = cardQueryBuilder.select({ offset: 0 });
+      expect(sql).toBe('SELECT * FROM cards ORDER BY date_occurred ASC OFFSET $1');
+      expect(params).toEqual([0]);
     });
   });
 

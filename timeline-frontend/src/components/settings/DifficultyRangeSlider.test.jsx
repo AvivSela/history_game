@@ -43,6 +43,14 @@ describe('DifficultyRangeSlider', () => {
       expect(screen.getByText('😱')).toBeInTheDocument();
     });
 
+    test('renders stars for each difficulty level', () => {
+      render(<DifficultyRangeSlider {...defaultProps} />);
+
+      // Check that stars are rendered (★ character)
+      const stars = screen.getAllByText('★');
+      expect(stars.length).toBeGreaterThan(0);
+    });
+
     test('renders preset buttons', () => {
       render(<DifficultyRangeSlider {...defaultProps} />);
 
@@ -50,6 +58,53 @@ describe('DifficultyRangeSlider', () => {
       expect(screen.getByText('Easy & Medium')).toBeInTheDocument();
       expect(screen.getByText('Medium & Up')).toBeInTheDocument();
       expect(screen.getByText('All Levels')).toBeInTheDocument();
+    });
+  });
+
+  describe('Checkbox Functionality', () => {
+    test('all difficulty checkboxes are checked by default when range is 1-4', () => {
+      render(<DifficultyRangeSlider {...defaultProps} />);
+
+      const easyCheckbox = screen.getByLabelText('Select Easy difficulty');
+      const mediumCheckbox = screen.getByLabelText('Select Medium difficulty');
+      const hardCheckbox = screen.getByLabelText('Select Hard difficulty');
+      const expertCheckbox = screen.getByLabelText('Select Expert difficulty');
+
+      expect(easyCheckbox).toBeChecked();
+      expect(mediumCheckbox).toBeChecked();
+      expect(hardCheckbox).toBeChecked();
+      expect(expertCheckbox).toBeChecked();
+    });
+
+    test('clicking a difficulty checkbox toggles its selection', () => {
+      render(<DifficultyRangeSlider {...defaultProps} />);
+
+      const mediumCheckbox = screen.getByLabelText('Select Medium difficulty');
+      fireEvent.click(mediumCheckbox);
+
+      // When clicking medium (value 2) from range 1-4, it should create two ranges:
+      // range1: 1-1 (size 1) and range2: 3-4 (size 2)
+      // The component chooses the larger range, so it should be 3-4
+      expect(defaultProps.onChange).toHaveBeenCalledWith({ min: 3, max: 4 });
+    });
+
+    test('clicking a difficulty checkbox adds it to the range', () => {
+      render(<DifficultyRangeSlider value={{ min: 1, max: 1 }} onChange={defaultProps.onChange} />);
+
+      const expertCheckbox = screen.getByLabelText('Select Expert difficulty');
+      fireEvent.click(expertCheckbox);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith({ min: 1, max: 4 });
+    });
+
+    test('cannot deselect the last remaining difficulty', () => {
+      render(<DifficultyRangeSlider value={{ min: 2, max: 2 }} onChange={defaultProps.onChange} />);
+
+      const mediumCheckbox = screen.getByLabelText('Select Medium difficulty');
+      fireEvent.click(mediumCheckbox);
+
+      // Should not call onChange since we can't deselect the last difficulty
+      expect(defaultProps.onChange).not.toHaveBeenCalled();
     });
   });
 
@@ -96,7 +151,8 @@ describe('DifficultyRangeSlider', () => {
       render(<DifficultyRangeSlider value={{ min: 2, max: 2 }} onChange={defaultProps.onChange} />);
 
       expect(screen.getByText('Medium (Level 2)')).toBeInTheDocument();
-      expect(screen.getByText('Balanced challenge with moderate time pressure')).toBeInTheDocument();
+      // Use a more specific selector to avoid duplicate text issues
+      expect(screen.getByText('Balanced challenge with moderate time pressure', { selector: '.difficulty-range-slider__selected-description' })).toBeInTheDocument();
     });
   });
 
@@ -117,6 +173,11 @@ describe('DifficultyRangeSlider', () => {
       presetButtons.forEach(button => {
         expect(button).toBeDisabled();
       });
+
+      const checkboxes = screen.getAllByRole('checkbox');
+      checkboxes.forEach(checkbox => {
+        expect(checkbox).toBeDisabled();
+      });
     });
 
     test('does not call onChange when disabled', () => {
@@ -127,51 +188,52 @@ describe('DifficultyRangeSlider', () => {
 
       expect(defaultProps.onChange).not.toHaveBeenCalled();
     });
+
+    test('does not call onChange when clicking disabled checkboxes', () => {
+      render(<DifficultyRangeSlider {...defaultProps} disabled={true} />);
+
+      const easyCheckbox = screen.getByLabelText('Select Easy difficulty');
+      fireEvent.click(easyCheckbox);
+
+      expect(defaultProps.onChange).not.toHaveBeenCalled();
+    });
   });
 
   describe('Accessibility', () => {
-    test('has proper ARIA labels for slider handles', () => {
+    test('has proper ARIA labels for checkboxes', () => {
       render(<DifficultyRangeSlider {...defaultProps} />);
 
-      const minHandle = screen.getByLabelText('Minimum difficulty');
-      const maxHandle = screen.getByLabelText('Maximum difficulty');
-
-      expect(minHandle).toBeInTheDocument();
-      expect(maxHandle).toBeInTheDocument();
-      expect(minHandle).toHaveAttribute('aria-valuenow', '1');
-      expect(maxHandle).toHaveAttribute('aria-valuenow', '4');
+      expect(screen.getByLabelText('Select Easy difficulty')).toBeInTheDocument();
+      expect(screen.getByLabelText('Select Medium difficulty')).toBeInTheDocument();
+      expect(screen.getByLabelText('Select Hard difficulty')).toBeInTheDocument();
+      expect(screen.getByLabelText('Select Expert difficulty')).toBeInTheDocument();
     });
 
-    test('has proper ARIA attributes for slider handles', () => {
+    test('checkboxes are focusable when not disabled', () => {
       render(<DifficultyRangeSlider {...defaultProps} />);
 
-      const minHandle = screen.getByLabelText('Minimum difficulty');
-      const maxHandle = screen.getByLabelText('Maximum difficulty');
-
-      expect(minHandle).toHaveAttribute('aria-valuemin', '1');
-      expect(minHandle).toHaveAttribute('aria-valuemax', '4');
-      expect(maxHandle).toHaveAttribute('aria-valuemin', '1');
-      expect(maxHandle).toHaveAttribute('aria-valuemax', '4');
+      const checkboxes = screen.getAllByRole('checkbox');
+      checkboxes.forEach(checkbox => {
+        expect(checkbox).not.toHaveAttribute('tabIndex', '-1');
+      });
     });
 
-    test('handles are focusable when not disabled', () => {
-      render(<DifficultyRangeSlider {...defaultProps} />);
-
-      const minHandle = screen.getByLabelText('Minimum difficulty');
-      const maxHandle = screen.getByLabelText('Maximum difficulty');
-
-      expect(minHandle).toHaveAttribute('tabIndex', '0');
-      expect(maxHandle).toHaveAttribute('tabIndex', '0');
-    });
-
-    test('handles are not focusable when disabled', () => {
+    test('checkboxes are not focusable when disabled', () => {
       render(<DifficultyRangeSlider {...defaultProps} disabled={true} />);
 
-      const minHandle = screen.getByLabelText('Minimum difficulty');
-      const maxHandle = screen.getByLabelText('Maximum difficulty');
+      const checkboxes = screen.getAllByRole('checkbox');
+      checkboxes.forEach(checkbox => {
+        expect(checkbox).toBeDisabled();
+      });
+    });
 
-      expect(minHandle).toHaveAttribute('tabIndex', '-1');
-      expect(maxHandle).toHaveAttribute('tabIndex', '-1');
+    test('stars have aria-hidden attribute', () => {
+      render(<DifficultyRangeSlider {...defaultProps} />);
+
+      const stars = screen.getAllByText('★');
+      stars.forEach(star => {
+        expect(star).toHaveAttribute('aria-hidden', 'true');
+      });
     });
   });
 
@@ -218,6 +280,17 @@ describe('DifficultyRangeSlider', () => {
 
       expect(container.firstChild).toHaveClass('difficulty-range-slider');
       expect(container.firstChild).toHaveClass('custom-class');
+    });
+
+    test('applies selected class to checked difficulty labels', () => {
+      render(<DifficultyRangeSlider {...defaultProps} />);
+
+      const labels = screen.getAllByText(/Easy|Medium|Hard|Expert/);
+      labels.forEach(label => {
+        if (label.closest('.difficulty-checkbox__label')) {
+          expect(label.closest('.difficulty-checkbox__label')).toHaveClass('difficulty-checkbox__label--selected');
+        }
+      });
     });
   });
 }); 
