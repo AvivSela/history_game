@@ -86,7 +86,7 @@ export const useGameState = () => {
     // Game status
     gameStatus: GAME_STATUS.LOBBY,
     gameMode: 'single', // 'single' only
-    difficulty: 'medium', // 'easy', 'medium', 'hard'
+    difficulty: 3, // Average difficulty (will be updated from settings)
 
     // UI state
     selectedCard: null,
@@ -116,7 +116,7 @@ export const useGameState = () => {
 
   // Settings integration
   const [settings, setSettings] = useState({
-    difficulty: DIFFICULTY_LEVELS.MEDIUM,
+    difficulty: { min: 1, max: 4 }, // Default to medium range
     cardCount: CARD_COUNTS.SINGLE,
     categories: [],
     animations: true,
@@ -278,13 +278,13 @@ export const useGameState = () => {
   }, [settings.cardCount]);
 
   /**
-   * Get difficulty from settings
-   * @param {string} fallbackDifficulty - Fallback difficulty if settings not available
-   * @returns {string} Difficulty level
+   * Get difficulty range from settings
+   * @param {Object} fallbackRange - Fallback range if settings not available
+   * @returns {Object} Difficulty range { min: number, max: number }
    */
   const getDifficultyFromSettings = useCallback(
-    (fallbackDifficulty = 'medium') => {
-      return settings.difficulty || fallbackDifficulty;
+    (fallbackRange = { min: 1, max: 4 }) => {
+      return settings.difficulty || fallbackRange;
     },
     [settings.difficulty]
   );
@@ -313,21 +313,19 @@ export const useGameState = () => {
 
         // Get settings-based configuration
         const cardCount = getCardCountFromSettings();
-        const difficulty = diff || getDifficultyFromSettings();
+        const difficultyRange = diff || getDifficultyFromSettings();
         const categories = getCategoriesFromSettings();
 
-        // Convert difficulty string to numeric level for backend
-        const difficultyLevel = difficulty === 'easy' ? 1 : 
-                               difficulty === 'medium' ? 2 : 
-                               difficulty === 'hard' ? 3 : 
-                               difficulty === 'expert' ? 4 : 2;
+        // Use the middle of the difficulty range for game mechanics
+        const averageDifficulty = Math.round((difficultyRange.min + difficultyRange.max) / 2);
 
         // Create game session on backend
         const sessionSettings = {
           player_name: 'Player', // TODO: Get from user settings
-          difficulty_level: difficultyLevel,
+          difficulty_level: averageDifficulty,
           card_count: cardCount,
-          categories: categories
+          categories: categories,
+          difficulty_range: difficultyRange // Store the full range for filtering
         };
 
         const sessionResponse = await gameAPI.createGameSession(sessionSettings);
@@ -339,21 +337,22 @@ export const useGameState = () => {
           settings: sessionSettings
         };
 
-        // Fetch events from API with category filtering
-        const response = await gameAPI.getRandomEvents(cardCount, categories);
+        // Fetch events from API with category and difficulty filtering
+        const response = await gameAPI.getRandomEvents(cardCount, categories, difficultyRange);
         const events = extractData(response);
 
         // Fetch additional cards for the pool (for replacement when cards are placed incorrectly)
         const poolResponse = await gameAPI.getRandomEvents(
           POOL_CARD_COUNT,
-          categories
+          categories,
+          difficultyRange
         );
         const poolEvents = extractData(poolResponse);
 
         // Create local game session with events
         const localSession = createGameSession(events, {
           cardCount: cardCount - 1,
-          difficulty: difficulty,
+          difficulty: averageDifficulty,
           gameMode: mode,
         });
 
@@ -367,7 +366,8 @@ export const useGameState = () => {
           cardPool: poolEvents, // Added: Card pool
           gameStatus: 'playing',
           gameMode: mode,
-          difficulty: difficulty,
+          difficulty: averageDifficulty,
+          difficultyRange: difficultyRange,
           score: { human: 0 },
           startTime: localSession.startTime,
           turnStartTime: Date.now(),

@@ -25,8 +25,15 @@ export const initializeGameForTesting = async (
   mode = 'single',
   difficulty = 'medium'
 ) => {
+  // Convert string difficulty to range object for new implementation
+  const difficultyRange = difficulty === 'easy' ? { min: 1, max: 2 } :
+                         difficulty === 'medium' ? { min: 1, max: 4 } :
+                         difficulty === 'hard' ? { min: 3, max: 4 } :
+                         difficulty === 'expert' ? { min: 4, max: 4 } :
+                         { min: 1, max: 4 }; // default to medium range
+
   await act(async () => {
-    await result.current.initializeGame(mode, difficulty);
+    await result.current.initializeGame(mode, difficultyRange);
   });
 
   // Wait for initialization to complete

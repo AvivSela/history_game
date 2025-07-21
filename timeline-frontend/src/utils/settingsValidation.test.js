@@ -14,8 +14,16 @@ import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants';
 describe('Settings Validation', () => {
   describe('validateSetting', () => {
     describe('Difficulty Validation', () => {
-      it('should validate valid difficulty levels', () => {
-        Object.values(DIFFICULTY_LEVELS).forEach(difficulty => {
+      it('should validate valid difficulty ranges', () => {
+        const validDifficulties = [
+          { min: 1, max: 1 }, // Easy only
+          { min: 1, max: 2 }, // Easy to Medium
+          { min: 1, max: 4 }, // All difficulties
+          { min: 2, max: 3 }, // Medium to Hard
+          { min: 4, max: 4 }, // Expert only
+        ];
+        
+        validDifficulties.forEach(difficulty => {
           const result = validateSetting('difficulty', difficulty);
           expect(result.isValid).toBe(true);
           expect(result.errors).toHaveLength(0);
@@ -26,15 +34,31 @@ describe('Settings Validation', () => {
         const result = validateSetting('difficulty', 'invalid');
         expect(result.isValid).toBe(false);
         expect(result.errors).toContain(
-          'Invalid difficulty: invalid. Must be one of: easy, medium, hard, expert'
+          'difficulty: Expected object, got string'
         );
       });
 
       it('should warn for expert difficulty', () => {
-        const result = validateSetting('difficulty', DIFFICULTY_LEVELS.EXPERT);
+        const result = validateSetting('difficulty', { min: 4, max: 4 });
         expect(result.isValid).toBe(true);
         expect(result.warnings).toContain(
           'Expert difficulty is very challenging and may not be suitable for all players'
+        );
+      });
+
+      it('should warn for single difficulty level', () => {
+        const result = validateSetting('difficulty', { min: 2, max: 2 });
+        expect(result.isValid).toBe(true);
+        expect(result.warnings).toContain(
+          'Single difficulty level selected - consider expanding range for more variety'
+        );
+      });
+
+      it('should warn for very wide range', () => {
+        const result = validateSetting('difficulty', { min: 1, max: 4 });
+        expect(result.isValid).toBe(true);
+        expect(result.warnings).toContain(
+          'Very wide difficulty range may create inconsistent gameplay experience'
         );
       });
 
@@ -48,6 +72,24 @@ describe('Settings Validation', () => {
         const result = validateSetting('difficulty', undefined);
         expect(result.isValid).toBe(false);
         expect(result.errors).toContain('difficulty is required');
+      });
+
+      it('should reject min greater than max', () => {
+        const result = validateSetting('difficulty', { min: 3, max: 2 });
+        expect(result.isValid).toBe(false);
+        expect(result.errors).toContain('Difficulty min cannot be greater than max');
+      });
+
+      it('should reject min below 1', () => {
+        const result = validateSetting('difficulty', { min: 0, max: 2 });
+        expect(result.isValid).toBe(false);
+        expect(result.errors).toContain('Difficulty min must be between 1 and 4');
+      });
+
+      it('should reject max above 4', () => {
+        const result = validateSetting('difficulty', { min: 1, max: 5 });
+        expect(result.isValid).toBe(false);
+        expect(result.errors).toContain('Difficulty max must be between 1 and 4');
       });
     });
 
@@ -212,7 +254,7 @@ describe('Settings Validation', () => {
   describe('validateSettings', () => {
     it('should validate complete valid settings object', () => {
       const validSettings = {
-        difficulty: DIFFICULTY_LEVELS.MEDIUM,
+        difficulty: { min: 1, max: 4 },
         cardCount: CARD_COUNTS.SINGLE,
         categories: ['history'],
         animations: true,
@@ -239,7 +281,7 @@ describe('Settings Validation', () => {
 
     it('should detect missing required settings', () => {
       const incompleteSettings = {
-        difficulty: DIFFICULTY_LEVELS.MEDIUM,
+        difficulty: { min: 1, max: 4 },
         // Missing other required settings
       };
 
@@ -252,7 +294,7 @@ describe('Settings Validation', () => {
 
     it('should provide field-level results', () => {
       const settings = {
-        difficulty: DIFFICULTY_LEVELS.MEDIUM,
+        difficulty: { min: 1, max: 4 },
         cardCount: 'invalid',
         categories: ['history'],
         animations: true,
@@ -270,7 +312,7 @@ describe('Settings Validation', () => {
 
     it('should detect cross-field validation issues', () => {
       const conflictingSettings = {
-        difficulty: DIFFICULTY_LEVELS.MEDIUM,
+        difficulty: { min: 1, max: 4 },
         cardCount: CARD_COUNTS.SINGLE,
         categories: ['history'],
         animations: false,
@@ -288,7 +330,7 @@ describe('Settings Validation', () => {
       it('should return schema for valid setting key', () => {
         const schema = getValidationSchema('difficulty');
         expect(schema).toBeDefined();
-        expect(schema.type).toBe('string');
+        expect(schema.type).toBe('object');
         expect(schema.required).toBe(true);
       });
 
@@ -313,7 +355,7 @@ describe('Settings Validation', () => {
 
     describe('isSettingValid', () => {
       it('should return true for valid settings', () => {
-        expect(isSettingValid('difficulty', DIFFICULTY_LEVELS.MEDIUM)).toBe(
+        expect(isSettingValid('difficulty', { min: 1, max: 4 })).toBe(
           true
         );
         expect(isSettingValid('cardCount', 5)).toBe(true);
@@ -334,7 +376,7 @@ describe('Settings Validation', () => {
 
         expect(messages).toHaveLength(1);
         expect(messages[0]).toContain(
-          'The difficulty "invalid. Must be one of: easy, medium, hard, expert" is not valid'
+          'difficulty: This setting should be object, but it is string'
         );
       });
 
@@ -355,7 +397,7 @@ describe('Settings Validation', () => {
 
     describe('getWarningMessages', () => {
       it('should return warning messages', () => {
-        const result = validateSetting('difficulty', DIFFICULTY_LEVELS.EXPERT);
+        const result = validateSetting('difficulty', { min: 4, max: 4 });
         const warnings = getWarningMessages(result);
 
         expect(warnings).toContain(
@@ -388,7 +430,7 @@ describe('Settings Validation', () => {
       const result = validateSetting('difficulty', '');
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Invalid difficulty: . Must be one of: easy, medium, hard, expert'
+        'difficulty: Expected object, got string'
       );
     });
 
@@ -396,7 +438,7 @@ describe('Settings Validation', () => {
       const result = validateSetting('difficulty', '   ');
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Invalid difficulty:    . Must be one of: easy, medium, hard, expert'
+        'difficulty: Expected object, got string'
       );
     });
 
@@ -436,7 +478,7 @@ describe('Settings Validation', () => {
 
     it('should handle nested object validation efficiently', () => {
       const complexSettings = {
-        difficulty: DIFFICULTY_LEVELS.MEDIUM,
+        difficulty: { min: 1, max: 4 },
         cardCount: CARD_COUNTS.SINGLE,
         categories: Array.from({ length: 100 }, (_, i) => `category${i}`),
         animations: true,

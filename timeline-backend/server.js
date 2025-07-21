@@ -179,14 +179,20 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   const countParam = req.params.count;
   const count = parseInt(countParam, 10);
   
-  // Extract categories from query parameters
+  // Extract filtering parameters from query string
   const categoriesParam = req.query.categories;
   let categories = [];
   if (categoriesParam) {
     categories = categoriesParam.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0);
   }
+  const difficultyMin = req.query.difficulty_min ? parseInt(req.query.difficulty_min, 10) : null;
+  const difficultyMax = req.query.difficulty_max ? parseInt(req.query.difficulty_max, 10) : null;
   
-  logger.info(`🎲 Fetching ${count} random events${categories.length > 0 ? ` for categories: ${categories.join(', ')}` : ''}...`);
+  logger.info(`🎲 Fetching ${count} random events with filters...`, {
+    categories,
+    difficultyMin,
+    difficultyMax
+  });
   
   // Handle invalid or negative counts
   if (isNaN(count) || count < 1) {
@@ -197,18 +203,28 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   }
   
   try {
-    // Get total count to validate request (with category filter if specified)
-    const totalCount = await dbUtils.getCardCount(categories.length > 0 ? { categories } : {});
+    // Build options object for filtering
+    const options = {};
+    if (categories.length > 0) {
+      options.categories = categories;
+    }
+    if (difficultyMin !== null && !isNaN(difficultyMin)) {
+      options.difficulty_min = difficultyMin;
+    }
+    if (difficultyMax !== null && !isNaN(difficultyMax)) {
+      options.difficulty_max = difficultyMax;
+    }
+    
+    // Get total count to validate request
+    const totalCount = await dbUtils.getCardCount(options);
     
     if (count > totalCount) {
       return res.status(400).json({
         success: false,
-        error: `Requested ${count} events but only ${totalCount} available${categories.length > 0 ? ` for the specified categories` : ''}`
+        error: `Requested ${count} events but only ${totalCount} available with current filters`
       });
     }
     
-    // Pass categories to getRandomCards for filtering
-    const options = categories.length > 0 ? { categories } : {};
     const selectedEvents = await dbUtils.getRandomCards(count, options);
     
     res.json({
@@ -216,6 +232,7 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
       count: selectedEvents.length,
       requested: count,
       categories: categories.length > 0 ? categories : null,
+      filters: { categories, difficultyMin, difficultyMax },
       data: selectedEvents
     });
   } catch (error) {

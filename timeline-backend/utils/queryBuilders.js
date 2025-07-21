@@ -375,6 +375,8 @@ class CardQueryBuilder extends QueryBuilder {
    * @param {Object} options - Query options
    * @param {string} [options.category] - Filter by category
    * @param {number} [options.difficulty] - Filter by difficulty (1-5)
+   * @param {number} [options.difficulty_min] - Filter by minimum difficulty (1-5)
+   * @param {number} [options.difficulty_max] - Filter by maximum difficulty (1-5)
    * @param {number} [options.limit] - Limit number of results
    * @param {number} [options.offset] - Offset for pagination
    * @param {boolean} [options.random] - Use random ordering
@@ -401,6 +403,14 @@ class CardQueryBuilder extends QueryBuilder {
       
       if (options.difficulty !== undefined && options.difficulty !== null) {
         options.difficulty = ValidationUtils.validateNumber(options.difficulty, 'difficulty', 0, 5);
+      }
+      
+      if (options.difficulty_min !== undefined && options.difficulty_min !== null) {
+        options.difficulty_min = ValidationUtils.validateNumber(options.difficulty_min, 'difficulty_min', 1, 5);
+      }
+      
+      if (options.difficulty_max !== undefined && options.difficulty_max !== null) {
+        options.difficulty_max = ValidationUtils.validateNumber(options.difficulty_max, 'difficulty_max', 1, 5);
       }
       
       if (options.limit !== undefined) {
@@ -430,6 +440,12 @@ class CardQueryBuilder extends QueryBuilder {
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
         this.where(`difficulty = $${this.params.length + 1}`, options.difficulty);
+      }
+      if (options.difficulty_min !== null && options.difficulty_min !== undefined) {
+        filters.push({ condition: 'difficulty >= $1', value: options.difficulty_min });
+      }
+      if (options.difficulty_max !== null && options.difficulty_max !== undefined) {
+        filters.push({ condition: 'difficulty <= $1', value: options.difficulty_max });
       }
       
       const { sql: baseSql, params: baseParams } = this.build();
@@ -564,6 +580,14 @@ class CardQueryBuilder extends QueryBuilder {
       if (options.difficulty !== null && options.difficulty !== undefined) {
         const validatedDifficulty = ValidationUtils.validateNumber(options.difficulty, 'difficulty', 0, 5);
         this.where(`difficulty = $${this.params.length + 1}`, validatedDifficulty);
+      }
+      if (options.difficulty_min !== null && options.difficulty_min !== undefined) {
+        const validatedMin = ValidationUtils.validateNumber(options.difficulty_min, 'difficulty_min', 1, 5);
+        filters.push({ condition: 'difficulty >= $2', value: validatedMin });
+      }
+      if (options.difficulty_max !== null && options.difficulty_max !== undefined) {
+        const validatedMax = ValidationUtils.validateNumber(options.difficulty_max, 'difficulty_max', 1, 5);
+        filters.push({ condition: 'difficulty <= $2', value: validatedMax });
       }
       
       const { sql: baseSql, params: baseParams } = this.build();

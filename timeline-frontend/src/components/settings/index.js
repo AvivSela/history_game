@@ -5,7 +5,8 @@
  * throughout the application.
  */
 
-export { default as SettingsSection } from './SettingsSection.jsx';
-export { default as DifficultySelector } from './DifficultySelector.jsx';
-export { default as CardCountSlider } from './CardCountSlider.jsx';
-export { default as CategorySelector } from './CategorySelector.jsx';
+export { default as SettingsSection } from './SettingsSection';
+export { default as DifficultySelector } from './DifficultySelector';
+export { default as DifficultyRangeSlider } from './DifficultyRangeSlider';
+export { default as CardCountSlider } from './CardCountSlider';
+export { default as CategorySelector } from './CategorySelector';

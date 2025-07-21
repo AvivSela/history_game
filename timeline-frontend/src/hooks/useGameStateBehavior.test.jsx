@@ -93,7 +93,7 @@ describe('As a player who opens the game for the first time', () => {
     expect(result.current.state.gameMode).toBe('single');
 
     // And: The difficulty is set to a reasonable default
-    expect(result.current.state.difficulty).toBe('medium');
+    expect(result.current.state.difficulty).toBe(3); // Average of { min: 1, max: 4 }
 
     // And: No game is currently in progress
     expect(result.current.state.timeline).toEqual([]);
@@ -119,9 +119,7 @@ describe('As a player who wants to start a new game', () => {
     const { result } = renderHook(() => useGameState());
 
     // When: I start a new single-player game on medium difficulty
-    await act(async () => {
-      await result.current.initializeGame('single', 'medium');
-    });
+    await initializeGameForTesting(result, 'single', 'medium');
 
     // Then: The game starts successfully and I can begin playing
     await waitFor(() => {
@@ -130,7 +128,7 @@ describe('As a player who wants to start a new game', () => {
 
     // And: The game is configured correctly for my preferences
     expect(result.current.state.gameMode).toBe('single');
-    expect(result.current.state.difficulty).toBe('medium');
+    expect(result.current.state.difficulty).toBe(3); // Average of { min: 1, max: 4 }
   });
 
   it('When there are network issues, I receive a clear error message and can try again', async () => {
@@ -145,7 +143,7 @@ describe('As a player who wants to start a new game', () => {
     // When: I attempt to start the game
     await act(async () => {
       try {
-        await result.current.initializeGame('single', 'medium');
+        await initializeGameForTesting(result, 'single', 'medium');
       } catch (error) {
         // Network error occurs
       }
@@ -309,9 +307,7 @@ describe('As a player who has customized my game settings', () => {
     expect(settings.categories).toBeDefined();
 
     // And: I can still start and play a game
-    await act(async () => {
-      await result.current.initializeGame('single', 'medium');
-    });
+    await initializeGameForTesting(result, 'single', 'medium');
 
     await waitFor(() => {
       expect(result.current.state.gameStatus).toBe('playing');

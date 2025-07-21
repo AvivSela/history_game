@@ -61,7 +61,7 @@ describe('SettingsManager', () => {
     it('initializes with default settings', () => {
       expect(manager.isReady()).toBe(true);
       expect(manager.getSettings()).toEqual({
-        difficulty: DIFFICULTY_LEVELS.MEDIUM,
+        difficulty: { min: 1, max: 4 },
         cardCount: CARD_COUNTS.SINGLE,
         categories: [],
         animations: true,
@@ -72,7 +72,7 @@ describe('SettingsManager', () => {
 
     it('loads and saves settings', () => {
       const savedSettings = {
-        difficulty: DIFFICULTY_LEVELS.HARD,
+        difficulty: { min: 3, max: 4 },
         cardCount: 10,
         categories: ['history', 'science'],
       };
@@ -81,7 +81,7 @@ describe('SettingsManager', () => {
 
       const newManager = new SettingsManager();
 
-      expect(newManager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
+      expect(newManager.getSetting('difficulty')).toEqual({ min: 3, max: 4 });
       expect(newManager.getSetting('cardCount')).toBe(10);
       expect(newManager.getSetting('categories')).toEqual([
         'history',
@@ -92,17 +92,17 @@ describe('SettingsManager', () => {
     it('updates settings successfully', () => {
       const result = manager.updateSetting(
         'difficulty',
-        DIFFICULTY_LEVELS.HARD
+        { min: 3, max: 4 }
       );
 
       expect(result).toBe(true);
-      expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.HARD);
+      expect(manager.getSetting('difficulty')).toEqual({ min: 3, max: 4 });
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
 
     it('handles multiple settings updates', () => {
       const updates = {
-        difficulty: DIFFICULTY_LEVELS.EASY,
+        difficulty: { min: 1, max: 2 },
         cardCount: 8,
         animations: false,
       };
@@ -110,7 +110,7 @@ describe('SettingsManager', () => {
       const result = manager.updateSettings(updates);
 
       expect(result).toBe(true);
-      expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.EASY);
+      expect(manager.getSetting('difficulty')).toEqual({ min: 1, max: 2 });
       expect(manager.getSetting('cardCount')).toBe(8);
       expect(manager.getSetting('animations')).toBe(false);
     });
@@ -152,11 +152,11 @@ describe('SettingsManager', () => {
 
       const result = manager.updateSetting(
         'difficulty',
-        DIFFICULTY_LEVELS.HARD
+        { min: 3, max: 4 }
       );
 
       expect(result).toBe(false);
-      expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM); // Should revert
+      expect(manager.getSetting('difficulty')).toEqual({ min: 1, max: 4 }); // Should revert
     });
   });
 
@@ -165,12 +165,12 @@ describe('SettingsManager', () => {
       const listener = vi.fn();
       const unsubscribe = manager.onChange(listener);
 
-      manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
+      manager.updateSetting('difficulty', { min: 3, max: 4 });
 
       expect(listener).toHaveBeenCalledWith({
         key: 'difficulty',
-        newValue: DIFFICULTY_LEVELS.HARD,
-        oldValue: DIFFICULTY_LEVELS.MEDIUM,
+        newValue: { min: 3, max: 4 },
+        oldValue: { min: 1, max: 4 },
         timestamp: expect.any(Number),
         allSettings: expect.any(Object),
       });
@@ -183,7 +183,7 @@ describe('SettingsManager', () => {
       const unsubscribe = manager.onChange(listener);
 
       unsubscribe();
-      manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
+      manager.updateSetting('difficulty', { min: 3, max: 4 });
 
       expect(listener).not.toHaveBeenCalled();
     });
@@ -192,14 +192,14 @@ describe('SettingsManager', () => {
   describe('Settings Reset', () => {
     it('resets settings to defaults', () => {
       // First update some settings
-      manager.updateSetting('difficulty', DIFFICULTY_LEVELS.HARD);
+      manager.updateSetting('difficulty', { min: 3, max: 4 });
       manager.updateSetting('animations', false);
 
       // Then reset
       const result = manager.resetToDefaults();
 
       expect(result).toBe(true);
-      expect(manager.getSetting('difficulty')).toBe(DIFFICULTY_LEVELS.MEDIUM);
+      expect(manager.getSetting('difficulty')).toEqual({ min: 1, max: 4 });
       expect(manager.getSetting('animations')).toBe(true);
     });
   });

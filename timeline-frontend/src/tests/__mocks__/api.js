@@ -118,7 +118,7 @@ const createAPIMock = () => {
       getAllEvents: vi.fn().mockResolvedValue({
         data: defaultResponses.events,
       }),
-      getRandomEvents: vi.fn().mockImplementation((count = 5) => {
+      getRandomEvents: vi.fn().mockImplementation((count = 5, categories = [], difficultyRange = null) => {
         const events = defaultResponses.events.slice(0, count);
         return Promise.resolve({
           data: events,

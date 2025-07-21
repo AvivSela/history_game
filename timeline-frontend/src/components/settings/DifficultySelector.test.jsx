@@ -2,12 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
-import { DIFFICULTY_LEVELS } from '../../constants/gameConstants.js';
 import DifficultySelector from './DifficultySelector.jsx';
+
+// Mock useLayoutMode hook
+vi.mock('./useLayoutMode', () => ({
+  default: () => 'list'
+}));
 
 describe('DifficultySelector', () => {
   const defaultProps = {
-    value: DIFFICULTY_LEVELS.MEDIUM,
+    value: ['medium'],
     onChange: vi.fn(),
   };
 
@@ -16,75 +20,89 @@ describe('DifficultySelector', () => {
   });
 
   describe('Basic Functionality', () => {
-    test('renders and allows difficulty selection', () => {
+    test('renders and allows difficulty selection', async () => {
       render(<DifficultySelector {...defaultProps} />);
 
-      // Verify all options are present
+      // Verify dropdown button is present
+      expect(screen.getByText('1 difficulty selected')).toBeInTheDocument();
+
+      // Open dropdown
+      const dropdownButton = screen.getByRole('button');
+      fireEvent.click(dropdownButton);
+
+      // Verify all options are present after opening dropdown
       expect(screen.getByText('Easy')).toBeInTheDocument();
       expect(screen.getByText('Medium')).toBeInTheDocument();
       expect(screen.getByText('Hard')).toBeInTheDocument();
       expect(screen.getByText('Expert')).toBeInTheDocument();
 
-      // Verify current selection
-      expect(screen.getByDisplayValue('medium')).toBeChecked();
+      // Verify current selection (Medium should be selected)
+      const mediumItem = screen.getByText('Medium').closest('.difficulty-selector__item');
+      expect(mediumItem).toBeTruthy();
+      expect(mediumItem).toHaveClass('difficulty-selector__item--selected');
 
       // Test selection change
-      const hardRadio = screen.getByDisplayValue('hard');
-      fireEvent.click(hardRadio);
-      expect(defaultProps.onChange).toHaveBeenCalledWith(
-        DIFFICULTY_LEVELS.HARD
-      );
+      const hardCheckbox = screen.getByRole('checkbox', { name: 'Hard' });
+      fireEvent.click(hardCheckbox);
+      expect(defaultProps.onChange).toHaveBeenCalledWith(['medium', 'hard']);
     });
 
     test('handles disabled state', () => {
       render(<DifficultySelector {...defaultProps} disabled={true} />);
 
-      const radioButtons = screen.getAllByRole('radio');
-      radioButtons.forEach(radio => {
-        expect(radio).toBeDisabled();
-      });
+      // Verify dropdown button is disabled
+      const dropdownButton = screen.getByRole('button');
+      expect(dropdownButton).toBeDisabled();
 
       // Should not call onChange when disabled
-      const hardRadio = screen.getByDisplayValue('hard');
-      fireEvent.click(hardRadio);
+      fireEvent.click(dropdownButton);
       expect(defaultProps.onChange).not.toHaveBeenCalled();
     });
   });
 
-  describe('Keyboard Navigation', () => {
-    test('supports keyboard navigation with arrow keys', () => {
+  describe('Search Functionality', () => {
+    test('filters difficulties by search term', () => {
       render(<DifficultySelector {...defaultProps} />);
 
-      const fieldset = screen.getByRole('group');
+      // Open dropdown first
+      const dropdownButton = screen.getByRole('button');
+      fireEvent.click(dropdownButton);
 
-      // Test arrow key navigation
-      fireEvent.keyDown(fieldset, { key: 'ArrowRight' });
-      expect(defaultProps.onChange).toHaveBeenCalledWith(
-        DIFFICULTY_LEVELS.HARD
-      );
+      const searchInput = screen.getByPlaceholderText('Search difficulties...');
+      fireEvent.change(searchInput, { target: { value: 'easy' } });
 
-      vi.clearAllMocks();
-      fireEvent.keyDown(fieldset, { key: 'ArrowLeft' });
-      expect(defaultProps.onChange).toHaveBeenCalledWith(
-        DIFFICULTY_LEVELS.EASY
-      );
+      // Only Easy should be visible
+      expect(screen.getByText('Easy')).toBeInTheDocument();
+      expect(screen.queryByText('Hard')).not.toBeInTheDocument();
+      expect(screen.queryByText('Expert')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Control Buttons', () => {
+    test('Select All button selects all difficulties', () => {
+      render(<DifficultySelector {...defaultProps} />);
+
+      // Open dropdown first
+      const dropdownButton = screen.getByRole('button');
+      fireEvent.click(dropdownButton);
+
+      const selectAllButton = screen.getByText('Select All');
+      fireEvent.click(selectAllButton);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith(['easy', 'medium', 'hard', 'expert']);
     });
 
-    test('wraps around at boundaries', () => {
-      render(
-        <DifficultySelector
-          {...defaultProps}
-          value={DIFFICULTY_LEVELS.EXPERT}
-        />
-      );
+    test('Clear All button deselects all difficulties', () => {
+      render(<DifficultySelector {...defaultProps} />);
 
-      const fieldset = screen.getByRole('group');
+      // Open dropdown first
+      const dropdownButton = screen.getByRole('button');
+      fireEvent.click(dropdownButton);
 
-      // Wrap from last to first
-      fireEvent.keyDown(fieldset, { key: 'ArrowRight' });
-      expect(defaultProps.onChange).toHaveBeenCalledWith(
-        DIFFICULTY_LEVELS.EASY
-      );
+      const clearAllButton = screen.getByText('Clear All');
+      fireEvent.click(clearAllButton);
+
+      expect(defaultProps.onChange).toHaveBeenCalledWith([]);
     });
   });
 
@@ -92,14 +110,13 @@ describe('DifficultySelector', () => {
     test('handles invalid values and missing props gracefully', () => {
       // Test invalid value
       render(<DifficultySelector {...defaultProps} value="invalid" />);
-      const radioButtons = screen.getAllByRole('radio');
-      radioButtons.forEach(radio => {
-        expect(radio).not.toBeChecked();
-      });
+      
+      // Should show dropdown button with count
+      expect(screen.getByText(/difficulties selected/)).toBeInTheDocument();
 
       // Test missing onChange
       expect(() => {
-        render(<DifficultySelector value={DIFFICULTY_LEVELS.MEDIUM} />);
+        render(<DifficultySelector value={['medium']} />);
       }).not.toThrow();
     });
   });

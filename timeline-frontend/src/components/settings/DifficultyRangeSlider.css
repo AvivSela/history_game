@@ -1,0 +1,346 @@
+/* DifficultyRangeSlider Component Styles */
+
+.difficulty-range-slider {
+  width: 100%;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.difficulty-range-slider:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.difficulty-range-slider--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.difficulty-range-slider--dragging {
+  user-select: none;
+}
+
+/* Header */
+.difficulty-range-slider__header {
+  margin-bottom: 1.5rem;
+}
+
+.difficulty-range-slider__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.difficulty-range-slider__selected {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.difficulty-range-slider__selected-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.difficulty-range-slider__selected-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Track Container */
+.difficulty-range-slider__track-container {
+  margin-bottom: 1.5rem;
+}
+
+.difficulty-range-slider__track {
+  position: relative;
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 2rem;
+}
+
+.difficulty-range-slider__track-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.difficulty-range-slider__track-segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  opacity: 0.3;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.difficulty-range-slider__track:hover .difficulty-range-slider__track-segment {
+  opacity: 0.5;
+}
+
+/* Selected Range */
+.difficulty-range-slider__range {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+  z-index: 2;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Handles */
+.difficulty-range-slider__handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+  border: 3px solid #3b82f6;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 3;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-range-slider__handle:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.difficulty-range-slider__handle:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.difficulty-range-slider__handle--min {
+  border-color: #10b981;
+}
+
+.difficulty-range-slider__handle--max {
+  border-color: #ef4444;
+}
+
+.difficulty-range-slider__handle-label {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+}
+
+.difficulty-range-slider__handle:hover .difficulty-range-slider__handle-label,
+.difficulty-range-slider__handle:focus .difficulty-range-slider__handle-label {
+  opacity: 1;
+}
+
+/* Markers */
+.difficulty-range-slider__markers {
+  position: relative;
+  height: 60px;
+}
+
+.difficulty-range-slider__marker {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.difficulty-range-slider__marker-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.difficulty-range-slider__marker-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Presets */
+.difficulty-range-slider__presets {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.difficulty-range-slider__preset-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.difficulty-range-slider__preset-button:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+  color: #1d4ed8;
+}
+
+.difficulty-range-slider__preset-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.difficulty-range-slider__preset-button:disabled:hover {
+  border-color: #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+}
+
+/* Focus styles for accessibility */
+.difficulty-range-slider__handle:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.difficulty-range-slider__preset-button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .difficulty-range-slider {
+    padding: 1rem;
+  }
+  
+  .difficulty-range-slider__presets {
+    flex-direction: column;
+  }
+  
+  .difficulty-range-slider__preset-button {
+    text-align: center;
+  }
+  
+  .difficulty-range-slider__marker-label {
+    font-size: 0.625rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .difficulty-range-slider {
+    border-width: 3px;
+  }
+  
+  .difficulty-range-slider__handle {
+    border-width: 4px;
+  }
+  
+  .difficulty-range-slider__range {
+    background: #000000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .difficulty-range-slider,
+  .difficulty-range-slider__track-segment,
+  .difficulty-range-slider__range,
+  .difficulty-range-slider__handle,
+  .difficulty-range-slider__handle-label,
+  .difficulty-range-slider__preset-button {
+    transition: none;
+  }
+  
+  .difficulty-range-slider__handle:hover {
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .difficulty-range-slider {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .difficulty-range-slider:hover {
+    border-color: #60a5fa;
+  }
+  
+  .difficulty-range-slider__title {
+    color: #f3f4f6;
+  }
+  
+  .difficulty-range-slider__selected-text {
+    color: #f9fafb;
+  }
+  
+  .difficulty-range-slider__selected-description {
+    color: #9ca3af;
+  }
+  
+  .difficulty-range-slider__track {
+    background: #374151;
+  }
+  
+  .difficulty-range-slider__handle {
+    background: #1f2937;
+    border-color: #60a5fa;
+  }
+  
+  .difficulty-range-slider__handle--min {
+    border-color: #34d399;
+  }
+  
+  .difficulty-range-slider__handle--max {
+    border-color: #f87171;
+  }
+  
+  .difficulty-range-slider__handle-label {
+    background: #111827;
+    color: #f9fafb;
+  }
+  
+  .difficulty-range-slider__marker-label {
+    color: #9ca3af;
+  }
+  
+  .difficulty-range-slider__preset-button {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+  }
+  
+  .difficulty-range-slider__preset-button:hover {
+    border-color: #60a5fa;
+    background-color: #374151;
+    color: #dbeafe;
+  }
+} 

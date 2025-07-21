@@ -65,7 +65,7 @@ describe('Game State Management', () => {
 
       // Test behavior, not implementation details
       expect(result.current.state.gameMode).toBe('single');
-      expect(result.current.state.difficulty).toBe('medium');
+      expect(result.current.state.difficulty).toBe(3); // Average of { min: 1, max: 4 }
 
       // Validate card distribution
       validateCardDistribution(result.current.state, 'single');
@@ -81,7 +81,7 @@ describe('Game State Management', () => {
 
       await act(async () => {
         try {
-          await result.current.initializeGame('single', 'medium');
+          await result.current.initializeGame('single', { min: 1, max: 4 });
         } catch (error) {
           // Expected to throw
         }

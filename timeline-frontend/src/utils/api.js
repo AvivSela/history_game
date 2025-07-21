@@ -88,10 +88,14 @@ export const gameAPI = {
 
   // Events
   getAllEvents: () => api.get(API.ENDPOINTS.EVENTS),
-  getRandomEvents: (count = 5, categories = []) => {
+  getRandomEvents: (count = 5, categories = [], difficultyRange = null) => {
     const params = new URLSearchParams();
     if (categories && categories.length > 0) {
       params.append('categories', categories.join(','));
+    }
+    if (difficultyRange && typeof difficultyRange === 'object') {
+      params.append('difficulty_min', difficultyRange.min.toString());
+      params.append('difficulty_max', difficultyRange.max.toString());
     }
     const queryString = params.toString();
     const url = `${API.ENDPOINTS.EVENTS}/random/${count}${queryString ? `?${queryString}` : ''}`;
