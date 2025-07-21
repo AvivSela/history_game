@@ -82,12 +82,18 @@ async function getRandomCards(count, options = {}) {
   try {
     logger.debug('Getting random cards', { count, options });
     
-    const queryBuilder = new CardQueryBuilder();
-    const { sql, params } = queryBuilder.select({
-      ...options,
-      limit: count,
-      random: true
-    });
+    let sql, params;
+    
+    if (options.categories && options.categories.length > 0) {
+      // Handle category filtering directly with case-insensitive comparison
+      const placeholders = options.categories.map((_, index) => `$${index + 1}`).join(', ');
+      sql = `SELECT * FROM cards WHERE LOWER(category) IN (${placeholders}) ORDER BY RANDOM() LIMIT $${options.categories.length + 1}`;
+      params = [...options.categories.map(cat => cat.toLowerCase()), count];
+    } else {
+      // No category filtering
+      sql = 'SELECT * FROM cards ORDER BY RANDOM() LIMIT $1';
+      params = [count];
+    }
     
     const result = await query(sql, params);
     const transformedData = transformCardData(result.rows);

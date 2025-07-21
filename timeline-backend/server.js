@@ -179,7 +179,14 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   const countParam = req.params.count;
   const count = parseInt(countParam, 10);
   
-  logger.info(`🎲 Fetching ${count} random events...`);
+  // Extract categories from query parameters
+  const categoriesParam = req.query.categories;
+  let categories = [];
+  if (categoriesParam) {
+    categories = categoriesParam.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0);
+  }
+  
+  logger.info(`🎲 Fetching ${count} random events${categories.length > 0 ? ` for categories: ${categories.join(', ')}` : ''}...`);
   
   // Handle invalid or negative counts
   if (isNaN(count) || count < 1) {
@@ -190,22 +197,25 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   }
   
   try {
-    // Get total count to validate request
-    const totalCount = await dbUtils.getCardCount();
+    // Get total count to validate request (with category filter if specified)
+    const totalCount = await dbUtils.getCardCount(categories.length > 0 ? { categories } : {});
     
     if (count > totalCount) {
       return res.status(400).json({
         success: false,
-        error: `Requested ${count} events but only ${totalCount} available`
+        error: `Requested ${count} events but only ${totalCount} available${categories.length > 0 ? ` for the specified categories` : ''}`
       });
     }
     
-    const selectedEvents = await dbUtils.getRandomCards(count);
+    // Pass categories to getRandomCards for filtering
+    const options = categories.length > 0 ? { categories } : {};
+    const selectedEvents = await dbUtils.getRandomCards(count, options);
     
     res.json({
       success: true,
       count: selectedEvents.length,
       requested: count,
+      categories: categories.length > 0 ? categories : null,
       data: selectedEvents
     });
   } catch (error) {

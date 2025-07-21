@@ -387,7 +387,14 @@ class CardQueryBuilder extends QueryBuilder {
       
       // Validate options
       if (options.category !== undefined && options.category !== null) {
-        options.category = ValidationUtils.validateString(options.category, 'category');
+        if (Array.isArray(options.category)) {
+          // Validate each category in the array
+          options.category = options.category.map(cat => 
+            ValidationUtils.validateString(cat, 'category')
+          );
+        } else {
+          options.category = ValidationUtils.validateString(options.category, 'category');
+        }
       }
       
       if (options.difficulty !== undefined && options.difficulty !== null) {
@@ -408,15 +415,20 @@ class CardQueryBuilder extends QueryBuilder {
 
       this.sql = `SELECT * FROM ${this.baseTable}`;
       
-      const filters = [];
       if (options.category) {
-        filters.push({ condition: 'category = $1', value: options.category });
+        if (Array.isArray(options.category) && options.category.length > 0) {
+          // Handle multiple categories with case-insensitive comparison
+          const conditions = options.category.map((_, index) => `category ILIKE $${this.params.length + index + 1}`);
+          this.conditions.push(`(${conditions.join(' OR ')})`);
+          this.params.push(...options.category);
+        } else if (typeof options.category === 'string') {
+          // Handle single category with case-insensitive comparison
+          this.where(`category ILIKE $${this.params.length + 1}`, options.category);
+        }
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
-        filters.push({ condition: 'difficulty = $1', value: options.difficulty });
+        this.where(`difficulty = $${this.params.length + 1}`, options.difficulty);
       }
-      
-      this.whereMultipleWithIndex(filters, 1);
       
       const { sql: baseSql, params: baseParams } = this.build();
       this.sql = baseSql;
@@ -528,17 +540,26 @@ class CardQueryBuilder extends QueryBuilder {
       
       this.sql = `SELECT COUNT(*) FROM ${this.baseTable}`;
       
-      const filters = [];
       if (options.category) {
-        const validatedCategory = ValidationUtils.validateString(options.category, 'category');
-        filters.push({ condition: 'category = $1', value: validatedCategory });
+        if (Array.isArray(options.category)) {
+          // Validate each category in the array
+          const validatedCategories = options.category.map(cat => 
+            ValidationUtils.validateString(cat, 'category')
+          );
+          // Handle multiple categories with case-insensitive comparison
+          const conditions = validatedCategories.map((_, index) => `category ILIKE $${this.params.length + index + 1}`);
+          this.conditions.push(`(${conditions.join(' OR ')})`);
+          this.params.push(...validatedCategories);
+        } else {
+          // Handle single category with case-insensitive comparison
+          const validatedCategory = ValidationUtils.validateString(options.category, 'category');
+          this.where(`category ILIKE $${this.params.length + 1}`, validatedCategory);
+        }
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
         const validatedDifficulty = ValidationUtils.validateNumber(options.difficulty, 'difficulty', 0, 5);
-        filters.push({ condition: 'difficulty = $2', value: validatedDifficulty });
+        this.where(`difficulty = $${this.params.length + 1}`, validatedDifficulty);
       }
-      
-      this.whereMultipleWithIndex(filters, 1);
       
       const { sql: baseSql, params: baseParams } = this.build();
       this.sql = baseSql;
