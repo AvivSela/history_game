@@ -7,7 +7,28 @@
 import { vi } from 'vitest';
 import { apiMock } from '../__mocks__/api.js';
 
+// Track if game state has been saved for hasSavedGameState mock
+let gameStateSaved = false;
+
 export const setupCommonMocks = () => {
+  // Mock localStorage for tests
+  const localStorageMock = {
+    getItem: vi.fn().mockReturnValue(null),
+    setItem: vi.fn().mockImplementation(() => {}),
+    removeItem: vi.fn().mockImplementation(() => {}),
+    clear: vi.fn().mockImplementation(() => {}),
+  };
+
+  Object.defineProperty(global, 'localStorage', {
+    value: localStorageMock,
+    writable: true,
+  });
+
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    writable: true,
+  });
+
   vi.mock('../utils/api', () => ({
     gameAPI: apiMock.gameAPI,
     extractData: apiMock.extractData,
@@ -21,10 +42,16 @@ export const setupCommonMocks = () => {
   });
 
   vi.mock('../utils/statePersistence', () => ({
-    saveGameStateToStorage: vi.fn().mockReturnValue(true),
+    saveGameStateToStorage: vi.fn().mockImplementation(() => {
+      gameStateSaved = true;
+      return true;
+    }),
     loadGameStateFromStorage: vi.fn().mockReturnValue(null),
-    clearGameStateFromStorage: vi.fn().mockReturnValue(true),
-    hasSavedGameState: vi.fn().mockReturnValue(false),
+    clearGameStateFromStorage: vi.fn().mockImplementation(() => {
+      gameStateSaved = false;
+      return true;
+    }),
+    hasSavedGameState: vi.fn().mockImplementation(() => gameStateSaved),
     getStorageInfo: vi
       .fn()
       .mockReturnValue({ available: true, type: 'localStorage' }),
@@ -35,6 +62,8 @@ export const setupCommonMocks = () => {
 export const resetAllMocks = () => {
   vi.clearAllMocks();
   apiMock.reset();
+  // Reset the game state saved flag
+  gameStateSaved = false;
 };
 
 export const createMockGameState = (overrides = {}) => {

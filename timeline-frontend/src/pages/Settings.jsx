@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SettingsProvider } from '../contexts/SettingsContext';
 import { useSettingsEnhanced } from '../hooks/useSettings';
 import SettingsSection from '../components/settings/SettingsSection';
-import DifficultySelector from '../components/settings/DifficultySelector';
+import DifficultyRangeSlider from '../components/settings/DifficultyRangeSlider';
 import CardCountSlider from '../components/settings/CardCountSlider';
 import CategorySelector from '../components/settings/CategorySelector';
 import { DIFFICULTY_LEVELS } from '../constants/gameConstants';
@@ -228,10 +228,10 @@ const SettingsContent = () => {
           {/* Game Settings Section */}
           <SettingsSection title="🎮 Game Settings">
             <div className="settings-grid">
-              {/* Difficulty Selector */}
+              {/* Difficulty Range Slider */}
               <div className="setting-card">
-                <DifficultySelector
-                  value={settings.difficulty || DIFFICULTY_LEVELS.MEDIUM}
+                <DifficultyRangeSlider
+                  value={settings.difficulty || { min: 1, max: 4 }}
                   onChange={value => handleSettingChange('difficulty', value)}
                   disabled={false}
                 />

@@ -28,7 +28,7 @@ class SettingsManager {
     this.storageKey = 'timeline-game-settings';
     this.defaultSettings = {
       // Game settings
-      difficulty: DIFFICULTY_LEVELS.MEDIUM,
+      difficulty: { min: 1, max: 4 }, // Now a range object for filtering
       cardCount: CARD_COUNTS.SINGLE,
       categories: [], // Empty array means all categories
 

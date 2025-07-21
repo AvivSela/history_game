@@ -52,7 +52,8 @@ const Game = () => {
   const handleInitializeGame = useCallback(async () => {
     try {
       performanceMonitor.startTimer('Game', 'initialization');
-      await initializeGame('single', 'medium');
+      // Pass medium difficulty as a range object for the new difficulty system
+      await initializeGame('single', { min: 1, max: 4 });
       performanceMonitor.endTimer('Game', 'initialization', {
         gameMode: 'single',
         cardCount: 4, // Fixed card count for single player mode

@@ -25,10 +25,13 @@ import { DIFFICULTY_LEVELS, CARD_COUNTS } from '../constants/gameConstants.js';
 // Validation schemas for different setting types
 const VALIDATION_SCHEMAS = {
   difficulty: {
-    type: 'string',
+    type: 'object',
     required: true,
-    allowedValues: Object.values(DIFFICULTY_LEVELS),
-    message: 'Difficulty must be one of: easy, medium, hard, expert',
+    properties: {
+      min: { type: 'number', min: 1, max: 4 },
+      max: { type: 'number', min: 1, max: 4 }
+    },
+    message: 'Difficulty must be an object with min and max properties (1-4)',
   },
   cardCount: {
     type: 'number',
@@ -220,25 +223,53 @@ const validateType = (value, expectedType) => {
 
 /**
  * Validate difficulty setting
- * @param {string} value - Difficulty value
+ * @param {Object} value - Difficulty range object { min: number, max: number }
  * @param {Object} result - Validation result object to update
  * @private
  */
 const validateDifficulty = (value, result) => {
-  const validDifficulties = Object.values(DIFFICULTY_LEVELS);
-
-  if (!validDifficulties.includes(value)) {
+  if (typeof value !== 'object' || value === null) {
     result.isValid = false;
-    result.errors.push(
-      `Invalid difficulty: ${value}. Must be one of: ${validDifficulties.join(', ')}`
-    );
+    result.errors.push('Difficulty must be an object with min and max properties');
+    return;
+  }
+
+  if (typeof value.min !== 'number' || typeof value.max !== 'number') {
+    result.isValid = false;
+    result.errors.push('Difficulty min and max must be numbers');
+    return;
+  }
+
+  if (value.min < 1 || value.min > 4) {
+    result.isValid = false;
+    result.errors.push('Difficulty min must be between 1 and 4');
+  }
+
+  if (value.max < 1 || value.max > 4) {
+    result.isValid = false;
+    result.errors.push('Difficulty max must be between 1 and 4');
+  }
+
+  if (value.min > value.max) {
+    result.isValid = false;
+    result.errors.push('Difficulty min cannot be greater than max');
   }
 
   // Add warnings for extreme difficulties
-  if (value === DIFFICULTY_LEVELS.EXPERT) {
+  if (value.max >= 4) {
     result.warnings.push(
       'Expert difficulty is very challenging and may not be suitable for all players'
     );
+  }
+
+  // Warn if range is too narrow
+  if (value.max - value.min === 0) {
+    result.warnings.push('Single difficulty level selected - consider expanding range for more variety');
+  }
+
+  // Warn if range is too wide
+  if (value.max - value.min >= 3) {
+    result.warnings.push('Very wide difficulty range may create inconsistent gameplay experience');
   }
 };
 

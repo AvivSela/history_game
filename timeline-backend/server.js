@@ -179,7 +179,16 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   const countParam = req.params.count;
   const count = parseInt(countParam, 10);
   
-  logger.info(`🎲 Fetching ${count} random events...`);
+  // Extract filtering parameters from query string
+  const categories = req.query.categories ? req.query.categories.split(',') : [];
+  const difficultyMin = req.query.difficulty_min ? parseInt(req.query.difficulty_min, 10) : null;
+  const difficultyMax = req.query.difficulty_max ? parseInt(req.query.difficulty_max, 10) : null;
+  
+  logger.info(`🎲 Fetching ${count} random events with filters...`, {
+    categories,
+    difficultyMin,
+    difficultyMax
+  });
   
   // Handle invalid or negative counts
   if (isNaN(count) || count < 1) {
@@ -190,22 +199,35 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   }
   
   try {
+    // Build options object for filtering
+    const options = {};
+    if (categories.length > 0) {
+      options.category = categories[0]; // For now, use first category (backend supports single category)
+    }
+    if (difficultyMin !== null && !isNaN(difficultyMin)) {
+      options.difficulty_min = difficultyMin;
+    }
+    if (difficultyMax !== null && !isNaN(difficultyMax)) {
+      options.difficulty_max = difficultyMax;
+    }
+    
     // Get total count to validate request
-    const totalCount = await dbUtils.getCardCount();
+    const totalCount = await dbUtils.getCardCount(options);
     
     if (count > totalCount) {
       return res.status(400).json({
         success: false,
-        error: `Requested ${count} events but only ${totalCount} available`
+        error: `Requested ${count} events but only ${totalCount} available with current filters`
       });
     }
     
-    const selectedEvents = await dbUtils.getRandomCards(count);
+    const selectedEvents = await dbUtils.getRandomCards(count, options);
     
     res.json({
       success: true,
       count: selectedEvents.length,
       requested: count,
+      filters: { categories, difficultyMin, difficultyMax },
       data: selectedEvents
     });
   } catch (error) {
