@@ -231,6 +231,7 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
       success: true,
       count: selectedEvents.length,
       requested: count,
+      categories: categories.length > 0 ? categories : null,
       filters: { categories, difficultyMin, difficultyMax },
       data: selectedEvents
     });
