@@ -10,6 +10,7 @@ A historical card game where players place events in chronological order on a ti
 ![Yarn](https://img.shields.io/badge/yarn-%3E%3D1.22.0-blue.svg)
 ![React](https://img.shields.io/badge/react-18-blue.svg)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-15+-blue.svg)
+![GitHub Actions](https://img.shields.io/github/actions/workflow/status/AvivSela/history_game/test.yml?branch=master)
 
 ## 🎮 Game Overview
 
