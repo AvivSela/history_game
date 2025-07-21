@@ -4,7 +4,7 @@ A historical card game where players place events in chronological order on a ti
 
 ## 📊 Project Status
 
-![Tests](https://github.com/username/timeline-game-project/workflows/Tests/badge.svg)
+![Tests](https://github.com/AvivSela/history_game/workflows/Tests/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen.svg)
 ![Yarn](https://img.shields.io/badge/yarn-%3E%3D1.22.0-blue.svg)
@@ -34,8 +34,8 @@ Players receive cards with historical events and must place them in the correct 
 
 ```bash
 # Clone and run in 30 seconds
-git clone <repository-url>
-cd timeline-game-project
+git clone https://github.com/AvivSela/history_game.git
+cd history_game
 yarn install
 yarn dev
 # Open http://localhost:5173
@@ -86,8 +86,8 @@ timeline-game-project/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd timeline-game-project
+   git clone https://github.com/AvivSela/history_game.git
+   cd history_game
    ```
 
 2. **Install all dependencies**
