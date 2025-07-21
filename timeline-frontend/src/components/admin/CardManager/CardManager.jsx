@@ -67,10 +67,10 @@ const CardManager = () => {
       const response = await gameAPI.getAdminCards(params.toString());
       const data = response.data;
 
-      setCards(data.cards);
+      setCards(data.data.cards);
       setPagination(prev => ({
         ...prev,
-        total: data.pagination.total
+        total: data.data.pagination.total
       }));
     } catch (err) {
       setError('Failed to load cards: ' + err.message);
