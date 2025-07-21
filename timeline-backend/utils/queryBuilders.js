@@ -534,7 +534,7 @@ class CardQueryBuilder extends QueryBuilder {
         filters.push({ condition: 'category = $1', value: validatedCategory });
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
-        const validatedDifficulty = ValidationUtils.validateNumber(options.difficulty, 'difficulty', 1, 5);
+        const validatedDifficulty = ValidationUtils.validateNumber(options.difficulty, 'difficulty', 0, 5);
         filters.push({ condition: 'difficulty = $2', value: validatedDifficulty });
       }
       

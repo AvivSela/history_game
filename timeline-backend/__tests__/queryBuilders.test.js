@@ -402,6 +402,24 @@ describe('CardQueryBuilder', () => {
       expect(sql).toBe('SELECT COUNT(*) FROM cards WHERE category = $1 AND difficulty = $2');
       expect(params).toEqual(['History', 3]);
     });
+
+    it('should handle difficulty 0 consistently between select and count', () => {
+      // Both methods should accept difficulty 0
+      const selectResult = cardQueryBuilder.select({ difficulty: 0 });
+      const countResult = cardQueryBuilder.count({ difficulty: 0 });
+      
+      expect(selectResult.params).toContain(0);
+      expect(countResult.params).toContain(0);
+    });
+
+    it('should reject invalid difficulty values consistently', () => {
+      // Both methods should reject the same invalid values
+      expect(() => cardQueryBuilder.select({ difficulty: -1 })).toThrow(ValidationError);
+      expect(() => cardQueryBuilder.count({ difficulty: -1 })).toThrow(ValidationError);
+      
+      expect(() => cardQueryBuilder.select({ difficulty: 6 })).toThrow(ValidationError);
+      expect(() => cardQueryBuilder.count({ difficulty: 6 })).toThrow(ValidationError);
+    });
   });
 
   describe('selectCategories', () => {
