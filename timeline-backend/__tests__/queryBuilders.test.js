@@ -256,7 +256,7 @@ describe('CardQueryBuilder', () => {
     it('should add category filter', () => {
       const { sql, params } = cardQueryBuilder.select({ category: 'History' });
       
-      expect(sql).toBe('SELECT * FROM cards WHERE category = $1 ORDER BY date_occurred ASC');
+      expect(sql).toBe('SELECT * FROM cards WHERE category ILIKE $1 ORDER BY date_occurred ASC');
       expect(params).toEqual(['History']);
     });
 
@@ -273,7 +273,7 @@ describe('CardQueryBuilder', () => {
         difficulty: 3 
       });
       
-      expect(sql).toBe('SELECT * FROM cards WHERE category = $1 AND difficulty = $2 ORDER BY date_occurred ASC');
+      expect(sql).toBe('SELECT * FROM cards WHERE category ILIKE $1 AND difficulty = $2 ORDER BY date_occurred ASC');
       expect(params).toEqual(['History', 3]);
     });
 
@@ -313,7 +313,7 @@ describe('CardQueryBuilder', () => {
         offset: 20
       });
       
-      expect(sql).toBe('SELECT * FROM cards WHERE category = $1 ORDER BY RANDOM() LIMIT $2 OFFSET $3');
+      expect(sql).toBe('SELECT * FROM cards WHERE category ILIKE $1 ORDER BY RANDOM() LIMIT $2 OFFSET $3');
       expect(params).toEqual(['History', 10, 20]);
     });
 
@@ -327,6 +327,8 @@ describe('CardQueryBuilder', () => {
       expect(sql).toBe('SELECT * FROM cards ORDER BY date_occurred ASC LIMIT $1');
       expect(params).toEqual([10]);
     });
+
+
   });
 
   describe('Input validation', () => {
@@ -399,7 +401,7 @@ describe('CardQueryBuilder', () => {
         difficulty: 3
       });
       
-      expect(sql).toBe('SELECT COUNT(*) FROM cards WHERE category = $1 AND difficulty = $2');
+      expect(sql).toBe('SELECT COUNT(*) FROM cards WHERE category ILIKE $1 AND difficulty = $2');
       expect(params).toEqual(['History', 3]);
     });
 
@@ -420,6 +422,8 @@ describe('CardQueryBuilder', () => {
       expect(() => cardQueryBuilder.select({ difficulty: 6 })).toThrow(ValidationError);
       expect(() => cardQueryBuilder.count({ difficulty: 6 })).toThrow(ValidationError);
     });
+
+
   });
 
   describe('selectCategories', () => {
@@ -608,7 +612,7 @@ describe('Integration scenarios', () => {
         random: false
       });
       
-      expect(sql).toBe('SELECT * FROM cards WHERE category = $1 AND difficulty = $2 ORDER BY date_occurred ASC LIMIT $3 OFFSET $4');
+      expect(sql).toBe('SELECT * FROM cards WHERE category ILIKE $1 AND difficulty = $2 ORDER BY date_occurred ASC LIMIT $3 OFFSET $4');
       expect(params).toEqual(['History', 3, 10, 20]);
     });
 

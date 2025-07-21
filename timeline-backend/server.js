@@ -180,7 +180,11 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   const count = parseInt(countParam, 10);
   
   // Extract filtering parameters from query string
-  const categories = req.query.categories ? req.query.categories.split(',') : [];
+  const categoriesParam = req.query.categories;
+  let categories = [];
+  if (categoriesParam) {
+    categories = categoriesParam.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0);
+  }
   const difficultyMin = req.query.difficulty_min ? parseInt(req.query.difficulty_min, 10) : null;
   const difficultyMax = req.query.difficulty_max ? parseInt(req.query.difficulty_max, 10) : null;
   
@@ -202,7 +206,7 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
     // Build options object for filtering
     const options = {};
     if (categories.length > 0) {
-      options.category = categories[0]; // For now, use first category (backend supports single category)
+      options.categories = categories;
     }
     if (difficultyMin !== null && !isNaN(difficultyMin)) {
       options.difficulty_min = difficultyMin;

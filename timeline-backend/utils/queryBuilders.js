@@ -388,8 +388,17 @@ class CardQueryBuilder extends QueryBuilder {
       this.logger.debug('Building card SELECT query', { options });
       
       // Validate options
-      if (options.category !== undefined && options.category !== null) {
-        options.category = ValidationUtils.validateString(options.category, 'category');
+      // Handle both singular 'category' and plural 'categories' for consistency
+      let categoryFilter = options.category !== undefined ? options.category : options.categories;
+      if (categoryFilter !== undefined && categoryFilter !== null) {
+        if (Array.isArray(categoryFilter)) {
+          // Validate each category in the array
+          categoryFilter = categoryFilter.map(cat => 
+            ValidationUtils.validateString(cat, 'category')
+          );
+        } else {
+          categoryFilter = ValidationUtils.validateString(categoryFilter, 'category');
+        }
       }
       
       if (options.difficulty !== undefined && options.difficulty !== null) {
@@ -418,12 +427,19 @@ class CardQueryBuilder extends QueryBuilder {
 
       this.sql = `SELECT * FROM ${this.baseTable}`;
       
-      const filters = [];
-      if (options.category) {
-        filters.push({ condition: 'category = $1', value: options.category });
+      if (categoryFilter) {
+        if (Array.isArray(categoryFilter) && categoryFilter.length > 0) {
+          // Handle multiple categories with case-insensitive comparison
+          const conditions = categoryFilter.map((_, index) => `category ILIKE $${this.params.length + index + 1}`);
+          this.conditions.push(`(${conditions.join(' OR ')})`);
+          this.params.push(...categoryFilter);
+        } else if (typeof categoryFilter === 'string') {
+          // Handle single category with case-insensitive comparison
+          this.where(`category ILIKE $${this.params.length + 1}`, categoryFilter);
+        }
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
-        filters.push({ condition: 'difficulty = $1', value: options.difficulty });
+        this.where(`difficulty = $${this.params.length + 1}`, options.difficulty);
       }
       if (options.difficulty_min !== null && options.difficulty_min !== undefined) {
         filters.push({ condition: 'difficulty >= $1', value: options.difficulty_min });
@@ -431,8 +447,6 @@ class CardQueryBuilder extends QueryBuilder {
       if (options.difficulty_max !== null && options.difficulty_max !== undefined) {
         filters.push({ condition: 'difficulty <= $1', value: options.difficulty_max });
       }
-      
-      this.whereMultipleWithIndex(filters, 1);
       
       const { sql: baseSql, params: baseParams } = this.build();
       this.sql = baseSql;
@@ -544,14 +558,28 @@ class CardQueryBuilder extends QueryBuilder {
       
       this.sql = `SELECT COUNT(*) FROM ${this.baseTable}`;
       
-      const filters = [];
-      if (options.category) {
-        const validatedCategory = ValidationUtils.validateString(options.category, 'category');
-        filters.push({ condition: 'category = $1', value: validatedCategory });
+      // Handle both singular 'category' and plural 'categories' for consistency
+      const categoryFilter = options.category !== undefined ? options.category : options.categories;
+      
+      if (categoryFilter) {
+        if (Array.isArray(categoryFilter)) {
+          // Validate each category in the array
+          const validatedCategories = categoryFilter.map(cat => 
+            ValidationUtils.validateString(cat, 'category')
+          );
+          // Handle multiple categories with case-insensitive comparison
+          const conditions = validatedCategories.map((_, index) => `category ILIKE $${this.params.length + index + 1}`);
+          this.conditions.push(`(${conditions.join(' OR ')})`);
+          this.params.push(...validatedCategories);
+        } else {
+          // Handle single category with case-insensitive comparison
+          const validatedCategory = ValidationUtils.validateString(categoryFilter, 'category');
+          this.where(`category ILIKE $${this.params.length + 1}`, validatedCategory);
+        }
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
         const validatedDifficulty = ValidationUtils.validateNumber(options.difficulty, 'difficulty', 0, 5);
-        filters.push({ condition: 'difficulty = $2', value: validatedDifficulty });
+        this.where(`difficulty = $${this.params.length + 1}`, validatedDifficulty);
       }
       if (options.difficulty_min !== null && options.difficulty_min !== undefined) {
         const validatedMin = ValidationUtils.validateNumber(options.difficulty_min, 'difficulty_min', 1, 5);
@@ -561,8 +589,6 @@ class CardQueryBuilder extends QueryBuilder {
         const validatedMax = ValidationUtils.validateNumber(options.difficulty_max, 'difficulty_max', 1, 5);
         filters.push({ condition: 'difficulty <= $2', value: validatedMax });
       }
-      
-      this.whereMultipleWithIndex(filters, 1);
       
       const { sql: baseSql, params: baseParams } = this.build();
       this.sql = baseSql;

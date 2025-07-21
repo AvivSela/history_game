@@ -82,11 +82,28 @@ async function getRandomCards(count, options = {}) {
   try {
     logger.debug('Getting random cards', { count, options });
     
+    // Validate count parameter
+    if (typeof count !== 'number' || isNaN(count)) {
+      throw new ValidationError(
+        `count must be a valid number, got ${typeof count}`,
+        'count',
+        count
+      );
+    }
+    if (count < 1) {
+      throw new ValidationError(
+        `limit must be at least 1, got ${count}`,
+        'count',
+        count
+      );
+    }
+    
+    // Use CardQueryBuilder for consistency with other functions
     const queryBuilder = new CardQueryBuilder();
     const { sql, params } = queryBuilder.select({
       ...options,
-      limit: count,
-      random: true
+      random: true,
+      limit: count
     });
     
     const result = await query(sql, params);
