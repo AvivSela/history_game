@@ -23,6 +23,28 @@
   margin: 0;
   color: var(--text-light);
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.settings-header p::after {
+  content: '💾';
+  font-size: 16px;
+  opacity: 0.7;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 .settings-content {
@@ -278,13 +300,93 @@
 /* Action Buttons */
 .settings-actions {
   display: flex;
-  gap: 16px;
   justify-content: center;
-  flex-wrap: wrap;
   background: var(--card-background);
-  padding: 24px;
+  padding: 32px;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.settings-actions::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Reset Button Styles */
+.btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-reset::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-reset:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(238, 90, 82, 0.4);
+  background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+}
+
+.btn-reset:hover::before {
+  left: 100%;
+}
+
+.btn-reset:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(238, 90, 82, 0.3);
+}
+
+.btn-reset:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(238, 90, 82, 0.3), 0 4px 15px rgba(238, 90, 82, 0.3);
+}
+
+.btn-icon {
+  font-size: 18px;
+  animation: spin-slow 3s linear infinite;
+}
+
+.btn-text {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Help Section */
@@ -338,24 +440,69 @@
 /* Settings Status Messages */
 .settings-status {
   margin-top: 16px;
-  padding: 12px 16px;
-  border-radius: var(--border-radius);
-  font-size: 14px;
-  font-weight: 500;
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
   text-align: center;
-  animation: slideInDown 0.3s ease-out;
+  animation: slideInDown 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.settings-status::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.settings-status__icon {
+  font-size: 18px;
+  animation: bounceIn 0.6s ease-out;
+}
+
+.settings-status__message {
+  flex: 1;
+  line-height: 1.4;
 }
 
 .settings-status--success {
-  background: var(--success-color);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  border: 1px solid var(--success-color);
+  border: 2px solid #10b981;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.settings-status--reset-success {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  animation: slideInDown 0.4s ease-out, pulse-glow 2s ease-in-out infinite;
+}
+
+.settings-status--reset-success .settings-status__icon {
+  animation: spin-reset 1s ease-out, bounceIn 0.6s ease-out;
 }
 
 .settings-status--error {
-  background: var(--error-color);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  border: 1px solid var(--error-color);
+  border: 2px solid #ef4444;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
 }
 
 .settings-status--warning {
@@ -475,6 +622,15 @@
   min-width: 120px;
 }
 
+.modal-actions .btn-reset {
+  padding: 12px 20px;
+  font-size: 14px;
+}
+
+.modal-actions .btn-reset .btn-icon {
+  font-size: 16px;
+}
+
 /* Import Textarea */
 
 /* Button Styles */
@@ -541,6 +697,53 @@
   }
 }
 
+@keyframes spin-reset {
+  0% {
+    transform: rotate(0deg) scale(0.8);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Responsive Modal */
 @media (max-width: 768px) {
   .modal {
@@ -591,6 +794,17 @@
     padding: 6px 12px;
     font-size: 14px;
   }
+
+  .settings-status {
+    padding: 12px 14px;
+    font-size: 13px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .settings-status__icon {
+    font-size: 14px;
+  }
 }
 
 /* Responsive Design */
@@ -611,6 +825,16 @@
     font-size: 16px;
   }
 
+  .settings-status {
+    padding: 14px 16px;
+    font-size: 14px;
+    gap: 10px;
+  }
+
+  .settings-status__icon {
+    font-size: 16px;
+  }
+
   .settings-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -621,13 +845,12 @@
   }
 
   .settings-actions {
-    flex-direction: column;
-    align-items: center;
+    padding: 24px;
   }
 
-  .settings-actions .btn {
-    width: 100%;
-    max-width: 300px;
+  .btn-reset {
+    padding: 14px 20px;
+    font-size: 15px;
   }
 
   .preview-grid {
