@@ -1,7 +1,13 @@
 const { query, testConnection } = require('../config/database');
 const logger = require('./logger');
 const { transformCardData } = require('./dataTransform');
-const { CardQueryBuilder, StatisticsQueryBuilder } = require('./queryBuilders');
+const { 
+  CardQueryBuilder, 
+  StatisticsQueryBuilder,
+  QueryBuilderError,
+  InvalidQueryError,
+  ValidationError
+} = require('./queryBuilders');
 
 /**
  * Database utilities for Timeline Game
@@ -21,13 +27,44 @@ const { CardQueryBuilder, StatisticsQueryBuilder } = require('./queryBuilders');
  */
 async function getAllCards(options = {}) {
   try {
+    logger.debug('Getting all cards with options', { options });
+    
     const queryBuilder = new CardQueryBuilder();
     const { sql, params } = queryBuilder.select(options);
     
     const result = await query(sql, params);
-    return transformCardData(result.rows);
+    const transformedData = transformCardData(result.rows);
+    
+    logger.debug('Successfully retrieved all cards', {
+      count: transformedData.length,
+      options
+    });
+    
+    return transformedData;
   } catch (error) {
-    logger.error('❌ Error getting all cards:', error.message);
+    // Enhanced error logging with context
+    if (error instanceof ValidationError) {
+      logger.error('❌ Validation error getting all cards:', {
+        field: error.field,
+        value: error.value,
+        message: error.message,
+        options
+      });
+    } else if (error instanceof QueryBuilderError) {
+      logger.error('❌ Query builder error getting all cards:', {
+        message: error.message,
+        query: error.query,
+        params: error.params,
+        context: error.context,
+        options
+      });
+    } else {
+      logger.error('❌ Database error getting all cards:', {
+        message: error.message,
+        options,
+        stack: error.stack
+      });
+    }
     throw error;
   }
 }
@@ -43,6 +80,8 @@ async function getAllCards(options = {}) {
  */
 async function getRandomCards(count, options = {}) {
   try {
+    logger.debug('Getting random cards', { count, options });
+    
     const queryBuilder = new CardQueryBuilder();
     const { sql, params } = queryBuilder.select({
       ...options,
@@ -51,9 +90,42 @@ async function getRandomCards(count, options = {}) {
     });
     
     const result = await query(sql, params);
-    return transformCardData(result.rows);
+    const transformedData = transformCardData(result.rows);
+    
+    logger.debug('Successfully retrieved random cards', {
+      requested: count,
+      actual: transformedData.length,
+      options
+    });
+    
+    return transformedData;
   } catch (error) {
-    logger.error('❌ Error getting random cards:', error.message);
+    // Enhanced error logging with context
+    if (error instanceof ValidationError) {
+      logger.error('❌ Validation error getting random cards:', {
+        field: error.field,
+        value: error.value,
+        message: error.message,
+        count,
+        options
+      });
+    } else if (error instanceof QueryBuilderError) {
+      logger.error('❌ Query builder error getting random cards:', {
+        message: error.message,
+        query: error.query,
+        params: error.params,
+        context: error.context,
+        count,
+        options
+      });
+    } else {
+      logger.error('❌ Database error getting random cards:', {
+        message: error.message,
+        count,
+        options,
+        stack: error.stack
+      });
+    }
     throw error;
   }
 }
