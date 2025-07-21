@@ -1,12 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React from 'react';
 import { DIFFICULTY_LEVELS } from '../../constants/gameConstants.js';
 import './DifficultyRangeSlider.css';
 
 /**
- * DifficultyRangeSlider - Dual-handle slider for selecting difficulty range
+ * DifficultyRangeSlider - Checkbox-based difficulty selector with star representations
  *
- * This component provides a user-friendly way to select a range of difficulty levels
- * using a dual-handle slider. It allows filtering cards by minimum and maximum difficulty.
+ * This component provides a user-friendly way to select difficulty levels using checkboxes
+ * with star representations. Each difficulty level is represented by a checkbox with
+ * corresponding stars (1 star for Easy, 4 stars for Expert).
  *
  * @component
  * @example
@@ -21,11 +22,11 @@ import './DifficultyRangeSlider.css';
  * @param {Object} props - Component props
  * @param {Object} props.value - Current range value { min: number, max: number }
  * @param {Function} props.onChange - Change handler function
- * @param {boolean} [props.disabled=false] - Whether the slider is disabled
+ * @param {boolean} [props.disabled=false] - Whether the selector is disabled
  * @param {string} [props.className] - Additional CSS classes
  * @param {Object} props.rest - Additional props passed to the container element
  *
- * @returns {JSX.Element} The difficulty range slider component
+ * @returns {JSX.Element} The difficulty selector component
  */
 const DifficultyRangeSlider = ({
   value,
@@ -39,159 +40,88 @@ const DifficultyRangeSlider = ({
     typeof value.min === 'number' && typeof value.max === 'number' 
     ? value 
     : { min: 1, max: 4 };
-  const [isDragging, setIsDragging] = useState(null); // 'min' or 'max' or null
-  const [dragStartX, setDragStartX] = useState(0);
-  const [dragStartValue, setDragStartValue] = useState({ min: 1, max: 4 });
-  
-  const containerRef = useRef(null);
-  const trackRef = useRef(null);
 
   const difficultyOptions = [
-    { value: 1, label: 'Easy', icon: '😊', color: '#10b981', description: 'Simple events with clear dates' },
-    { value: 2, label: 'Medium', icon: '😐', color: '#f59e0b', description: 'Balanced challenge with moderate time pressure' },
-    { value: 3, label: 'Hard', icon: '😰', color: '#ef4444', description: 'Complex events requiring historical knowledge' },
-    { value: 4, label: 'Expert', icon: '😱', color: '#7c3aed', description: 'Very challenging events for history experts' },
+    { value: 1, label: 'Easy', icon: '😊', color: '#10b981', description: 'Simple events with clear dates', stars: 1 },
+    { value: 2, label: 'Medium', icon: '😐', color: '#f59e0b', description: 'Balanced challenge with moderate time pressure', stars: 2 },
+    { value: 3, label: 'Hard', icon: '😰', color: '#ef4444', description: 'Complex events requiring historical knowledge', stars: 3 },
+    { value: 4, label: 'Expert', icon: '😱', color: '#7c3aed', description: 'Very challenging events for history experts', stars: 4 },
   ];
 
-  const minDifficulty = 1;
-  const maxDifficulty = 4;
-
   /**
-   * Convert difficulty value to percentage position
-   * @param {number} difficulty - Difficulty value (1-4)
-   * @returns {number} Percentage position (0-100)
+   * Handle checkbox change for individual difficulty levels
+   * @param {number} difficultyValue - The difficulty value being toggled
    */
-  const valueToPercentage = useCallback((difficulty) => {
-    return ((difficulty - minDifficulty) / (maxDifficulty - minDifficulty)) * 100;
-  }, []);
-
-  /**
-   * Convert percentage position to difficulty value
-   * @param {number} percentage - Percentage position (0-100)
-   * @returns {number} Difficulty value (1-4)
-   */
-  const percentageToValue = useCallback((percentage) => {
-    const clampedPercentage = Math.max(0, Math.min(100, percentage));
-    return Math.round(
-      minDifficulty + (clampedPercentage / 100) * (maxDifficulty - minDifficulty)
-    );
-  }, []);
-
-  /**
-   * Get position from mouse/touch event
-   * @param {Event} event - Mouse or touch event
-   * @returns {number} Percentage position
-   */
-  const getPositionFromEvent = useCallback((event) => {
-    if (!trackRef.current) return 0;
-    
-    const rect = trackRef.current.getBoundingClientRect();
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-    const position = ((clientX - rect.left) / rect.width) * 100;
-    return Math.max(0, Math.min(100, position));
-  }, []);
-
-  /**
-   * Handle mouse/touch down events
-   * @param {Event} event - Mouse or touch event
-   * @param {string} handle - Which handle is being dragged ('min' or 'max')
-   */
-  const handleMouseDown = useCallback((event, handle) => {
+  const handleDifficultyToggle = (difficultyValue) => {
     if (disabled) return;
-    
-    event.preventDefault();
-    setIsDragging(handle);
-    setDragStartX(event.touches ? event.touches[0].clientX : event.clientX);
-    setDragStartValue({ ...safeValue });
-  }, [disabled, value]);
 
-  /**
-   * Handle mouse/touch move events
-   * @param {Event} event - Mouse or touch event
-   */
-  const handleMouseMove = useCallback((event) => {
-    if (!isDragging || disabled) return;
-
-    const position = getPositionFromEvent(event);
-    const newValue = percentageToValue(position);
-    
     let newRange = { ...safeValue };
-    
-    if (isDragging === 'min') {
-      newRange.min = Math.min(newValue, safeValue.max - 1);
-    } else if (isDragging === 'max') {
-      newRange.max = Math.max(newValue, safeValue.min + 1);
-    }
-    
-    if (newRange.min !== safeValue.min || newRange.max !== safeValue.max) {
-      onChange(newRange);
-    }
-  }, [isDragging, disabled, value, onChange, getPositionFromEvent, percentageToValue]);
 
-  /**
-   * Handle mouse/touch up events
-   */
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(null);
-  }, []);
-
-  /**
-   * Handle track click to set values
-   * @param {Event} event - Click event
-   */
-  const handleTrackClick = useCallback((event) => {
-    if (disabled) return;
-    
-    const position = getPositionFromEvent(event);
-    const newValue = percentageToValue(position);
-    
-    // Determine which handle to move based on which is closer
-    const minDistance = Math.abs(newValue - safeValue.min);
-    const maxDistance = Math.abs(newValue - safeValue.max);
-    
-    let newRange = { ...safeValue };
-    
-    if (minDistance <= maxDistance) {
-      // Move min handle
-      newRange.min = Math.min(newValue, safeValue.max - 1);
-    } else {
-      // Move max handle
-      newRange.max = Math.max(newValue, safeValue.min + 1);
-    }
-    
-    if (newRange.min !== safeValue.min || newRange.max !== safeValue.max) {
-      onChange(newRange);
-    }
-  }, [disabled, value, onChange, getPositionFromEvent, percentageToValue]);
-
-  // Add global event listeners
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.addEventListener('touchmove', handleMouseMove, { passive: false });
-      document.addEventListener('touchend', handleMouseUp);
+    // If this difficulty is currently in range, remove it
+    if (difficultyValue >= safeValue.min && difficultyValue <= safeValue.max) {
+      // If it's the only selected difficulty, don't allow deselection
+      if (safeValue.min === safeValue.max) {
+        return;
+      }
       
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.removeEventListener('touchmove', handleMouseMove);
-        document.removeEventListener('touchend', handleMouseUp);
-      };
+      // If it's the min value, increase min
+      if (difficultyValue === safeValue.min) {
+        newRange.min = safeValue.min + 1;
+      }
+      // If it's the max value, decrease max
+      else if (difficultyValue === safeValue.max) {
+        newRange.max = safeValue.max - 1;
+      }
+      // If it's in the middle, split the range
+      else {
+        // Create two separate ranges and choose the larger one
+        const range1 = { min: safeValue.min, max: difficultyValue - 1 };
+        const range2 = { min: difficultyValue + 1, max: safeValue.max };
+        
+        const size1 = range1.max - range1.min + 1;
+        const size2 = range2.max - range2.min + 1;
+        
+        newRange = size1 >= size2 ? range1 : range2;
+      }
+    } else {
+      // Add this difficulty to the range
+      newRange.min = Math.min(safeValue.min, difficultyValue);
+      newRange.max = Math.max(safeValue.max, difficultyValue);
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const minPercentage = valueToPercentage(safeValue.min);
-  const maxPercentage = valueToPercentage(safeValue.max);
+    onChange(newRange);
+  };
 
-  const containerClasses = [
-    'difficulty-range-slider',
-    disabled ? 'difficulty-range-slider--disabled' : '',
-    isDragging ? 'difficulty-range-slider--dragging' : '',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+  /**
+   * Check if a difficulty level is currently selected
+   * @param {number} difficultyValue - The difficulty value to check
+   * @returns {boolean} Whether the difficulty is selected
+   */
+  const isDifficultySelected = (difficultyValue) => {
+    return difficultyValue >= safeValue.min && difficultyValue <= safeValue.max;
+  };
+
+  /**
+   * Render stars for a difficulty level
+   * @param {number} starCount - Number of stars to render
+   * @param {boolean} isSelected - Whether the difficulty is selected
+   * @returns {JSX.Element} Star elements
+   */
+  const renderStars = (starCount, isSelected) => {
+    return (
+      <div className="difficulty-checkbox__stars">
+        {Array.from({ length: starCount }, (_, index) => (
+          <span
+            key={index}
+            className={`difficulty-checkbox__star ${isSelected ? 'difficulty-checkbox__star--selected' : ''}`}
+            aria-hidden="true"
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  };
 
   const getSelectedText = () => {
     if (safeValue.min === safeValue.max) {
@@ -217,8 +147,16 @@ const DifficultyRangeSlider = ({
     return `Cards from ${minDifficulty?.label} to ${maxDifficulty?.label} difficulty`;
   };
 
+  const containerClasses = [
+    'difficulty-range-slider',
+    disabled ? 'difficulty-range-slider--disabled' : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div ref={containerRef} className={containerClasses} {...rest}>
+    <div className={containerClasses} {...rest}>
       <div className="difficulty-range-slider__header">
         <h3 className="difficulty-range-slider__title">Difficulty Range</h3>
         <div className="difficulty-range-slider__selected">
@@ -231,92 +169,35 @@ const DifficultyRangeSlider = ({
         </div>
       </div>
 
-      <div className="difficulty-range-slider__track-container">
-        <div
-          ref={trackRef}
-          className="difficulty-range-slider__track"
-          onClick={handleTrackClick}
-        >
-          {/* Background gradient showing difficulty levels */}
-          <div className="difficulty-range-slider__track-background">
-            {difficultyOptions.map((option, index) => (
-              <div
-                key={option.value}
-                className="difficulty-range-slider__track-segment"
-                style={{
-                  backgroundColor: option.color,
-                  left: `${valueToPercentage(option.value)}%`,
-                  width: index === difficultyOptions.length - 1 
-                    ? `${100 - valueToPercentage(option.value)}%` 
-                    : `${valueToPercentage(option.value + 1) - valueToPercentage(option.value)}%`
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Selected range highlight */}
-          <div
-            className="difficulty-range-slider__range"
-            style={{
-              left: `${minPercentage}%`,
-              width: `${maxPercentage - minPercentage}%`,
-            }}
-          />
-
-          {/* Min handle */}
-          <div
-            className="difficulty-range-slider__handle difficulty-range-slider__handle--min"
-            style={{ left: `${minPercentage}%` }}
-            onMouseDown={(e) => handleMouseDown(e, 'min')}
-            onTouchStart={(e) => handleMouseDown(e, 'min')}
-            role="slider"
-            aria-label="Minimum difficulty"
-            aria-valuemin={minDifficulty}
-            aria-valuemax={maxDifficulty}
-            aria-valuenow={safeValue.min}
-            tabIndex={disabled ? -1 : 0}
-          >
-            <div className="difficulty-range-slider__handle-label">
-              {safeValue.min}
-            </div>
-          </div>
-
-          {/* Max handle */}
-          <div
-            className="difficulty-range-slider__handle difficulty-range-slider__handle--max"
-            style={{ left: `${maxPercentage}%` }}
-            onMouseDown={(e) => handleMouseDown(e, 'max')}
-            onTouchStart={(e) => handleMouseDown(e, 'max')}
-            role="slider"
-            aria-label="Maximum difficulty"
-            aria-valuemin={minDifficulty}
-            aria-valuemax={maxDifficulty}
-            aria-valuenow={safeValue.max}
-            tabIndex={disabled ? -1 : 0}
-          >
-            <div className="difficulty-range-slider__handle-label">
-              {safeValue.max}
-            </div>
-          </div>
-        </div>
-
-        {/* Difficulty level markers */}
-        <div className="difficulty-range-slider__markers">
-          {difficultyOptions.map((option) => (
-            <div
+      <div className="difficulty-checkbox__container">
+        {difficultyOptions.map((option) => {
+          const isSelected = isDifficultySelected(option.value);
+          const isDisabled = disabled || (safeValue.min === safeValue.max && isSelected);
+          
+          return (
+            <label
               key={option.value}
-              className="difficulty-range-slider__marker"
-              style={{ left: `${valueToPercentage(option.value)}%` }}
+              className={`difficulty-checkbox__label ${isSelected ? 'difficulty-checkbox__label--selected' : ''} ${isDisabled ? 'difficulty-checkbox__label--disabled' : ''}`}
             >
-              <span className="difficulty-range-slider__marker-icon">
-                {option.icon}
-              </span>
-              <span className="difficulty-range-slider__marker-label">
-                {option.label}
-              </span>
-            </div>
-          ))}
-        </div>
+              <input
+                type="checkbox"
+                className="difficulty-checkbox__input"
+                checked={isSelected}
+                onChange={() => handleDifficultyToggle(option.value)}
+                disabled={isDisabled}
+                aria-label={`Select ${option.label} difficulty`}
+              />
+              <div className="difficulty-checkbox__content">
+                <div className="difficulty-checkbox__header">
+                  <span className="difficulty-checkbox__icon">{option.icon}</span>
+                  <span className="difficulty-checkbox__label-text">{option.label}</span>
+                </div>
+                {renderStars(option.stars, isSelected)}
+                <p className="difficulty-checkbox__description">{option.description}</p>
+              </div>
+            </label>
+          );
+        })}
       </div>
 
       {/* Quick preset buttons */}

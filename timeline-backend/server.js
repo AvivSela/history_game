@@ -185,11 +185,21 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   if (categoriesParam) {
     categories = categoriesParam.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0);
   }
+  
+  // New difficulties parameter (comma-separated values)
+  const difficultiesParam = req.query.difficulties;
+  let difficulties = [];
+  if (difficultiesParam) {
+    difficulties = difficultiesParam.split(',').map(d => parseInt(d.trim(), 10)).filter(d => !isNaN(d) && d >= 1 && d <= 4);
+  }
+  
+  // Legacy support for difficulty_min and difficulty_max (for backward compatibility)
   const difficultyMin = req.query.difficulty_min ? parseInt(req.query.difficulty_min, 10) : null;
   const difficultyMax = req.query.difficulty_max ? parseInt(req.query.difficulty_max, 10) : null;
   
   logger.info(`🎲 Fetching ${count} random events with filters...`, {
     categories,
+    difficulties,
     difficultyMin,
     difficultyMax
   });
@@ -208,11 +218,17 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
     if (categories.length > 0) {
       options.categories = categories;
     }
-    if (difficultyMin !== null && !isNaN(difficultyMin)) {
-      options.difficulty_min = difficultyMin;
-    }
-    if (difficultyMax !== null && !isNaN(difficultyMax)) {
-      options.difficulty_max = difficultyMax;
+    
+    // Use new difficulties parameter if provided, otherwise fall back to legacy min/max
+    if (difficulties.length > 0) {
+      options.difficulties = difficulties;
+    } else {
+      if (difficultyMin !== null && !isNaN(difficultyMin)) {
+        options.difficulty_min = difficultyMin;
+      }
+      if (difficultyMax !== null && !isNaN(difficultyMax)) {
+        options.difficulty_max = difficultyMax;
+      }
     }
     
     // Get total count to validate request
@@ -232,7 +248,8 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
       count: selectedEvents.length,
       requested: count,
       categories: categories.length > 0 ? categories : null,
-      filters: { categories, difficultyMin, difficultyMax },
+      difficulties: difficulties.length > 0 ? difficulties : null,
+      filters: { categories, difficulties, difficultyMin, difficultyMax },
       data: selectedEvents
     });
   } catch (error) {

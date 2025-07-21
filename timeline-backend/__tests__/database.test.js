@@ -140,16 +140,19 @@ describe('Database Integration', () => {
         await getAllCards({ difficulty: -1 });
         expect(true).toBe(false); // Should not reach here
       } catch (error) {
-        expect(error.message).toContain('difficulty must be at least 0, got -1');
+        expect(error.message).toContain('difficulty must be at least 1, got -1');
         expect(error.name).toBe('ValidationError');
       }
     });
 
     it('should handle zero difficulty level', async () => {
-      const cards = await getAllCards({ difficulty: 0 });
-      expect(Array.isArray(cards)).toBe(true);
-      // PostgreSQL treats 0 as a valid value, so we check it returns an array
-      expect(cards.length).toBeGreaterThanOrEqual(0);
+      try {
+        await getAllCards({ difficulty: 0 });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('difficulty must be at least 1, got 0');
+        expect(error.name).toBe('ValidationError');
+      }
     });
 
     it('should handle invalid count for random cards', async () => {

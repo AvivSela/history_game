@@ -94,8 +94,12 @@ export const gameAPI = {
       params.append('categories', categories.join(','));
     }
     if (difficultyRange && typeof difficultyRange === 'object') {
-      params.append('difficulty_min', difficultyRange.min.toString());
-      params.append('difficulty_max', difficultyRange.max.toString());
+      // Convert range to array of difficulties
+      const difficulties = [];
+      for (let i = difficultyRange.min; i <= difficultyRange.max; i++) {
+        difficulties.push(i);
+      }
+      params.append('difficulties', difficulties.join(','));
     }
     const queryString = params.toString();
     const url = `${API.ENDPOINTS.EVENTS}/random/${count}${queryString ? `?${queryString}` : ''}`;
