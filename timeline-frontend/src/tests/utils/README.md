@@ -400,7 +400,7 @@ The utilities are designed to be extensible:
 
 - `../../TESTING_GUIDELINES.md` - General testing guidelines
 - `../../TEST_QUALITY_CHECKLIST.md` - Test quality standards
-- `../../TECHNICAL_DEBT.md` - Technical debt tracking
+- `../../../docs/technical/debt/technical-debt.md` - Technical debt tracking
 
 ### Migration Support
 

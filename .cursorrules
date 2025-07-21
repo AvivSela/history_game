@@ -65,7 +65,7 @@ This is a React-based historical card game with Node.js backend. Use Yarn for pa
 ## 🔧 Technical Debt Management (MANDATORY)
 
 ### Debt Tracking
-- **ALWAYS update TECHNICAL_DEBT.md** when adding new technical debt
+- **ALWAYS update docs/technical/debt/technical-debt.md** when adding new technical debt
 - **Follow debt categorization**: High (Critical), Medium (Important), Low (Nice to Have)
 - **Use established debt format**: ID, Title, Description, Impact, Effort, Created, Status
 - **Check for debt during code reviews** and feature completion
@@ -217,7 +217,7 @@ This is a React-based historical card game with Node.js backend. Use Yarn for pa
 ## 📞 Resources
 
 ### Key Files to Reference
-- `TECHNICAL_DEBT.md` - Technical debt tracking
+- `docs/technical/debt/technical-debt.md` - Technical debt tracking
 - `src/constants/gameConstants.js` - Game constants and configuration
 - `src/utils/settingsManager.js` - Settings management
 - `src/tests/utils/` - Test utilities and helpers

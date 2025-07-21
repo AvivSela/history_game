@@ -5,24 +5,24 @@
 ### 1. View Current Technical Debt
 ```bash
 # View the markdown file directly
-cat TECHNICAL_DEBT.md
+cat docs/technical/debt/technical-debt.md
 ```
 
 ### 2. Add New Debt Item
 ```bash
-# Edit TECHNICAL_DEBT.md directly
+# Edit docs/technical/debt/technical-debt.md directly
 # Add a new entry following the existing format
 ```
 
 ### 3. Update Debt Status
 ```bash
-# Edit TECHNICAL_DEBT.md directly
+# Edit docs/technical/debt/technical-debt.md directly
 # Update the status field for the relevant item
 ```
 
 ### 4. Generate Report
 ```bash
-# Review TECHNICAL_DEBT.md manually
+# Review docs/technical/debt/technical-debt.md manually
 # Use the summary section at the top of the file
 ```
 
@@ -195,7 +195,7 @@ yarn build --analyze
 ## Resources
 
 ### Documentation
-- [TECHNICAL_DEBT.md](../TECHNICAL_DEBT.md) - Main tracking file
+- [technical-debt.md](./technical-debt.md) - Main tracking file
 
 ### External Resources
 - [Martin Fowler on Technical Debt](https://martinfowler.com/bliki/TechnicalDebt.html)

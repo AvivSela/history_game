@@ -111,7 +111,7 @@ This document outlines the comprehensive testing approach used to validate the l
 
 ### Task 6: Documentation Update (15 minutes)
 
-- **File**: `TECHNICAL_DEBT.md`
+- **File**: `docs/technical/debt/technical-debt.md`
 - **Updates**: Added FE-022 technical debt resolution
 - **Documentation**: Created this testing documentation
 
