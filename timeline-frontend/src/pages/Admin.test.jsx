@@ -54,8 +54,11 @@ describe('Admin Page', () => {
     // Mock successful API response
     gameAPI.getAdminCards.mockResolvedValue({
       data: {
-        cards: mockCards,
-        pagination: mockPagination
+        success: true,
+        data: {
+          cards: mockCards,
+          pagination: mockPagination
+        }
       }
     });
   });
@@ -167,8 +170,11 @@ describe('Admin Page', () => {
     test('shows empty state when no cards are found', async () => {
       gameAPI.getAdminCards.mockResolvedValue({
         data: {
-          cards: [],
-          pagination: { total: 0, limit: 20, offset: 0, hasMore: false }
+          success: true,
+          data: {
+            cards: [],
+            pagination: { total: 0, limit: 20, offset: 0, hasMore: false }
+          }
         }
       });
       
