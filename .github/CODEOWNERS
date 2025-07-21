@@ -1,0 +1,19 @@
+# Global owners
+* @AvivSela
+
+# Frontend specific
+timeline-frontend/ @AvivSela
+
+# Backend specific  
+timeline-backend/ @AvivSela
+
+# Documentation
+docs/ @AvivSela
+
+# GitHub workflows
+.github/ @AvivSela
+
+# Root configuration files
+package.json @AvivSela
+README.md @AvivSela
+.cursorrules @AvivSela 
