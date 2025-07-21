@@ -21,13 +21,11 @@ beforeAll(async () => {
   // Import the server dynamically to avoid port conflicts
   const serverModule = require('../server');
   app = serverModule.app;
-  server = serverModule.server;
+  server = null; // Server is not started in test mode
 });
 
 afterAll(async () => {
-  if (server) {
-    await new Promise(resolve => server.close(resolve));
-  }
+  // No server to close in test mode
 });
 
 describe('API Endpoints', () => {
@@ -166,6 +164,57 @@ describe('API Endpoints', () => {
       // In a real scenario, we'd mock the random function
       expect(response1.body.data.length).toBe(count);
       expect(response2.body.data.length).toBe(count);
+    });
+
+    it('should filter events by single category', async () => {
+      const count = 3; // Request fewer events to ensure we get only History
+      const category = 'History';
+      const response = await request(app)
+        .get(`/api/events/random/${count}?categories=${category}`)
+        .expect(200);
+
+      expectSuccessProperty(response);
+      expectDataProperty(response);
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBeLessThanOrEqual(count);
+      expect(response.body.categories).toEqual([category]);
+      
+      // All returned events should be in the specified category
+      response.body.data.forEach(event => {
+        expect(event.category).toBe(category);
+      });
+    });
+
+    it('should filter events by multiple categories', async () => {
+      const count = 5;
+      const categories = ['History', 'Technology'];
+      const response = await request(app)
+        .get(`/api/events/random/${count}?categories=${categories.join(',')}`)
+        .expect(200);
+
+      expectSuccessProperty(response);
+      expectDataProperty(response);
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBeLessThanOrEqual(count);
+      expect(response.body.categories).toEqual(categories);
+      
+      // All returned events should be in one of the specified categories
+      response.body.data.forEach(event => {
+        expect(categories).toContain(event.category);
+      });
+    });
+
+    it('should handle empty categories parameter', async () => {
+      const count = 3;
+      const response = await request(app)
+        .get(`/api/events/random/${count}?categories=`)
+        .expect(200);
+
+      expectSuccessProperty(response);
+      expectDataProperty(response);
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBe(count);
+      expect(response.body.categories).toBeNull();
     });
   });
 

@@ -177,6 +177,48 @@ describe('Database Integration', () => {
       expect(Array.isArray(cards)).toBe(true);
       expect(cards.length).toBeLessThanOrEqual(1000);
     });
+
+    it('should handle categories parameter in getCardCount (fix for parameter mismatch bug)', async () => {
+      // Test that getCardCount properly handles the 'categories' parameter
+      // This was a bug where server.js passed { categories } but CardQueryBuilder expected { category }
+      const totalCount = await getCardCount();
+      const historyCount = await getCardCount({ categories: ['History'] });
+      const politicsCount = await getCardCount({ categories: ['Politics'] });
+      const bothCount = await getCardCount({ categories: ['History', 'Politics'] });
+      
+      expect(typeof totalCount).toBe('number');
+      expect(typeof historyCount).toBe('number');
+      expect(typeof politicsCount).toBe('number');
+      expect(typeof bothCount).toBe('number');
+      
+      // The counts should be logical
+      expect(historyCount).toBeGreaterThanOrEqual(0);
+      expect(politicsCount).toBeGreaterThanOrEqual(0);
+      expect(bothCount).toBeGreaterThanOrEqual(historyCount);
+      expect(bothCount).toBeGreaterThanOrEqual(politicsCount);
+      expect(totalCount).toBeGreaterThanOrEqual(bothCount);
+    });
+
+    it('should use consistent category filtering between getRandomCards and getCardCount', async () => {
+      // Test that both functions use the same filtering logic to prevent count mismatches
+      const categories = ['History', 'Politics'];
+      
+      // Get count for these categories
+      const count = await getCardCount({ categories });
+      
+      // Get random cards for these categories
+      const cards = await getRandomCards(count, { categories });
+      
+      // The number of cards returned should match the count
+      expect(cards.length).toBe(count);
+      
+      // All returned cards should be from the specified categories
+      cards.forEach(card => {
+        expect(categories.some(cat => 
+          card.category.toLowerCase() === cat.toLowerCase()
+        )).toBe(true);
+      });
+    });
   });
 
   describe('Edge Cases', () => {
