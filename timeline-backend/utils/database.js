@@ -82,6 +82,22 @@ async function getRandomCards(count, options = {}) {
   try {
     logger.debug('Getting random cards', { count, options });
     
+    // Validate count parameter
+    if (typeof count !== 'number' || isNaN(count)) {
+      throw new ValidationError(
+        `count must be a valid number, got ${typeof count}`,
+        'count',
+        count
+      );
+    }
+    if (count < 1) {
+      throw new ValidationError(
+        `limit must be at least 1, got ${count}`,
+        'count',
+        count
+      );
+    }
+    
     let sql, params;
     
     if (options.categories && options.categories.length > 0) {
