@@ -116,21 +116,33 @@ describe('Database Integration', () => {
     });
 
     it('should handle empty string parameters', async () => {
-      const cards = await getAllCards({ category: '' });
-      expect(Array.isArray(cards)).toBe(true);
-      expect(cards.length).toBeGreaterThan(0);
+      try {
+        await getAllCards({ category: '' });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('category cannot be empty');
+        expect(error.name).toBe('ValidationError');
+      }
     });
 
     it('should handle invalid difficulty levels', async () => {
-      const cards = await getAllCards({ difficulty: 999 });
-      expect(Array.isArray(cards)).toBe(true);
-      expect(cards.length).toBe(0);
+      try {
+        await getAllCards({ difficulty: 999 });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('difficulty must be at most 5, got 999');
+        expect(error.name).toBe('ValidationError');
+      }
     });
 
     it('should handle negative difficulty levels', async () => {
-      const cards = await getAllCards({ difficulty: -1 });
-      expect(Array.isArray(cards)).toBe(true);
-      expect(cards.length).toBe(0);
+      try {
+        await getAllCards({ difficulty: -1 });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('difficulty must be at least 0, got -1');
+        expect(error.name).toBe('ValidationError');
+      }
     });
 
     it('should handle zero difficulty level', async () => {
@@ -141,9 +153,13 @@ describe('Database Integration', () => {
     });
 
     it('should handle invalid count for random cards', async () => {
-      const cards = await getRandomCards(0);
-      expect(Array.isArray(cards)).toBe(true);
-      expect(cards.length).toBe(0);
+      try {
+        await getRandomCards(0);
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('limit must be at least 1, got 0');
+        expect(error.name).toBe('ValidationError');
+      }
     });
 
     it('should handle negative count for random cards', async () => {
@@ -151,7 +167,8 @@ describe('Database Integration', () => {
         await getRandomCards(-5);
         expect(true).toBe(false); // Should not reach here
       } catch (error) {
-        expect(error.message).toContain('LIMIT must not be negative');
+        expect(error.message).toContain('limit must be at least 1, got -5');
+        expect(error.name).toBe('ValidationError');
       }
     });
 
@@ -164,10 +181,13 @@ describe('Database Integration', () => {
 
   describe('Edge Cases', () => {
     it('should handle pagination edge cases', async () => {
-      const cards = await getAllCards({ limit: 0, offset: 0 });
-      expect(Array.isArray(cards)).toBe(true);
-      // PostgreSQL treats 0 as a valid value, so we check it returns an array
-      expect(cards.length).toBeGreaterThanOrEqual(0);
+      try {
+        await getAllCards({ limit: 0, offset: 0 });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('limit must be at least 1, got 0');
+        expect(error.name).toBe('ValidationError');
+      }
     });
 
     it('should handle large pagination limits', async () => {
@@ -187,7 +207,8 @@ describe('Database Integration', () => {
         await getAllCards({ limit: -10, offset: -10 });
         expect(true).toBe(false); // Should not reach here
       } catch (error) {
-        expect(error.message).toContain('OFFSET must not be negative');
+        expect(error.message).toContain('limit must be at least 1, got -10');
+        expect(error.name).toBe('ValidationError');
       }
     });
 
@@ -228,14 +249,18 @@ describe('Database Integration', () => {
     });
 
     it('should handle empty filter combinations', async () => {
-      const cards = await getAllCards({ 
-        category: '', 
-        difficulty: null,
-        limit: undefined,
-        offset: 0
-      });
-      expect(Array.isArray(cards)).toBe(true);
-      expect(cards.length).toBeGreaterThan(0);
+      try {
+        await getAllCards({ 
+          category: '', 
+          difficulty: null,
+          limit: undefined,
+          offset: 0
+        });
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error.message).toContain('category cannot be empty');
+        expect(error.name).toBe('ValidationError');
+      }
     });
   });
 
