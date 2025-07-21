@@ -1,7 +1,16 @@
 /**
  * Game Types Documentation
+ * 
+ * ⚠️  DEAD CODE - NOT CURRENTLY USED
+ * 
  * This file documents the structure of game-related data types
- * for better code understanding and future TypeScript migration
+ * for better code understanding and future TypeScript migration.
+ * 
+ * STATUS: Excluded from coverage reports as it's prepared for future use.
+ * TECHNICAL DEBT: FE-034 - Documented in technical debt tracker.
+ * 
+ * TODO: Integrate these type definitions into actual codebase when
+ * migrating to TypeScript or implementing JSDoc type checking.
  */
 
 /**

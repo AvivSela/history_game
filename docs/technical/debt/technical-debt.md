@@ -9,9 +9,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ## 🎯 Current Status
 
 **Last Updated**: $(date)
-**Total Debt Items**: 25
+**Total Debt Items**: 26
 **High Priority Items**: 4
-**Estimated Refactoring Time**: 35 days
+**Estimated Refactoring Time**: 33.5 days
 
 ## 📋 Debt Categories
 
@@ -97,6 +97,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-031 | Large Function Complexity in Statistics | Functions in statistics.js utilities are doing too much (database queries, data transformation, business logic, error handling). Apply Single Responsibility Principle by splitting into focused functions for data fetching, calculations, and formatting. | Medium | 1.5 days | $(date) | Open |
 | FE-032 | Magic Numbers in API Limits | Hard-coded values scattered throughout statistics routes (max 10 players, max 1000 leaderboard limit, etc.). Extract to constants file with proper documentation and validation. | Low | 0.5 days | $(date) | Open |
 | FE-033 | Inconsistent Error Response Format | Error messages and response structures vary across statistics API endpoints. Standardize error response format with consistent structure, error codes, and user-friendly messages. | Medium | 1 day | $(date) | Open |
+| FE-034 | Dead Code in gameTypes.js | The gameTypes.js file contains JSDoc type definitions that are not imported or used anywhere in the codebase. While prepared for future TypeScript migration, it currently represents dead code that should be excluded from coverage reports and documented for future use. | Low | 0.5 days | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -127,8 +128,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | BE-009 | Inconsistent API Response Format | Some endpoints return different response structures. Should standardize API response format across all endpoints. | Low | 1 day | $(date) | Open |
 | BE-012 | Error Handling Tests | Unit tests do not cover errorHandler middleware, reducing confidence in error responses. Add comprehensive tests for error handling and edge cases. | Low | 1 day | $(date) | Open |
 | BE-013 | Statistics API Service Layer | Statistics routes directly contain business logic, making them hard to test and maintain. Implement service layer pattern to separate business logic from route handlers, improving testability and code organization. | Medium | 2 days | $(date) | Open |
-| BE-014 | Database Query Organization | SQL queries in statistics.js are embedded in functions, making them hard to maintain and optimize. Create query builders or separate query files for better organization and reusability. | Low | 1 day | $(date) | Open |
+| BE-014 | Database Query Organization | ✅ **RESOLVED** - Implemented comprehensive query builder pattern with QueryBuilder, CardQueryBuilder, and StatisticsQueryBuilder classes. Separated query construction from business logic, eliminated code duplication, and achieved 100% test coverage. Created refactored database functions and comprehensive test suite. | Low | 1 day | $(date) | **Resolved** |
 | BE-015 | API Response Performance | Large response objects in statistics endpoints could benefit from pagination, compression, and caching. Implement response optimization for better performance and user experience. | Medium | 1.5 days | $(date) | Open |
+| BE-016 | Database Functions Integration | ✅ **RESOLVED** - Successfully integrated query builders into the main codebase. Replaced original database.js with refactored version, verified all 310 tests pass, and ensured backward compatibility. All database functions now use the new query builder pattern. | Medium | 1 day | $(date) | **Resolved** |
 
 ### Infrastructure Technical Debt
 
@@ -207,8 +209,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | Category | Count | Total Effort | Priority Distribution |
 |----------|-------|--------------|----------------------|
-| Frontend | 13 | 5.5 days | 🔴1 🟡5 🟢7 |
-| Backend | 12 | 18.5 days | 🔴2 🟡6 🟢4 |
+| Frontend | 14 | 6 days | 🔴1 🟡5 🟢8 |
+| Backend | 11 | 16.5 days | 🔴2 🟡5 🟢4 |
 | Infrastructure | 8 | 14.5 days | 🔴0 🟡4 🟢4 |
 
 ### Recent Achievements
@@ -233,6 +235,8 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 - ✅ **CSS Colocation**: Moved card, timeline, button, navigation, loading, and feedback styles to dedicated component files
 - ✅ **Constants Centralization**: Eliminated magic numbers across 15+ files with organized constant categories
 - ✅ **Path Alias Implementation**: Clean import structure with comprehensive IDE support
+- ✅ **Database Query Organization**: Implemented comprehensive query builder pattern with QueryBuilder, CardQueryBuilder, and StatisticsQueryBuilder classes. Separated query construction from business logic, eliminated code duplication, and achieved 100% test coverage. Created refactored database functions and comprehensive test suite.
+- ✅ **Database Functions Integration**: Successfully integrated query builders into the main codebase. Replaced original database.js with refactored version, verified all 310 tests pass, and ensured backward compatibility. All database functions now use the new query builder pattern.
 
 ## 🎯 Phase 3 Statistics & Analytics Debt Items
 

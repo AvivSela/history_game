@@ -83,6 +83,7 @@ export default defineConfig({
         'src/tests/**',
         'src/**/index.js',
         'src/constants/**',
+        'src/types/gameTypes.js', // Dead code - prepared for TypeScript migration
         '**/node_modules/**',
         '**/vite.config.js',
         '**/tailwind.config.js',
