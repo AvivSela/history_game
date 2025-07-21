@@ -198,6 +198,27 @@ describe('Database Integration', () => {
       expect(bothCount).toBeGreaterThanOrEqual(politicsCount);
       expect(totalCount).toBeGreaterThanOrEqual(bothCount);
     });
+
+    it('should use consistent category filtering between getRandomCards and getCardCount', async () => {
+      // Test that both functions use the same filtering logic to prevent count mismatches
+      const categories = ['History', 'Politics'];
+      
+      // Get count for these categories
+      const count = await getCardCount({ categories });
+      
+      // Get random cards for these categories
+      const cards = await getRandomCards(count, { categories });
+      
+      // The number of cards returned should match the count
+      expect(cards.length).toBe(count);
+      
+      // All returned cards should be from the specified categories
+      cards.forEach(card => {
+        expect(categories.some(cat => 
+          card.category.toLowerCase() === cat.toLowerCase()
+        )).toBe(true);
+      });
+    });
   });
 
   describe('Edge Cases', () => {
