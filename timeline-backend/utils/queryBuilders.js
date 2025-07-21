@@ -386,14 +386,16 @@ class CardQueryBuilder extends QueryBuilder {
       this.logger.debug('Building card SELECT query', { options });
       
       // Validate options
-      if (options.category !== undefined && options.category !== null) {
-        if (Array.isArray(options.category)) {
+      // Handle both singular 'category' and plural 'categories' for consistency
+      let categoryFilter = options.category !== undefined ? options.category : options.categories;
+      if (categoryFilter !== undefined && categoryFilter !== null) {
+        if (Array.isArray(categoryFilter)) {
           // Validate each category in the array
-          options.category = options.category.map(cat => 
+          categoryFilter = categoryFilter.map(cat => 
             ValidationUtils.validateString(cat, 'category')
           );
         } else {
-          options.category = ValidationUtils.validateString(options.category, 'category');
+          categoryFilter = ValidationUtils.validateString(categoryFilter, 'category');
         }
       }
       
@@ -415,15 +417,15 @@ class CardQueryBuilder extends QueryBuilder {
 
       this.sql = `SELECT * FROM ${this.baseTable}`;
       
-      if (options.category) {
-        if (Array.isArray(options.category) && options.category.length > 0) {
+      if (categoryFilter) {
+        if (Array.isArray(categoryFilter) && categoryFilter.length > 0) {
           // Handle multiple categories with case-insensitive comparison
-          const conditions = options.category.map((_, index) => `category ILIKE $${this.params.length + index + 1}`);
+          const conditions = categoryFilter.map((_, index) => `category ILIKE $${this.params.length + index + 1}`);
           this.conditions.push(`(${conditions.join(' OR ')})`);
-          this.params.push(...options.category);
-        } else if (typeof options.category === 'string') {
+          this.params.push(...categoryFilter);
+        } else if (typeof categoryFilter === 'string') {
           // Handle single category with case-insensitive comparison
-          this.where(`category ILIKE $${this.params.length + 1}`, options.category);
+          this.where(`category ILIKE $${this.params.length + 1}`, categoryFilter);
         }
       }
       if (options.difficulty !== null && options.difficulty !== undefined) {
@@ -540,10 +542,13 @@ class CardQueryBuilder extends QueryBuilder {
       
       this.sql = `SELECT COUNT(*) FROM ${this.baseTable}`;
       
-      if (options.category) {
-        if (Array.isArray(options.category)) {
+      // Handle both singular 'category' and plural 'categories' for consistency
+      const categoryFilter = options.category !== undefined ? options.category : options.categories;
+      
+      if (categoryFilter) {
+        if (Array.isArray(categoryFilter)) {
           // Validate each category in the array
-          const validatedCategories = options.category.map(cat => 
+          const validatedCategories = categoryFilter.map(cat => 
             ValidationUtils.validateString(cat, 'category')
           );
           // Handle multiple categories with case-insensitive comparison
@@ -552,7 +557,7 @@ class CardQueryBuilder extends QueryBuilder {
           this.params.push(...validatedCategories);
         } else {
           // Handle single category with case-insensitive comparison
-          const validatedCategory = ValidationUtils.validateString(options.category, 'category');
+          const validatedCategory = ValidationUtils.validateString(categoryFilter, 'category');
           this.where(`category ILIKE $${this.params.length + 1}`, validatedCategory);
         }
       }

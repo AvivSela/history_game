@@ -327,6 +327,8 @@ describe('CardQueryBuilder', () => {
       expect(sql).toBe('SELECT * FROM cards ORDER BY date_occurred ASC LIMIT $1');
       expect(params).toEqual([10]);
     });
+
+
   });
 
   describe('Input validation', () => {
@@ -420,6 +422,8 @@ describe('CardQueryBuilder', () => {
       expect(() => cardQueryBuilder.select({ difficulty: 6 })).toThrow(ValidationError);
       expect(() => cardQueryBuilder.count({ difficulty: 6 })).toThrow(ValidationError);
     });
+
+
   });
 
   describe('selectCategories', () => {

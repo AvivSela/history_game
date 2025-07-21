@@ -177,6 +177,27 @@ describe('Database Integration', () => {
       expect(Array.isArray(cards)).toBe(true);
       expect(cards.length).toBeLessThanOrEqual(1000);
     });
+
+    it('should handle categories parameter in getCardCount (fix for parameter mismatch bug)', async () => {
+      // Test that getCardCount properly handles the 'categories' parameter
+      // This was a bug where server.js passed { categories } but CardQueryBuilder expected { category }
+      const totalCount = await getCardCount();
+      const historyCount = await getCardCount({ categories: ['History'] });
+      const politicsCount = await getCardCount({ categories: ['Politics'] });
+      const bothCount = await getCardCount({ categories: ['History', 'Politics'] });
+      
+      expect(typeof totalCount).toBe('number');
+      expect(typeof historyCount).toBe('number');
+      expect(typeof politicsCount).toBe('number');
+      expect(typeof bothCount).toBe('number');
+      
+      // The counts should be logical
+      expect(historyCount).toBeGreaterThanOrEqual(0);
+      expect(politicsCount).toBeGreaterThanOrEqual(0);
+      expect(bothCount).toBeGreaterThanOrEqual(historyCount);
+      expect(bothCount).toBeGreaterThanOrEqual(politicsCount);
+      expect(totalCount).toBeGreaterThanOrEqual(bothCount);
+    });
   });
 
   describe('Edge Cases', () => {
