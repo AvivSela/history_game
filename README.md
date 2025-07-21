@@ -2,10 +2,26 @@
 
 A historical card game where players place events in chronological order on a timeline. Built with React frontend and Node.js backend, using Yarn for package management.
 
+## 📊 Project Status
+
+![Tests](https://github.com/username/timeline-game-project/workflows/Tests/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen.svg)
+![Yarn](https://img.shields.io/badge/yarn-%3E%3D1.22.0-blue.svg)
+![React](https://img.shields.io/badge/react-18-blue.svg)
+![PostgreSQL](https://img.shields.io/badge/postgresql-15+-blue.svg)
+
 ## 🎮 Game Overview
 
 Timeline is an educational card game that tests your knowledge of historical events. 
 Players receive cards with historical events and must place them in the correct chronological order on a timeline.
+
+### 🎯 How to Play
+1. **Draw Cards**: Receive 5-10 historical event cards
+2. **Place Events**: Drag and drop cards onto the timeline
+3. **Get Feedback**: Immediate validation of your placement
+4. **Learn History**: Discover the correct chronological order
+5. **Challenge Yourself**: Adjust difficulty and categories
 
 ### Features
 - **Interactive Timeline**: Drag and drop cards to place events
@@ -14,21 +30,57 @@ Players receive cards with historical events and must place them in the correct 
 - **Real-time Feedback**: Immediate validation of placements
 - **Responsive Design**: Works on desktop and mobile devices
 
+## 🚀 Quick Demo
+
+```bash
+# Clone and run in 30 seconds
+git clone <repository-url>
+cd timeline-game-project
+yarn install
+yarn dev
+# Open http://localhost:5173
+```
+
 ## 🏗️ Project Structure
 
 ```
 timeline-game-project/
 ├── timeline-frontend/     # React frontend application
 ├── timeline-backend/      # Node.js backend server
+├── docs/                 # Project documentation
+│   ├── technical/        # Technical documentation
+│   ├── guides/          # Development guides
+│   ├── ci-cd/           # CI/CD documentation
+│   └── archive/         # Archived documentation
 ├── package.json          # Root workspace configuration
 └── README.md            # This file
 ```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** - Modern UI framework with hooks
+- **Vite** - Fast build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **Vitest** - Fast unit testing framework
+
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **PostgreSQL** - Relational database
+- **Socket.io** - Real-time communication
+
+### Development Tools
+- **Yarn** - Package manager
+- **ESLint** - Code linting
+- **GitHub Actions** - CI/CD pipeline
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js >= 24.0.0
 - Yarn >= 1.22.0
+- PostgreSQL >= 15.0 (for backend)
 
 ### Installation
 
@@ -43,14 +95,22 @@ timeline-game-project/
    yarn install
    ```
 
-3. **Start both frontend and backend**
+3. **Set up the database** (Backend)
+   ```bash
+   cd timeline-backend
+   cp .env.example .env
+   # Edit .env with your database credentials
+   yarn db:migrate
+   ```
+
+4. **Start both frontend and backend**
    ```bash
    yarn dev
    ```
 
-4. **Open your browser**
+5. **Open your browser**
    - Frontend: http://localhost:5173
-   - Backend: http://localhost:3000
+   - Backend: http://localhost:5000
 
 ## 📦 Available Scripts
 
@@ -60,7 +120,8 @@ timeline-game-project/
 - `yarn start` - Start backend server only
 - `yarn frontend:dev` - Start frontend development server only
 - `yarn backend:start` - Start backend server only
-
+- `yarn test` - Run all tests (frontend + backend)
+- `yarn lint` - Run linting across all packages
 
 ### Frontend Only
 ```bash
@@ -76,23 +137,9 @@ yarn lint     # Run ESLint
 ```bash
 cd timeline-backend
 yarn start    # Start server
-yarn dev      # Start with nodemon (if available)
+yarn dev      # Start with nodemon
+yarn db:migrate # Run database migrations
 ```
-
-## 🛠️ Development
-
-### Frontend (React + Vite)
-- **Framework**: React 18 with hooks
-- **Build Tool**: Vite for fast development
-- **Routing**: React Router
-- **Testing**: Vitest
-- **Linting**: ESLint
-
-### Backend (Node.js + Express)
-- **Framework**: Express.js
-- **Database**: PostgreSQL (if configured)
-- **Real-time**: Socket.io for game updates
-- **Development**: Nodemon for auto-restart
 
 ## 🎯 Game Modes
 
@@ -194,9 +241,23 @@ rm -rf node_modules timeline-frontend/node_modules timeline-backend/node_modules
 yarn install
 ```
 
+**Database connection issues**
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Start PostgreSQL if not running
+sudo systemctl start postgresql
+
+# Check database connection
+cd timeline-backend
+yarn db:status
+```
+
 ## 📞 Support
 
 For support and questions:
 - Create an issue on GitHub
 - Check the troubleshooting section above
-- Review the individual README files in frontend/ and backend/ directories 
+- Review the individual README files in frontend/ and backend/ directories
+- Check the [documentation](./docs/) for detailed guides 
