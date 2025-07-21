@@ -1,10 +1,12 @@
 const { query, testConnection } = require('../config/database');
 const logger = require('./logger');
 const { transformCardData } = require('./dataTransform');
+const { CardQueryBuilder, StatisticsQueryBuilder } = require('./queryBuilders');
 
 /**
  * Database utilities for Timeline Game
  * @description Provides common database operations for cards and game data
+ * @version 2.0.0 - Refactored with query builders for better separation of concerns
  */
 
 /**
@@ -19,41 +21,9 @@ const { transformCardData } = require('./dataTransform');
  */
 async function getAllCards(options = {}) {
   try {
-    let sql = 'SELECT * FROM cards';
-    const params = [];
-    const conditions = [];
-
-    // Add category filter
-    if (options.category) {
-      conditions.push('category = $' + (params.length + 1));
-      params.push(options.category);
-    }
-
-    // Add difficulty filter
-    if (options.difficulty) {
-      conditions.push('difficulty = $' + (params.length + 1));
-      params.push(options.difficulty);
-    }
-
-    // Add WHERE clause if filters exist
-    if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
-    }
-
-    // Add ordering
-    sql += ' ORDER BY date_occurred ASC';
-
-    // Add pagination
-    if (options.limit) {
-      sql += ' LIMIT $' + (params.length + 1);
-      params.push(options.limit);
-    }
-
-    if (options.offset) {
-      sql += ' OFFSET $' + (params.length + 1);
-      params.push(options.offset);
-    }
-
+    const queryBuilder = new CardQueryBuilder();
+    const { sql, params } = queryBuilder.select(options);
+    
     const result = await query(sql, params);
     return transformCardData(result.rows);
   } catch (error) {
@@ -73,31 +43,13 @@ async function getAllCards(options = {}) {
  */
 async function getRandomCards(count, options = {}) {
   try {
-    let sql = 'SELECT * FROM cards';
-    const params = [];
-    const conditions = [];
-
-    // Add category filter
-    if (options.category) {
-      conditions.push('category = $' + (params.length + 1));
-      params.push(options.category);
-    }
-
-    // Add difficulty filter
-    if (options.difficulty) {
-      conditions.push('difficulty = $' + (params.length + 1));
-      params.push(options.difficulty);
-    }
-
-    // Add WHERE clause if filters exist
-    if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
-    }
-
-    // Add random ordering and limit
-    sql += ' ORDER BY RANDOM() LIMIT $' + (params.length + 1);
-    params.push(count);
-
+    const queryBuilder = new CardQueryBuilder();
+    const { sql, params } = queryBuilder.select({
+      ...options,
+      limit: count,
+      random: true
+    });
+    
     const result = await query(sql, params);
     return transformCardData(result.rows);
   } catch (error) {
@@ -114,8 +66,10 @@ async function getRandomCards(count, options = {}) {
  */
 async function getCardById(id) {
   try {
-    const sql = 'SELECT * FROM cards WHERE id = $1';
-    const result = await query(sql, [id]);
+    const queryBuilder = new CardQueryBuilder();
+    const { sql, params } = queryBuilder.selectById(id);
+    
+    const result = await query(sql, params);
     return result.rows[0] ? transformCardData(result.rows[0]) : null;
   } catch (error) {
     logger.error('❌ Error getting card by ID:', error.message);
@@ -130,8 +84,10 @@ async function getCardById(id) {
  */
 async function getCategories() {
   try {
-    const sql = 'SELECT DISTINCT category FROM cards ORDER BY category';
-    const result = await query(sql);
+    const queryBuilder = new CardQueryBuilder();
+    const { sql, params } = queryBuilder.selectCategories();
+    
+    const result = await query(sql, params);
     return result.rows.map(row => row.category);
   } catch (error) {
     logger.error('❌ Error getting categories:', error.message);
@@ -147,8 +103,10 @@ async function getCategories() {
  */
 async function getCardsByCategory(category) {
   try {
-    const sql = 'SELECT * FROM cards WHERE category = $1 ORDER BY date_occurred ASC';
-    const result = await query(sql, [category]);
+    const queryBuilder = new CardQueryBuilder();
+    const { sql, params } = queryBuilder.selectByCategory(category);
+    
+    const result = await query(sql, params);
     return transformCardData(result.rows);
   } catch (error) {
     logger.error('❌ Error getting cards by category:', error.message);
@@ -164,27 +122,9 @@ async function getCardsByCategory(category) {
  */
 async function getCardCount(options = {}) {
   try {
-    let sql = 'SELECT COUNT(*) FROM cards';
-    const params = [];
-    const conditions = [];
-
-    // Add category filter
-    if (options.category) {
-      conditions.push('category = $' + (params.length + 1));
-      params.push(options.category);
-    }
-
-    // Add difficulty filter
-    if (options.difficulty) {
-      conditions.push('difficulty = $' + (params.length + 1));
-      params.push(options.difficulty);
-    }
-
-    // Add WHERE clause if filters exist
-    if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
-    }
-
+    const queryBuilder = new CardQueryBuilder();
+    const { sql, params } = queryBuilder.count(options);
+    
     const result = await query(sql, params);
     return parseInt(result.rows[0].count);
   } catch (error) {
@@ -238,17 +178,16 @@ async function getDatabaseStats() {
     };
 
     // Get category counts
-    const categoryResult = await query(
-      'SELECT category, COUNT(*) as count FROM cards GROUP BY category ORDER BY count DESC'
-    );
+    const queryBuilder = new CardQueryBuilder();
+    const { sql: categorySql, params: categoryParams } = queryBuilder.selectCategoryStats();
+    const categoryResult = await query(categorySql, categoryParams);
     categoryResult.rows.forEach(row => {
       stats.categoryCounts[row.category] = parseInt(row.count);
     });
 
     // Get difficulty distribution
-    const difficultyResult = await query(
-      'SELECT difficulty, COUNT(*) as count FROM cards GROUP BY difficulty ORDER BY difficulty'
-    );
+    const { sql: difficultySql, params: difficultyParams } = queryBuilder.selectDifficultyStats();
+    const difficultyResult = await query(difficultySql, difficultyParams);
     difficultyResult.rows.forEach(row => {
       stats.difficultyDistribution[row.difficulty] = parseInt(row.count);
     });
@@ -256,6 +195,71 @@ async function getDatabaseStats() {
     return stats;
   } catch (error) {
     logger.error('❌ Error getting database stats:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get game sessions with filtering
+ * @description Retrieves game sessions with optional filtering
+ * @param {Object} options - Query options
+ * @param {string} options.playerName - Filter by player name
+ * @param {string} options.status - Filter by game status
+ * @param {Date} options.startDate - Filter by start date
+ * @param {Date} options.endDate - Filter by end date
+ * @param {number} options.limit - Limit number of results
+ * @param {number} options.offset - Offset for pagination
+ * @returns {Promise<Array>} Array of game sessions
+ */
+async function getGameSessions(options = {}) {
+  try {
+    const queryBuilder = new StatisticsQueryBuilder();
+    const { sql, params } = queryBuilder.selectGameSessions(options);
+    
+    const result = await query(sql, params);
+    return result.rows;
+  } catch (error) {
+    logger.error('❌ Error getting game sessions:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get player statistics
+ * @description Retrieves statistics for a specific player
+ * @param {string} playerName - Player name
+ * @returns {Promise<Object|null>} Player statistics or null if not found
+ */
+async function getPlayerStats(playerName) {
+  try {
+    const queryBuilder = new StatisticsQueryBuilder();
+    const { sql, params } = queryBuilder.selectPlayerStats(playerName);
+    
+    const result = await query(sql, params);
+    return result.rows[0] || null;
+  } catch (error) {
+    logger.error('❌ Error getting player stats:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get leaderboard
+ * @description Retrieves player leaderboard
+ * @param {Object} options - Query options
+ * @param {number} options.limit - Number of players to return
+ * @param {string} options.timeframe - Timeframe filter (all, week, month)
+ * @returns {Promise<Array>} Array of leaderboard entries
+ */
+async function getLeaderboard(options = {}) {
+  try {
+    const queryBuilder = new StatisticsQueryBuilder();
+    const { sql, params } = queryBuilder.selectLeaderboard(options);
+    
+    const result = await query(sql, params);
+    return result.rows;
+  } catch (error) {
+    logger.error('❌ Error getting leaderboard:', error.message);
     throw error;
   }
 }
@@ -269,5 +273,8 @@ module.exports = {
   getCardsByCategory,
   getCardCount,
   initializeDatabase,
-  getDatabaseStats
+  getDatabaseStats,
+  getGameSessions,
+  getPlayerStats,
+  getLeaderboard
 }; 
