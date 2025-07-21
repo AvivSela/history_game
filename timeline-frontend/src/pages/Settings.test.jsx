@@ -161,12 +161,11 @@ describe('Settings Page', () => {
       });
     });
 
-    it('should render action buttons', async () => {
+    it('should render reset button', async () => {
       renderSettings();
 
       await waitFor(() => {
-        expect(screen.getByText('💾 Save Settings')).toBeInTheDocument();
-        expect(screen.getByText('🔄 Reset to Defaults')).toBeInTheDocument();
+        expect(screen.getByText('Reset to Defaults')).toBeInTheDocument();
       });
     });
   });
@@ -216,20 +215,19 @@ describe('Settings Page', () => {
     });
   });
 
-  describe('Action Buttons', () => {
-    it('should handle save settings', async () => {
+  describe('Reset Button', () => {
+    it('should show reset confirmation modal when clicked', async () => {
       renderSettings();
 
       await waitFor(() => {
-        const saveButton = screen.getByText('💾 Save Settings');
-        fireEvent.click(saveButton);
+        const resetButton = screen.getByText('Reset to Defaults');
+        fireEvent.click(resetButton);
       });
 
-      // Should show success message
+      // Should show confirmation modal
       await waitFor(() => {
-        expect(
-          screen.getByText('Settings saved successfully!')
-        ).toBeInTheDocument();
+        expect(screen.getByText('🔄 Reset Settings')).toBeInTheDocument();
+        expect(screen.getByText('Are you sure you want to reset all settings to their default values? This action cannot be undone.')).toBeInTheDocument();
       });
     });
   });

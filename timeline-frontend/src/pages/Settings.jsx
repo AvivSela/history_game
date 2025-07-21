@@ -25,7 +25,7 @@ import './Settings.css';
  */
 const SettingsContent = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [saveStatus, setSaveStatus] = useState({ type: '', message: '' });
+  const [saveStatus, setSaveStatus] = useState({ type: '', message: '', icon: '' });
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Use enhanced settings hook with error handling
@@ -145,34 +145,34 @@ const SettingsContent = () => {
   const handleSettingChange = (key, value) => {
     const result = updateSetting(key, value);
     if (result && result.success) {
-      setSaveStatus({ type: 'success', message: 'Setting updated' });
-      setTimeout(() => setSaveStatus({ type: '', message: '' }), 2000);
+      setSaveStatus({ 
+        type: 'success', 
+        message: '✓ Setting saved automatically',
+        icon: '💾'
+      });
+      setTimeout(() => setSaveStatus({ type: '', message: '', icon: '' }), 2000);
     }
   };
 
-  // Handle save settings
-  const handleSaveSettings = () => {
-    try {
-      // Settings are auto-saved, but we can show a confirmation
-      setSaveStatus({
-        type: 'success',
-        message: 'Settings saved successfully!',
-      });
-      setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
-    } catch {
-      setSaveStatus({ type: 'error', message: 'Failed to save settings' });
-    }
-  };
+
 
   // Handle reset settings
   const handleResetSettings = () => {
     try {
       resetSettings();
-      setSaveStatus({ type: 'success', message: 'Settings reset to defaults' });
+      setSaveStatus({ 
+        type: 'reset-success', 
+        message: '🎉 All settings have been reset to their default values!',
+        icon: '🔄'
+      });
       setShowResetConfirm(false);
-      setTimeout(() => setSaveStatus({ type: '', message: '' }), 3000);
+      setTimeout(() => setSaveStatus({ type: '', message: '', icon: '' }), 4000);
     } catch {
-      setSaveStatus({ type: 'error', message: 'Failed to reset settings' });
+      setSaveStatus({ 
+        type: 'error', 
+        message: '❌ Failed to reset settings. Please try again.',
+        icon: '⚠️'
+      });
     }
   };
 
@@ -212,14 +212,17 @@ const SettingsContent = () => {
       <div className="container">
         <div className="settings-header">
           <h1>⚙️ Game Settings</h1>
-          <p>Customize your Timeline gaming experience</p>
+          <p>Customize your Timeline gaming experience • Settings are saved automatically</p>
 
           {/* Status Messages */}
           {saveStatus.message && (
             <div
               className={`settings-status settings-status--${saveStatus.type}`}
             >
-              {saveStatus.message}
+              {saveStatus.icon && (
+                <span className="settings-status__icon">{saveStatus.icon}</span>
+              )}
+              <span className="settings-status__message">{saveStatus.message}</span>
             </div>
           )}
         </div>
@@ -280,16 +283,12 @@ const SettingsContent = () => {
           {/* Action Buttons */}
           <div className="settings-actions">
             <button
-              onClick={handleSaveSettings}
-              className="btn btn-primary btn-large"
-            >
-              💾 Save Settings
-            </button>
-            <button
               onClick={() => setShowResetConfirm(true)}
-              className="btn btn-secondary"
+              className="btn btn-reset"
+              title="Reset all settings to their default values"
             >
-              🔄 Reset to Defaults
+              <span className="btn-icon">🔄</span>
+              <span className="btn-text">Reset to Defaults</span>
             </button>
           </div>
         </div>
@@ -305,8 +304,9 @@ const SettingsContent = () => {
               values? This action cannot be undone.
             </p>
             <div className="modal-actions">
-              <button onClick={handleResetSettings} className="btn btn-danger">
-                Yes, Reset Settings
+              <button onClick={handleResetSettings} className="btn btn-reset">
+                <span className="btn-icon">🔄</span>
+                <span className="btn-text">Yes, Reset Settings</span>
               </button>
               <button
                 onClick={() => setShowResetConfirm(false)}
