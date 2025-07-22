@@ -141,9 +141,21 @@ export const useGameState = () => {
   }, [state]);
 
   /**
-   * Apply settings changes to active game
-   * @param {string} key - Setting key that changed
-   * @param {*} newValue - New setting value
+   * Apply settings changes to an active game session
+   * Updates game state when settings are changed during gameplay to ensure
+   * the game reflects current user preferences without requiring a restart
+   *
+   * @param {string} key - The setting key that was changed
+   * @param {*} newValue - The new value for the setting
+   *
+   * @example
+   * ```js
+   * // When user changes difficulty setting during game
+   * applySettingsToActiveGame('difficulty', {min: 2, max: 5});
+   *
+   * // When user toggles animations
+   * applySettingsToActiveGame('animations', false);
+   * ```
    */
   const applySettingsToActiveGame = useCallback((key, newValue) => {
     switch (key) {
@@ -202,6 +214,11 @@ export const useGameState = () => {
 
   // Load saved game state on mount
   useEffect(() => {
+    /**
+     * Load saved game state from localStorage on component mount
+     * Attempts to restore a previously saved game session if auto-save is enabled
+     * Resets UI-only state while preserving game progress
+     */
     const loadSavedState = () => {
       try {
         const savedState = loadGameStateFromStorage();
@@ -268,9 +285,17 @@ export const useGameState = () => {
   }, []);
 
   /**
-   * Get card count based on settings
-   * @param {string} mode - Game mode
-   * @returns {number} Card count for the game
+   * Get the number of cards to use in a game based on current settings
+   * Retrieves the card count preference from user settings with fallback to default
+   *
+   * @returns {number} Number of cards to include in the game (typically 5-10)
+   *
+   * @example
+   * ```js
+   * const cardCount = getCardCountFromSettings();
+   * // Returns: 8 (if user has set cardCount to 8 in settings)
+   * // Returns: 5 (default fallback if no setting configured)
+   * ```
    */
   const getCardCountFromSettings = useCallback(() => {
     // Use settings card count if available, otherwise fall back to constants
@@ -278,9 +303,24 @@ export const useGameState = () => {
   }, [settings.cardCount]);
 
   /**
-   * Get difficulty range from settings
-   * @param {Object} fallbackRange - Fallback range if settings not available
-   * @returns {Object} Difficulty range { min: number, max: number }
+   * Get the difficulty range configuration from user settings
+   * Retrieves the min/max difficulty level preferences for filtering game events
+   *
+   * @param {Object} [fallbackRange={min: 1, max: 4}] - Default range if no settings available
+   * @param {number} fallbackRange.min - Minimum difficulty level (1-5)
+   * @param {number} fallbackRange.max - Maximum difficulty level (1-5)
+   * @returns {Object} Difficulty range object with min and max properties
+   * @returns {number} returns.min - Minimum difficulty level to include
+   * @returns {number} returns.max - Maximum difficulty level to include
+   *
+   * @example
+   * ```js
+   * const range = getDifficultyFromSettings();
+   * // Returns: {min: 2, max: 4} (medium difficulty range)
+   *
+   * const customRange = getDifficultyFromSettings({min: 4, max: 5});
+   * // Returns: {min: 4, max: 5} (hard difficulty only)
+   * ```
    */
   const getDifficultyFromSettings = useCallback(
     (fallbackRange = { min: 1, max: 4 }) => {
@@ -290,14 +330,50 @@ export const useGameState = () => {
   );
 
   /**
-   * Get categories filter from settings
-   * @returns {Array} Array of category filters
+   * Get the selected event categories from user settings
+   * Retrieves which historical categories the user wants to include in their games
+   *
+   * @returns {string[]} Array of category names to include in the game
+   *
+   * @example
+   * ```js
+   * const categories = getCategoriesFromSettings();
+   * // Returns: ['Science', 'Technology', 'Politics']
+   * // Returns: [] (all categories if none specifically selected)
+   * ```
    */
   const getCategoriesFromSettings = useCallback(() => {
     return settings.categories || [];
   }, [settings.categories]);
 
-  // Initialize new game - Enhanced with backend game session API
+  /**
+   * Initialize a new game session with backend API integration
+   * Creates a new game session on the backend, fetches filtered events based on user
+   * settings, sets up the initial timeline and player hand, and configures all
+   * game state for a fresh game start
+   *
+   * @param {string} [mode='single'] - Game mode (currently only 'single' supported)
+   * @param {Object|null} [diff=null] - Override difficulty range, uses settings if null
+   * @param {number} diff.min - Minimum difficulty level
+   * @param {number} diff.max - Maximum difficulty level
+   * @throws {Error} If API calls fail or game initialization encounters errors
+   *
+   * @example
+   * ```js
+   * // Initialize with default settings
+   * await initializeGame();
+   *
+   * // Initialize with custom difficulty
+   * await initializeGame('single', {min: 3, max: 5});
+   *
+   * // Handle initialization errors
+   * try {
+   *   await initializeGame();
+   * } catch (error) {
+   *   console.error('Failed to start game:', error);
+   * }
+   * ```
+   */
   const initializeGame = useCallback(
     async (mode = 'single', diff = null) => {
       try {
@@ -416,12 +492,37 @@ export const useGameState = () => {
     ]
   );
 
-  // Clear saved game state
+  /**
+   * Clear any saved game state from persistent storage
+   * Removes saved game data from localStorage, useful for starting fresh
+   * or when user wants to clear their saved progress
+   *
+   * @example
+   * ```js
+   * // Clear saved game when user starts new game
+   * clearSavedGame();
+   * ```
+   */
   const clearSavedGame = useCallback(() => {
     clearGameStateFromStorage();
   }, []);
 
-  // Restart game
+  /**
+   * Restart the current game by resetting all game state to initial values
+   * Clears the timeline, player hand, scores, and returns to lobby state
+   * Also clears any saved game data and pending UI timeouts
+   *
+   * @example
+   * ```js
+   * // User clicks restart button
+   * restartGame();
+   *
+   * // Automatically restart after game ends (if configured)
+   * if (gameEnded) {
+   *   setTimeout(restartGame, 3000);
+   * }
+   * ```
+   */
   const restartGame = useCallback(() => {
     // Clear any pending timeouts
     if (restartTimeoutRef.current) {
@@ -466,7 +567,26 @@ export const useGameState = () => {
     });
   }, []);
 
-  // Select a card
+  /**
+   * Select a card from the player's hand for placement
+   * Highlights the selected card and generates insertion points on the timeline
+   * to guide the player on where they can place the card
+   *
+   * @param {Object|null} card - The card to select, or null to deselect
+   * @param {number} card.id - Unique identifier for the card
+   * @param {string} card.title - Title of the historical event
+   * @param {string} card.dateOccurred - ISO date string of when event occurred
+   *
+   * @example
+   * ```js
+   * // Select a card for placement
+   * const moonLandingCard = {id: 1, title: 'Moon Landing', dateOccurred: '1969-07-20'};
+   * selectCard(moonLandingCard);
+   *
+   * // Deselect current card
+   * selectCard(null);
+   * ```
+   */
   const selectCard = useCallback(
     card => {
       if (state.gameStatus !== 'playing') {
@@ -488,7 +608,29 @@ export const useGameState = () => {
     [state.gameStatus, state.timeline]
   );
 
-  // Get new card from pool - Consolidated from GameControls
+  /**
+   * Get a new card from the pool to replace an incorrectly placed card
+   * First tries to get a card from the local pool, filtering out cards already
+   * in play. If pool is empty, fetches new cards from the API with category filtering
+   *
+   * @param {Object} currentGameState - Current game state object
+   * @param {Array} currentGameState.timeline - Cards currently on timeline
+   * @param {Array} currentGameState.playerHand - Cards in player's hand
+   * @param {Array} currentGameState.cardPool - Available replacement cards
+   * @returns {Promise<Object|null>} Card replacement data or null if unavailable
+   * @returns {Object} returns.newCard - The replacement card object
+   * @returns {Array} returns.updatedPool - Pool with the selected card removed
+   *
+   * @example
+   * ```js
+   * // Get replacement card after incorrect placement
+   * const replacement = await getNewCardFromPool(gameState);
+   * if (replacement) {
+   *   // Update hand with new card
+   *   updatePlayerHand(replacement.newCard);
+   * }
+   * ```
+   */
   const getNewCardFromPool = useCallback(
     async currentGameState => {
       // Gather all card IDs currently in the timeline and playerHand
@@ -537,7 +679,31 @@ export const useGameState = () => {
     [getCategoriesFromSettings]
   );
 
-  // Place a card on the timeline - Enhanced with backend move recording
+  /**
+   * Place the currently selected card at a specific position on the timeline
+   * Validates the placement, records the move with the backend API, calculates score,
+   * and updates game state. Handles both correct and incorrect placements with
+   * appropriate feedback and card replacement logic
+   *
+   * @param {number} position - Index position where to place the card on timeline
+   * @returns {Promise<Object>} Result object indicating success and placement details
+   * @returns {boolean} returns.success - Whether the placement operation succeeded
+   * @returns {boolean} returns.isCorrect - Whether the placement was chronologically correct
+   * @returns {Object|null} returns.cardReplaced - New card given for incorrect placement
+   * @returns {Object} returns.validation - Detailed validation results
+   * @returns {string} [returns.reason] - Error reason if success is false
+   *
+   * @example
+   * ```js
+   * // Place selected card at position 2
+   * const result = await placeCard(2);
+   * if (result.success && result.isCorrect) {
+   *   console.log('Correct placement!');
+   * } else if (result.success && !result.isCorrect) {
+   *   console.log('Incorrect, got replacement:', result.cardReplaced);
+   * }
+   * ```
+   */
   const placeCard = useCallback(
     async position => {
       if (!state.selectedCard || state.gameStatus !== 'playing') {
@@ -767,7 +933,21 @@ export const useGameState = () => {
     ]
   );
 
-  // Pause/Resume game
+  /**
+   * Toggle game pause state between playing and paused
+   * Allows players to pause the game timer and resume when ready
+   *
+   * @example
+   * ```js
+   * // Toggle pause when user clicks pause button
+   * togglePause();
+   *
+   * // Check current state
+   * if (gameState.gameStatus === 'paused') {
+   *   console.log('Game is paused');
+   * }
+   * ```
+   */
   const togglePause = useCallback(() => {
     setState(prev => ({
       ...prev,
