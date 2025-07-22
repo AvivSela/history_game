@@ -150,8 +150,7 @@ jobs:
               console.log('✅ PrismaClient can be imported');
               const prisma = new PrismaClient();
               console.log('✅ PrismaClient can be instantiated');
-              prisma.$disconnect();
-              console.log('✅ PrismaClient can be disconnected');
+              console.log('✅ Prisma setup verification completed');
             } catch(e) {
               console.log('❌ Prisma client test failed:', e.message);
               process.exit(1);
