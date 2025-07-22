@@ -1,10 +1,10 @@
 /**
  * Statistics Service
- * @description Hybrid statistics service using Prisma for simple operations and query builders for complex analytics
+ * @description Service layer for statistics operations using hybrid Prisma/Query Builder approach
  * @version 1.0.0
  */
 
-const { PrismaClient } = require('@prisma/client');
+const { getPrismaClient } = require('../utils/prismaClient');
 const logger = require('../utils/logger');
 const statistics = require('../utils/statistics');
 const { shouldUsePrisma } = require('../utils/featureFlags');
@@ -39,7 +39,7 @@ class PerformanceMonitor {
  */
 class StatisticsService {
   constructor(prisma = null) {
-    this.prisma = prisma || new PrismaClient();
+    this.prisma = prisma || getPrismaClient();
   }
 
   /**

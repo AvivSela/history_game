@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-const { PrismaClient } = require('@prisma/client');
+const { getPrismaClient } = require('../utils/prismaClient');
 const logger = require('../utils/logger');
 
 /**
@@ -13,7 +13,8 @@ const logger = require('../utils/logger');
  */
 class CardService {
   constructor(prisma = null) {
-    this.prisma = prisma || new PrismaClient();
+    // Use provided Prisma instance or get singleton instance
+    this.prisma = prisma || getPrismaClient();
   }
 
   /**
@@ -375,7 +376,8 @@ class CardService {
    * Disconnect from Prisma client
    */
   async disconnect() {
-    await this.prisma.$disconnect();
+    // The singleton client does not need explicit disconnect here
+    // as it's managed globally.
   }
 }
 

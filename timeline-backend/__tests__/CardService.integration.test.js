@@ -21,9 +21,8 @@ describe('CardService Integration', () => {
   });
 
   afterAll(async () => {
-    if (cardService && typeof cardService.disconnect === 'function') {
-      await cardService.disconnect();
-    }
+    // The singleton Prisma client is managed globally and will be disconnected
+    // in the global teardown, so we don't need to disconnect here
   });
 
   describe('Database Connection', () => {

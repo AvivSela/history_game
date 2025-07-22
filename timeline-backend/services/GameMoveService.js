@@ -1,10 +1,10 @@
 /**
- * GameMoveService
- * @description Handles game move operations using Prisma ORM
+ * Game Move Service
+ * @description Service layer for game move operations using Prisma ORM
  * @version 1.0.0
  */
 
-const { PrismaClient } = require('@prisma/client');
+const { getPrismaClient } = require('../utils/prismaClient');
 const logger = require('../utils/logger');
 
 class GameMoveService {
@@ -13,7 +13,7 @@ class GameMoveService {
    * @param {PrismaClient} prisma - Prisma client instance
    */
   constructor(prisma = null) {
-    this.prisma = prisma || new PrismaClient();
+    this.prisma = prisma || getPrismaClient();
   }
 
   /**

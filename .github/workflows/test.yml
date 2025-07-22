@@ -98,10 +98,21 @@ jobs:
           ls -la node_modules/.prisma/client/ 2>/dev/null || echo "❌ Prisma client not found in expected location"
           echo "🔧 Checking if Prisma client can be imported..."
           cd timeline-backend
-          node -e "try { require('@prisma/client'); console.log('✅ Prisma client can be imported'); } catch(e) { console.log('❌ Prisma client import failed:', e.message); }"
+          node -e "
+            try {
+              const { PrismaClient } = require('@prisma/client');
+              console.log('✅ PrismaClient can be imported');
+              const prisma = new PrismaClient();
+              console.log('✅ PrismaClient can be instantiated');
+              console.log('✅ Prisma setup verification completed');
+            } catch(e) {
+              console.log('❌ Prisma client test failed:', e.message);
+              process.exit(1);
+            }
+          "
         env:
           NODE_ENV: test
-          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test?connection_limit=5&pool_timeout=20"
           USE_PRISMA_CARDS: "true"
           USE_PRISMA_SESSIONS: "true"
           USE_PRISMA_MOVES: "true"
@@ -126,7 +137,7 @@ jobs:
           ls -la node_modules/.prisma/client/ 2>/dev/null || echo "❌ Prisma client still not found"
         env:
           NODE_ENV: test
-          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test?connection_limit=5&pool_timeout=20"
           USE_PRISMA_CARDS: "true"
           USE_PRISMA_SESSIONS: "true"
           USE_PRISMA_MOVES: "true"
@@ -158,7 +169,7 @@ jobs:
           "
         env:
           NODE_ENV: test
-          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test?connection_limit=5&pool_timeout=20"
           USE_PRISMA_CARDS: "true"
           USE_PRISMA_SESSIONS: "true"
           USE_PRISMA_MOVES: "true"
@@ -173,7 +184,7 @@ jobs:
         run: yarn test:backend
         env:
           NODE_ENV: test
-          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test?connection_limit=5&pool_timeout=20"
           USE_PRISMA_CARDS: "true"
           USE_PRISMA_SESSIONS: "true"
           USE_PRISMA_MOVES: "true"

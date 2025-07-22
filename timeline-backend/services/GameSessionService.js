@@ -1,10 +1,10 @@
 /**
- * GameSessionService
- * @description Handles game session operations using Prisma ORM
+ * Game Session Service
+ * @description Service layer for game session operations using Prisma ORM
  * @version 1.0.0
  */
 
-const { PrismaClient } = require('@prisma/client');
+const { getPrismaClient } = require('../utils/prismaClient');
 const logger = require('../utils/logger');
 
 class GameSessionService {
@@ -13,7 +13,7 @@ class GameSessionService {
    * @param {PrismaClient} prisma - Prisma client instance
    */
   constructor(prisma = null) {
-    this.prisma = prisma || new PrismaClient();
+    this.prisma = prisma || getPrismaClient();
   }
 
   /**
