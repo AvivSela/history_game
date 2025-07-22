@@ -86,10 +86,99 @@ jobs:
           TEST_DB_USER: postgres
           TEST_DB_PASSWORD: password
 
+      - name: Generate Prisma client
+        run: |
+          echo "🔧 Current directory: $(pwd)"
+          echo "🔧 Node modules structure before generation:"
+          ls -la node_modules/.prisma/ 2>/dev/null || echo "No .prisma directory found"
+          echo "🔧 Generating Prisma client from workspace root..."
+          yarn workspace timeline-backend db:generate
+          echo "✅ Prisma client generated successfully!"
+          echo "🔧 Verifying Prisma client generation..."
+          ls -la node_modules/.prisma/client/ 2>/dev/null || echo "❌ Prisma client not found in expected location"
+          echo "🔧 Checking if Prisma client can be imported..."
+          cd timeline-backend
+          node -e "try { require('@prisma/client'); console.log('✅ Prisma client can be imported'); } catch(e) { console.log('❌ Prisma client import failed:', e.message); }"
+        env:
+          NODE_ENV: test
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          USE_PRISMA_CARDS: "true"
+          USE_PRISMA_SESSIONS: "true"
+          USE_PRISMA_MOVES: "true"
+          USE_PRISMA_STATISTICS: "basic"
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5433
+          TEST_DB_NAME: timeline_game_test
+          TEST_DB_USER: postgres
+          TEST_DB_PASSWORD: password
+
+      - name: Fallback Prisma client generation
+        if: failure()
+        run: |
+          echo "🔄 Attempting fallback Prisma client generation..."
+          echo "🔧 Current directory: $(pwd)"
+          echo "🔧 Node modules structure:"
+          ls -la node_modules/ 2>/dev/null || echo "No node_modules found"
+          echo "🔧 Generating Prisma client directly from root..."
+          npx prisma generate --schema=timeline-backend/prisma/schema.prisma
+          echo "✅ Fallback Prisma client generation completed!"
+          echo "🔧 Verifying fallback generation..."
+          ls -la node_modules/.prisma/client/ 2>/dev/null || echo "❌ Prisma client still not found"
+        env:
+          NODE_ENV: test
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          USE_PRISMA_CARDS: "true"
+          USE_PRISMA_SESSIONS: "true"
+          USE_PRISMA_MOVES: "true"
+          USE_PRISMA_STATISTICS: "basic"
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5433
+          TEST_DB_NAME: timeline_game_test
+          TEST_DB_USER: postgres
+          TEST_DB_PASSWORD: password
+
+      - name: Verify Prisma setup
+        run: |
+          echo "🔍 Verifying Prisma setup before tests..."
+          echo "🔍 Checking Prisma client location..."
+          ls -la node_modules/.prisma/client/ 2>/dev/null || echo "❌ Prisma client not found"
+          echo "🔍 Testing Prisma client import..."
+          cd timeline-backend
+          node -e "
+            try {
+              const { PrismaClient } = require('@prisma/client');
+              console.log('✅ PrismaClient can be imported');
+              const prisma = new PrismaClient();
+              console.log('✅ PrismaClient can be instantiated');
+              prisma.$disconnect();
+              console.log('✅ PrismaClient can be disconnected');
+            } catch(e) {
+              console.log('❌ Prisma client test failed:', e.message);
+              process.exit(1);
+            }
+          "
+        env:
+          NODE_ENV: test
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          USE_PRISMA_CARDS: "true"
+          USE_PRISMA_SESSIONS: "true"
+          USE_PRISMA_MOVES: "true"
+          USE_PRISMA_STATISTICS: "basic"
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5433
+          TEST_DB_NAME: timeline_game_test
+          TEST_DB_USER: postgres
+          TEST_DB_PASSWORD: password
+
       - name: Run backend tests
         run: yarn test:backend
         env:
           NODE_ENV: test
+          DATABASE_URL: "postgresql://postgres:password@localhost:5433/timeline_game_test"
+          USE_PRISMA_CARDS: "true"
+          USE_PRISMA_SESSIONS: "true"
+          USE_PRISMA_MOVES: "true"
+          USE_PRISMA_STATISTICS: "basic"
           TEST_DB_HOST: localhost
           TEST_DB_PORT: 5433
           TEST_DB_NAME: timeline_game_test

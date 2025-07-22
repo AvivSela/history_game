@@ -10,11 +10,20 @@ describe('CardService Integration', () => {
   let cardService;
 
   beforeAll(async () => {
-    cardService = new CardService();
+    try {
+      cardService = new CardService();
+    } catch (error) {
+      console.error('❌ Failed to initialize CardService:', error.message);
+      console.error('This usually means the Prisma client has not been generated.');
+      console.error('Please run: yarn workspace timeline-backend db:generate');
+      throw error;
+    }
   });
 
   afterAll(async () => {
-    await cardService.disconnect();
+    if (cardService && typeof cardService.disconnect === 'function') {
+      await cardService.disconnect();
+    }
   });
 
   describe('Database Connection', () => {
