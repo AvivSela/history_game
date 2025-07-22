@@ -17,7 +17,7 @@ console.error = originalError;
 
 describe('Game Sessions API', () => {
   let testSessionId;
-  const testCardId = 1; // Use a known card ID from the database
+  const testCardId = 2; // Use a known card ID from the database (First Moon Landing)
 
   beforeAll(async () => {
     // Ensure we're in test environment
@@ -182,6 +182,9 @@ describe('Game Sessions API', () => {
         .post(`/api/game-sessions/${testSessionId}/moves`)
         .send(moveData);
 
+      if (response.status !== 201) {
+        console.log('Error response:', response.body);
+      }
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Move recorded successfully');

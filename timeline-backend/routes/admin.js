@@ -8,6 +8,8 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../config/database');
 const logger = require('../utils/logger');
+const CardService = require('../services/CardService');
+const { shouldUsePrisma } = require('../utils/featureFlags');
 
 /**
  * GET /api/admin/test
@@ -720,43 +722,71 @@ router.post('/cards', async (req, res) => {
       });
     }
     
-    // Check if card already exists
-    const existingCard = await query(
-      'SELECT id FROM cards WHERE title = $1 AND date_occurred = $2',
-      [title, dateOccurred]
-    );
+    // Check if we should use Prisma or query builder
+    const usePrisma = shouldUsePrisma('cards');
     
-    if (existingCard.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        error: 'Card with this title and date already exists'
+    if (usePrisma) {
+      // Use Prisma CardService
+      const cardService = new CardService();
+      try {
+        const newCard = await cardService.createCard({
+          title,
+          description,
+          dateOccurred,
+          category,
+          difficulty
+        });
+        
+        res.status(201).json({
+          success: true,
+          message: 'Card created successfully',
+          data: newCard,
+          source: 'prisma'
+        });
+      } finally {
+        await cardService.disconnect();
+      }
+    } else {
+      // Use existing query builder approach
+      // Check if card already exists
+      const existingCard = await query(
+        'SELECT id FROM cards WHERE title = $1 AND date_occurred = $2',
+        [title, dateOccurred]
+      );
+      
+      if (existingCard.rows.length > 0) {
+        return res.status(409).json({
+          success: false,
+          error: 'Card with this title and date already exists'
+        });
+      }
+      
+      // Insert new card
+      const result = await query(`
+        INSERT INTO cards (title, description, date_occurred, category, difficulty)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
+      `, [title, description || null, dateOccurred, category, difficulty]);
+      
+      const newCard = result.rows[0];
+      
+      logger.info(`✅ Card created successfully: ${newCard.id}`);
+      
+      res.status(201).json({
+        success: true,
+        message: 'Card created successfully',
+        data: {
+          id: newCard.id,
+          title: newCard.title,
+          description: newCard.description,
+          dateOccurred: newCard.date_occurred,
+          category: newCard.category,
+          difficulty: newCard.difficulty,
+          createdAt: newCard.created_at
+        },
+        source: 'query_builder'
       });
     }
-    
-    // Insert new card
-    const result = await query(`
-      INSERT INTO cards (title, description, date_occurred, category, difficulty)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `, [title, description || null, dateOccurred, category, difficulty]);
-    
-    const newCard = result.rows[0];
-    
-    logger.info(`✅ Card created successfully: ${newCard.id}`);
-    
-    res.status(201).json({
-      success: true,
-      message: 'Card created successfully',
-      data: {
-        id: newCard.id,
-        title: newCard.title,
-        description: newCard.description,
-        dateOccurred: newCard.date_occurred,
-        category: newCard.category,
-        difficulty: newCard.difficulty,
-        createdAt: newCard.created_at
-      }
-    });
     
   } catch (error) {
     logger.error('❌ Error creating card:', error.message);
@@ -786,88 +816,124 @@ router.put('/cards/:id', async (req, res) => {
       });
     }
     
-    // Check if card exists
-    const existingCard = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
-    if (existingCard.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Card not found'
-      });
-    }
+    // Check if we should use Prisma or query builder
+    const usePrisma = shouldUsePrisma('cards');
     
-    // Build update query dynamically
-    const updates = [];
-    const values = [];
-    let paramCount = 1;
-    
-    if (title !== undefined) {
-      updates.push(`title = $${paramCount++}`);
-      values.push(title);
-    }
-    if (description !== undefined) {
-      updates.push(`description = $${paramCount++}`);
-      values.push(description);
-    }
-    if (dateOccurred !== undefined) {
-      // Validate date format
-      const date = new Date(dateOccurred);
-      if (isNaN(date.getTime())) {
-        return res.status(400).json({
+    if (usePrisma) {
+      // Use Prisma CardService
+      const cardService = new CardService();
+      try {
+        const updateData = {};
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (dateOccurred !== undefined) updateData.dateOccurred = dateOccurred;
+        if (category !== undefined) updateData.category = category;
+        if (difficulty !== undefined) updateData.difficulty = difficulty;
+        
+        if (Object.keys(updateData).length === 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'No fields to update'
+          });
+        }
+        
+        const updatedCard = await cardService.updateCard(cardId, updateData);
+        
+        res.json({
+          success: true,
+          message: 'Card updated successfully',
+          data: updatedCard,
+          source: 'prisma'
+        });
+      } finally {
+        await cardService.disconnect();
+      }
+    } else {
+      // Use existing query builder approach
+      // Check if card exists
+      const existingCard = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+      if (existingCard.rows.length === 0) {
+        return res.status(404).json({
           success: false,
-          error: 'Invalid date format. Use YYYY-MM-DD'
+          error: 'Card not found'
         });
       }
-      updates.push(`date_occurred = $${paramCount++}`);
-      values.push(dateOccurred);
-    }
-    if (category !== undefined) {
-      updates.push(`category = $${paramCount++}`);
-      values.push(category);
-    }
-    if (difficulty !== undefined) {
-      if (difficulty < 1 || difficulty > 5) {
+      
+      // Build update query dynamically
+      const updates = [];
+      const values = [];
+      let paramCount = 1;
+      
+      if (title !== undefined) {
+        updates.push(`title = $${paramCount++}`);
+        values.push(title);
+      }
+      if (description !== undefined) {
+        updates.push(`description = $${paramCount++}`);
+        values.push(description);
+      }
+      if (dateOccurred !== undefined) {
+        // Validate date format
+        const date = new Date(dateOccurred);
+        if (isNaN(date.getTime())) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid date format. Use YYYY-MM-DD'
+          });
+        }
+        updates.push(`date_occurred = $${paramCount++}`);
+        values.push(dateOccurred);
+      }
+      if (category !== undefined) {
+        updates.push(`category = $${paramCount++}`);
+        values.push(category);
+      }
+      if (difficulty !== undefined) {
+        if (difficulty < 1 || difficulty > 5) {
+          return res.status(400).json({
+            success: false,
+            error: 'Difficulty must be between 1 and 5'
+          });
+        }
+        updates.push(`difficulty = $${paramCount++}`);
+        values.push(difficulty);
+      }
+      
+      if (updates.length === 0) {
         return res.status(400).json({
           success: false,
-          error: 'Difficulty must be between 1 and 5'
+          error: 'No fields to update'
         });
       }
-      updates.push(`difficulty = $${paramCount++}`);
-      values.push(difficulty);
-    }
-    
-    if (updates.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'No fields to update'
+      
+      values.push(cardId);
+      const sql = `
+        UPDATE cards 
+        SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $${paramCount}
+        RETURNING *
+      `;
+      
+      const result = await query(sql, values);
+      const updatedCard = result.rows[0];
+      
+      logger.info(`✅ Card ${cardId} updated successfully`);
+      
+      res.json({
+        success: true,
+        message: 'Card updated successfully',
+        data: {
+          id: updatedCard.id,
+          title: updatedCard.title,
+          description: updatedCard.description,
+          dateOccurred: updatedCard.date_occurred,
+          category: updatedCard.category,
+          difficulty: updatedCard.difficulty,
+          updatedAt: updatedCard.updated_at
+        },
+        source: 'query_builder'
       });
     }
-    
-    values.push(cardId);
-    const sql = `
-      UPDATE cards 
-      SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $${paramCount}
-      RETURNING *
-    `;
-    
-    const result = await query(sql, values);
-    const updatedCard = result.rows[0];
-    
-    logger.info(`✅ Card ${cardId} updated successfully`);
-    
-    res.json({
-      success: true,
-      message: 'Card updated successfully',
-      data: {
-        id: updatedCard.id,
-        title: updatedCard.title,
-        description: updatedCard.description,
-        dateOccurred: updatedCard.date_occurred,
-        category: updatedCard.category,
-        difficulty: updatedCard.difficulty,
-        updatedAt: updatedCard.updated_at
-      }
-    });
     
   } catch (error) {
     logger.error('❌ Error updating card:', error.message);
@@ -896,25 +962,47 @@ router.delete('/cards/:id', async (req, res) => {
       });
     }
     
-    // Check if card exists
-    const existingCard = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
-    if (existingCard.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Card not found'
+    // Check if we should use Prisma or query builder
+    const usePrisma = shouldUsePrisma('cards');
+    
+    if (usePrisma) {
+      // Use Prisma CardService
+      const cardService = new CardService();
+      try {
+        const deletedCard = await cardService.deleteCard(cardId);
+        
+        res.json({
+          success: true,
+          message: 'Card deleted successfully',
+          data: deletedCard,
+          source: 'prisma'
+        });
+      } finally {
+        await cardService.disconnect();
+      }
+    } else {
+      // Use existing query builder approach
+      // Check if card exists
+      const existingCard = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+      if (existingCard.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Card not found'
+        });
+      }
+      
+      // Soft delete by setting is_active to false (if column exists)
+      // For now, we'll do a hard delete since is_active column might not exist
+      await query('DELETE FROM cards WHERE id = $1', [cardId]);
+      
+      logger.info(`✅ Card ${cardId} deleted successfully`);
+      
+      res.json({
+        success: true,
+        message: 'Card deleted successfully',
+        source: 'query_builder'
       });
     }
-    
-    // Soft delete by setting is_active to false (if column exists)
-    // For now, we'll do a hard delete since is_active column might not exist
-    await query('DELETE FROM cards WHERE id = $1', [cardId]);
-    
-    logger.info(`✅ Card ${cardId} deleted successfully`);
-    
-    res.json({
-      success: true,
-      message: 'Card deleted successfully'
-    });
     
   } catch (error) {
     logger.error('❌ Error deleting card:', error.message);
@@ -943,76 +1031,105 @@ router.get('/cards', async (req, res) => {
     
     logger.info('🔧 Fetching cards with filters:', { category, difficulty, limit, offset });
     
-    let sql = 'SELECT * FROM cards';
-    const params = [];
-    const conditions = [];
+    // Check if we should use Prisma or query builder
+    const usePrisma = shouldUsePrisma('cards');
     
-    // Add filters
-    if (category) {
-      conditions.push(`category = $${params.length + 1}`);
-      params.push(category);
-    }
-    
-    if (difficulty) {
-      conditions.push(`difficulty = $${params.length + 1}`);
-      params.push(parseInt(difficulty));
-    }
-    
-    if (search) {
-      conditions.push(`(title ILIKE $${params.length + 1} OR description ILIKE $${params.length + 1})`);
-      params.push(`%${search}%`);
-    }
-    
-    // Add WHERE clause
-    if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
-    }
-    
-    // Add sorting
-    const validSortFields = ['id', 'title', 'date_occurred', 'category', 'difficulty', 'created_at'];
-    const validSortOrders = ['ASC', 'DESC'];
-    
-    if (validSortFields.includes(sortBy)) {
-      sql += ` ORDER BY ${sortBy} ${validSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC'}`;
-    } else {
-      sql += ' ORDER BY date_occurred ASC';
-    }
-    
-    // Add pagination
-    sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(parseInt(limit), parseInt(offset));
-    
-    const result = await query(sql, params);
-    
-    // Get total count for pagination
-    let countSql = 'SELECT COUNT(*) FROM cards';
-    if (conditions.length > 0) {
-      countSql += ' WHERE ' + conditions.join(' AND ');
-    }
-    const countResult = await query(countSql, params.slice(0, -2)); // Remove limit and offset
-    const totalCount = parseInt(countResult.rows[0].count);
-    
-    res.json({
-      success: true,
-      data: {
-        cards: result.rows.map(row => ({
-          id: row.id,
-          title: row.title,
-          description: row.description,
-          dateOccurred: row.date_occurred,
-          category: row.category,
-          difficulty: row.difficulty,
-          createdAt: row.created_at,
-          updatedAt: row.updated_at
-        })),
-        pagination: {
-          total: totalCount,
-          limit: parseInt(limit),
-          offset: parseInt(offset),
-          hasMore: (parseInt(offset) + parseInt(limit)) < totalCount
-        }
+    if (usePrisma) {
+      // Use Prisma CardService
+      const cardService = new CardService();
+      try {
+        const result = await cardService.findCards({
+          category,
+          difficulty,
+          search,
+          limit,
+          offset,
+          sortBy,
+          sortOrder
+        });
+        
+        res.json({
+          success: true,
+          data: result,
+          source: 'prisma'
+        });
+      } finally {
+        await cardService.disconnect();
       }
-    });
+    } else {
+      // Use existing query builder approach
+      let sql = 'SELECT * FROM cards';
+      const params = [];
+      const conditions = [];
+      
+      // Add filters
+      if (category) {
+        conditions.push(`category = $${params.length + 1}`);
+        params.push(category);
+      }
+      
+      if (difficulty) {
+        conditions.push(`difficulty = $${params.length + 1}`);
+        params.push(parseInt(difficulty));
+      }
+      
+      if (search) {
+        conditions.push(`(title ILIKE $${params.length + 1} OR description ILIKE $${params.length + 1})`);
+        params.push(`%${search}%`);
+      }
+      
+      // Add WHERE clause
+      if (conditions.length > 0) {
+        sql += ' WHERE ' + conditions.join(' AND ');
+      }
+      
+      // Add sorting
+      const validSortFields = ['id', 'title', 'date_occurred', 'category', 'difficulty', 'created_at'];
+      const validSortOrders = ['ASC', 'DESC'];
+      
+      if (validSortFields.includes(sortBy)) {
+        sql += ` ORDER BY ${sortBy} ${validSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC'}`;
+      } else {
+        sql += ' ORDER BY date_occurred ASC';
+      }
+      
+      // Add pagination
+      sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+      params.push(parseInt(limit), parseInt(offset));
+      
+      const result = await query(sql, params);
+      
+      // Get total count for pagination
+      let countSql = 'SELECT COUNT(*) FROM cards';
+      if (conditions.length > 0) {
+        countSql += ' WHERE ' + conditions.join(' AND ');
+      }
+      const countResult = await query(countSql, params.slice(0, -2)); // Remove limit and offset
+      const totalCount = parseInt(countResult.rows[0].count);
+      
+      res.json({
+        success: true,
+        data: {
+          cards: result.rows.map(row => ({
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            dateOccurred: row.date_occurred,
+            category: row.category,
+            difficulty: row.difficulty,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+          })),
+          pagination: {
+            total: totalCount,
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            hasMore: (parseInt(offset) + parseInt(limit)) < totalCount
+          }
+        },
+        source: 'query_builder'
+      });
+    }
     
   } catch (error) {
     logger.error('❌ Error fetching cards:', error.message);
@@ -1042,30 +1159,58 @@ router.get('/cards/:id', async (req, res) => {
       });
     }
     
-    const result = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+    // Check if we should use Prisma or query builder
+    const usePrisma = shouldUsePrisma('cards');
     
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Card not found'
+    if (usePrisma) {
+      // Use Prisma CardService
+      const cardService = new CardService();
+      try {
+        const card = await cardService.findById(cardId);
+        
+        if (!card) {
+          return res.status(404).json({
+            success: false,
+            error: 'Card not found'
+          });
+        }
+        
+        res.json({
+          success: true,
+          data: card,
+          source: 'prisma'
+        });
+      } finally {
+        await cardService.disconnect();
+      }
+    } else {
+      // Use existing query builder approach
+      const result = await query('SELECT * FROM cards WHERE id = $1', [cardId]);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Card not found'
+        });
+      }
+      
+      const card = result.rows[0];
+      
+      res.json({
+        success: true,
+        data: {
+          id: card.id,
+          title: card.title,
+          description: card.description,
+          dateOccurred: card.date_occurred,
+          category: card.category,
+          difficulty: card.difficulty,
+          createdAt: card.created_at,
+          updatedAt: card.updated_at
+        },
+        source: 'query_builder'
       });
     }
-    
-    const card = result.rows[0];
-    
-    res.json({
-      success: true,
-      data: {
-        id: card.id,
-        title: card.title,
-        description: card.description,
-        dateOccurred: card.date_occurred,
-        category: card.category,
-        difficulty: card.difficulty,
-        createdAt: card.created_at,
-        updatedAt: card.updated_at
-      }
-    });
     
   } catch (error) {
     logger.error('❌ Error fetching card:', error.message);
@@ -1100,78 +1245,100 @@ router.post('/cards/bulk', async (req, res) => {
       });
     }
     
-    const results = [];
-    const errors = [];
+    // Check if we should use Prisma or query builder
+    const usePrisma = shouldUsePrisma('cards');
     
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-      const { title, description, dateOccurred, category, difficulty } = card;
-      
+    if (usePrisma) {
+      // Use Prisma CardService
+      const cardService = new CardService();
       try {
-        // Validate required fields
-        if (!title || !dateOccurred || !category || !difficulty) {
-          errors.push({
-            index: i,
-            error: 'Missing required fields: title, dateOccurred, category, difficulty'
-          });
-          continue;
-        }
+        const result = await cardService.createCardsBulk(cards);
         
-        // Validate difficulty range
-        if (difficulty < 1 || difficulty > 5) {
-          errors.push({
-            index: i,
-            error: 'Difficulty must be between 1 and 5'
-          });
-          continue;
-        }
-        
-        // Check for duplicates
-        const existingCard = await query(
-          'SELECT id FROM cards WHERE title = $1 AND date_occurred = $2',
-          [title, dateOccurred]
-        );
-        
-        if (existingCard.rows.length > 0) {
-          errors.push({
-            index: i,
-            error: 'Card with this title and date already exists'
-          });
-          continue;
-        }
-        
-        // Insert card
-        const result = await query(`
-          INSERT INTO cards (title, description, date_occurred, category, difficulty)
-          VALUES ($1, $2, $3, $4, $5)
-          RETURNING *
-        `, [title, description || null, dateOccurred, category, difficulty]);
-        
-        const newCard = result.rows[0];
-        results.push({
-          index: i,
-          id: newCard.id,
-          title: newCard.title
+        res.status(201).json({
+          success: true,
+          message: `Bulk card creation completed: ${result.created.length} created, ${result.errors.length} failed`,
+          data: result,
+          source: 'prisma'
         });
-        
-      } catch (error) {
-        errors.push({
-          index: i,
-          error: error.message
-        });
+      } finally {
+        await cardService.disconnect();
       }
+    } else {
+      // Use existing query builder approach
+      const results = [];
+      const errors = [];
+      
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const { title, description, dateOccurred, category, difficulty } = card;
+        
+        try {
+          // Validate required fields
+          if (!title || !dateOccurred || !category || !difficulty) {
+            errors.push({
+              index: i,
+              error: 'Missing required fields: title, dateOccurred, category, difficulty'
+            });
+            continue;
+          }
+          
+          // Validate difficulty range
+          if (difficulty < 1 || difficulty > 5) {
+            errors.push({
+              index: i,
+              error: 'Difficulty must be between 1 and 5'
+            });
+            continue;
+          }
+          
+          // Check for duplicates
+          const existingCard = await query(
+            'SELECT id FROM cards WHERE title = $1 AND date_occurred = $2',
+            [title, dateOccurred]
+          );
+          
+          if (existingCard.rows.length > 0) {
+            errors.push({
+              index: i,
+              error: 'Card with this title and date already exists'
+            });
+            continue;
+          }
+          
+          // Insert card
+          const result = await query(`
+            INSERT INTO cards (title, description, date_occurred, category, difficulty)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *
+          `, [title, description || null, dateOccurred, category, difficulty]);
+          
+          const newCard = result.rows[0];
+          results.push({
+            index: i,
+            id: newCard.id,
+            title: newCard.title
+          });
+          
+        } catch (error) {
+          errors.push({
+            index: i,
+            error: error.message
+          });
+        }
+      }
+      
+      logger.info(`✅ Bulk card creation completed: ${results.length} created, ${errors.length} failed`);
+      
+      res.status(201).json({
+        success: true,
+        message: `Bulk card creation completed: ${results.length} created, ${errors.length} failed`,
+        data: {
+          created: results,
+          errors: errors
+        },
+        source: 'query_builder'
+      });
     }
-    
-    logger.info(`✅ Bulk card creation completed: ${results.length} created, ${errors.length} failed`);
-    
-    res.status(201).json({
-      success: true,
-      message: `Bulk card creation completed: ${results.length} created, ${errors.length} failed`,
-      data: {
-        created: results,
-        errors: errors
-      }
-    });
     
   } catch (error) {
     logger.error('❌ Error in bulk card creation:', error.message);

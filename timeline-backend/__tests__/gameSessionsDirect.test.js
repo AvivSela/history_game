@@ -9,7 +9,7 @@ const dbUtils = require('../utils/database');
 
 describe('GameSession Model', () => {
   let testSessionId;
-  const testCardId = 1;
+  const testCardId = 2; // Use a known card ID from the database (First Moon Landing)
 
   beforeAll(async () => {
     // Initialize database
