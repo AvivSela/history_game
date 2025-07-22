@@ -9,9 +9,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ## 🎯 Current Status
 
 **Last Updated**: $(date)
-**Total Debt Items**: 42
-**High Priority Items**: 10
-**Estimated Refactoring Time**: 67 days
+**Total Debt Items**: 59
+**High Priority Items**: 17
+**Estimated Refactoring Time**: 154 days
 
 ## 📋 Debt Categories
 
@@ -104,6 +104,17 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-038 | Timer Memory Leaks in Components | Components with setTimeout/setInterval usage may have memory leaks if cleanup is not properly handled. Audit PlayerHand.jsx, Timeline.jsx, SettingsContext.jsx, and CardCountSlider.jsx for proper timer cleanup. | High | 2 days | $(date) | Open |
 | FE-039 | Large Console Logging in Production | Found 421 console.* statements across 35 files in the codebase. Production builds should remove or replace these with proper logging system to reduce bundle size and improve performance. | Medium | 2 days | $(date) | Open |
 | FE-040 | TODO Comments in Production Code | Found TODO comment in gameTypes.js (line 12) indicating incomplete integration. Review all TODO comments and either implement the functionality or remove the comments. | Low | 0.5 days | $(date) | Open |
+| FE-041 | Unused Frontend Dependencies | Found 4 unused devDependencies (@commitlint/config-conventional, @testing-library/user-event, @vitest/coverage-v8, eslint-config-prettier, tailwindcss) that increase node_modules size (19MB). Clean up unused packages to reduce install time and bundle size. | Medium | 0.5 days | $(date) | Open |
+| FE-042 | Missing React PropTypes Validation | Missing prop-types dependency for React component validation. Components like InsertionPoint.jsx lack proper prop validation, reducing type safety and development experience. Add prop-types and implement validation across components. | Medium | 1 day | $(date) | Open |
+| FE-043 | Path Alias Resolution Issues | Found 7 missing dependency warnings due to path alias imports not properly resolved in build tools. This can cause bundling issues and import errors. Fix jsconfig.json and build configuration to properly resolve @constants, @utils, @hooks aliases. | Medium | 1 day | $(date) | Open |
+| FE-044 | Large CSS Bundle Optimization | CSS bundles are large (Game.css 60KB, index.css 95KB) and could benefit from optimization. Implement CSS minification, unused CSS removal, and potential CSS-in-JS migration for better performance. | Low | 2 days | $(date) | Open |
+| FE-045 | God Hook Anti-Pattern in useGameState | useGameState.js is 1,018 lines handling 15+ responsibilities (game state, API calls, persistence, validation). Violates Single Responsibility Principle and is difficult to maintain and test. Extract into focused hooks: useGameSession, useCardOperations, useGamePersistence, useGameAPI. | High | 15 days | $(date) | Open |
+| FE-046 | Complex CardManager Component | CardManager.jsx (465 lines) violates Single Responsibility with 9 state variables, mixed data fetching, CRUD operations, and rendering logic. Extract custom hooks (useCardCRUD, useCardFiltering, useCardValidation) and split into presentational components. | High | 10 days | $(date) | Open |
+| FE-047 | Tight Component Coupling | Components like Game.jsx pass entire gameState objects instead of specific props, creating tight coupling and making components difficult to test in isolation. Implement facade pattern and proper prop interfaces. | High | 10 days | $(date) | Open |
+| FE-048 | Over-complex Test Architecture | Test files like SettingsContext.test.jsx (606 lines) and useSettings.test.js (602 lines) have excessive mocking and test implementation details vs. behavior. Brittle tests don't catch real issues. Refactor to behavior-driven testing. | Medium | 5 days | $(date) | Open |
+| FE-049 | Missing Service Layer Architecture | Business logic is scattered throughout hooks and components with direct localStorage usage, API calls mixed with UI logic, and no domain models. Create service layers and domain objects for better separation of concerns. | High | 10 days | $(date) | Open |
+| FE-050 | Context Over-engineering | SettingsContext.jsx has complex reducer patterns for simple state and mixes context state with business logic. Simplify context usage and separate business logic from state management. | Medium | 3 days | $(date) | Open |
+| FE-051 | Component Responsibility Violations | Multiple components violate Single Responsibility Principle by handling data fetching, state management, and rendering. Components should focus on single concerns with proper separation. | Medium | 8 days | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -151,6 +162,11 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | BE-028 | Magic Numbers in Backend | Hard-coded values scattered throughout backend files (query limits of 1000, cache TTLs, default time periods of 30 days/12 weeks). Extract to configuration constants. | Medium | 1 day | $(date) | Open |
 | BE-029 | Complex SQL in JavaScript | Large embedded SQL strings in statistics.js make testing and maintenance difficult. Move to separate SQL files or improve query builder pattern. | High | 4 days | $(date) | Open |
 | BE-030 | Inconsistent Error Handling in Routes | Mixed error handling patterns across server.js endpoints with different error response formats. Standardize error handling middleware and response structure. | Medium | 1.5 days | $(date) | Open |
+| BE-031 | Unused Backend Dependencies | Found unused dependencies: socket.io (main dependency not being used), @types/jest, concurrently (devDependencies). Clean up to reduce security surface and installation overhead. | Low | 0.25 days | $(date) | Open |
+| BE-032 | Missing Backend Dependencies | Script files require axios but it's not in package.json dependencies, causing potential runtime errors. Add missing dependencies or remove unused scripts. | Low | 0.25 days | $(date) | Open |
+| BE-033 | Large Admin Routes File | admin.js routes file is 1,351 lines with mixed concerns handling CRUD operations, validation, and response formatting. Violates Single Responsibility Principle. Extract service layer and split into focused route handlers. | High | 8 days | $(date) | Open |
+| BE-034 | Backend Service Layer Inconsistency | Backend has some services (CardService, GameMoveService) but admin routes bypass service layer and handle business logic directly. Create consistent service layer architecture across all routes. | Medium | 5 days | $(date) | Open |
+| BE-035 | Route Handler Complexity | Multiple route files (admin.js, statistics.js, gameSessions.js) contain complex business logic mixed with HTTP handling. Extract business logic into service layer for better testability and maintainability. | Medium | 6 days | $(date) | Open |
 
 ### Infrastructure Technical Debt
 
@@ -174,6 +190,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | INF-009 | Dependency Update Automation | Automated dependency update tools (Dependabot/Renovate) are not configured, increasing the risk of outdated or vulnerable packages. Enable automatic update workflows. | Low | 0.5 days | $(date) | Open |
 | INF-010 | Statistics API Documentation | Missing OpenAPI/Swagger documentation for the new statistics endpoints. Generate comprehensive API documentation with examples, response schemas, and error codes for better developer experience. | Medium | 1 day | $(date) | Open |
 | INF-011 | Statistics Database Indexing | While basic indexes exist, the statistics tables could benefit from additional composite indexes for complex queries. Analyze query patterns and add appropriate indexes for better performance. | Low | 1 day | $(date) | Open |
+| INF-012 | Security Vulnerabilities in Dependencies | Found 4 security vulnerabilities across frontend and backend: 1 critical form-data boundary vulnerability (both), 1 moderate esbuild dev server vulnerability (frontend), 1 moderate vite dependency vulnerability (frontend). Requires immediate `npm audit fix` and automated dependency scanning setup. | High | 1 day | $(date) | Open |
 
 ## 🎯 Refactoring Priorities
 
@@ -183,36 +200,56 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 3. **FE-009**: Constants Management ✅
 
 ### Sprint 2 (Critical Security & Performance)
-1. **BE-021**: SQL Injection Vulnerabilities in Leaderboards 🚨 URGENT
-2. **FE-038**: Timer Memory Leaks in Components
-3. **BE-022**: Query Builder God Methods
-4. **BE-023**: Statistics Code Duplication
-5. **BE-027**: Leaderboard Code Duplication
-6. **BE-029**: Complex SQL in JavaScript
+1. **INF-012**: Security Vulnerabilities in Dependencies 🚨 URGENT
+2. **BE-021**: SQL Injection Vulnerabilities in Leaderboards 🚨 URGENT
+3. **FE-038**: Timer Memory Leaks in Components
+4. **FE-045**: God Hook Anti-Pattern in useGameState 🚨 ARCHITECTURAL
+5. **BE-022**: Query Builder God Methods
+6. **BE-023**: Statistics Code Duplication
+7. **BE-027**: Leaderboard Code Duplication
+8. **BE-029**: Complex SQL in JavaScript
+9. **BE-033**: Large Admin Routes File
 
-### Sprint 3 (Code Quality & Organization)
+### Sprint 3 (Architectural Refactoring)
+1. **FE-046**: Complex CardManager Component
+2. **FE-047**: Tight Component Coupling
+3. **FE-049**: Missing Service Layer Architecture
+4. **BE-034**: Backend Service Layer Inconsistency
+5. **BE-035**: Route Handler Complexity
+
+### Sprint 4 (Code Quality & Testing)
 1. **FE-039**: Large Console Logging in Production
-2. **BE-024**: Parameter Validation Duplication
-3. **FE-036**: Skipped Test Cases in useSettings
-4. **BE-025**: Complex Route Handlers
-5. **BE-030**: Inconsistent Error Handling in Routes
-6. **FE-037**: Skipped Cache Tests
+2. **FE-048**: Over-complex Test Architecture
+3. **FE-050**: Context Over-engineering
+4. **FE-051**: Component Responsibility Violations
+5. **BE-024**: Parameter Validation Duplication
+6. **BE-025**: Complex Route Handlers
+7. **BE-030**: Inconsistent Error Handling in Routes
 
-### Sprint 4 (Existing High Impact Items)
-1. **FE-004**: State Management ✅ RESOLVED
-2. **BE-001**: Database Integration
-3. **BE-002**: Error Handling
-4. **FE-011**: Failing Test Implementation
+### Sprint 5 (Legacy High Impact Items)
+1. **FE-036**: Skipped Test Cases in useSettings
+2. **FE-037**: Skipped Cache Tests
+3. **BE-001**: Database Integration
+4. **BE-002**: Error Handling
+5. **FE-011**: Failing Test Implementation
 
-### Sprint 5 (Low Impact, Low Effort)
+### Sprint 6 (Dependency & Bundle Optimization)
+1. **FE-041**: Unused Frontend Dependencies
+2. **BE-031**: Unused Backend Dependencies  
+3. **BE-032**: Missing Backend Dependencies
+4. **FE-042**: Missing React PropTypes Validation
+5. **FE-043**: Path Alias Resolution Issues
+
+### Sprint 7 (Low Impact, Low Effort)
 1. **BE-028**: Magic Numbers in Backend
 2. **FE-040**: TODO Comments in Production Code
-3. **FE-032**: Magic Numbers in API Limits
-4. **FE-033**: Inconsistent Error Response Format
-5. **BE-009**: Inconsistent API Response Format
-6. **INF-005**: Missing Environment Files
+3. **FE-044**: Large CSS Bundle Optimization
+4. **FE-032**: Magic Numbers in API Limits
+5. **FE-033**: Inconsistent Error Response Format
+6. **BE-009**: Inconsistent API Response Format
+7. **INF-005**: Missing Environment Files
 
-### Sprint 6 (Infrastructure)
+### Sprint 8 (Infrastructure)
 1. **INF-001**: Docker Setup
 2. **INF-002**: CI/CD Pipeline
 3. **INF-003**: Monitoring
@@ -228,15 +265,15 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | Month | New Debt | Resolved Debt | Net Change | Total Debt |
 |-------|----------|---------------|------------|------------|
-| $(date +%B %Y) | 34 | 9 | +25 | 42 |
+| $(date +%B %Y) | 51 | 9 | +42 | 59 |
 
 ### Debt by Category
 
 | Category | Count | Total Effort | Priority Distribution |
 |----------|-------|--------------|----------------------|
-| Frontend | 20 | 12.5 days | 🔴2 🟡8 🟢10 |
-| Backend | 21 | 40.75 days | 🔴7 🟡8 🟢6 |
-| Infrastructure | 8 | 14.5 days | 🔴0 🟡4 🟢4 |
+| Frontend | 31 | 78.5 days | 🔴7 🟡14 🟢10 |
+| Backend | 26 | 60.25 days | 🔴9 🟡9 🟢8 |
+| Infrastructure | 9 | 15.5 days | 🔴1 🟡4 🟢4 |
 
 ### Recent Achievements
 - ✅ **FE-001 Animation Performance**: Completed with 30-40% performance improvement
@@ -275,6 +312,7 @@ A comprehensive technical debt analysis was conducted across the entire codebase
 - Performance concerns
 
 ### Critical Security Issues Found 🚨
+- **INF-012**: 4 security vulnerabilities in dependencies (1 critical form-data, 2 moderate esbuild/vite) - **IMMEDIATE ACTION REQUIRED**
 - **BE-021**: SQL injection vulnerabilities in leaderboard queries - **IMMEDIATE ACTION REQUIRED**
 - **FE-038**: Memory leaks from improper timer cleanup in React components
 
@@ -283,17 +321,26 @@ A comprehensive technical debt analysis was conducted across the entire codebase
 - **FE-039**: 421 console.* statements across 35 files impacting production performance
 - **BE-029**: Complex SQL embedded in JavaScript reducing maintainability
 
+### Critical Architectural Issues
+- **FE-045**: God Hook Anti-Pattern - useGameState.js (1,018 lines) violates Single Responsibility Principle
+- **FE-046**: Complex CardManager Component (465 lines) with mixed concerns
+- **FE-047**: Tight Component Coupling throughout frontend architecture
+- **BE-033**: Large Admin Routes File (1,351 lines) bypassing service layer
+- **FE-049**: Missing Service Layer Architecture with business logic scattered throughout components
+
 ### Key Findings by Numbers
-- **16 new debt items** identified across frontend and backend
-- **6 high-priority items** requiring immediate attention
-- **27-38 days** estimated total effort for complete resolution
-- **SQL injection risk** represents highest security priority
+- **33 new debt items** identified across frontend, backend, and infrastructure
+- **17 high-priority items** requiring immediate attention (including architectural issues)
+- **115-125 days** estimated total effort for complete resolution
+- **Critical architectural debt** discovered with 1,018-line God Hook and tight coupling
+- **Dependency vulnerabilities and SQL injection** represent highest security priorities
+- **Bundle optimization opportunities** identified with 19MB node_modules and unused dependencies
 
 ### Recommended Action Plan
-1. **Week 1-2**: Fix SQL injection vulnerabilities and memory leaks
-2. **Week 3-4**: Address code duplication in backend utilities  
-3. **Week 5-6**: Clean up console logging and implement proper logging system
-4. **Ongoing**: Implement automated debt detection tools
+1. **Week 1**: Fix dependency vulnerabilities (`npm audit fix`) and SQL injection vulnerabilities
+2. **Week 2-3**: Address memory leaks and code duplication in backend utilities  
+3. **Week 4-5**: Clean up console logging and implement proper logging system
+4. **Ongoing**: Implement automated dependency scanning (Dependabot/Renovate) and debt detection tools
 
 ## 🎯 Phase 3 Statistics & Analytics Debt Items
 
