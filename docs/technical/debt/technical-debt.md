@@ -9,9 +9,9 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 ## 🎯 Current Status
 
 **Last Updated**: $(date)
-**Total Debt Items**: 26
-**High Priority Items**: 4
-**Estimated Refactoring Time**: 33.5 days
+**Total Debt Items**: 42
+**High Priority Items**: 10
+**Estimated Refactoring Time**: 67 days
 
 ## 📋 Debt Categories
 
@@ -99,6 +99,11 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-033 | Inconsistent Error Response Format | Error messages and response structures vary across statistics API endpoints. Standardize error response format with consistent structure, error codes, and user-friendly messages. | Medium | 1 day | $(date) | Open |
 | FE-034 | Dead Code in gameTypes.js | The gameTypes.js file contains JSDoc type definitions that are not imported or used anywhere in the codebase. While prepared for future TypeScript migration, it currently represents dead code that should be excluded from coverage reports and documented for future use. | Low | 0.5 days | $(date) | Open |
 | FE-035 | Settings Card Count Display Issue | The settings page displays the total number of cards (user hand + timeline cards) instead of just the initial cards in the user's hand at the beginning of the game. This is confusing for users who expect the setting to represent their starting hand size, not the combined total. | Medium | 1 day | $(date) | Open |
+| FE-036 | Skipped Test Cases in useSettings | Eight test cases in useSettings.test.js are currently skipped (lines 340-572) including critical functionality like error handling, validation errors, and callback testing. These tests need to be re-implemented or removed. | Medium | 1.5 days | $(date) | Open |
+| FE-037 | Skipped Cache Tests | Two cache tests in cache.test.js are skipped (lines 124, 138) for cache eviction and access time functionality. These core caching features lack test coverage. | Medium | 1 day | $(date) | Open |
+| FE-038 | Timer Memory Leaks in Components | Components with setTimeout/setInterval usage may have memory leaks if cleanup is not properly handled. Audit PlayerHand.jsx, Timeline.jsx, SettingsContext.jsx, and CardCountSlider.jsx for proper timer cleanup. | High | 2 days | $(date) | Open |
+| FE-039 | Large Console Logging in Production | Found 421 console.* statements across 35 files in the codebase. Production builds should remove or replace these with proper logging system to reduce bundle size and improve performance. | Medium | 2 days | $(date) | Open |
+| FE-040 | TODO Comments in Production Code | Found TODO comment in gameTypes.js (line 12) indicating incomplete integration. Review all TODO comments and either implement the functionality or remove the comments. | Low | 0.5 days | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -136,6 +141,16 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | BE-018 | Test File Naming Consistency | Test file `admin-routes-prisma.test.js` doesn't follow consistent naming pattern with other test files. Standardize naming conventions across all test files for better organization. | Low | 0.25 days | $(date) | Open |
 | BE-019 | Test Utilities Extraction | Complex mock setups in test files (especially CardService and admin routes tests) contain repetitive code. Extract common test utilities and factories to reduce duplication and improve maintainability. | Medium | 1 day | $(date) | Open |
 | BE-020 | Date Handling Consistency | Mix of string and Date object handling in CardService could be more robust. Implement consistent date validation and conversion utilities to handle edge cases like invalid date strings. | Low | 0.5 days | $(date) | Open |
+| BE-021 | SQL Injection Vulnerabilities in Leaderboards | Dynamic SQL construction in leaderboards.js with string interpolation for ORDER BY clauses (`ORDER BY ps.${sortBy} ${order.toUpperCase()}`) is vulnerable to SQL injection attacks. Use parameter validation with allowlist for sort columns. | High | 2 days | $(date) | Open |
+| BE-022 | Query Builder God Methods | The `select()` method in queryBuilders.js is 130+ lines with excessive branching and complex parameter validation. Split into smaller focused methods like `validateOptions()`, `buildFilters()`, `applyOrderAndPagination()`. | High | 4 days | $(date) | Open |
+| BE-023 | Statistics Code Duplication | Statistical calculation patterns in statistics.js are repeated 4+ times with identical accuracy and win rate calculations. Extract common `calculateMetrics(row)` utility function to eliminate duplication. | High | 3 days | $(date) | Open |
+| BE-024 | Parameter Validation Duplication | Similar validation patterns repeated across multiple methods in queryBuilders.js for categories, difficulties, limits, offsets. Extract common validation functions. | High | 2 days | $(date) | Open |
+| BE-025 | Complex Route Handlers | Random events handler in server.js is 85 lines with complex parameter parsing and validation. Extract to service layer following separation of concerns. | Medium | 3 days | $(date) | Open |
+| BE-026 | Cache Error Recovery Missing | Cache failures in cache.js are logged but lack fallback strategies, potentially impacting performance. Implement circuit breaker pattern for graceful degradation. | Medium | 2 days | $(date) | Open |
+| BE-027 | Leaderboard Code Duplication | Four leaderboard methods in leaderboards.js share nearly identical structure with same validation, caching, and SQL execution patterns. Extract template method pattern. | High | 4 days | $(date) | Open |
+| BE-028 | Magic Numbers in Backend | Hard-coded values scattered throughout backend files (query limits of 1000, cache TTLs, default time periods of 30 days/12 weeks). Extract to configuration constants. | Medium | 1 day | $(date) | Open |
+| BE-029 | Complex SQL in JavaScript | Large embedded SQL strings in statistics.js make testing and maintenance difficult. Move to separate SQL files or improve query builder pattern. | High | 4 days | $(date) | Open |
+| BE-030 | Inconsistent Error Handling in Routes | Mixed error handling patterns across server.js endpoints with different error response formats. Standardize error handling middleware and response structure. | Medium | 1.5 days | $(date) | Open |
 
 ### Infrastructure Technical Debt
 
@@ -167,33 +182,37 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 2. **FE-008**: CSS Organization ✅
 3. **FE-009**: Constants Management ✅
 
-### Sprint 2 (Medium Impact, Medium Effort)
-1. **FE-005**: API Error Handling
-2. **FE-006**: Mobile Optimization
-3. **FE-016**: Inconsistent Error Handling
-4. **FE-030**: Statistics Routes Code Duplication
-5. **FE-031**: Large Function Complexity in Statistics
-6. **BE-003**: API Documentation
-7. **BE-004**: Logging Strategy
-8. **BE-007**: Hardcoded Sample Data
-9. **BE-008**: Missing Input Validation
-10. **BE-013**: Statistics API Service Layer
+### Sprint 2 (Critical Security & Performance)
+1. **BE-021**: SQL Injection Vulnerabilities in Leaderboards 🚨 URGENT
+2. **FE-038**: Timer Memory Leaks in Components
+3. **BE-022**: Query Builder God Methods
+4. **BE-023**: Statistics Code Duplication
+5. **BE-027**: Leaderboard Code Duplication
+6. **BE-029**: Complex SQL in JavaScript
 
-### Sprint 3 (High Impact, High Effort)
-1. **FE-004**: State Management
+### Sprint 3 (Code Quality & Organization)
+1. **FE-039**: Large Console Logging in Production
+2. **BE-024**: Parameter Validation Duplication
+3. **FE-036**: Skipped Test Cases in useSettings
+4. **BE-025**: Complex Route Handlers
+5. **BE-030**: Inconsistent Error Handling in Routes
+6. **FE-037**: Skipped Cache Tests
+
+### Sprint 4 (Existing High Impact Items)
+1. **FE-004**: State Management ✅ RESOLVED
 2. **BE-001**: Database Integration
 3. **BE-002**: Error Handling
 4. **FE-011**: Failing Test Implementation
 
-### Sprint 4 (Low Impact, Low Effort)
-1. **FE-012**: Console Logging in Production
-2. **FE-032**: Magic Numbers in API Limits
-3. **FE-033**: Inconsistent Error Response Format
-4. **BE-009**: Inconsistent API Response Format
-5. **BE-014**: Database Query Organization
+### Sprint 5 (Low Impact, Low Effort)
+1. **BE-028**: Magic Numbers in Backend
+2. **FE-040**: TODO Comments in Production Code
+3. **FE-032**: Magic Numbers in API Limits
+4. **FE-033**: Inconsistent Error Response Format
+5. **BE-009**: Inconsistent API Response Format
 6. **INF-005**: Missing Environment Files
 
-### Sprint 5 (Infrastructure)
+### Sprint 6 (Infrastructure)
 1. **INF-001**: Docker Setup
 2. **INF-002**: CI/CD Pipeline
 3. **INF-003**: Monitoring
@@ -201,6 +220,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 5. **INF-006**: No Health Check Monitoring
 6. **INF-010**: Statistics API Documentation
 7. **INF-011**: Statistics Database Indexing
+8. **BE-026**: Cache Error Recovery Missing
 
 ## 📈 Debt Metrics
 
@@ -208,14 +228,14 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 
 | Month | New Debt | Resolved Debt | Net Change | Total Debt |
 |-------|----------|---------------|------------|------------|
-| $(date +%B %Y) | 18 | 9 | +9 | 25 |
+| $(date +%B %Y) | 34 | 9 | +25 | 42 |
 
 ### Debt by Category
 
 | Category | Count | Total Effort | Priority Distribution |
 |----------|-------|--------------|----------------------|
-| Frontend | 14 | 6 days | 🔴1 🟡5 🟢8 |
-| Backend | 11 | 16.5 days | 🔴2 🟡5 🟢4 |
+| Frontend | 20 | 12.5 days | 🔴2 🟡8 🟢10 |
+| Backend | 21 | 40.75 days | 🔴7 🟡8 🟢6 |
 | Infrastructure | 8 | 14.5 days | 🔴0 🟡4 🟢4 |
 
 ### Recent Achievements
@@ -242,6 +262,38 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 - ✅ **Path Alias Implementation**: Clean import structure with comprehensive IDE support
 - ✅ **Database Query Organization**: Implemented comprehensive query builder pattern with QueryBuilder, CardQueryBuilder, and StatisticsQueryBuilder classes. Separated query construction from business logic, eliminated code duplication, and achieved 100% test coverage. Created refactored database functions and comprehensive test suite.
 - ✅ **Database Functions Integration**: Successfully integrated query builders into the main codebase. Replaced original database.js with refactored version, verified all 310 tests pass, and ensured backward compatibility. All database functions now use the new query builder pattern.
+
+## 🆕 Recent Technical Debt Analysis (July 2025)
+
+### Analysis Summary
+A comprehensive technical debt analysis was conducted across the entire codebase, focusing on:
+- Large file complexity analysis
+- Code duplication patterns  
+- Security vulnerabilities
+- Test coverage gaps
+- Console logging issues
+- Performance concerns
+
+### Critical Security Issues Found 🚨
+- **BE-021**: SQL injection vulnerabilities in leaderboard queries - **IMMEDIATE ACTION REQUIRED**
+- **FE-038**: Memory leaks from improper timer cleanup in React components
+
+### Major Code Quality Issues
+- **BE-022, BE-023, BE-027**: Massive code duplication in backend utilities (990-line files)
+- **FE-039**: 421 console.* statements across 35 files impacting production performance
+- **BE-029**: Complex SQL embedded in JavaScript reducing maintainability
+
+### Key Findings by Numbers
+- **16 new debt items** identified across frontend and backend
+- **6 high-priority items** requiring immediate attention
+- **27-38 days** estimated total effort for complete resolution
+- **SQL injection risk** represents highest security priority
+
+### Recommended Action Plan
+1. **Week 1-2**: Fix SQL injection vulnerabilities and memory leaks
+2. **Week 3-4**: Address code duplication in backend utilities  
+3. **Week 5-6**: Clean up console logging and implement proper logging system
+4. **Ongoing**: Implement automated debt detection tools
 
 ## 🎯 Phase 3 Statistics & Analytics Debt Items
 

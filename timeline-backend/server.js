@@ -140,7 +140,11 @@ const sampleEvents = [
   }
 ];
 
-// Enhanced health check route with database status
+/**
+ * Health check endpoint that verifies API and database connectivity
+ * @route GET /api/health
+ * @returns {Object} Health status including API state, database connection, and version info
+ */
 app.get('/api/health', asyncHandler(async (req, res) => {
   const dbStatus = await testConnection();
   
@@ -154,7 +158,11 @@ app.get('/api/health', asyncHandler(async (req, res) => {
   });
 }));
 
-// Get all events
+/**
+ * Retrieves all available events/cards from the database
+ * @route GET /api/events
+ * @returns {Object} Response containing all events with success flag and count
+ */
 app.get('/api/events', asyncHandler(async (req, res) => {
   logger.info('📊 Fetching all events...');
   
@@ -174,7 +182,16 @@ app.get('/api/events', asyncHandler(async (req, res) => {
   }
 }));
 
-// Get random events for a game (using simpler parameter handling)
+/**
+ * Retrieves a specified number of random events with optional filtering
+ * @route GET /api/events/random/:count
+ * @param {string} req.params.count - Number of random events to retrieve
+ * @param {string} [req.query.categories] - Comma-separated list of categories to filter by
+ * @param {string} [req.query.difficulties] - Comma-separated list of difficulty levels (1-4)
+ * @param {number} [req.query.difficulty_min] - Legacy: minimum difficulty level
+ * @param {number} [req.query.difficulty_max] - Legacy: maximum difficulty level
+ * @returns {Object} Response containing filtered random events with metadata
+ */
 app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   const countParam = req.params.count;
   const count = parseInt(countParam, 10);
@@ -261,7 +278,12 @@ app.get('/api/events/random/:count', asyncHandler(async (req, res) => {
   }
 }));
 
-// Alternative route without parameters (fallback)
+/**
+ * Fallback route for getting random events using query parameters
+ * @route GET /api/events/random
+ * @param {number} [req.query.count=5] - Number of random events to retrieve (defaults to 5)
+ * @returns {Object} Response containing random events
+ */
 app.get('/api/events/random', asyncHandler(async (req, res) => {
   const count = parseInt(req.query.count, 10) || 5;
   logger.info(`🎲 Fetching ${count} random events (query param)...`);
@@ -283,7 +305,11 @@ app.get('/api/events/random', asyncHandler(async (req, res) => {
   }
 }));
 
-// Get available categories
+/**
+ * Retrieves all available event categories
+ * @route GET /api/categories
+ * @returns {Object} Response containing list of all categories with count
+ */
 app.get('/api/categories', asyncHandler(async (req, res) => {
   logger.info('📁 Fetching categories...');
   
@@ -304,7 +330,12 @@ app.get('/api/categories', asyncHandler(async (req, res) => {
   }
 }));
 
-// Get events by category (using query parameters instead of path parameters)
+/**
+ * Retrieves all events belonging to a specific category
+ * @route GET /api/events/category
+ * @param {string} req.query.name - Category name to filter events by
+ * @returns {Object} Response containing events in the specified category
+ */
 app.get('/api/events/category', asyncHandler(async (req, res) => {
   const category = req.query.name;
   if (!category || category.trim() === '') {

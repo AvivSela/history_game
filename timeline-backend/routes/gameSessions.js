@@ -6,6 +6,9 @@
 const express = require('express');
 const { asyncHandler } = require('../middleware/errorHandler');
 const GameSession = require('../models/GameSession');
+const GameSessionService = require('../services/GameSessionService');
+const GameMoveService = require('../services/GameMoveService');
+const { shouldUsePrisma } = require('../utils/featureFlags');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -65,13 +68,24 @@ router.post('/', asyncHandler(async (req, res) => {
       categories: categories || []
     };
     
-    const session = await GameSession.createSession(sessionData);
+    let session;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.createSession(sessionData);
+      source = 'prisma';
+    } else {
+      session = await GameSession.createSession(sessionData);
+      source = 'query_builder';
+    }
     
     logger.info(`🎮 New game session created: ${session.id} for player: ${player_name}`);
     
     res.status(201).json({
       success: true,
       message: 'Game session created successfully',
+      source,
       data: {
         session_id: session.id,
         player_name: session.player_name,
@@ -108,12 +122,23 @@ router.get('/leaderboard', asyncHandler(async (req, res) => {
   }
   
   try {
-    const leaderboard = await GameSession.getLeaderboard(limit, category);
+    let leaderboard;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      leaderboard = await gameSessionService.getLeaderboard(limit, category);
+      source = 'prisma';
+    } else {
+      leaderboard = await GameSession.getLeaderboard(limit, category);
+      source = 'query_builder';
+    }
     
     res.json({
       success: true,
       count: leaderboard.length,
       category: category || 'all',
+      source,
       data: leaderboard
     });
   } catch (error) {
@@ -142,12 +167,23 @@ router.get('/player/:playerName', asyncHandler(async (req, res) => {
   }
   
   try {
-    const sessions = await GameSession.getPlayerSessions(playerName, limit);
+    let sessions;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      sessions = await gameSessionService.getPlayerSessions(playerName, limit);
+      source = 'prisma';
+    } else {
+      sessions = await GameSession.getPlayerSessions(playerName, limit);
+      source = 'query_builder';
+    }
     
     res.json({
       success: true,
       count: sessions.length,
       player_name: playerName,
+      source,
       data: sessions
     });
   } catch (error) {
@@ -167,7 +203,17 @@ router.get('/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
   
   try {
-    const session = await GameSession.getSessionById(id);
+    let session;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.findById(id);
+      source = 'prisma';
+    } else {
+      session = await GameSession.getSessionById(id);
+      source = 'query_builder';
+    }
     
     if (!session) {
       return res.status(404).json({
@@ -178,6 +224,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
     
     res.json({
       success: true,
+      source,
       data: session
     });
   } catch (error) {
@@ -252,7 +299,14 @@ router.post('/:id/moves', asyncHandler(async (req, res) => {
   
   try {
     // Check if session exists and is active
-    const session = await GameSession.getSessionById(id);
+    let session;
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.findById(id);
+    } else {
+      session = await GameSession.getSessionById(id);
+    }
+    
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -268,7 +322,13 @@ router.post('/:id/moves', asyncHandler(async (req, res) => {
     }
     
     // Get current move number
-    const moves = await GameSession.getSessionMoves(id);
+    let moves;
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      moves = await gameSessionService.getSessionMoves(id);
+    } else {
+      moves = await GameSession.getSessionMoves(id);
+    }
     const move_number = moves.length + 1;
     
     const moveData = {
@@ -281,13 +341,24 @@ router.post('/:id/moves', asyncHandler(async (req, res) => {
       time_taken_seconds: time_taken_seconds !== undefined ? parseInt(time_taken_seconds) : null
     };
     
-    const move = await GameSession.recordMove(moveData);
+    let move;
+    let source;
+    
+    if (shouldUsePrisma('moves')) {
+      const gameMoveService = new GameMoveService();
+      move = await gameMoveService.recordMove(moveData);
+      source = 'prisma';
+    } else {
+      move = await GameSession.recordMove(moveData);
+      source = 'query_builder';
+    }
     
     logger.info(`🎯 Move ${move_number} recorded for session ${id}`);
     
     res.status(201).json({
       success: true,
       message: 'Move recorded successfully',
+      source,
       data: {
         session_id: move.session_id,
         card_id: move.card_id,
@@ -316,7 +387,14 @@ router.get('/:id/moves', asyncHandler(async (req, res) => {
   
   try {
     // Check if session exists
-    const session = await GameSession.getSessionById(id);
+    let session;
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.findById(id);
+    } else {
+      session = await GameSession.getSessionById(id);
+    }
+    
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -324,11 +402,22 @@ router.get('/:id/moves', asyncHandler(async (req, res) => {
       });
     }
     
-    const moves = await GameSession.getSessionMoves(id);
+    let moves;
+    let source;
+    
+    if (shouldUsePrisma('moves')) {
+      const gameMoveService = new GameMoveService();
+      moves = await gameMoveService.getSessionMoves(id);
+      source = 'prisma';
+    } else {
+      moves = await GameSession.getSessionMoves(id);
+      source = 'query_builder';
+    }
     
     res.json({
       success: true,
       count: moves.length,
+      source,
       data: moves
     });
   } catch (error) {
@@ -358,7 +447,14 @@ router.put('/:id/complete', asyncHandler(async (req, res) => {
   
   try {
     // Check if session exists and is active
-    const session = await GameSession.getSessionById(id);
+    let session;
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.findById(id);
+    } else {
+      session = await GameSession.getSessionById(id);
+    }
+    
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -378,13 +474,24 @@ router.put('/:id/complete', asyncHandler(async (req, res) => {
       end_time: new Date()
     };
     
-    const updatedSession = await GameSession.updateSessionStatus(id, 'completed', additionalData);
+    let updatedSession;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      updatedSession = await gameSessionService.updateSessionStatus(id, 'completed', additionalData);
+      source = 'prisma';
+    } else {
+      updatedSession = await GameSession.updateSessionStatus(id, 'completed', additionalData);
+      source = 'query_builder';
+    }
     
     logger.info(`🏁 Game session ${id} completed with score: ${updatedSession.score}`);
     
     res.json({
       success: true,
       message: 'Game session completed successfully',
+      source,
       data: {
         session_id: updatedSession.id,
         status: updatedSession.status,
@@ -414,7 +521,14 @@ router.put('/:id/abandon', asyncHandler(async (req, res) => {
   
   try {
     // Check if session exists and is active
-    const session = await GameSession.getSessionById(id);
+    let session;
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.findById(id);
+    } else {
+      session = await GameSession.getSessionById(id);
+    }
+    
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -433,13 +547,24 @@ router.put('/:id/abandon', asyncHandler(async (req, res) => {
       end_time: new Date()
     };
     
-    const updatedSession = await GameSession.updateSessionStatus(id, 'abandoned', additionalData);
+    let updatedSession;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      updatedSession = await gameSessionService.updateSessionStatus(id, 'abandoned', additionalData);
+      source = 'prisma';
+    } else {
+      updatedSession = await GameSession.updateSessionStatus(id, 'abandoned', additionalData);
+      source = 'query_builder';
+    }
     
     logger.info(`🚫 Game session ${id} abandoned`);
     
     res.json({
       success: true,
       message: 'Game session abandoned successfully',
+      source,
       data: {
         session_id: updatedSession.id,
         status: updatedSession.status,
@@ -468,7 +593,14 @@ router.get('/:id/stats', asyncHandler(async (req, res) => {
   
   try {
     // Check if session exists
-    const session = await GameSession.getSessionById(id);
+    let session;
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      session = await gameSessionService.findById(id);
+    } else {
+      session = await GameSession.getSessionById(id);
+    }
+    
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -476,10 +608,21 @@ router.get('/:id/stats', asyncHandler(async (req, res) => {
       });
     }
     
-    const stats = await GameSession.getSessionStats(id);
+    let stats;
+    let source;
+    
+    if (shouldUsePrisma('sessions')) {
+      const gameSessionService = new GameSessionService();
+      stats = await gameSessionService.getSessionStats(id);
+      source = 'prisma';
+    } else {
+      stats = await GameSession.getSessionStats(id);
+      source = 'query_builder';
+    }
     
     res.json({
       success: true,
+      source,
       data: stats
     });
   } catch (error) {
