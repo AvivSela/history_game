@@ -98,6 +98,7 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | FE-032 | Magic Numbers in API Limits | Hard-coded values scattered throughout statistics routes (max 10 players, max 1000 leaderboard limit, etc.). Extract to constants file with proper documentation and validation. | Low | 0.5 days | $(date) | Open |
 | FE-033 | Inconsistent Error Response Format | Error messages and response structures vary across statistics API endpoints. Standardize error response format with consistent structure, error codes, and user-friendly messages. | Medium | 1 day | $(date) | Open |
 | FE-034 | Dead Code in gameTypes.js | The gameTypes.js file contains JSDoc type definitions that are not imported or used anywhere in the codebase. While prepared for future TypeScript migration, it currently represents dead code that should be excluded from coverage reports and documented for future use. | Low | 0.5 days | $(date) | Open |
+| FE-035 | Settings Card Count Display Issue | The settings page displays the total number of cards (user hand + timeline cards) instead of just the initial cards in the user's hand at the beginning of the game. This is confusing for users who expect the setting to represent their starting hand size, not the combined total. | Medium | 1 day | $(date) | Open |
 
 ### Backend Technical Debt
 
@@ -131,6 +132,10 @@ This document tracks technical debt in the Timeline Game project, helping us pri
 | BE-014 | Database Query Organization | ✅ **RESOLVED** - Implemented comprehensive query builder pattern with QueryBuilder, CardQueryBuilder, and StatisticsQueryBuilder classes. Separated query construction from business logic, eliminated code duplication, and achieved 100% test coverage. Created refactored database functions and comprehensive test suite. | Low | 1 day | $(date) | **Resolved** |
 | BE-015 | API Response Performance | Large response objects in statistics endpoints could benefit from pagination, compression, and caching. Implement response optimization for better performance and user experience. | Medium | 1.5 days | $(date) | Open |
 | BE-016 | Database Functions Integration | ✅ **RESOLVED** - Successfully integrated query builders into the main codebase. Replaced original database.js with refactored version, verified all 310 tests pass, and ensured backward compatibility. All database functions now use the new query builder pattern. | Medium | 1 day | $(date) | **Resolved** |
+| BE-017 | CardService JSDoc Documentation | CardService methods lack comprehensive JSDoc comments making the API harder to understand and maintain. Add detailed JSDoc documentation for all public methods with parameter descriptions, return types, and example usage. | Low | 0.5 days | $(date) | Open |
+| BE-018 | Test File Naming Consistency | Test file `admin-routes-prisma.test.js` doesn't follow consistent naming pattern with other test files. Standardize naming conventions across all test files for better organization. | Low | 0.25 days | $(date) | Open |
+| BE-019 | Test Utilities Extraction | Complex mock setups in test files (especially CardService and admin routes tests) contain repetitive code. Extract common test utilities and factories to reduce duplication and improve maintainability. | Medium | 1 day | $(date) | Open |
+| BE-020 | Date Handling Consistency | Mix of string and Date object handling in CardService could be more robust. Implement consistent date validation and conversion utilities to handle edge cases like invalid date strings. | Low | 0.5 days | $(date) | Open |
 
 ### Infrastructure Technical Debt
 
