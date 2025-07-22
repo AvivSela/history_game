@@ -1,3 +1,14 @@
+/**
+ * Timeline Positioning Logic for Timeline Game
+ * 
+ * This module provides core functionality for validating card placements on the timeline,
+ * calculating correct positions, generating user feedback, and creating smart insertion
+ * points to guide players. It handles the mathematical logic for chronological validation
+ * and provides rich feedback for both correct and incorrect placements.
+ * 
+ * @module timelineLogic
+ */
+
 // Timeline Positioning Logic for Timeline Game
 
 /**
@@ -44,10 +55,25 @@ export const validatePlacementWithTolerance = (
 };
 
 /**
- * Find the correct position for a card in the timeline
- * @param {Object} card - Card to place
- * @param {Array} timeline - Current sorted timeline
- * @returns {number} - Correct 0-based index position
+ * Find the chronologically correct position for a card in the timeline
+ * Compares the card's date with existing timeline events to determine where
+ * it should be placed to maintain chronological order from earliest to latest
+ *
+ * @param {Object} card - Card to find position for
+ * @param {string} card.dateOccurred - ISO date string of the card's historical event
+ * @param {Array} timeline - Current timeline with existing events in chronological order
+ * @param {string} timeline[].dateOccurred - ISO date strings of timeline events
+ * @returns {number} Zero-based index where card should be inserted
+ *
+ * @example
+ * ```js
+ * const card = {dateOccurred: '1945-08-15'}; // End of WWII
+ * const timeline = [
+ *   {dateOccurred: '1939-09-01'}, // WWII starts
+ *   {dateOccurred: '1969-07-20'}  // Moon landing
+ * ];
+ * const position = findCorrectPosition(card, timeline); // Returns 1
+ * ```
  */
 export const findCorrectPosition = (card, timeline) => {
   const cardDate = new Date(card.dateOccurred);
@@ -64,7 +90,20 @@ export const findCorrectPosition = (card, timeline) => {
 };
 
 /**
- * Generate feedback for exact matches
+ * Generate encouraging feedback message for perfect card placement
+ * Provides randomized positive reinforcement when player places a card
+ * in the exactly correct position on the timeline
+ *
+ * @param {Object} card - The card that was placed correctly
+ * @param {string} card.title - Title of the historical event
+ * @returns {string} Randomized positive feedback message with emoji
+ *
+ * @example
+ * ```js
+ * const card = {title: 'Moon Landing'};
+ * const feedback = generateExactMatchFeedback(card);
+ * // Returns: "🎯 Perfect placement! Moon Landing is exactly where it belongs!"
+ * ```
  */
 export const generateExactMatchFeedback = card => {
   const encouragements = [
@@ -78,7 +117,23 @@ export const generateExactMatchFeedback = card => {
 };
 
 /**
- * Generate feedback for missed placements
+ * Generate instructional feedback for incorrect card placement
+ * Provides specific year information and directional hints to help the player
+ * learn and make better placement decisions on subsequent attempts
+ *
+ * @param {Object} card - The card that was placed incorrectly
+ * @param {string} card.title - Title of the historical event
+ * @param {string} card.dateOccurred - ISO date string of when event occurred
+ * @param {number} userPosition - Index where user attempted to place the card
+ * @param {number} correctPosition - Index where card should have been placed
+ * @returns {string} Educational feedback with year info and directional guidance
+ *
+ * @example
+ * ```js
+ * const card = {title: 'Moon Landing', dateOccurred: '1969-07-20'};
+ * const feedback = generateMissedFeedback(card, 0, 2);
+ * // Returns: "❌ Incorrect placement! Moon Landing occurred in 1969 (1960s). Try looking later in the timeline."
+ * ```
  */
 export const generateMissedFeedback = (card, userPosition, correctPosition) => {
   const cardYear = new Date(card.dateOccurred).getFullYear();
@@ -100,7 +155,22 @@ export const generateMissedFeedback = (card, userPosition, correctPosition) => {
 };
 
 /**
- * Generate feedback for close matches (directional)
+ * Generate encouraging feedback for near-miss card placement attempts
+ * Provides positive reinforcement while giving directional hints to guide
+ * the player toward the correct position when they're close but not exact
+ *
+ * @param {Object} card - The card that was placed close to correct position
+ * @param {string} card.title - Title of the historical event
+ * @param {string} card.dateOccurred - ISO date string of when event occurred
+ * @param {number} positionDiff - Difference between user and correct position
+ * @returns {string} Encouraging feedback with directional guidance
+ *
+ * @example
+ * ```js
+ * const card = {title: 'Moon Landing', dateOccurred: '1969-07-20'};
+ * const feedback = generateCloseMatchFeedback(card, 1);
+ * // Returns: "Very close! Moon Landing (1969) should be placed earlier in the timeline."
+ * ```
  */
 export const generateCloseMatchFeedback = (card, positionDiff) => {
   const cardYear = new Date(card.dateOccurred).getFullYear();
@@ -116,7 +186,26 @@ export const generateCloseMatchFeedback = (card, positionDiff) => {
 };
 
 /**
- * Calculate insertion point relevance for a card
+ * Calculate how relevant an insertion point is for a specific card
+ * Analyzes the chronological relationship between the card's date and the
+ * insertion point's surrounding events to determine placement appropriateness
+ *
+ * @param {Object} insertionPoint - The insertion point to evaluate
+ * @param {Object} [insertionPoint.referenceCard] - Card before the insertion point
+ * @param {Object} [insertionPoint.nextCard] - Card after the insertion point
+ * @param {Date} cardDate - Date object of the card being placed
+ * @returns {number} Relevance score from 0.0 (poor fit) to 1.0 (perfect fit)
+ *
+ * @example
+ * ```js
+ * const insertionPoint = {
+ *   referenceCard: {dateOccurred: '1960-01-01'},
+ *   nextCard: {dateOccurred: '1970-01-01'}
+ * };
+ * const cardDate = new Date('1965-01-01');
+ * const relevance = calculateInsertionPointRelevance(insertionPoint, cardDate);
+ * // Returns: 1.0 (perfect fit - right in the middle)
+ * ```
  */
 export const calculateInsertionPointRelevance = (insertionPoint, cardDate) => {
   if (!insertionPoint.referenceCard && !insertionPoint.nextCard) return 0.5;
@@ -143,10 +232,35 @@ export const calculateInsertionPointRelevance = (insertionPoint, cardDate) => {
 };
 
 /**
- * Generate insertion points with smart positioning
- * @param {Array} timeline - Current timeline
- * @param {Object} selectedCard - Currently selected card
- * @returns {Array} - Array of insertion point data
+ * Generate smart insertion points on the timeline to guide card placement
+ * Creates visual guides showing where cards can be placed, with difficulty
+ * indicators and relevance scoring to help players understand placement options
+ *
+ * @param {Array} timeline - Current timeline with existing events
+ * @param {Object} timeline[].dateOccurred - ISO date string of timeline events
+ * @param {Object} [selectedCard=null] - Currently selected card for relevance scoring
+ * @returns {Array<Object>} Array of insertion point objects with positioning data
+ * @returns {number} returns[].index - Zero-based position index for insertion
+ * @returns {string} returns[].position - Position type ('before', 'between', 'after')
+ * @returns {Object} [returns[].referenceCard] - Card before this insertion point
+ * @returns {Object} [returns[].nextCard] - Card after this insertion point  
+ * @returns {string} returns[].difficulty - Difficulty level ('easy', 'medium', 'hard')
+ * @returns {number} [returns[].gap] - Year gap between surrounding cards
+ * @returns {number} [returns[].relevance] - Relevance score for selected card
+ *
+ * @example
+ * ```js
+ * const timeline = [
+ *   {dateOccurred: '1939-09-01'},
+ *   {dateOccurred: '1969-07-20'}
+ * ];
+ * const points = generateSmartInsertionPoints(timeline);
+ * // Returns: [
+ * //   {index: 0, position: 'before', difficulty: 'easy'},
+ * //   {index: 1, position: 'between', difficulty: 'easy', gap: 30},
+ * //   {index: 2, position: 'after', difficulty: 'easy'}
+ * // ]
+ * ```
  */
 export const generateSmartInsertionPoints = (timeline, selectedCard = null) => {
   const sortedTimeline = [...timeline].sort(

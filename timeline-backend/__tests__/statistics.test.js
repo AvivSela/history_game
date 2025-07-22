@@ -18,9 +18,6 @@ beforeAll(async () => {
   const serverModule = require('../server');
   app = serverModule.app;
   server = serverModule.server;
-
-  // Ensure we're in test environment
-  process.env.NODE_ENV = 'test';
   
   // Initialize database if needed
   try {

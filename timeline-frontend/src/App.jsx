@@ -15,7 +15,11 @@ const Game = lazy(() => import('./pages/Game'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Admin = lazy(() => import('./pages/Admin'));
 
-// Loading component for lazy-loaded routes
+/**
+ * Loading component for lazy-loaded routes
+ * Displays a centered loading spinner with text while page components are being loaded
+ * @returns {JSX.Element} Loading component with spinner animation
+ */
 const PageLoader = () => (
   <div className="min-h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-100 p-5 px-6 w-full max-w-none">
     <div className="flex justify-center items-center min-h-[60vh]">
@@ -28,10 +32,19 @@ const PageLoader = () => (
   </div>
 );
 
-// Navigation component
+/**
+ * Navigation component that renders the main app header with logo and navigation links
+ * Uses React Router's useLocation to determine active page for styling
+ * @returns {JSX.Element} Header navigation component with responsive layout
+ */
 const Navigation = () => {
   const location = useLocation();
 
+  /**
+   * Determines if a navigation path is currently active
+   * @param {string} path - The path to check against current location
+   * @returns {string} CSS class name for active or inactive nav link
+   */
   const isActive = path => {
     return location.pathname === path ? 'nav-link active' : 'nav-link';
   };
@@ -65,7 +78,11 @@ const Navigation = () => {
   );
 };
 
-// Footer component
+/**
+ * Footer component that renders at the bottom of every page
+ * Contains copyright information and technology credits
+ * @returns {JSX.Element} Footer component with responsive layout
+ */
 const Footer = () => {
   return (
     <footer className="bg-primary text-white py-5 text-center mt-auto">
@@ -81,6 +98,12 @@ const Footer = () => {
   );
 };
 
+/**
+ * Main App component that sets up routing and overall page structure
+ * Uses React Router for client-side navigation and lazy loading for performance
+ * Implements a flex layout with header, main content area, and footer
+ * @returns {JSX.Element} Complete application with routing and layout structure
+ */
 function App() {
   return (
     <Router>

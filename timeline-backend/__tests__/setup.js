@@ -6,6 +6,11 @@
 // Set test environment variables
 process.env.NODE_ENV = 'test';
 process.env.PORT = 5001; // Use different port for testing
+process.env.DATABASE_URL = 'postgresql://postgres:password@localhost:5433/timeline_game_test';
+process.env.USE_PRISMA_STATISTICS = 'basic';
+process.env.USE_PRISMA_CARDS = 'true';
+process.env.USE_PRISMA_SESSIONS = 'true';
+process.env.USE_PRISMA_MOVES = 'true';
 
 // Global test timeout
 jest.setTimeout(process.env.JEST_TIMEOUT ? parseInt(process.env.JEST_TIMEOUT) : 10000);
@@ -103,6 +108,22 @@ global.checkDatabaseConnection = async () => {
     return true;
   } catch (error) {
     console.error('Database connection error:', error.message);
+    throw error;
+  }
+};
+
+// Prisma client connection check
+global.checkPrismaConnection = async () => {
+  try {
+    const { getPrismaClient } = require('../utils/prismaClient');
+    const prisma = getPrismaClient();
+    
+    // Test a simple query
+    await prisma.$queryRaw`SELECT 1 as test`;
+    console.log('✅ Prisma client connection test passed');
+    return true;
+  } catch (error) {
+    console.error('❌ Prisma client connection test failed:', error.message);
     throw error;
   }
 };

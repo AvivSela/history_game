@@ -17,7 +17,7 @@ console.error = originalError;
 
 describe('Game Sessions API', () => {
   let testSessionId;
-  const testCardId = 1; // Use a known card ID from the database
+  const testCardId = 2; // Use a known card ID from the database (First Moon Landing)
 
   beforeAll(async () => {
     // Ensure we're in test environment
@@ -39,6 +39,11 @@ describe('Game Sessions API', () => {
       console.error('❌ Database setup error:', error.message);
       throw error;
     }
+  });
+
+  beforeEach(async () => {
+    // Only create a test session for tests that need it
+    // Move-related tests will create their own session
   });
 
   afterAll(async () => {
@@ -169,7 +174,32 @@ describe('Game Sessions API', () => {
   });
 
   describe('POST /api/game-sessions/:id/moves', () => {
+    let moveSessionId;
+
+    beforeEach(async () => {
+      // Create a test session for move tests
+      const sessionData = {
+        player_name: 'TestPlayer',
+        difficulty_level: 2,
+        card_count: 5,
+        categories: ['History', 'Technology']
+      };
+
+      const response = await request(app)
+        .post('/api/game-sessions')
+        .send(sessionData);
+
+      if (response.status === 201) {
+        moveSessionId = response.body.data.session_id;
+        console.log('✅ Created move test session:', moveSessionId);
+      } else {
+        console.log('❌ Failed to create move test session:', response.status, response.body);
+      }
+    });
+
     it('should record a move in an active session', async () => {
+      console.log('🎯 Recording move for session:', moveSessionId, 'with card:', testCardId);
+      
       const moveData = {
         card_id: testCardId,
         position_before: 0,
@@ -178,21 +208,45 @@ describe('Game Sessions API', () => {
         time_taken_seconds: 5
       };
 
+      console.log('📝 Move data:', moveData);
+
       const response = await request(app)
-        .post(`/api/game-sessions/${testSessionId}/moves`)
+        .post(`/api/game-sessions/${moveSessionId}/moves`)
         .send(moveData);
 
+      console.log('📊 Response status:', response.status);
+      console.log('📊 Response body:', JSON.stringify(response.body, null, 2));
+
+      if (response.status !== 201) {
+        console.log('❌ Error response:', JSON.stringify(response.body, null, 2));
+        console.log('❌ Error status:', response.status);
+        console.log('❌ Error headers:', response.headers);
+      }
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Move recorded successfully');
-      expect(response.body.data.session_id).toBe(testSessionId);
+      expect(response.body.data.session_id).toBe(moveSessionId);
       expect(response.body.data.card_id).toBe(testCardId);
       expect(response.body.data.move_number).toBe(1);
       expect(response.body.data.is_correct).toBe(true);
     });
 
     it('should record a second move with correct move number', async () => {
-      const moveData = {
+      // First, record a move to establish the session
+      const firstMoveData = {
+        card_id: testCardId,
+        position_before: 0,
+        position_after: 1,
+        is_correct: true,
+        time_taken_seconds: 5
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${moveSessionId}/moves`)
+        .send(firstMoveData);
+
+      // Now record the second move
+      const secondMoveData = {
         card_id: testCardId,
         position_before: 1,
         position_after: 2,
@@ -201,8 +255,8 @@ describe('Game Sessions API', () => {
       };
 
       const response = await request(app)
-        .post(`/api/game-sessions/${testSessionId}/moves`)
-        .send(moveData);
+        .post(`/api/game-sessions/${moveSessionId}/moves`)
+        .send(secondMoveData);
 
       expect(response.status).toBe(201);
       expect(response.body.data.move_number).toBe(2);
@@ -252,9 +306,56 @@ describe('Game Sessions API', () => {
   });
 
   describe('GET /api/game-sessions/:id/moves', () => {
-    it('should retrieve all moves for a session', async () => {
+    let movesSessionId;
+
+    beforeEach(async () => {
+      // Create a test session for moves retrieval tests
+      const sessionData = {
+        player_name: 'TestPlayer',
+        difficulty_level: 2,
+        card_count: 5,
+        categories: ['History', 'Technology']
+      };
+
       const response = await request(app)
-        .get(`/api/game-sessions/${testSessionId}/moves`);
+        .post('/api/game-sessions')
+        .send(sessionData);
+
+      if (response.status === 201) {
+        movesSessionId = response.body.data.session_id;
+        console.log('✅ Created moves retrieval test session:', movesSessionId);
+      }
+    });
+
+    it('should retrieve all moves for a session', async () => {
+      // First, record two moves
+      const firstMoveData = {
+        card_id: testCardId,
+        position_before: 0,
+        position_after: 1,
+        is_correct: true,
+        time_taken_seconds: 5
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${movesSessionId}/moves`)
+        .send(firstMoveData);
+
+      const secondMoveData = {
+        card_id: testCardId,
+        position_before: 1,
+        position_after: 2,
+        is_correct: false,
+        time_taken_seconds: 3
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${movesSessionId}/moves`)
+        .send(secondMoveData);
+
+      // Now retrieve the moves
+      const response = await request(app)
+        .get(`/api/game-sessions/${movesSessionId}/moves`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -295,19 +396,66 @@ describe('Game Sessions API', () => {
   });
 
   describe('PUT /api/game-sessions/:id/complete', () => {
+    let completeSessionId;
+
+    beforeEach(async () => {
+      // Create a test session for completion tests
+      const sessionData = {
+        player_name: 'TestPlayer',
+        difficulty_level: 2,
+        card_count: 5,
+        categories: ['History', 'Technology']
+      };
+
+      const response = await request(app)
+        .post('/api/game-sessions')
+        .send(sessionData);
+
+      if (response.status === 201) {
+        completeSessionId = response.body.data.session_id;
+        console.log('✅ Created completion test session:', completeSessionId);
+      }
+    });
+
     it('should complete a game session with score', async () => {
+      // First, record two moves
+      const firstMoveData = {
+        card_id: testCardId,
+        position_before: 0,
+        position_after: 1,
+        is_correct: true,
+        time_taken_seconds: 5
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${completeSessionId}/moves`)
+        .send(firstMoveData);
+
+      const secondMoveData = {
+        card_id: testCardId,
+        position_before: 1,
+        position_after: 2,
+        is_correct: false,
+        time_taken_seconds: 3
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${completeSessionId}/moves`)
+        .send(secondMoveData);
+
+      // Now complete the session
       const completeData = {
         score: 85
       };
 
       const response = await request(app)
-        .put(`/api/game-sessions/${testSessionId}/complete`)
+        .put(`/api/game-sessions/${completeSessionId}/complete`)
         .send(completeData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Game session completed successfully');
-      expect(response.body.data.session_id).toBe(testSessionId);
+      expect(response.body.data.session_id).toBe(completeSessionId);
       expect(response.body.data.status).toBe('completed');
       expect(response.body.data.score).toBe(85);
       expect(response.body.data.total_moves).toBe(2);
@@ -317,8 +465,18 @@ describe('Game Sessions API', () => {
     });
 
     it('should reject completing an already completed session', async () => {
+      // First complete the session
+      const completeData = {
+        score: 85
+      };
+
+      await request(app)
+        .put(`/api/game-sessions/${completeSessionId}/complete`)
+        .send(completeData);
+
+      // Now try to complete it again
       const response = await request(app)
-        .put(`/api/game-sessions/${testSessionId}/complete`)
+        .put(`/api/game-sessions/${completeSessionId}/complete`)
         .send({ score: 90 });
 
       expect(response.status).toBe(400);
@@ -355,38 +513,52 @@ describe('Game Sessions API', () => {
   });
 
   describe('PUT /api/game-sessions/:id/abandon', () => {
-    it('should abandon an active game session', async () => {
-      // Create a new session for this test
+    let abandonSessionId;
+
+    beforeEach(async () => {
+      // Create a test session for abandon tests
       const sessionData = {
-        player_name: 'TestPlayer4',
-        difficulty_level: 1,
-        card_count: 3
+        player_name: 'TestPlayer',
+        difficulty_level: 2,
+        card_count: 5,
+        categories: ['History', 'Technology']
       };
 
-      const createResponse = await request(app)
+      const response = await request(app)
         .post('/api/game-sessions')
         .send(sessionData);
 
-      expect(createResponse.status).toBe(201);
-      const newSessionId = createResponse.body.data.session_id;
+      if (response.status === 201) {
+        abandonSessionId = response.body.data.session_id;
+        console.log('✅ Created abandon test session:', abandonSessionId);
+      }
+    });
 
+    it('should abandon an active game session', async () => {
       const response = await request(app)
-        .put(`/api/game-sessions/${newSessionId}/abandon`);
+        .put(`/api/game-sessions/${abandonSessionId}/abandon`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Game session abandoned successfully');
-      expect(response.body.data.session_id).toBe(newSessionId);
+      expect(response.body.data.session_id).toBe(abandonSessionId);
       expect(response.body.data.status).toBe('abandoned');
       expect(response.body.data.duration_seconds).toBeDefined();
-
-      // Clean up
-      await query('DELETE FROM game_sessions WHERE id = $1', [newSessionId]);
     });
 
     it('should reject abandoning a completed session', async () => {
+      // First complete the session
+      const completeData = {
+        score: 85
+      };
+
+      await request(app)
+        .put(`/api/game-sessions/${abandonSessionId}/complete`)
+        .send(completeData);
+
+      // Now try to abandon it
       const response = await request(app)
-        .put(`/api/game-sessions/${testSessionId}/abandon`);
+        .put(`/api/game-sessions/${abandonSessionId}/abandon`);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -395,13 +567,69 @@ describe('Game Sessions API', () => {
   });
 
   describe('GET /api/game-sessions/:id/stats', () => {
-    it('should retrieve detailed statistics for a session', async () => {
+    let statsSessionId;
+
+    beforeEach(async () => {
+      // Create a test session for stats tests
+      const sessionData = {
+        player_name: 'TestPlayer',
+        difficulty_level: 2,
+        card_count: 5,
+        categories: ['History', 'Technology']
+      };
+
       const response = await request(app)
-        .get(`/api/game-sessions/${testSessionId}/stats`);
+        .post('/api/game-sessions')
+        .send(sessionData);
+
+      if (response.status === 201) {
+        statsSessionId = response.body.data.session_id;
+        console.log('✅ Created stats test session:', statsSessionId);
+      }
+    });
+
+    it('should retrieve detailed statistics for a session', async () => {
+      // First, record two moves
+      const firstMoveData = {
+        card_id: testCardId,
+        position_before: 0,
+        position_after: 1,
+        is_correct: true,
+        time_taken_seconds: 5
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${statsSessionId}/moves`)
+        .send(firstMoveData);
+
+      const secondMoveData = {
+        card_id: testCardId,
+        position_before: 1,
+        position_after: 2,
+        is_correct: false,
+        time_taken_seconds: 3
+      };
+
+      await request(app)
+        .post(`/api/game-sessions/${statsSessionId}/moves`)
+        .send(secondMoveData);
+
+      // Complete the session
+      const completeData = {
+        score: 85
+      };
+
+      await request(app)
+        .put(`/api/game-sessions/${statsSessionId}/complete`)
+        .send(completeData);
+
+      // Now get the stats
+      const response = await request(app)
+        .get(`/api/game-sessions/${statsSessionId}/stats`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('id', testSessionId);
+      expect(response.body.data).toHaveProperty('id', statsSessionId);
       expect(response.body.data).toHaveProperty('player_name', 'TestPlayer');
       expect(response.body.data).toHaveProperty('status', 'completed');
       expect(response.body.data).toHaveProperty('total_moves', 2);
