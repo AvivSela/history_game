@@ -9,6 +9,8 @@ const router = express.Router();
 const statistics = require('../utils/statistics');
 const leaderboards = require('../utils/leaderboards');
 const logger = require('../utils/logger');
+const StatisticsService = require('../services/StatisticsService');
+const { shouldUsePrisma } = require('../utils/featureFlags');
 
 /**
  * GET /api/statistics/player/:playerName
@@ -17,6 +19,7 @@ const logger = require('../utils/logger');
 router.get('/player/:playerName', async (req, res) => {
   try {
     const { playerName } = req.params;
+    const { type = 'full' } = req.query; // 'basic', 'advanced', 'full'
     
     if (!playerName || playerName.trim() === '') {
       return res.status(400).json({
@@ -25,18 +28,55 @@ router.get('/player/:playerName', async (req, res) => {
       });
     }
 
-    logger.info(`📊 Fetching statistics for player: ${playerName}`);
+    logger.info(`📊 Fetching statistics for player: ${playerName}, type: ${type}`);
     
-    const playerStats = await statistics.calculatePlayerStatistics(playerName);
-    const favoriteCategories = await statistics.getFavoriteCategories(playerName);
-    const favoriteDifficulty = await statistics.getFavoriteDifficulty(playerName);
-
-    // Add favorite categories and difficulty to the response
-    playerStats.favorite_categories = favoriteCategories;
-    playerStats.favorite_difficulty = favoriteDifficulty;
+    let playerStats;
+    let source;
+    
+    if (shouldUsePrisma('statistics', type)) {
+      const statisticsService = new StatisticsService();
+      
+      switch (type) {
+        case 'basic':
+          playerStats = await statisticsService.getPlayerBasicStats(playerName);
+          source = 'prisma_basic';
+          break;
+        case 'advanced':
+          playerStats = await statisticsService.getPlayerAdvancedStats(playerName);
+          source = 'prisma_advanced';
+          break;
+        default:
+          playerStats = await statisticsService.calculatePlayerStatistics(playerName);
+          source = 'prisma_full';
+          break;
+      }
+      
+      // Add favorite categories and difficulty for all types
+      const [favoriteCategories, favoriteDifficulty] = await Promise.all([
+        statisticsService.getFavoriteCategories(playerName),
+        statisticsService.getFavoriteDifficulty(playerName)
+      ]);
+      
+      playerStats.favorite_categories = favoriteCategories;
+      playerStats.favorite_difficulty = favoriteDifficulty;
+    } else {
+      // Use existing query builders for complex analytics
+      const [stats, favoriteCategories, favoriteDifficulty] = await Promise.all([
+        statistics.calculatePlayerStatistics(playerName),
+        statistics.getFavoriteCategories(playerName),
+        statistics.getFavoriteDifficulty(playerName)
+      ]);
+      
+      playerStats = stats;
+      playerStats.favorite_categories = favoriteCategories;
+      playerStats.favorite_difficulty = favoriteDifficulty;
+      source = 'query_builder';
+    }
 
     res.json({
       success: true,
+      source,
+      type,
       data: playerStats
     });
 
@@ -56,7 +96,7 @@ router.get('/player/:playerName', async (req, res) => {
 router.get('/player/:playerName/categories', async (req, res) => {
   try {
     const { playerName } = req.params;
-    const { category } = req.query;
+    const { category, type = 'basic' } = req.query;
     
     if (!playerName || playerName.trim() === '') {
       return res.status(400).json({
@@ -65,12 +105,24 @@ router.get('/player/:playerName/categories', async (req, res) => {
       });
     }
 
-    logger.info(`📊 Fetching category statistics for player: ${playerName}${category ? `, category: ${category}` : ''}`);
+    logger.info(`📊 Fetching category statistics for player: ${playerName}${category ? `, category: ${category}` : ''}, type: ${type}`);
     
-    const categoryStats = await statistics.calculateCategoryStatistics(playerName, category);
+    let categoryStats;
+    let source;
+    
+    if (shouldUsePrisma('statistics', type)) {
+      const statisticsService = new StatisticsService();
+      categoryStats = await statisticsService.getCategoryStatistics(playerName, category);
+      source = 'prisma';
+    } else {
+      categoryStats = await statistics.calculateCategoryStatistics(playerName, category);
+      source = 'query_builder';
+    }
 
     res.json({
       success: true,
+      source,
+      type,
       data: {
         player_name: playerName,
         category: category || 'all',
@@ -94,7 +146,7 @@ router.get('/player/:playerName/categories', async (req, res) => {
 router.get('/player/:playerName/difficulty', async (req, res) => {
   try {
     const { playerName } = req.params;
-    const { level } = req.query;
+    const { level, type = 'basic' } = req.query;
     
     if (!playerName || playerName.trim() === '') {
       return res.status(400).json({
@@ -113,12 +165,24 @@ router.get('/player/:playerName/difficulty', async (req, res) => {
 
     const difficultyLevel = level ? parseInt(level) : null;
     
-    logger.info(`📊 Fetching difficulty statistics for player: ${playerName}${difficultyLevel ? `, level: ${difficultyLevel}` : ''}`);
+    logger.info(`📊 Fetching difficulty statistics for player: ${playerName}${difficultyLevel ? `, level: ${difficultyLevel}` : ''}, type: ${type}`);
     
-    const difficultyStats = await statistics.calculateDifficultyStatistics(playerName, difficultyLevel);
+    let difficultyStats;
+    let source;
+    
+    if (shouldUsePrisma('statistics', type)) {
+      const statisticsService = new StatisticsService();
+      difficultyStats = await statisticsService.getDifficultyStatistics(playerName, difficultyLevel);
+      source = 'prisma';
+    } else {
+      difficultyStats = await statistics.calculateDifficultyStatistics(playerName, difficultyLevel);
+      source = 'query_builder';
+    }
 
     res.json({
       success: true,
+      source,
+      type,
       data: {
         player_name: playerName,
         difficulty_level: difficultyLevel || 'all',
@@ -142,6 +206,7 @@ router.get('/player/:playerName/difficulty', async (req, res) => {
 router.get('/player/:playerName/progress', async (req, res) => {
   try {
     const { playerName } = req.params;
+    const { type = 'basic' } = req.query;
     
     if (!playerName || playerName.trim() === '') {
       return res.status(400).json({
@@ -150,12 +215,24 @@ router.get('/player/:playerName/progress', async (req, res) => {
       });
     }
 
-    logger.info(`📊 Fetching progression data for player: ${playerName}`);
+    logger.info(`📊 Fetching progression data for player: ${playerName}, type: ${type}`);
     
-    const progression = await statistics.calculatePlayerProgression(playerName);
+    let progression;
+    let source;
+    
+    if (shouldUsePrisma('statistics', type)) {
+      const statisticsService = new StatisticsService();
+      progression = await statisticsService.getPlayerProgression(playerName);
+      source = 'prisma';
+    } else {
+      progression = await statistics.calculatePlayerProgression(playerName);
+      source = 'query_builder';
+    }
 
     res.json({
       success: true,
+      source,
+      type,
       data: {
         player_name: playerName,
         ...progression
@@ -178,7 +255,7 @@ router.get('/player/:playerName/progress', async (req, res) => {
 router.get('/player/:playerName/daily', async (req, res) => {
   try {
     const { playerName } = req.params;
-    const { days = 30 } = req.query;
+    const { days = 30, type = 'basic' } = req.query;
     
     if (!playerName || playerName.trim() === '') {
       return res.status(400).json({
@@ -196,12 +273,24 @@ router.get('/player/:playerName/daily', async (req, res) => {
       });
     }
 
-    logger.info(`📊 Fetching daily statistics for player: ${playerName}, days: ${daysNum}`);
+    logger.info(`📊 Fetching daily statistics for player: ${playerName}, days: ${daysNum}, type: ${type}`);
     
-    const dailyStats = await statistics.calculateDailyStatistics(playerName, daysNum);
+    let dailyStats;
+    let source;
+    
+    if (shouldUsePrisma('statistics', type)) {
+      const statisticsService = new StatisticsService();
+      dailyStats = await statisticsService.getDailyStatistics(playerName, daysNum);
+      source = 'prisma';
+    } else {
+      dailyStats = await statistics.calculateDailyStatistics(playerName, daysNum);
+      source = 'query_builder';
+    }
 
     res.json({
       success: true,
+      source,
+      type,
       data: {
         player_name: playerName,
         days: daysNum,
@@ -225,7 +314,7 @@ router.get('/player/:playerName/daily', async (req, res) => {
 router.get('/player/:playerName/weekly', async (req, res) => {
   try {
     const { playerName } = req.params;
-    const { weeks = 12 } = req.query;
+    const { weeks = 12, type = 'basic' } = req.query;
     
     if (!playerName || playerName.trim() === '') {
       return res.status(400).json({
@@ -243,12 +332,24 @@ router.get('/player/:playerName/weekly', async (req, res) => {
       });
     }
 
-    logger.info(`📊 Fetching weekly statistics for player: ${playerName}, weeks: ${weeksNum}`);
+    logger.info(`📊 Fetching weekly statistics for player: ${playerName}, weeks: ${weeksNum}, type: ${type}`);
     
-    const weeklyStats = await statistics.calculateWeeklyStatistics(playerName, weeksNum);
+    let weeklyStats;
+    let source;
+    
+    if (shouldUsePrisma('statistics', type)) {
+      const statisticsService = new StatisticsService();
+      weeklyStats = await statisticsService.getWeeklyStatistics(playerName, weeksNum);
+      source = 'prisma';
+    } else {
+      weeklyStats = await statistics.calculateWeeklyStatistics(playerName, weeksNum);
+      source = 'query_builder';
+    }
 
     res.json({
       success: true,
+      source,
+      type,
       data: {
         player_name: playerName,
         weeks: weeksNum,

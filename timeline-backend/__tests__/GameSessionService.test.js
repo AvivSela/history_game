@@ -13,7 +13,8 @@ const mockPrisma = {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
-    findMany: jest.fn()
+    findMany: jest.fn(),
+    groupBy: jest.fn()
   },
   game_moves: {
     create: jest.fn(),
@@ -505,62 +506,108 @@ describe('GameSessionService', () => {
 
   describe('getLeaderboard', () => {
     it('should get leaderboard without category filter', async () => {
-      const mockSessions = [
-        { id: 'session-1', score: 200, game_moves: [{ id: 'move-1' }] },
-        { id: 'session-2', score: 150, game_moves: [{ id: 'move-2' }, { id: 'move-3' }] }
+      const mockAggregationResult = [
+        {
+          player_name: 'TestPlayer1',
+          _count: { id: 3 },
+          _avg: { score: 85.5 },
+          _max: { score: 95 },
+          _sum: { correct_moves: 15, total_moves: 20 }
+        },
+        {
+          player_name: 'TestPlayer2',
+          _count: { id: 2 },
+          _avg: { score: 78.0 },
+          _max: { score: 88 },
+          _sum: { correct_moves: 8, total_moves: 12 }
+        }
       ];
 
-      mockPrisma.game_sessions.findMany.mockResolvedValue(mockSessions);
+      mockPrisma.game_sessions.groupBy.mockResolvedValue(mockAggregationResult);
 
       const result = await gameSessionService.getLeaderboard(10);
 
-      expect(mockPrisma.game_sessions.findMany).toHaveBeenCalledWith({
+      expect(mockPrisma.game_sessions.groupBy).toHaveBeenCalledWith({
+        by: ['player_name'],
         where: {
-          status: 'completed',
-          score: { gt: 0 }
+          status: 'completed'
         },
-        orderBy: [
-          { score: 'desc' },
-          { duration_seconds: 'asc' }
-        ],
-        take: 10,
-        include: {
-          game_moves: {
-            select: { id: true }
-          }
+        _count: {
+          id: true
+        },
+        _avg: {
+          score: true
+        },
+        _max: {
+          score: true
+        },
+        _sum: {
+          correct_moves: true,
+          total_moves: true
         }
       });
+
       expect(result).toHaveLength(2);
-      expect(result[0].total_moves_recorded).toBe(1);
-      expect(result[1].total_moves_recorded).toBe(2);
+      expect(result[0]).toEqual({
+        player_name: 'TestPlayer1',
+        games_played: 3,
+        avg_score: 85.5,
+        best_score: 95,
+        total_correct_moves: 15,
+        total_moves: 20,
+        accuracy_percentage: 75
+      });
+      expect(result[1]).toEqual({
+        player_name: 'TestPlayer2',
+        games_played: 2,
+        avg_score: 78,
+        best_score: 88,
+        total_correct_moves: 8,
+        total_moves: 12,
+        accuracy_percentage: 66.67
+      });
     });
 
     it('should get leaderboard with category filter', async () => {
-      const mockSessions = [
-        { id: 'session-1', score: 200, game_moves: [{ id: 'move-1' }] }
+      const mockAggregationResult = [
+        {
+          player_name: 'TestPlayer1',
+          _count: { id: 2 },
+          _avg: { score: 90.0 },
+          _max: { score: 95 },
+          _sum: { correct_moves: 10, total_moves: 12 }
+        }
       ];
 
-      mockPrisma.game_sessions.findMany.mockResolvedValue(mockSessions);
+      mockPrisma.game_sessions.groupBy.mockResolvedValue(mockAggregationResult);
 
-      await gameSessionService.getLeaderboard(10, 'History');
+      const result = await gameSessionService.getLeaderboard(10, 'History');
 
-      expect(mockPrisma.game_sessions.findMany).toHaveBeenCalledWith({
+      expect(mockPrisma.game_sessions.groupBy).toHaveBeenCalledWith({
+        by: ['player_name'],
         where: {
           status: 'completed',
-          score: { gt: 0 },
           categories: { has: 'History' }
         },
-        orderBy: [
-          { score: 'desc' },
-          { duration_seconds: 'asc' }
-        ],
-        take: 10,
-        include: {
-          game_moves: {
-            select: { id: true }
-          }
+        _count: {
+          id: true
+        },
+        _avg: {
+          score: true
+        },
+        _max: {
+          score: true
+        },
+        _sum: {
+          correct_moves: true,
+          total_moves: true
         }
       });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].player_name).toBe('TestPlayer1');
+      expect(result[0].games_played).toBe(2);
+      expect(result[0].avg_score).toBe(90);
     });
   });
 

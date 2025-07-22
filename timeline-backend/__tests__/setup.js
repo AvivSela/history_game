@@ -6,6 +6,11 @@
 // Set test environment variables
 process.env.NODE_ENV = 'test';
 process.env.PORT = 5001; // Use different port for testing
+process.env.DATABASE_URL = 'postgresql://postgres:password@localhost:5433/timeline_game_test';
+process.env.USE_PRISMA_STATISTICS = 'basic';
+process.env.USE_PRISMA_CARDS = 'true';
+process.env.USE_PRISMA_SESSIONS = 'true';
+process.env.USE_PRISMA_MOVES = 'true';
 
 // Global test timeout
 jest.setTimeout(process.env.JEST_TIMEOUT ? parseInt(process.env.JEST_TIMEOUT) : 10000);

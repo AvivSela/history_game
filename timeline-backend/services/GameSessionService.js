@@ -351,35 +351,57 @@ class GameSessionService {
    */
   async getLeaderboard(limit = 10, category = null) {
     try {
-      let whereClause = {
-        status: 'completed',
-        score: { gt: 0 }
-      };
-      
-      if (category) {
-        whereClause.categories = { has: category };
-      }
-      
-      const sessions = await this.prisma.game_sessions.findMany({
-        where: whereClause,
-        orderBy: [
-          { score: 'desc' },
-          { duration_seconds: 'asc' }
-        ],
-        take: limit,
-        include: {
-          game_moves: {
-            select: {
-              id: true
-            }
-          }
+      // Build the aggregation query
+      const aggregationResult = await this.prisma.game_sessions.groupBy({
+        by: ['player_name'],
+        where: {
+          status: 'completed',
+          ...(category && { categories: { has: category } })
+        },
+        _count: {
+          id: true
+        },
+        _avg: {
+          score: true
+        },
+        _max: {
+          score: true
+        },
+        _sum: {
+          correct_moves: true,
+          total_moves: true
         }
       });
-      
-      return sessions.map(session => ({
-        ...this.transformSession(session),
-        total_moves_recorded: session.game_moves.length
-      }));
+
+      // Transform the results to match the expected format
+      const leaderboard = aggregationResult
+        .map(result => {
+          const totalMoves = result._sum.total_moves || 0;
+          const correctMoves = result._sum.correct_moves || 0;
+          const accuracyPercentage = totalMoves > 0 
+            ? Math.round((correctMoves / totalMoves) * 100 * 100) / 100
+            : 0;
+
+          return {
+            player_name: result.player_name,
+            games_played: result._count.id,
+            avg_score: Math.round((result._avg.score || 0) * 100) / 100,
+            best_score: result._max.score || 0,
+            total_correct_moves: correctMoves,
+            total_moves: totalMoves,
+            accuracy_percentage: accuracyPercentage
+          };
+        })
+        .sort((a, b) => {
+          // Sort by average score descending, then by accuracy percentage descending
+          if (a.avg_score !== b.avg_score) {
+            return b.avg_score - a.avg_score;
+          }
+          return b.accuracy_percentage - a.accuracy_percentage;
+        })
+        .slice(0, limit);
+
+      return leaderboard;
     } catch (error) {
       logger.error('❌ Error fetching leaderboard:', error.message);
       throw error;

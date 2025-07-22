@@ -839,12 +839,27 @@ router.put('/cards/:id', async (req, res) => {
         
         const updatedCard = await cardService.updateCard(cardId, updateData);
         
+        if (!updatedCard) {
+          return res.status(404).json({
+            success: false,
+            error: 'Card not found'
+          });
+        }
+        
         res.json({
           success: true,
           message: 'Card updated successfully',
           data: updatedCard,
           source: 'prisma'
         });
+      } catch (error) {
+        if (error.message.includes('not found') || error.message.includes('does not exist')) {
+          return res.status(404).json({
+            success: false,
+            error: 'Card not found'
+          });
+        }
+        throw error;
       } finally {
         await cardService.disconnect();
       }
@@ -971,12 +986,27 @@ router.delete('/cards/:id', async (req, res) => {
       try {
         const deletedCard = await cardService.deleteCard(cardId);
         
+        if (!deletedCard) {
+          return res.status(404).json({
+            success: false,
+            error: 'Card not found'
+          });
+        }
+        
         res.json({
           success: true,
           message: 'Card deleted successfully',
           data: deletedCard,
           source: 'prisma'
         });
+      } catch (error) {
+        if (error.message.includes('not found') || error.message.includes('does not exist')) {
+          return res.status(404).json({
+            success: false,
+            error: 'Card not found'
+          });
+        }
+        throw error;
       } finally {
         await cardService.disconnect();
       }

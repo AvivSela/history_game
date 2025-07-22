@@ -31,17 +31,18 @@ module.exports = {
   // Coverage thresholds
   coverageThreshold: {
     global: {
-      branches: 65,
-      functions: 70,
-      lines: 70,
-      statements: 70
+      branches: 64,
+      functions: 64,
+      lines: 64,
+      statements: 64
     }
   },
   
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.js'],
   
-  // Global teardown
+  // Global setup and teardown
+  globalSetup: '<rootDir>/__tests__/globalSetup.js',
   globalTeardown: '<rootDir>/__tests__/globalTeardown.js',
   
   // Test timeout

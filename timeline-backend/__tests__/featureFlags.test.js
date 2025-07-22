@@ -26,16 +26,27 @@ describe('Feature Flags', () => {
 
   describe('getFeatureFlag', () => {
     it('should return feature flag values', () => {
-      expect(getFeatureFlag('usePrismaCards')).toBe(false);
-      expect(getFeatureFlag('usePrismaSessions')).toBe(false);
-      expect(getFeatureFlag('usePrismaMoves')).toBe(false);
-      expect(getFeatureFlag('usePrismaStatistics')).toBe('hybrid');
+      expect(getFeatureFlag('usePrismaCards')).toBe(true);
+      expect(getFeatureFlag('usePrismaSessions')).toBe(true);
+      expect(getFeatureFlag('usePrismaMoves')).toBe(true);
+      expect(getFeatureFlag('usePrismaStatistics')).toBe('basic');
     });
   });
 
   describe('shouldUsePrisma', () => {
     it('should return false for cards when flag is disabled', () => {
+      // Temporarily override environment variable for this test
+      const originalValue = process.env.USE_PRISMA_CARDS;
+      process.env.USE_PRISMA_CARDS = 'false';
+      
+      // Re-require the module to get fresh feature flags
+      jest.resetModules();
+      const { shouldUsePrisma } = require('../utils/featureFlags');
+      
       expect(shouldUsePrisma('cards')).toBe(false);
+      
+      // Restore original value
+      process.env.USE_PRISMA_CARDS = originalValue;
     });
 
     it('should return true for cards when flag is enabled', () => {
@@ -46,7 +57,18 @@ describe('Feature Flags', () => {
     });
 
     it('should return false for sessions when flag is disabled', () => {
+      // Temporarily override environment variable for this test
+      const originalValue = process.env.USE_PRISMA_SESSIONS;
+      process.env.USE_PRISMA_SESSIONS = 'false';
+      
+      // Re-require the module to get fresh feature flags
+      jest.resetModules();
+      const { shouldUsePrisma } = require('../utils/featureFlags');
+      
       expect(shouldUsePrisma('sessions')).toBe(false);
+      
+      // Restore original value
+      process.env.USE_PRISMA_SESSIONS = originalValue;
     });
 
     it('should return true for sessions when flag is enabled', () => {
@@ -57,7 +79,18 @@ describe('Feature Flags', () => {
     });
 
     it('should return false for moves when flag is disabled', () => {
+      // Temporarily override environment variable for this test
+      const originalValue = process.env.USE_PRISMA_MOVES;
+      process.env.USE_PRISMA_MOVES = 'false';
+      
+      // Re-require the module to get fresh feature flags
+      jest.resetModules();
+      const { shouldUsePrisma } = require('../utils/featureFlags');
+      
       expect(shouldUsePrisma('moves')).toBe(false);
+      
+      // Restore original value
+      process.env.USE_PRISMA_MOVES = originalValue;
     });
 
     it('should return true for moves when flag is enabled', () => {
