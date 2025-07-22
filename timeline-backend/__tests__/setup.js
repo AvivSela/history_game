@@ -112,6 +112,22 @@ global.checkDatabaseConnection = async () => {
   }
 };
 
+// Prisma client connection check
+global.checkPrismaConnection = async () => {
+  try {
+    const { getPrismaClient } = require('../utils/prismaClient');
+    const prisma = getPrismaClient();
+    
+    // Test a simple query
+    await prisma.$queryRaw`SELECT 1 as test`;
+    console.log('✅ Prisma client connection test passed');
+    return true;
+  } catch (error) {
+    console.error('❌ Prisma client connection test failed:', error.message);
+    throw error;
+  }
+};
+
 // Database schema validation for tests that need it
 global.validateDatabaseSchema = async () => {
   try {

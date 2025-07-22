@@ -16,31 +16,32 @@ let prismaClient = null;
  */
 function getPrismaClient() {
   if (!prismaClient) {
-    logger.debug('🔧 Initializing Prisma client...');
-    
-    prismaClient = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL
+    try {
+      logger.debug('🔧 Initializing Prisma client...');
+      
+      prismaClient = new PrismaClient({
+        datasources: {
+          db: {
+            url: process.env.DATABASE_URL
+          }
+        },
+        // Configure connection pool for better performance
+        log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      });
+
+      // Handle query events for debugging
+      prismaClient.$on('query', (e) => {
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug(`🔍 Query: ${e.query}`);
+          logger.debug(`⏱️ Duration: ${e.duration}ms`);
         }
-      },
-      // Configure connection pool for better performance
-      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    });
+      });
 
-    // Handle connection events
-    prismaClient.$on('beforeExit', async () => {
-      logger.debug('🔌 Prisma client shutting down...');
-    });
-
-    prismaClient.$on('query', (e) => {
-      if (process.env.NODE_ENV === 'development') {
-        logger.debug(`🔍 Query: ${e.query}`);
-        logger.debug(`⏱️ Duration: ${e.duration}ms`);
-      }
-    });
-
-    logger.info('✅ Prisma client initialized');
+      logger.info('✅ Prisma client initialized');
+    } catch (error) {
+      logger.error('❌ Failed to initialize Prisma client:', error.message);
+      throw error;
+    }
   }
 
   return prismaClient;

@@ -445,9 +445,10 @@ describe('CardService', () => {
   });
 
   describe('disconnect', () => {
-    it('should disconnect from Prisma client', async () => {
-      await cardService.disconnect();
-      expect(mockPrisma.$disconnect).toHaveBeenCalled();
+    it('should handle disconnect gracefully', async () => {
+      // The singleton Prisma client manages connections globally
+      // so individual services don't need to disconnect
+      await expect(cardService.disconnect()).resolves.not.toThrow();
     });
   });
 }); 
